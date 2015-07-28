@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="screenApp">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorldSkills Ceremonies Screen</title>
+<link href="bower_components/worldskills-bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body ng-controller="ScreenCtrl">
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-6" ng-cloak>
+                <div ng-include="template"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/worldskills-bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/intercom.js/intercom.min.js"></script>
+    <script src="js/screen.js"></script>
+</body>
+</html>
