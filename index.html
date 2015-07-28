@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ceremoniesApp">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorldSkills Ceremonies</title>
+<link href="bower_components/worldskills-bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body ng-controller="CeremoniesCtrl">
+
+    <div class="navbar navbar-worldskills navbar-static-top">
+        <div class="cube-container">
+            <div class="cube-right-bottom-blue">&nbsp;</div>
+        </div>
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Ceremonies</a>
+            </div>
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            John Doe <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Profile</a></li>
+                            <li><a href="#">Change Password</a></li>
+                            <li><a href="#">Logout</a></li>
+                        </ul></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">template</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" ng-model="template">
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" class="btn btn-primary" ng-click="update()">Change template</button>
+                        </div>
+                    </div>
+                    <div>
+                        <ng-include src="'partials/context_element.html'" ng-init="prefix = ''" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <hr class="hr-extended" />
+
+        <footer>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p>© 2015 WorldSkills</p>
+                </div>
+            </div>
+
+        </footer>
+
+    </div>
+
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/worldskills-bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/intercom.js/intercom.min.js"></script>
+    <script src="js/ceremonies.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<div ng-repeat="(key, value) in context">
+    <div ng-if="typeOf(value) == 'string'" class="form-group">
+        <label class="col-sm-4 control-label">{{ prefix }}{{ key }}</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" ng-model="context[key]" ng-change="update()">
+        </div>
+    </div>
+    <div ng-if="typeOf(value) == 'object'">
+        <ng-include src="'partials/context_element.html'" ng-init="context = value; prefix = prefix + key + '.'" />
+    </div>
+</div>
