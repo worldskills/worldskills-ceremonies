@@ -1,9 +1,9 @@
 (function () {
     'use strict';
 
-    var screenApp = angular.module('screenApp', []);
+    var cermoniesScreenApp = angular.module('cermoniesScreenApp', []);
 
-    screenApp.controller('ScreenCtrl', function ($scope, $sce) {
+    cermoniesScreenApp.controller('ScreenCtrl', function ($scope, $sce) {
 
         var intercom = Intercom.getInstance();
         intercom.on('update', function(data) {

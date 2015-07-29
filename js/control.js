@@ -3,7 +3,7 @@
 
     var ceremoniesApp = angular.module('ceremoniesApp', []);
 
-    ceremoniesApp.controller('CeremoniesCtrl', function ($scope) {
+    ceremoniesApp.controller('ControlCtrl', function ($scope) {
 
         var intercom = Intercom.getInstance();
 
