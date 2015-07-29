@@ -41,21 +41,79 @@
     <div class="container-fluid">
 
         <div class="row">
-            <div class="col-sm-6">
-                <form class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">template</label>
-                        <div class="col-sm-4">
-                            <input type="text" class="form-control" ng-model="template">
-                        </div>
-                        <div class="col-sm-4">
-                            <button type="button" class="btn btn-primary" ng-click="update()">Change template</button>
-                        </div>
+            <div class="col-sm-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">1. Skills</h3>
                     </div>
-                    <div>
-                        <ng-include src="'partials/context_element.html'" ng-init="prefix = ''" />
+                    <div class="panel-body">
+                        <p>
+                            <button class="btn btn-success" ng-click="fetchSkills()" ng-disabled="skillsLoading">
+                                Fetch<ws-text-spinner ng-show="skillsLoading" class="ng-hide"></ws-text-spinner>
+                            </button>
+                            <button class="btn btn-danger" ng-click="clearSkills()">
+                                Clear
+                            </button>
+                        </p>
+                        <p>
+                            {{ skills.length || 0 }} skills in local storage
+                        </p>
                     </div>
-                </form>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">2. Results</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>
+                            <button class="btn btn-success" ng-click="fetchResults()" ng-disabled="resultsLoading || !auth.loggedIn" title="{{ auth.loggedIn ? '' : 'Please login to sync results.' }}">
+                                Fetch<ws-text-spinner ng-show="resultsLoading" class="ng-hide"></ws-text-spinner>
+                            </button>
+                            <button class="btn btn-danger" ng-click="clearResults()">
+                                Clear
+                            </button>
+                        </p>
+                        <p>
+                            {{ results.length || 0 }} results in local storage
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs">
+            <li ng-class="{active: tab == 'skills'}" ng-click="switchTab('skills')"><a>Skills</a></li>
+            <li ng-class="{active: tab == 'best-of-nation'}" ng-click="switchTab('best-of-nation')"><a>Best of Nation</a></li>
+            <li ng-class="{active: tab == 'alber-vidal-award'}" ng-click="switchTab('alber-vidal-award')"><a>Albert Vidal Award</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" ng-class="{active: tab == 'skills'}">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <ul>
+                            <li ng-repeat="skill in skills">{{ skill.name.text }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">template</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" ng-model="template">
+                                </div>
+                                <div class="col-sm-4">
+                                    <button type="button" class="btn btn-primary" ng-click="update()">Change template</button>
+                                </div>
+                            </div>
+                            <div>
+                                <ng-include src="'partials/context_element.html'" ng-init="prefix = ''" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
