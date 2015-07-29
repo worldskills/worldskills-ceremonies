@@ -21,14 +21,17 @@
             </div>
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            John Doe <b class="caret"></b>
+                    <li class="dropdown" ng-if="!auth.loggedIn">
+                        <a ng-href="{{ auth.loginUrl }}">Login</a>
+                    </li>
+                    <li class="dropdown" ng-if="auth.loggedIn">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown">
+                            {{auth.user.first_name || ""}} {{auth.user.last_name || ""}} <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Profile</a></li>
-                            <li><a href="#">Change Password</a></li>
-                            <li><a href="#">Logout</a></li>
-                        </ul></li>
+                            <li><a href="" ng-click="auth.logout()">Logout</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -72,6 +75,7 @@
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/worldskills-bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular-worldskills-utils/src/angular-worldskills-utils.js"></script>
     <script src="bower_components/intercom.js/intercom.min.js"></script>
     <script src="js/control.js"></script>
 </body>
