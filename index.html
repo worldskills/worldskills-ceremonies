@@ -83,6 +83,17 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-sm-6" ng-repeat="(id, screen) in screens">
+                <h2>{{ screen.label }}</h2>
+                <div class="list-group">
+                    <a class="list-group-item" ng-class="{'list-group-item-success': slide.done}" ng-repeat="slide in screen.slides" ng-click="showSlide(id, slide)">{{ slide.label }}</a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="hr-extended">
+
         <ul class="nav nav-tabs">
             <li ng-class="{active: tab == 'skills'}" ng-click="switchTab('skills')"><a>Skills</a></li>
             <li ng-class="{active: tab == 'best-of-nation'}" ng-click="switchTab('best-of-nation')"><a>Best of Nation</a></li>

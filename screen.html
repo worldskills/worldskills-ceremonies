@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WorldSkills Ceremonies Screen</title>
 <link href="bower_components/worldskills-bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="css/screen.css" rel="stylesheet">
 </head>
 <body ng-controller="ScreenCtrl">
 
@@ -13,15 +14,14 @@
         <p ng-show="!screen">
             <br>
             <span ng-repeat="(id, screen) in screens">
-                <button class="btn btn-primary btn-lg" ng-click="setScreen(id)">{{ screen.label }}</button>
+                <button class="btn btn-default btn-lg" ng-click="setScreen(id)">{{ screen.label }}</button>
             </span>
         </p>
 
-        <div class="row" ng-show="!!screen">
-            <div class="col-sm-6" ng-cloak>
-                <div ng-include="template"></div>
-            </div>
-        </div>
+    </div>
+    
+    <div class="screen" ng-show="!!screen" ng-cloak>
+        <div ng-include="template"></div>
     </div>
 
     <script src="bower_components/jquery/dist/jquery.min.js"></script>

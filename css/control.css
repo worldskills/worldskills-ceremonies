@@ -2,7 +2,8 @@
     margin: 0 0 30px 0;
 }
 
-.nav {
+.nav,
+a.list-group-item {
     cursor: pointer;
 }
 

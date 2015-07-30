@@ -1,0 +1,41 @@
+body {
+    background-color: #FF00FF;
+}
+
+.screen-text {
+    font-size: 4vw;
+    color: #FFF;
+}
+
+.screen-title {
+    position: absolute;
+    left: 6vw;
+    top: 5vw;
+    font-size: 5vw;
+}
+
+.screen-content {
+    position: absolute;
+    left: 6vw;
+    top: 18vw;
+}
+
+.screen-medal {
+    width: 14vw;
+    float: left;
+}
+
+.screen-flag {
+    width: 9vw;
+    float: left;
+}
+
+.screen-flag img {
+    max-width: 6vw;
+    max-height: 4vw;
+}
+
+.screen-competitors {
+    width: 70vw;
+    float: left;
+}
