@@ -86,8 +86,26 @@
         <div class="row">
             <div class="col-sm-6" ng-repeat="(id, screen) in screens">
                 <h2>{{ screen.label }}</h2>
-                <div class="list-group">
-                    <a class="list-group-item" ng-class="{'list-group-item-success': slide.done}" ng-repeat="slide in screen.slides" ng-click="showSlide(id, slide)">{{ slide.label }}</a>
+                <div class="panel-group">
+                    <div class="panel panel-default" ng-class="{'panel-success': slide.done}" ng-repeat="slide in screen.slides">
+                        <div class="panel-heading">
+                            <a class="collapsed" role="button" ng-click="showSlide(id, slide)">
+                                {{ slide.label }}
+                            </a>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse" ng-class="{in: screens[id].slide == slide}">
+                            <div class="panel-body">
+                                <div class="form-group" ng-if="slide.states">
+                                    <div class="btn-group">
+                                        <button class="btn btn-primary" ng-repeat="(state, label) in slide.states" ng-click="setState(id, slide, state)">{{ label }}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" json-text rows="9" ng-model="slide.context" ng-change="updateContext(id, slide)"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

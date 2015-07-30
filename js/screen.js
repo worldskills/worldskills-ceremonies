@@ -15,6 +15,7 @@
                 $scope.$apply(function () {
                     $scope.template = data.template;
                     $scope.context = data.context;
+                    $scope.state = data.state;
                 });
             });
 

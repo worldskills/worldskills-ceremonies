@@ -1,10 +1,10 @@
-<div class="screen-title screen-text">{{ context.skill.name.text }}</div>
+<div class="screen-title screen-text">{{ context.skill.name }}</div>
 
 <div class="screen-content">
     <div class="screen-text" ng-repeat="result in context.results">
         <div class="screen-flag">
-            <img ng-src="flags/{{ result.member.code }}.png">
+            <img ng-src="flags/{{ result.memberCode }}.png">
         </div>
-        {{ result.member.name.text }}
+        {{ result.member }}
     </div>
 </div>

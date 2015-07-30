@@ -15,12 +15,6 @@
 
         $scope.template = 'screens/skill_callup.html';
 
-        $scope.context = {};
-        $scope.context.skill = 'Web Design'; 
-        $scope.context.results = [];
-        $scope.context.results.push({first_name: "Fredrik", last_name: "Glanrup"});
-        $scope.context.results.push({first_name: "Max", last_name: "Muster"});
-
         $scope.typeOf = function (value) {
             return typeof value;
         };
@@ -28,7 +22,7 @@
         $scope.update = function (screen) {
             var slide = $scope.screens[screen].slide;
             if (typeof slide != 'undefined') {
-                intercom.emit('update.' + screen, {template: 'screens/' + slide.template, context: slide.context});
+                intercom.emit('update.' + screen, {template: 'screens/' + slide.template, context: slide.context, state: slide.state});
             }
         };
 
@@ -99,11 +93,24 @@
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
 
+                var s = {};
+                s.name = skill.name.text;
+
                 // find results for skill
                 var results = [];
                 angular.forEach($scope.results, function(result, i) {
                     if (result.skill.id == skill.id) {
-                        results.push(result);
+                        var r = {};
+                        r.position = result.position;
+                        r.medal = result.medal.name.text;
+                        r.medalCode = result.medal.code;
+                        r.member = result.member.name.text;
+                        r.memberCode = result.member.code;
+                        r.competitors = [];
+                        angular.forEach(result.competitors, function(competitor) {
+                            r.competitors.push(competitor.first_name + ' ' + competitor.last_name);
+                        });
+                        results.push(r);
                     }
                 });
 
@@ -111,15 +118,17 @@
                     label: skill.number + ' ' + skill.name.text + ' Callup',
                     template: 'skill_callup.html',
                     context: {
-                        skill: skill,
+                        skill: s,
                         results: $filter('orderBy')(results, 'member.name.text')
                     }
                 };
                 var slideMedals = {
                     label: skill.number + ' ' + skill.name.text + ' Medals',
                     template: 'skill_medals.html',
+                    states: {B: 'Bronze', S: 'Silver', G: 'Gold', X: 'Hide'},
+                    state: 'X',
                     context: {
-                        skill: skill,
+                        skill: s,
                         results: $filter('orderBy')(results, 'position')
                     }
                 };
@@ -179,6 +188,15 @@
 
         $scope.buildScreens();
 
+        $scope.setState = function (screen, slide, state) {
+            slide.state = state;
+            $scope.update(screen);
+        };
+        
+        $scope.updateContext = function (screen, slide) {
+            $scope.update(screen);
+        };
+
         $scope.showSlide = function (screen, slide) {
             slide.done = true;
             $scope.screens[screen].slide = slide;
@@ -192,5 +210,22 @@
             });
         });
     });
-
+    
+    angular.module('ceremoniesApp').directive('jsonText', function ($filter) {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function(scope, element, attr, ngModel) {            
+              function into(input) {
+                console.log(JSON.parse(input));
+                return JSON.parse(input);
+              }
+              function out(data) {
+                return $filter('json')(data);
+              }
+              ngModel.$parsers.push(into);
+              ngModel.$formatters.push(out);
+            }
+        };
+    });
 })();

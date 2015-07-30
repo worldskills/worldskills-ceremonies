@@ -39,3 +39,28 @@ body {
     width: 70vw;
     float: left;
 }
+
+.screen-state-X {
+    visibility: hidden;
+}
+
+.screen-medal-G,
+.screen-medal-S,
+.screen-medal-B {
+    visibility: hidden;
+}
+
+.screen-state-B .screen-medal-B {
+    visibility: visible;
+}
+
+.screen-state-S .screen-medal-B,
+.screen-state-S .screen-medal-S {
+    visibility: visible;
+}
+
+.screen-state-G .screen-medal-B,
+.screen-state-G .screen-medal-S,
+.screen-state-G .screen-medal-G {
+    visibility: visible;
+}
