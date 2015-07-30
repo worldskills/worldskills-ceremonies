@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, auth, WORLDSKILLS_API_EVENTS, WORLDSKILLS_API_RESULTS, WORLDSKILLS_EVENT_ID) {
+    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, auth, SCREENS, WORLDSKILLS_API_EVENTS, WORLDSKILLS_API_RESULTS, WORLDSKILLS_EVENT_ID) {
 
         var intercom = Intercom.getInstance();
 
@@ -26,12 +26,15 @@
         };
 
         $scope.update = function () {
-            intercom.emit('update', {template: $scope.template, context: $scope.context});
+            intercom.emit('update.a', {template: $scope.template, context: $scope.context});
         };
 
         $scope.update();
 
-        intercom.on('poll', function () {
+        intercom.on('poll.a', function () {
+            $scope.update();
+        });
+        intercom.on('poll.b', function () {
             $scope.update();
         });
 

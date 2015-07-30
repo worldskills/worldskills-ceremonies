@@ -10,7 +10,14 @@
 
     <div class="container-fluid">
 
-        <div class="row">
+        <p ng-show="!screen">
+            <br>
+            <span ng-repeat="(id, screen) in screens">
+                <button class="btn btn-primary btn-lg" ng-click="setScreen(id)">{{ screen.label }}</button>
+            </span>
+        </p>
+
+        <div class="row" ng-show="!!screen">
             <div class="col-sm-6" ng-cloak>
                 <div ng-include="template"></div>
             </div>
