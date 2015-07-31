@@ -11,7 +11,7 @@
     ceremoniesApp.constant('SCREENS', screens);
 
     ceremoniesApp.constant('WORLDSKILLS_CLIENT_ID', '88625bde16aa');
-    ceremoniesApp.constant('WORLDSKILLS_EVENT_ID', '7');
+    ceremoniesApp.constant('WORLDSKILLS_EVENT_ID', '9');
     ceremoniesApp.constant('WORLDSKILLS_API_EVENTS', 'http://localhost:8080/events');
     ceremoniesApp.constant('WORLDSKILLS_API_RESULTS', 'http://localhost:8080/results');
     ceremoniesApp.constant('WORLDSKILLS_API_AUTH', 'http://localhost:8080/auth');

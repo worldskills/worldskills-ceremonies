@@ -8,7 +8,7 @@
         $scope.tab = 'skills';
 
         $scope.switchTab = function (tab) {
-            $scope.tab = tab;            
+            $scope.tab = tab;
         };
 
         $scope.auth = auth;
@@ -149,22 +149,23 @@
                 }
             });
 
-            // slides for Best of Nation
-            for (var i = 1; i <= 10; i++) {
+            // find results for Best of Nation
+            var resultsBestOfNation = [];
+            angular.forEach($scope.results, function(result, j) {
+                if (result.best_of_nation) {
+                    resultsBestOfNation.push($scope.simplifyResult(result));
+                }
+            });
+            resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member.name.text');
 
-                // find results for Best of Nation
-                var results = [];
-                angular.forEach($scope.results, function(result, j) {
-                    if (j < 6) {
-                        results.push($scope.simplifyResult(result));
-                    }
-                });
+            // slides for Best of Nation
+            for (var i = 1; i <= 99 && resultsBestOfNation.length > 0; i++) {
 
                 var slide = {
                     label: 'Best of Nation ' + i,
                     template: 'best_of_nation.html',
                     context: {
-                        results: results
+                        results: resultsBestOfNation.splice(0, 6),
                     }
                 };
                 if (i % 2 == 1) {
@@ -174,11 +175,11 @@
                 }
             }
 
-            // find results for Best of Nation
-            var results = [];
+            // find results for Albert Vidal Award
+            var resultsAlbertVidalAward = [];
             angular.forEach($scope.results, function(result, j) {
-                if (j < 1) {
-                    results.push($scope.simplifyResult(result));
+                if (result.albert_vidal_award) {
+                    resultsAlbertVidalAward.push($scope.simplifyResult(result));
                 }
             });
 
@@ -188,7 +189,7 @@
                 template: 'albert_vidal_award.html',
                 states: ['Name'],
                 context: {
-                    results: results
+                    results: $filter('orderBy')(resultsAlbertVidalAward, 'member.name.text'),
                 }
             };
             $scope.screens.a.slides.push(slide);
@@ -218,21 +219,20 @@
             });
         });
     });
-    
+
     angular.module('ceremoniesApp').directive('jsonText', function ($filter) {
         return {
             restrict: 'A',
             require: 'ngModel',
-            link: function(scope, element, attr, ngModel) {            
-              function into(input) {
-                console.log(JSON.parse(input));
-                return JSON.parse(input);
-              }
-              function out(data) {
-                return $filter('json')(data);
-              }
-              ngModel.$parsers.push(into);
-              ngModel.$formatters.push(out);
+            link: function(scope, element, attr, ngModel) {
+                function into(input) {
+                    return JSON.parse(input);
+                }
+                function out(data) {
+                    return $filter('json')(data);
+                }
+                ngModel.$parsers.push(into);
+                ngModel.$formatters.push(out);
             }
         };
     });
