@@ -51,6 +51,7 @@
         };
         $scope.clearSkills = function () {
             $scope.skills = [];
+            $scope.buildScreens();
             localStorage.removeItem(SKILLS_STORAGE_KEY);
         };
 
@@ -79,11 +80,31 @@
         };
         $scope.clearResults = function () {
             $scope.results = [];
+            $scope.buildScreens();
             localStorage.removeItem(RESULTS_STORAGE_KEY);
         };
 
         // screens
         $scope.screens = SCREENS;
+
+        $scope.simplifySkill = function (skill) {
+            var s = {};
+            s.name = skill.name.text;
+            return s;
+        };
+
+        $scope.simplifyResult = function (result) {
+            var r = {};
+            r.position = result.position;
+            r.medal = result.medal.name.text;
+            r.member = result.member.name.text;
+            r.memberCode = result.member.code;
+            r.competitors = [];
+            angular.forEach(result.competitors, function(competitor) {
+                r.competitors.push(competitor.first_name + ' ' + competitor.last_name);
+            });
+            return r;
+        };
 
         $scope.buildScreens = function () {
 
@@ -93,23 +114,11 @@
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
 
-                var s = {};
-                s.name = skill.name.text;
-
                 // find results for skill
                 var results = [];
                 angular.forEach($scope.results, function(result, i) {
                     if (result.skill.id == skill.id) {
-                        var r = {};
-                        r.position = result.position;
-                        r.medal = result.medal.name.text;
-                        r.member = result.member.name.text;
-                        r.memberCode = result.member.code;
-                        r.competitors = [];
-                        angular.forEach(result.competitors, function(competitor) {
-                            r.competitors.push(competitor.first_name + ' ' + competitor.last_name);
-                        });
-                        results.push(r);
+                        results.push($scope.simplifyResult(result));
                     }
                 });
 
@@ -117,8 +126,8 @@
                     label: skill.number + ' ' + skill.name.text + ' Callup',
                     template: 'skill_callup.html',
                     context: {
-                        skill: s,
-                        results: $filter('orderBy')(results, 'member.name.text')
+                        results: $filter('orderBy')(results, 'member.name.text'),
+                        skill: $scope.simplifySkill(skill)
                     }
                 };
                 var slideMedals = {
@@ -127,8 +136,8 @@
                     states: ['Bronze', 'Silver', 'Gold', 'Clear'],
                     state: 'Clear',
                     context: {
-                        skill: s,
-                        results: $filter('orderBy')(results, 'position')
+                        results: $filter('orderBy')(results, 'position'),
+                        skill: $scope.simplifySkill(skill)
                     }
                 };
     
@@ -148,7 +157,7 @@
                 var results = [];
                 angular.forEach($scope.results, function(result, j) {
                     if (j < 6) {
-                        results.push(result);
+                        results.push($scope.simplifyResult(result));
                     }
                 });
 
@@ -170,7 +179,7 @@
             var results = [];
             angular.forEach($scope.results, function(result, j) {
                 if (j < 1) {
-                    results.push(result);
+                    results.push($scope.simplifyResult(result));
                 }
             });
 
@@ -178,6 +187,8 @@
             var slide = {
                 label: 'Albert Vidal Award',
                 template: 'albert_vidal_award.html',
+                states: ['Name', 'Clear'],
+                state: 'Clear',
                 context: {
                     results: results
                 }

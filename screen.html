@@ -9,18 +9,24 @@
 </head>
 <body ng-controller="ScreenCtrl">
 
-    <div class="container-fluid">
-
-        <p ng-show="!screen">
+    <div class="container-fluid" ng-show="!screen">
+        <p>
             <br>
+            <button class="btn btn-default btn-lg" ng-click="enableFullscreen()">Enable Fullscreen</button>
+        </p>
+        <p>
             <span ng-repeat="(id, screen) in screens">
-                <button class="btn btn-default btn-lg" ng-click="setScreen(id)">{{ screen.label }}</button>
+                <button class="btn btn-default btn-lg" ng-click="setScreen(id, false)">{{ screen.label }}</button>
             </span>
         </p>
-
+        <p>
+            <span ng-repeat="(id, screen) in screens">
+                <button class="btn btn-default" ng-click="setScreen(id, true)">Preview {{ screen.label }}</button>
+            </span>
+        </p>
     </div>
     
-    <div class="screen" ng-show="!!screen" ng-cloak>
+    <div class="screen screen-state-{{ state }}" ng-show="!!screen" ng-cloak>
         <div ng-include="template"></div>
     </div>
 

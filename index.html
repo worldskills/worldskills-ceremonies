@@ -85,62 +85,27 @@
 
         <div class="row">
             <div class="col-sm-6" ng-repeat="(id, screen) in screens">
-                <h2>{{ screen.label }}</h2>
-                <div class="panel-group">
-                    <div class="panel panel-default" ng-class="{'panel-success': slide.done}" ng-repeat="slide in screen.slides">
-                        <div class="panel-heading">
-                            <a class="collapsed" role="button" ng-click="showSlide(id, slide)">
-                                {{ slide.label }}
-                            </a>
-                        </div>
-                        <div id="collapseOne" class="panel-collapse collapse" ng-class="{in: screens[id].slide == slide}">
-                            <div class="panel-body">
-                                <div class="form-group" ng-if="slide.states">
-                                    <div class="btn-group">
-                                        <button class="btn btn-primary" ng-repeat="state in slide.states" ng-click="setState(id, slide, state)">{{ state }}</button>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{ screen.label }}</h3>
+                    </div>
+                    <div class="list-group">
+                        <a class="list-group-item" ng-class="{'list-group-item-success': slide.done}" ng-repeat="slide in screen.slides" ng-click="showSlide(id, slide)">
+                            <div class="list-group-item-heading">{{ slide.label }}</div>
+                            <div ng-show="screens[id].slide == slide">
+                                <p class="list-group-item-text">
+                                    <div class="btn-toolbar">
+                                        <button class="btn btn-success" ng-click="slide.edit = !slide.edit">Edit</button>
+                                        <div class="btn-group">
+                                            <button class="btn btn-warning" ng-repeat="state in slide.states" ng-click="setState(id, slide, state)">{{ state }}</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
+                                </p>
+                                <p class="list-group-item-text" ng-show="slide.edit">
                                     <textarea class="form-control" json-text rows="9" ng-model="slide.context" ng-change="updateContext(id, slide)"></textarea>
-                                </div>
+                                </p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <hr class="hr-extended">
-
-        <ul class="nav nav-tabs">
-            <li ng-class="{active: tab == 'skills'}" ng-click="switchTab('skills')"><a>Skills</a></li>
-            <li ng-class="{active: tab == 'best-of-nation'}" ng-click="switchTab('best-of-nation')"><a>Best of Nation</a></li>
-            <li ng-class="{active: tab == 'alber-vidal-award'}" ng-click="switchTab('alber-vidal-award')"><a>Albert Vidal Award</a></li>
-        </ul>
-
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane" ng-class="{active: tab == 'skills'}">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <ul>
-                            <li ng-repeat="skill in skills">{{ skill.name.text }}</li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-6">
-                        <form class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">template</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" ng-model="template">
-                                </div>
-                                <div class="col-sm-4">
-                                    <button type="button" class="btn btn-primary" ng-click="update()">Change template</button>
-                                </div>
-                            </div>
-                            <div>
-                                <ng-include src="'partials/context_element.html'" ng-init="prefix = ''" />
-                            </div>
-                        </form>
+                        </a>
                     </div>
                 </div>
             </div>

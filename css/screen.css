@@ -1,4 +1,4 @@
-body {
+html, body {
     background-color: #FF00FF;
 }
 
@@ -40,27 +40,23 @@ body {
     float: left;
 }
 
-.screen-state-Clear {
-    visibility: hidden;
-}
-
 .screen-medal-Gold,
 .screen-medal-Silver,
-.screen-medal-Bronze {
+.screen-medal-Bronze,
+.screen-albert-vidal-award {
     visibility: hidden;
 }
 
-.screen-state-Bronze .screen-medal-Bronze {
-    visibility: visible;
-}
-
+.screen-state-Bronze .screen-medal-Bronze,
 .screen-state-Silver .screen-medal-Bronze,
-.screen-state-Silver .screen-medal-Silver {
-    visibility: visible;
-}
-
+.screen-state-Silver .screen-medal-Silver,
 .screen-state-Gold .screen-medal-Bronze,
 .screen-state-Gold .screen-medal-Silver,
-.screen-state-Gold .screen-medal-Gold {
+.screen-state-Gold .screen-medal-Gold,
+.screen-state-Preview .screen-medal-Bronze,
+.screen-state-Preview .screen-medal-Silver,
+.screen-state-Preview .screen-medal-Gold,
+.screen-state-Name .screen-albert-vidal-award,
+.screen-state-Preview .screen-albert-vidal-award {
     visibility: visible;
 }
