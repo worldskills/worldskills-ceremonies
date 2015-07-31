@@ -23,7 +23,7 @@
     <div class="container-fluid">
 
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                 <h4>1. Skills</h4>
                 <p>
                     {{ skills.length || 0 }} skills in local storage
@@ -37,7 +37,11 @@
                     </button>
                 </p>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-1 hidden-xs">
+                <h4>&nbsp;</h4>
+                <p><span class="glyphicon glyphicon-menu-right text-muted"></span></p>
+            </div>
+            <div class="col-sm-3">
                 <h4>2. Login</h4>
                 <p ng-show="auth.loggedIn">
                     Hello {{ auth.user.first_name }} {{ auth.user.last_name }}
@@ -51,6 +55,10 @@
                         Logout
                     </button>
                 </p>
+            </div>
+            <div class="col-sm-1 hidden-xs">
+                <h4>&nbsp;</h4>
+                <p><span class="glyphicon glyphicon-menu-right text-muted"></span></p>
             </div>
             <div class="col-sm-4">
                 <h4>3. Results</h4>
