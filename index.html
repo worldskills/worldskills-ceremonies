@@ -97,7 +97,7 @@
                             <div class="panel-body">
                                 <div class="form-group" ng-if="slide.states">
                                     <div class="btn-group">
-                                        <button class="btn btn-primary" ng-repeat="(state, label) in slide.states" ng-click="setState(id, slide, state)">{{ label }}</button>
+                                        <button class="btn btn-primary" ng-repeat="state in slide.states" ng-click="setState(id, slide, state)">{{ state }}</button>
                                     </div>
                                 </div>
                                 <div class="form-group">

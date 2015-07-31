@@ -103,7 +103,6 @@
                         var r = {};
                         r.position = result.position;
                         r.medal = result.medal.name.text;
-                        r.medalCode = result.medal.code;
                         r.member = result.member.name.text;
                         r.memberCode = result.member.code;
                         r.competitors = [];
@@ -125,8 +124,8 @@
                 var slideMedals = {
                     label: skill.number + ' ' + skill.name.text + ' Medals',
                     template: 'skill_medals.html',
-                    states: {B: 'Bronze', S: 'Silver', G: 'Gold', X: 'Hide'},
-                    state: 'X',
+                    states: ['Bronze', 'Silver', 'Gold', 'Clear'],
+                    state: 'Clear',
                     context: {
                         skill: s,
                         results: $filter('orderBy')(results, 'position')

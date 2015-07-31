@@ -40,27 +40,27 @@ body {
     float: left;
 }
 
-.screen-state-X {
+.screen-state-Clear {
     visibility: hidden;
 }
 
-.screen-medal-G,
-.screen-medal-S,
-.screen-medal-B {
+.screen-medal-Gold,
+.screen-medal-Silver,
+.screen-medal-Bronze {
     visibility: hidden;
 }
 
-.screen-state-B .screen-medal-B {
+.screen-state-Bronze .screen-medal-Bronze {
     visibility: visible;
 }
 
-.screen-state-S .screen-medal-B,
-.screen-state-S .screen-medal-S {
+.screen-state-Silver .screen-medal-Bronze,
+.screen-state-Silver .screen-medal-Silver {
     visibility: visible;
 }
 
-.screen-state-G .screen-medal-B,
-.screen-state-G .screen-medal-S,
-.screen-state-G .screen-medal-G {
+.screen-state-Gold .screen-medal-Bronze,
+.screen-state-Gold .screen-medal-Silver,
+.screen-state-Gold .screen-medal-Gold {
     visibility: visible;
 }
