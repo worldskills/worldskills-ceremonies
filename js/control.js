@@ -133,8 +133,7 @@
                 var slideMedals = {
                     label: skill.number + ' ' + skill.name.text + ' Medals',
                     template: 'skill_medals.html',
-                    states: ['Bronze', 'Silver', 'Gold', 'Clear'],
-                    state: 'Clear',
+                    states: ['Bronze', 'Silver', 'Gold'],
                     context: {
                         results: $filter('orderBy')(results, 'position'),
                         skill: $scope.simplifySkill(skill)
@@ -187,8 +186,7 @@
             var slide = {
                 label: 'Albert Vidal Award',
                 template: 'albert_vidal_award.html',
-                states: ['Name', 'Clear'],
-                state: 'Clear',
+                states: ['Name'],
                 context: {
                     results: results
                 }

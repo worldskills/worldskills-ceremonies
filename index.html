@@ -20,68 +20,58 @@
                 </button>
                 <a class="navbar-brand" href="#">Ceremonies</a>
             </div>
-            <div class="collapse navbar-collapse navbar-ex1-collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown" ng-if="!auth.loggedIn">
-                        <a ng-href="{{ auth.loginUrl }}">Login</a>
-                    </li>
-                    <li class="dropdown" ng-if="auth.loggedIn">
-                        <a href="" class="dropdown-toggle" data-toggle="dropdown">
-                            {{auth.user.first_name || ""}} {{auth.user.last_name || ""}} <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="" ng-click="auth.logout()">Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
 
     <div class="container-fluid">
 
         <div class="row">
-            <div class="col-sm-3">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">1. Skills</h3>
-                    </div>
-                    <div class="panel-body">
-                        <p>
-                            <button class="btn btn-success" ng-click="fetchSkills()" ng-disabled="skillsLoading">
-                                Fetch<ws-text-spinner ng-show="skillsLoading" class="ng-hide"></ws-text-spinner>
-                            </button>
-                            <button class="btn btn-danger" ng-click="clearSkills()">
-                                Clear
-                            </button>
-                        </p>
-                        <p>
-                            {{ skills.length || 0 }} skills in local storage
-                        </p>
-                    </div>
-                </div>
+            <div class="col-sm-4">
+                <h4>1. Skills</h4>
+                <p>
+                    {{ skills.length || 0 }} skills in local storage
+                </p>
+                <p>
+                    <button class="btn btn-success" ng-click="fetchSkills()" ng-disabled="skillsLoading">
+                        Fetch<ws-text-spinner ng-show="skillsLoading" class="ng-hide"></ws-text-spinner>
+                    </button>
+                    <button class="btn btn-danger" ng-click="clearSkills()">
+                        Clear
+                    </button>
+                </p>
             </div>
-            <div class="col-sm-3">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">2. Results</h3>
-                    </div>
-                    <div class="panel-body">
-                        <p>
-                            <button class="btn btn-success" ng-click="fetchResults()" ng-disabled="resultsLoading || !auth.loggedIn" title="{{ auth.loggedIn ? '' : 'Please login to sync results.' }}">
-                                Fetch<ws-text-spinner ng-show="resultsLoading" class="ng-hide"></ws-text-spinner>
-                            </button>
-                            <button class="btn btn-danger" ng-click="clearResults()">
-                                Clear
-                            </button>
-                        </p>
-                        <p>
-                            {{ results.length || 0 }} results in local storage
-                        </p>
-                    </div>
-                </div>
+            <div class="col-sm-4">
+                <h4>2. Login</h4>
+                <p ng-show="auth.loggedIn">
+                    Hello {{ auth.user.first_name }} {{ auth.user.last_name }}
+                </p>
+                <p ng-show="!auth.loggedIn">
+                    Not logged in
+                </p>
+                <p>
+                    <a class="btn btn-success" ng-class="{disabled: auth.loggedIn}" ng-href="{{ auth.loginUrl }}">Login</a>
+                    <button class="btn btn-danger" ng-click="auth.logout()" ng-disabled="!auth.loggedIn">
+                        Logout
+                    </button>
+                </p>
+            </div>
+            <div class="col-sm-4">
+                <h4>3. Results</h4>
+                <p>
+                    {{ results.length || 0 }} results in local storage
+                </p>
+                <p>
+                    <button class="btn btn-success" ng-click="fetchResults()" ng-disabled="resultsLoading || !auth.loggedIn" title="{{ auth.loggedIn ? '' : 'Please login to sync results.' }}">
+                        Fetch<ws-text-spinner ng-show="resultsLoading" class="ng-hide"></ws-text-spinner>
+                    </button>
+                    <button class="btn btn-danger" ng-click="clearResults()">
+                        Clear
+                    </button>
+                </p>
             </div>
         </div>
+
+        <hr/>
 
         <div class="row">
             <div class="col-sm-6" ng-repeat="(id, screen) in screens">
@@ -95,10 +85,11 @@
                             <div ng-show="screens[id].slide == slide">
                                 <p class="list-group-item-text">
                                     <div class="btn-toolbar">
-                                        <button class="btn btn-success" ng-click="slide.edit = !slide.edit">Edit</button>
-                                        <div class="btn-group">
-                                            <button class="btn btn-warning" ng-repeat="state in slide.states" ng-click="setState(id, slide, state)">{{ state }}</button>
+                                        <button class="btn btn-success" ng-click="slide.edit = !slide.edit"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                                        <div class="btn-group" ng-show="slide.states">
+                                            <button class="btn btn-warning" ng-repeat="state in slide.states" ng-click="setState(id, slide, state)"><span class="glyphicon glyphicon-menu-right"></span> {{ state }}</button>
                                         </div>
+                                        <button class="btn btn-danger" ng-show="slide.states" ng-click="setState(id, slide, '')">Reset</button>
                                     </div>
                                 </p>
                                 <p class="list-group-item-text" ng-show="slide.edit">

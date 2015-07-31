@@ -4,8 +4,8 @@
     var ceremoniesApp = angular.module('ceremoniesApp', ['worldskills.utils']);
 
     var screens = {
-        a: {label: 'Screen A', slides: []},
-        b: {label: 'Screen B', slides: []}
+        a: {label: 'Screen Left', slides: []},
+        b: {label: 'Screen Right', slides: []}
     };
 
     ceremoniesApp.constant('SCREENS', screens);
