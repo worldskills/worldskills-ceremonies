@@ -43,6 +43,7 @@ html, body {
 .screen-medal-Gold,
 .screen-medal-Silver,
 .screen-medal-Bronze,
+.screen-countries,
 .screen-albert-vidal-award {
     visibility: hidden;
 }
@@ -56,6 +57,8 @@ html, body {
 .screen-state-Preview .screen-medal-Bronze,
 .screen-state-Preview .screen-medal-Silver,
 .screen-state-Preview .screen-medal-Gold,
+.screen-state-Preview .screen-countries,
+.screen-state-Countries .screen-countries,
 .screen-state-Name .screen-albert-vidal-award,
 .screen-state-Preview .screen-albert-vidal-award {
     visibility: visible;
