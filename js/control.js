@@ -5,19 +5,7 @@
 
         var intercom = Intercom.getInstance();
 
-        $scope.tab = 'skills';
-
-        $scope.switchTab = function (tab) {
-            $scope.tab = tab;
-        };
-
         $scope.auth = auth;
-
-        $scope.template = 'screens/skill_callup.html';
-
-        $scope.typeOf = function (value) {
-            return typeof value;
-        };
 
         $scope.update = function (screen) {
             var slide = $scope.screens[screen].slide;
