@@ -86,6 +86,7 @@
             r.position = result.position;
             r.medal = result.medal.name.text;
             r.member = result.member.name.text;
+            r.member_1058 = result.member.name_1058.text;
             r.memberCode = result.member.code;
             r.competitors = [];
             angular.forEach(result.competitors, function(competitor) {
@@ -115,7 +116,7 @@
                     template: 'skill_callup.html',
                     states: ['Countries'],
                     context: {
-                        results: $filter('orderBy')(results, 'member.name.text'),
+                        results: $filter('orderBy')(results, 'member_1058'),
                         skill: $scope.simplifySkill(skill)
                     }
                 };
@@ -124,7 +125,7 @@
                     template: 'skill_medals.html',
                     states: ['Bronze', 'Silver', 'Gold'],
                     context: {
-                        results: $filter('orderBy')(results, 'position'),
+                        results: $filter('orderBy')(results, ['position', 'member_1058']),
                         skill: $scope.simplifySkill(skill)
                     }
                 };
@@ -145,7 +146,7 @@
                     resultsBestOfNation.push($scope.simplifyResult(result));
                 }
             });
-            resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member.name.text');
+            resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member_1058');
 
             // slides for Best of Nation
             for (var i = 1; i <= 99 && resultsBestOfNation.length > 0; i++) {
@@ -178,7 +179,7 @@
                 template: 'albert_vidal_award.html',
                 states: ['Name'],
                 context: {
-                    results: $filter('orderBy')(resultsAlbertVidalAward, 'member.name.text'),
+                    results: $filter('orderBy')(resultsAlbertVidalAward, 'member_1058'),
                 }
             };
             $scope.screens.a.slides.push(slide);
