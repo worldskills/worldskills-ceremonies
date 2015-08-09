@@ -129,7 +129,7 @@
                         skill: $scope.simplifySkill(skill)
                     }
                 };
-    
+
                 if (i % 2 == 1) {
                     $scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
@@ -158,11 +158,8 @@
                         results: resultsBestOfNation.splice(0, 6),
                     }
                 };
-                if (i % 2 == 1) {
-                    $scope.screens.a.slides.push(slide);
-                } else {
-                    $scope.screens.b.slides.push(slide);
-                }
+
+                $scope.screens.b.slides.push(slide);
             }
 
             // find results for Albert Vidal Award
@@ -191,7 +188,7 @@
             slide.state = state;
             $scope.update(screen);
         };
-        
+
         $scope.updateContext = function (screen, slide) {
             $scope.update(screen);
         };
