@@ -10,6 +10,10 @@ html, body {
     color: #FFF;
 }
 
+.screen-a .screen-content {
+    color: #003B5C;
+}
+
 .screen-content-skill-callup {
     left: 3vw;
     right: 3vw;
