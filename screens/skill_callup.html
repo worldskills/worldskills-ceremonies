@@ -1,10 +1,14 @@
-<div class="screen-title screen-text">{{ context.skill.name }}</div>
-
-<div class="screen-content">
-    <div class="screen-text screen-countries" ng-repeat="result in context.results">
-        <div class="screen-flag">
-            <img ng-src="flags/{{ result.memberCode }}.png">
-        </div>
-        {{ result.member }}
-    </div>
+<div class="screen-content screen-content-skill-callup">
+    <table class="screen-table-countries">
+        <tr>
+            <td ng-repeat="result in context.results">
+                <img ng-src="flags/{{ result.memberCode }}.png" class="screen-img-flag">
+            </td>
+        </tr>
+        <tr>
+            <td ng-repeat="result in context.results">
+                {{ result.member }}
+            </td>
+        </tr>
+    </table>
 </div>

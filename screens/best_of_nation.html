@@ -1,10 +1,10 @@
-<div class="screen-content">
-    <div class="screen-text" ng-repeat="result in context.results">
+<div class="screen-content screen-content-best-of-nation">
+    <div class="screen-best-of-nation" ng-repeat="result in context.results">
         <div class="screen-flag">
             <img ng-src="flags/{{ result.memberCode }}.png">
         </div>
         <div class="screen-competitors">
-            <div ng-repeat="competitor in result.competitors">
+            <div class="screen-competitor" ng-repeat="competitor in result.competitors">
                 {{ competitor }}
             </div>
         </div>

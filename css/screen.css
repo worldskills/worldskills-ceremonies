@@ -2,25 +2,50 @@ html, body {
     background-color: #FF00FF;
 }
 
-.screen-text {
-    font-size: 4vw;
-    color: #FFF;
-}
-
-.screen-title {
-    position: absolute;
-    left: 6vw;
-    top: 5vw;
-    font-size: 5vw;
-}
-
 .screen-content {
     position: absolute;
     left: 6vw;
     top: 18vw;
+    font-size: 3vw;
+    color: #FFF;
+}
+
+.screen-content-skill-callup {
+    left: 3vw;
+    right: 3vw;
+    top: 24vw;
+}
+
+.screen-content-skill-medals {
+    left: 8vw;
+    top: 12vw;
+}
+
+.screen-content-best-of-nation {
+    top: 2vw;
+    left: 10vw;
+}
+
+.screen-content-albert-vidal-award {
+    top: 20vw;
+    left: 20vw;
+}
+
+.screen-table-countries {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.screen-table-countries td {
+    text-align: center;
+    vertical-align: top;
 }
 
 .screen-medal {
+    float: left;
+}
+
+.screen-medal-name {
     width: 14vw;
     float: left;
 }
@@ -35,15 +60,25 @@ html, body {
     max-height: 4vw;
 }
 
+.screen-img-flag {
+    max-width: 12vw;
+    max-height: 8vw;
+    margin-bottom: 1vw;
+}
+
 .screen-competitors {
-    width: 70vw;
     float: left;
+    padding-bottom: 1vw;
+}
+
+.screen-competitor {
+    width: 60vw;
 }
 
 .screen-medal-Gold,
 .screen-medal-Silver,
 .screen-medal-Bronze,
-.screen-countries,
+.screen-table-countries,
 .screen-albert-vidal-award {
     visibility: hidden;
 }
@@ -58,7 +93,7 @@ html, body {
 .screen-state-Preview .screen-medal-Silver,
 .screen-state-Preview .screen-medal-Gold,
 .screen-state-Preview .screen-countries,
-.screen-state-Countries .screen-countries,
+.screen-state-Countries .screen-table-countries,
 .screen-state-Name .screen-albert-vidal-award,
 .screen-state-Preview .screen-albert-vidal-award {
     visibility: visible;

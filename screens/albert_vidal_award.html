@@ -1,13 +1,12 @@
-<div class="screen-content">
-    <div class="screen-text screen-albert-vidal-award" ng-repeat="result in context.results">
+<div class="screen-content screen-content-albert-vidal-award">
+    <div class="screen-albert-vidal-award" ng-repeat="result in context.results">
         <div class="screen-flag">
             <img ng-src="flags/{{ result.memberCode }}.png">
         </div>
         <div class="screen-competitors">
-            {{ result.member }}
-        </div>
-        <div ng-repeat="competitor in result.competitors">
-            {{ competitor }}
+            <div class="screen-competitor" ng-repeat="competitor in result.competitors">
+                {{ competitor }}
+            </div>
         </div>
     </div>
 </div>
