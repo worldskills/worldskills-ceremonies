@@ -24,25 +24,7 @@
 
         <div class="row">
             <div class="col-sm-2">
-                <h4>1. Skills</h4>
-                <p>
-                    {{ skills.length || 0 }} skills in local storage
-                </p>
-                <p>
-                    <button class="btn btn-success" ng-click="fetchSkills()" ng-disabled="skillsLoading">
-                        Fetch<ws-text-spinner ng-show="skillsLoading" class="ng-hide"></ws-text-spinner>
-                    </button>
-                    <button class="btn btn-danger" ng-click="clearSkills()">
-                        Clear
-                    </button>
-                </p>
-            </div>
-            <div class="col-sm-1 hidden-xs">
-                <h4>&nbsp;</h4>
-                <p><span class="glyphicon glyphicon-menu-right text-muted"></span></p>
-            </div>
-            <div class="col-sm-2">
-                <h4>2. Login</h4>
+                <h4>1. Login</h4>
                 <p ng-show="auth.loggedIn">
                     Hello {{ auth.user.first_name }} {{ auth.user.last_name }}
                 </p>
@@ -53,6 +35,24 @@
                     <a class="btn btn-success" ng-class="{disabled: auth.loggedIn}" ng-href="{{ auth.loginUrl }}">Login</a>
                     <button class="btn btn-danger" ng-click="auth.logout()" ng-disabled="!auth.loggedIn">
                         Logout
+                    </button>
+                </p>
+            </div>
+            <div class="col-sm-1 hidden-xs">
+                <h4>&nbsp;</h4>
+                <p><span class="glyphicon glyphicon-menu-right text-muted"></span></p>
+            </div>
+            <div class="col-sm-2">
+                <h4>2. Skills</h4>
+                <p>
+                    {{ skills.length || 0 }} skills in local storage
+                </p>
+                <p>
+                    <button class="btn btn-success" ng-click="fetchSkills()" ng-disabled="skillsLoading">
+                        Fetch<ws-text-spinner ng-show="skillsLoading" class="ng-hide"></ws-text-spinner>
+                    </button>
+                    <button class="btn btn-danger" ng-click="clearSkills()">
+                        Clear
                     </button>
                 </p>
             </div>
