@@ -14,6 +14,12 @@
             }
         };
 
+        $scope.rehearsal = false;
+        $scope.toggleRehearsal = function () {
+            $scope.rehearsal = !$scope.rehearsal;
+            $scope.buildScreens();
+        };
+
         // skills
         var SKILLS_STORAGE_KEY = 'worldskills.ceremonies.skills';
         var skills = localStorage.getItem(SKILLS_STORAGE_KEY);
@@ -85,13 +91,20 @@
             var r = {};
             r.position = result.position;
             r.medal = result.medal.name.text;
-            r.member = result.member.name.text;
-            r.member_1058 = result.member.name_1058.text;
-            r.memberCode = result.member.code;
-            r.competitors = [];
-            angular.forEach(result.competitors, function(competitor) {
-                r.competitors.push(competitor.first_name + ' ' + competitor.last_name);
-            });
+            if (!$scope.rehearsal) {
+                r.member = result.member.name.text;
+                r.member_1058 = result.member.name_1058.text;
+                r.memberCode = result.member.code;
+                r.competitors = [];
+                angular.forEach(result.competitors, function(competitor) {
+                    r.competitors.push(competitor.first_name + ' ' + competitor.last_name);
+                });
+            } else {
+                r.member = 'Principality of Liechtenstein';
+                r.member_1058 = 'Liechtenstein';
+                r.memberCode = 'LI';
+                r.competitors = ['Hansueli Zimmermann'];
+            }
             return r;
         };
 
