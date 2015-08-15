@@ -60,13 +60,17 @@ html, body {
 }
 
 .screen-flag {
-    width: 9vw;
+    width: 10vw;
     float: left;
 }
 
 .screen-flag img {
     max-width: 6vw;
     max-height: 4vw;
+}
+
+.screen-content-best-of-nation .screen-flag img {
+    border: 0.2vw solid #999;
 }
 
 .screen-img-flag {
