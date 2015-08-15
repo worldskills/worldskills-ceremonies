@@ -211,9 +211,12 @@
         };
 
         $scope.showSlide = function (screen, slide) {
-            slide.done = true;
-            $scope.screens[screen].slide = slide;
-            $scope.update(screen);
+            if ($scope.screens[screen].slide != slide) {
+                slide.done = true;
+                slide.state = '';
+                $scope.screens[screen].slide = slide;
+                $scope.update(screen);
+            }
         };
 
         // screen polling
