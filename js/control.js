@@ -18,6 +18,14 @@
         $scope.toggleRehearsal = function () {
             $scope.rehearsal = !$scope.rehearsal;
             $scope.buildScreens();
+            angular.forEach($scope.screens, function(screen, id) {
+                screen.slide = {
+                    template: 'empty.html',
+                    context: {},
+                    state: ''
+                };
+                $scope.update(id);
+            });
         };
 
         // skills
