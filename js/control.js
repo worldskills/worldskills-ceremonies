@@ -170,6 +170,7 @@
                 var slide = {
                     label: 'Best of Nation ' + i,
                     template: 'best_of_nation.html',
+                    states: ['Countries'],
                     context: {
                         results: resultsBestOfNation.splice(0, 4),
                     }
