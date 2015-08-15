@@ -168,7 +168,7 @@
                     label: 'Best of Nation ' + i,
                     template: 'best_of_nation.html',
                     context: {
-                        results: resultsBestOfNation.splice(0, 6),
+                        results: resultsBestOfNation.splice(0, 4),
                     }
                 };
 
