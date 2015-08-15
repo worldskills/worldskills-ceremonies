@@ -1,5 +1,7 @@
 html, body {
-    background-color: #FF00FF;
+    background-color: #00FF00;
+    font-family:'Frutiger LT Com';
+    font-weight: bold;
 }
 
 .screen-content {
@@ -17,17 +19,19 @@ html, body {
 .screen-content-skill-callup {
     left: 3vw;
     right: 3vw;
-    top: 24vw;
+    top: 25vw;
 }
 
 .screen-content-skill-medals {
-    left: 8vw;
-    top: 18vw;
+    left: 5vw;
+    top: 16vw;
 }
 
 .screen-content-best-of-nation {
-    top: 2vw;
+    top: 7vw;
     left: 10vw;
+    color: #003B5C;
+    font-size: 4vw;
 }
 
 .screen-content-albert-vidal-award {
@@ -43,6 +47,7 @@ html, body {
 .screen-table-countries td {
     text-align: center;
     vertical-align: top;
+    line-height: 4vw;
 }
 
 .screen-medal {
@@ -67,7 +72,7 @@ html, body {
 .screen-img-flag {
     max-width: 12vw;
     max-height: 8vw;
-    margin-bottom: 1vw;
+    margin-bottom: 3vw;
 }
 
 .screen-competitors {
