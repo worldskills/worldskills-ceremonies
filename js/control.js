@@ -96,14 +96,17 @@
                 r.member_1058 = result.member.name_1058.text;
                 r.memberCode = result.member.code;
                 r.competitors = [];
-                angular.forEach(result.competitors, function(competitor) {
+                angular.forEach(result.competitors, function (competitor) {
                     r.competitors.push(competitor.first_name + ' ' + competitor.last_name);
                 });
             } else {
                 r.member = 'Principality of Liechtenstein';
                 r.member_1058 = 'Liechtenstein';
                 r.memberCode = 'LI';
-                r.competitors = ['Hansueli Zimmermann'];
+                r.competitors = [];
+                angular.forEach(result.competitors, function (competitor, i) {
+                    r.competitors.push('Hansueli Zimmermann ' + i);
+                });
             }
             return r;
         };
