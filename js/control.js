@@ -58,21 +58,14 @@
         };
 
         // results
-        var RESULTS_STORAGE_KEY = 'worldskills.ceremonies.results';
-        var results = localStorage.getItem(RESULTS_STORAGE_KEY);
-        if (results) {
-            $scope.results = JSON.parse(results).results;
-        } else {
-            $scope.results = [];
-        }
+        $scope.results = [];
 
         $scope.fetchResults = function () {
             $scope.resultsLoading = true;
 
-            $http({method: 'GET', url: WORLDSKILLS_API_RESULTS + '/events/' + WORLDSKILLS_EVENT_ID})
+            $http({method: 'GET', url: 'results.json'})
                 .success(function(data, status, headers, config) {
                     $scope.results = data.results;
-                    localStorage.setItem(RESULTS_STORAGE_KEY, JSON.stringify(data));
                     $scope.resultsLoading = false;
                     $scope.buildScreens();
                 }).
@@ -83,7 +76,6 @@
         $scope.clearResults = function () {
             $scope.results = [];
             $scope.buildScreens();
-            localStorage.removeItem(RESULTS_STORAGE_KEY);
         };
 
         // screens
