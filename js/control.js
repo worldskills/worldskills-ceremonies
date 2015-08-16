@@ -169,12 +169,18 @@
 
             // find results for Best of Nation
             var resultsBestOfNation = [];
+            var resultBestOfNationBrazil;
             angular.forEach($scope.results, function(result, j) {
                 if (result.best_of_nation) {
-                    resultsBestOfNation.push($scope.simplifyResult(result));
+                    if (result.member.code != 'BR') {
+                        resultsBestOfNation.push($scope.simplifyResult(result));
+                    } else {
+                        resultBestOfNationBrazil = $scope.simplifyResult(result);
+                    }
                 }
             });
             resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member_1058');
+            resultsBestOfNation.push(resultBestOfNationBrazil);
 
             // slides for Best of Nation
             for (var i = 1; i <= 99 && resultsBestOfNation.length > 0; i++) {
