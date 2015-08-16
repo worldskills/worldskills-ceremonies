@@ -124,8 +124,18 @@
             $scope.screens.a.slides = [];
             $scope.screens.b.slides = [];
 
+            var previousSector = '';
+            var c = 0;
+
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
+
+                // check sector
+                var currentSector = skill.sector.name.text;
+                if (currentSector != previousSector) {
+                    c = 0;
+                    previousSector = currentSector;
+                }
 
                 // find results for skill
                 var results = [];
@@ -154,7 +164,7 @@
                     }
                 };
 
-                if (i % 2 == 1) {
+                if (c++ % 2 == 0) {
                     $scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
                 } else {
