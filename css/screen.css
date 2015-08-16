@@ -110,6 +110,7 @@ html, body {
 .screen-state-Countries .screen-table-countries,
 .screen-state-Name .screen-albert-vidal-award,
 .screen-state-Countries .screen-content-best-of-nation,
+.screen-state-Preview .screen-content-best-of-nation,
 .screen-state-Preview .screen-albert-vidal-award {
     visibility: visible;
 }
