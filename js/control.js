@@ -40,7 +40,7 @@
         $scope.fetchSkills = function () {
             $scope.skillsLoading = true;
 
-            $http({method: 'GET', url: WORLDSKILLS_API_EVENTS + '/' + WORLDSKILLS_EVENT_ID + '/skills', params: {limit: 50}})
+            $http({method: 'GET', url: WORLDSKILLS_API_EVENTS + '/' + WORLDSKILLS_EVENT_ID + '/skills', params: {sort: 'sector_name_asc', l: 'en', limit: 50}})
                 .success(function(data, status, headers, config) {
                     $scope.skills = data.skills;
                     localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify(data));
