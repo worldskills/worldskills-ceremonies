@@ -180,7 +180,6 @@
                 }
             });
             resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member_1058');
-            resultsBestOfNation.push(resultBestOfNationBrazil);
 
             // slides for Best of Nation
             for (var i = 1; i <= 99 && resultsBestOfNation.length > 0; i++) {
@@ -196,6 +195,17 @@
 
                 $scope.screens.b.slides.push(slide);
             }
+
+            var slide = {
+                label: 'Best of Nation ' + 99,
+                template: 'best_of_nation.html',
+                states: ['Countries'],
+                context: {
+                    results: [resultBestOfNationBrazil],
+                }
+            };
+
+            $scope.screens.b.slides.push(slide);
 
             // find results for Albert Vidal Award
             var resultsAlbertVidalAward = [];
