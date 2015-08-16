@@ -66,7 +66,7 @@
                     {{ results.length || 0 }} results in local storage
                 </p>
                 <p>
-                    <button class="btn btn-success" ng-click="fetchResults()" ng-disabled="resultsLoading || !auth.loggedIn" title="{{ auth.loggedIn ? '' : 'Please login to sync results.' }}">
+                    <button class="btn btn-success" ng-click="fetchResults()" ng-disabled="resultsLoading">
                         Fetch<ws-text-spinner ng-show="resultsLoading" class="ng-hide"></ws-text-spinner>
                     </button>
                     <button class="btn btn-danger" ng-click="clearResults()">
