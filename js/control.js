@@ -98,7 +98,9 @@
         $scope.simplifyResult = function (result) {
             var r = {};
             r.position = result.position;
-            r.medal = result.medal.name.text;
+            if (result.medal) {
+                r.medal = result.medal.name.text;
+            }
             if (!$scope.rehearsal) {
                 r.member = result.member.name.text;
                 r.member_1058 = result.member.name_1058.text;
@@ -140,7 +142,7 @@
                 // find results for skill
                 var results = [];
                 angular.forEach($scope.results, function(result, i) {
-                    if (result.skill.id == skill.id) {
+                    if (result.skill.id == skill.id && result.medal) {
                         results.push($scope.simplifyResult(result));
                     }
                 });
