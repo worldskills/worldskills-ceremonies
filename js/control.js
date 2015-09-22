@@ -5,6 +5,15 @@
 
         var intercom = Intercom.getInstance();
 
+        var db = new Dexie('worldskills-ceremonies');
+        db.version(1).stores({
+            results: 'id'
+        });
+
+        db.open().catch(function(error){
+            alert('Database error: ' + error);
+        });
+
         $scope.auth = auth;
 
         $scope.update = function (screen) {
@@ -58,13 +67,17 @@
         };
 
         // results
-        var RESULTS_STORAGE_KEY = 'worldskills.ceremonies.results';
-        var results = localStorage.getItem(RESULTS_STORAGE_KEY);
-        if (results) {
-            $scope.results = JSON.parse(results).results;
-        } else {
-            $scope.results = [];
-        }
+        $scope.results = [];
+        db.results.each(function (result) {
+            $scope.results.push(result);
+        }).then(function () {
+            setTimeout(function() {
+                $scope.$digest();
+                $scope.buildScreens();
+            }, 0);
+        }).catch(function (error) {
+            alert('Query error: ' + error);
+        });
 
         $scope.fetchResults = function () {
             $scope.resultsLoading = true;
@@ -72,7 +85,9 @@
             $http({method: 'GET', url: WORLDSKILLS_API_RESULTS + '/events/' + WORLDSKILLS_EVENT_ID})
                 .success(function(data, status, headers, config) {
                     $scope.results = data.results;
-                    localStorage.setItem(RESULTS_STORAGE_KEY, JSON.stringify(data));
+                    angular.forEach(data.results, function (result) {
+                        db.results.put(result);
+                    });
                     $scope.resultsLoading = false;
                     $scope.buildScreens();
                 }).
@@ -142,7 +157,7 @@
                 // find results for skill
                 var results = [];
                 angular.forEach($scope.results, function(result, i) {
-                    if (result.skill.id == skill.id && result.medal) {
+                    if (result.skill.id == skill.id && result.medal && result.medal.code != 'MFE') {
                         results.push($scope.simplifyResult(result));
                     }
                 });

@@ -6,6 +6,7 @@
     "jquery": "~2.1.1",
     "worldskills-bootstrap": "*",
     "angular-worldskills-utils": "~0.0.1",
-    "intercom.js": "git@github.com:diy/intercom.js.git"
+    "intercom.js": "git@github.com:diy/intercom.js.git",
+    "dexie": "~1.1.0"
   }
 }
