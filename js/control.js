@@ -82,7 +82,7 @@
         $scope.fetchResults = function () {
             $scope.resultsLoading = true;
 
-            $http({method: 'GET', url: WORLDSKILLS_API_RESULTS + '/events/' + WORLDSKILLS_EVENT_ID})
+            $http({method: 'GET', url: WORLDSKILLS_API_RESULTS + '/events/' + WORLDSKILLS_EVENT_ID, params: {published: false}})
                 .success(function(data, status, headers, config) {
                     $scope.results = data.results;
                     angular.forEach(data.results, function (result) {
