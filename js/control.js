@@ -98,7 +98,7 @@
         $scope.clearResults = function () {
             $scope.results = [];
             $scope.buildScreens();
-            localStorage.removeItem(RESULTS_STORAGE_KEY);
+            db.results.clear();
         };
 
         // screens
