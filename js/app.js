@@ -16,5 +16,7 @@
     ceremoniesApp.constant('WORLDSKILLS_API_RESULTS', 'https://api.worldskills.org/results');
     ceremoniesApp.constant('WORLDSKILLS_API_AUTH', 'https://api.worldskills.org/auth');
     ceremoniesApp.constant('WORLDSKILLS_AUTHORIZE_URL', 'https://auth.worldskills.org/oauth/authorize');
+    ceremoniesApp.constant('LOAD_CHILD_ENTITY_ROLES', true);
+    ceremoniesApp.constant('FILTER_AUTH_ROLES', []);
 
 })();
