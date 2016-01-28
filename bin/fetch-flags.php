@@ -12,7 +12,7 @@ $members = json_decode($response);
 foreach ($members->members as $member)
 {
     $memberCode = $member->code;
-    $memberFlagUrl = $member->flag->links[1]->href . '_small';
+    $memberFlagUrl = $member->flag->thumbnail . '_small';
 
     $flag = file_get_contents($memberFlagUrl);
     $filename = __DIR__ . '/../flags/' . $memberCode . '.png';
