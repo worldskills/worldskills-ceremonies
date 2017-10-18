@@ -113,7 +113,7 @@
                 var slideCallup = {
                     label: skill.number + ' ' + skill.name.text + ' Callup',
                     template: 'skill_callup.html',
-                    states: ['Countries'],
+                    states: [],
                     context: {
                         results: $filter('orderBy')(results, 'member_1058'),
                         skill: $scope.simplifySkill(skill)
