@@ -1,6 +1,11 @@
-<div class="screen-background">
+<div class="screen-sponsors">
+    <div class="screen-sponsors-flow">
+    </div>
+    <span ng-repeat="sponsor in context.skill.sponsors">
+        <img ng-src="data/sponsors/{{ sponsor.id }}.png" class="screen-img-sponsor">
+    </span>
 </div>
-<div class="screen-skill-callup-cube">
+<div class="screen-skill-cube">
     <svg width="350px" height="350px" viewBox="0 0 350 350" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
         <desc>Created with Sketch.</desc>
@@ -13,20 +18,10 @@
         </g>
     </svg>
 </div>
-<div class="screen-content screen-content-skill-callup">
-    <div class="screen-skill-callup-name">
-        {{ context.skill.name }}
+<div class="screen-content screen-content-skill-name">
+    <div class="screen-skill-name-flow">
     </div>
-    <table class="screen-table-countries">
-        <tr>
-            <td ng-repeat="result in context.results">
-                <img ng-src="data/flags/{{ result.memberCode }}.png" class="screen-img-flag">
-            </td>
-        </tr>
-        <tr>
-            <td ng-repeat="result in context.results">
-                {{ result.member }}
-            </td>
-        </tr>
-    </table>
+    <div class="screen-skill-name">
+        {{ context.skill.name.text }}
+    </div>
 </div>

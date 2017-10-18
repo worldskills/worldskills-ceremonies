@@ -23,10 +23,13 @@
                         $scope.context = {};
                     }
 
+                    $scope.states = [];
                     if (preview) {
-                        $scope.state = 'Preview';
+                        $scope.states.push('screen-state-Preview');
                     } else {
-                        $scope.state = data.state;
+                        angular.forEach(data.state, function(state) {
+                            $scope.states.push('screen-state-' + state);
+                        });
                     }
 
                     $scope.template = data.template;

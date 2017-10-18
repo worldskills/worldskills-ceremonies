@@ -1,20 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $filter, auth, SCREENS, WORLDSKILLS_API_EVENTS, WORLDSKILLS_API_RESULTS, WORLDSKILLS_EVENT_ID) {
+    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $filter, SCREENS) {
 
         var intercom = Intercom.getInstance();
-
-        var db = new Dexie('worldskills-ceremonies');
-        db.version(1).stores({
-            results: 'id'
-        });
-
-        db.open().catch(function(error){
-            alert('Database error: ' + error);
-        });
-
-        $scope.auth = auth;
 
         $scope.update = function (screen) {
             var slide = $scope.screens[screen].slide;
@@ -23,86 +12,39 @@
             }
         };
 
-        $scope.rehearsal = false;
-        $scope.toggleRehearsal = function () {
-            $scope.rehearsal = !$scope.rehearsal;
-            $scope.buildScreens();
-            angular.forEach($scope.screens, function(screen, id) {
-                screen.slide = {
-                    template: 'empty.html',
-                    context: {},
-                    state: ''
-                };
-                $scope.update(id);
-            });
-        };
-
         // skills
-        var SKILLS_STORAGE_KEY = 'worldskills.ceremonies.skills';
-        var skills = localStorage.getItem(SKILLS_STORAGE_KEY);
-        if (skills) {
-            $scope.skills = JSON.parse(skills).skills;
-        } else {
-            $scope.skills = [];
-        }
-
-        $scope.fetchSkills = function () {
-            $scope.skillsLoading = true;
-
-            $http({method: 'GET', url: WORLDSKILLS_API_EVENTS + '/' + WORLDSKILLS_EVENT_ID + '/skills', params: {sort: 'sector_name_asc', l: 'en', limit: 50}})
-                .success(function(data, status, headers, config) {
-                    $scope.skills = data.skills;
-                    localStorage.setItem(SKILLS_STORAGE_KEY, JSON.stringify(data));
-                    $scope.skillsLoading = false;
-                    $scope.buildScreens();
-                }).
-                error(function(data, status, headers, config) {
-                    $scope.skillsLoading = false;
-                });
-        };
-        $scope.clearSkills = function () {
-            $scope.skills = [];
+        $scope.skills = [];
+        $http({method: 'GET', url: 'data/json/skills.json'}).then(function(response) {
+            $scope.skills = response.data.skills;
             $scope.buildScreens();
-            localStorage.removeItem(SKILLS_STORAGE_KEY);
-        };
+        });
 
         // results
         $scope.results = [];
-        db.results.each(function (result) {
-            $scope.results.push(result);
-        }).then(function () {
-            setTimeout(function() {
-                $scope.$digest();
-                $scope.buildScreens();
-            }, 0);
-        }).catch(function (error) {
-            alert('Query error: ' + error);
-        });
-
-        $scope.fetchResults = function () {
-            $scope.resultsLoading = true;
-
-            $http({method: 'GET', url: WORLDSKILLS_API_RESULTS + '/events/' + WORLDSKILLS_EVENT_ID, params: {published: false}})
-                .success(function(data, status, headers, config) {
-                    $scope.results = data.results;
-                    angular.forEach(data.results, function (result) {
-                        db.results.put(result);
-                    });
-                    $scope.resultsLoading = false;
-                    $scope.buildScreens();
-                }).
-                error(function(data, status, headers, config) {
-                    $scope.resultsLoading = false;
-                });
-        };
-        $scope.clearResults = function () {
-            $scope.results = [];
+        $http({method: 'GET', url: 'data/json/results.json'}).then(function(response) {
+            $scope.results = response.data.results;
             $scope.buildScreens();
-            db.results.clear();
-        };
+        });
 
         // screens
         $scope.screens = SCREENS;
+
+        $scope.capitalize = function (input) {
+
+            input = input.toLowerCase();
+
+            var inputPieces = input.split(' ');
+
+            for (var i = 0; i < inputPieces.length; i++){
+                inputPieces[i] = $scope.capitalizeString(inputPieces[i]);
+            }
+
+            return inputPieces.toString().replace(/,/g, ' ');
+        };
+
+        $scope.capitalizeString = function (inputString) {
+            return inputString.substring(0, 1).toUpperCase() + inputString.substring(1);
+        };
 
         $scope.simplifySkill = function (skill) {
             var s = {};
@@ -116,23 +58,13 @@
             if (result.medal) {
                 r.medal = result.medal.name.text;
             }
-            if (!$scope.rehearsal) {
-                r.member = result.member.name.text;
-                r.member_1058 = result.member.name_1058.text;
-                r.memberCode = result.member.code;
-                r.competitors = [];
-                angular.forEach(result.competitors, function (competitor) {
-                    r.competitors.push(competitor.first_name + ' ' + competitor.last_name);
-                });
-            } else {
-                r.member = 'Principality of Liechtenstein';
-                r.member_1058 = 'Liechtenstein';
-                r.memberCode = 'LI';
-                r.competitors = [];
-                angular.forEach(result.competitors, function (competitor, i) {
-                    r.competitors.push('Hansueli Zimmermann ' + i);
-                });
-            }
+            r.member = result.member.name.text;
+            r.member_1058 = result.member.name_1058.text;
+            r.memberCode = result.member.code;
+            r.competitors = [];
+            angular.forEach(result.competitors, function (competitor) {
+                r.competitors.push($scope.capitalize(competitor.first_name) + ' ' + $scope.capitalize(competitor.last_name));
+            });
             return r;
         };
 
@@ -150,7 +82,7 @@
                 // check sector
                 var currentSector = skill.sector.name.text;
                 if (currentSector != previousSector) {
-                    c = 0;
+                    //c = 0;
                     previousSector = currentSector;
                 }
 
@@ -162,6 +94,22 @@
                     }
                 });
 
+                // prepare medals states
+                var states = [];
+                angular.forEach(results, function(result, i) {
+                    if (states.indexOf(result.medal) < 0) {
+                        states.unshift(result.medal);
+                    }
+                });
+
+                var slideName = {
+                    label: skill.number + ' ' + skill.name.text + ' Name',
+                    template: 'skill_name.html',
+                    states: [],
+                    context: {
+                        skill: skill
+                    }
+                };
                 var slideCallup = {
                     label: skill.number + ' ' + skill.name.text + ' Callup',
                     template: 'skill_callup.html',
@@ -174,7 +122,7 @@
                 var slideMedals = {
                     label: skill.number + ' ' + skill.name.text + ' Medals',
                     template: 'skill_medals.html',
-                    states: ['Bronze', 'Silver', 'Gold'],
+                    states: states,
                     context: {
                         results: $filter('orderBy')(results, ['position', 'member_1058']),
                         skill: $scope.simplifySkill(skill)
@@ -182,9 +130,11 @@
                 };
 
                 if (c++ % 2 == 0) {
+                    $scope.screens.a.slides.push(slideName);
                     $scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
                 } else {
+                    $scope.screens.b.slides.push(slideName);
                     $scope.screens.b.slides.push(slideCallup);
                     $scope.screens.b.slides.push(slideMedals);
                 }
@@ -192,17 +142,19 @@
 
             // find results for Best of Nation
             var resultsBestOfNation = [];
-            var resultBestOfNationBrazil;
+            var resultBestOfNationHost;
             angular.forEach($scope.results, function(result, j) {
                 if (result.best_of_nation) {
-                    if (result.member.code != 'BR') {
+                    if (result.member.code != 'AE') {
                         resultsBestOfNation.push($scope.simplifyResult(result));
                     } else {
-                        resultBestOfNationBrazil = $scope.simplifyResult(result);
+                        resultBestOfNationHost = $scope.simplifyResult(result);
                     }
                 }
             });
             resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member_1058');
+
+            var c = 0;
 
             // slides for Best of Nation
             for (var i = 1; i <= 99 && resultsBestOfNation.length > 0; i++) {
@@ -212,23 +164,28 @@
                     template: 'best_of_nation.html',
                     states: ['Countries'],
                     context: {
-                        results: resultsBestOfNation.splice(0, 4),
+                        results: resultsBestOfNation.splice(0, 5),
                     }
                 };
 
-                $scope.screens.b.slides.push(slide);
+                if (c++ % 2 == 0) {
+                    $scope.screens.a.slides.push(slide);
+                } else {
+                    $scope.screens.b.slides.push(slide);
+                }
             }
 
             var slide = {
-                label: 'Best of Nation ' + 99,
+                label: 'Best of Nation Host',
                 template: 'best_of_nation.html',
                 states: ['Countries'],
                 context: {
-                    results: [resultBestOfNationBrazil],
+                    results: [resultBestOfNationHost],
                 }
             };
 
-            $scope.screens.b.slides.push(slide);
+            $scope.screens.a.slides.push(slide);
+            $scope.screens.b.slides.push(angular.copy(slide));
 
             // find results for Albert Vidal Award
             var resultsAlbertVidalAward = [];
@@ -248,12 +205,27 @@
                 }
             };
             $scope.screens.a.slides.push(slide);
+            $scope.screens.b.slides.push(angular.copy(slide));
         };
 
-        $scope.buildScreens();
+        $scope.hasState = function (slide, state) {
+            if (slide.state != undefined) {
+                return !(slide.state.indexOf(state) < 0);
+            }
+            return false;
+        };
 
-        $scope.setState = function (screen, slide, state) {
-            slide.state = state;
+        $scope.toggleState = function (screen, slide, state) {
+            if ($scope.hasState(slide, state)) {
+                slide.state.splice(slide.state.indexOf(state), 1);
+            } else {
+                slide.state.push(state);
+            }
+            $scope.update(screen);
+        };
+
+        $scope.resetStates = function (screen, slide) {
+            slide.state = [];
             $scope.update(screen);
         };
 
@@ -264,7 +236,7 @@
         $scope.showSlide = function (screen, slide) {
             if ($scope.screens[screen].slide != slide) {
                 slide.done = true;
-                slide.state = '';
+                slide.state = [];
                 $scope.screens[screen].slide = slide;
                 $scope.update(screen);
             }

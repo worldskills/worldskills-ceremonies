@@ -1,42 +1,190 @@
 html, body {
-    background-color: #00FF00;
-    font-family:'Frutiger LT Com';
+    background-color: #FFF;
+    font-family: 'Frutiger LT Com';
     font-weight: bold;
+    overflow: hidden;
 }
 
 .screen-content {
     position: absolute;
     left: 6vw;
     top: 18vw;
-    font-size: 3vw;
-    color: #FFF;
+    font-size: 2.5vw;
+    color: #302683;
 }
 
-.screen-a .screen-content {
-    color: #003B5C;
+.screen-content-skill-name {
+    top: 16vw;
+    right: 18vw;
+    color: #FFF;
+    text-transform: uppercase;
 }
 
 .screen-content-skill-callup {
     left: 3vw;
     right: 3vw;
-    top: 25vw;
+    top: 16vw;
+    color: #FFF;
+    text-transform: uppercase;
 }
 
 .screen-content-skill-medals {
     left: 5vw;
-    top: 16vw;
+    top: 14vw;
+    font-size: 3vw;
 }
 
 .screen-content-best-of-nation {
-    top: 7vw;
+    top: 3vw;
     left: 10vw;
+    right: 10vw;
     color: #003B5C;
     font-size: 4vw;
 }
 
 .screen-content-albert-vidal-award {
-    top: 20vw;
+    top: 18vw;
     left: 20vw;
+    color: #fff;
+}
+
+.screen-albert-vidal-award-name {
+    font-size: 4vw;
+    margin-bottom: 2vw;
+    text-transform: uppercase;
+}
+
+.screen-albert-vidal-award {
+    font-size: 3vw;
+}
+
+.screen-skill-cube svg {
+    position: absolute;
+    left: -280vw;
+    top: -150vw;
+    width: 400vw;
+    height: 400vw;
+}
+
+.screen-a .screen-skill-cube svg #Fill-1 {
+    fill: #EA5A0B;
+}
+
+.screen-a .screen-skill-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-b .screen-skill-cube svg #Fill-1 {
+    fill: #302683;
+}
+
+.screen-b .screen-skill-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-a .screen-background {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #EA5A0B;
+}
+
+.screen-b .screen-background {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #302683;
+}
+
+.screen-skill-callup-cube svg {
+    position: absolute;
+    left: -270vw;
+    top: -130vw;
+    width: 400vw;
+    height: 400vw;
+}
+
+.screen-a .screen-skill-callup-cube svg #Fill-1 {
+    fill: #EA5A0B;
+}
+
+.screen-a .screen-skill-callup-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-b .screen-skill-callup-cube svg #Fill-1 {
+    fill: #302683;
+}
+
+.screen-b .screen-skill-callup-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-skill-medals-cube svg {
+    position: absolute;
+    left: -293vw;
+    top: -190vw;
+    width: 400vw;
+    height: 400vw;
+}
+
+.screen-a .screen-skill-medals-cube svg #Fill-1 {
+    fill: #EA5A0B;
+}
+
+.screen-a .screen-skill-medals-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-b .screen-skill-medals-cube svg #Fill-1 {
+    fill: #302683;
+}
+
+.screen-b .screen-skill-medals-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-skill-name,
+.screen-skill-medals-name,
+.screen-skill-callup-name {
+    font-size: 5vw;
+    margin-bottom: 4vw;
+    text-transform: uppercase;
+}
+
+.screen-skill-callup-name {
+    margin-left: 3vw;
+    margin-bottom: 6vw;
+}
+
+.screen-skill-name-flow {
+    float: right;
+    width: 30vw;
+    height: 15vw;
+    shape-outside: polygon(0 100%, 100% 0, 100% 100%);
+}
+
+.screen-a .screen-skill-medals-name {
+    color: #EA5A0B;
+}
+
+.screen-sponsors {
+    position: absolute;
+    left: 30vw;
+    right: 0;
+    bottom: 4vw;
+    text-align: right;
+}
+
+.screen-sponsors-flow {
+    float: left;
+    width: 30vw;
+    height: 15vw;
+    shape-outside: polygon(0 0, 0 100%, 100% 0);
 }
 
 .screen-table-countries {
@@ -69,8 +217,9 @@ html, body {
     max-height: 4vw;
 }
 
-.screen-content-best-of-nation .screen-flag img {
-    border: 0.2vw solid #999;
+.screen-flag img,
+.screen-table-countries img {
+    border: 0.1vw solid #999;
 }
 
 .screen-img-flag {
@@ -79,13 +228,83 @@ html, body {
     margin-bottom: 3vw;
 }
 
+.screen-img-sponsor {
+    max-width: 16rem;
+    max-height: 6rem;
+    margin-right: 4rem;
+    margin-bottom: 4rem;
+    vertical-align: middle;
+}
+
+.screen-best-of-nation-cube svg {
+    position: absolute;
+    left: -290vw;
+    top: -190vw;
+    width: 400vw;
+    height: 400vw;
+}
+
+.screen-a .screen-best-of-nation-cube svg #Fill-1 {
+    fill: #302683;
+}
+
+.screen-a .screen-best-of-nation-cube svg #Fill-6 {
+    fill: #302683;
+}
+
+.screen-b .screen-best-of-nation-cube svg #Fill-1 {
+    fill: #62C2D0;
+}
+
+.screen-b .screen-best-of-nation-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-best-of-nation-name {
+    font-size: 6vw;
+    color: #FFF;
+    text-transform: uppercase;
+    margin-bottom: 4vw;
+    text-align: right;
+}
+
+.screen-best-of-nation {
+    text-transform: uppercase;
+    color: #FFF;
+    display: block;
+}
+
 .screen-competitors {
     float: left;
     padding-bottom: 1vw;
 }
 
+.screen-best-of-nation:after {
+   content: ".";
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
+}
+
 .screen-competitor {
-    width: 60vw;
+    width: 70vw;
+}
+
+.screen-albert-vidal-award-cube svg {
+    position: absolute;
+    left: -270vw;
+    top: -150vw;
+    width: 400vw;
+    height: 400vw;
+}
+
+.screen-albert-vidal-award-cube svg #Fill-1 {
+    fill: #773E90;
+}
+
+.screen-albert-vidal-award-cube svg #Fill-6 {
+    fill: #62C2D0;
 }
 
 .screen-medal-Gold,
@@ -98,10 +317,7 @@ html, body {
 }
 
 .screen-state-Bronze .screen-medal-Bronze,
-.screen-state-Silver .screen-medal-Bronze,
 .screen-state-Silver .screen-medal-Silver,
-.screen-state-Gold .screen-medal-Bronze,
-.screen-state-Gold .screen-medal-Silver,
 .screen-state-Gold .screen-medal-Gold,
 .screen-state-Preview .screen-medal-Bronze,
 .screen-state-Preview .screen-medal-Silver,

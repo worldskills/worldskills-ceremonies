@@ -16,13 +16,19 @@ Run the following command on the command line to install all required dependenci
 bower install
 ```
 
+## Preparation
+
+```
+bin/fetch.js
+```
+
 ## Usage
 
 To run the application start the web server from the command line with the following command. Then follow the tasks below.
 
 ```
-php -S localhost:8000
+bin/server.js
 ```
 
-- Open the [Control panel](http://localhost:8000/) in one window
+- Open the [Control panel](http://localhost:8000/control.html) in one window
 - Open multiple [Screens](http://localhost:8000/screen.html) in new windows 

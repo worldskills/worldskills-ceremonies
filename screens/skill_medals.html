@@ -1,10 +1,26 @@
+<div class="screen-skill-medals-cube">
+    <svg width="350px" height="350px" viewBox="0 0 350 350" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
+        <desc>Created with Sketch.</desc>
+        <defs></defs>
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="WorldSkills_identity_cube_1" transform="translate(175.000000, 175.000000) rotate(-180.000000) translate(-175.000000, -175.000000) translate(0.000000, 0.000000)">
+                <polygon id="Fill-6" fill="#62C2D0" points="174.307 0.071 132.116 86.575 88.864 174.63 175.368 261.134 263.423 217.884 349.926 174.63 349.926 0.071"></polygon>
+                <polyline id="Fill-1" fill="#B70D7F" points="132.12 349.19 175.368 261.134 88.864 174.63 0.81 217.882 132.12 349.19"></polyline>
+            </g>
+        </g>
+    </svg>
+</div>
 <div class="screen-content screen-content-skill-medals">
+    <div class="screen-skill-medals-name">
+        {{ context.skill.name }}
+    </div>
     <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results">
         <div class="screen-medal-name">
             {{ result.medal }}
         </div>
         <div class="screen-flag">
-            <img ng-src="flags/{{ result.memberCode }}.png">
+            <img ng-src="data/flags/{{ result.memberCode }}.png">
         </div>
         <div class="screen-competitors">
             <div class="screen-competitor">

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ceremoniesApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceremonator</title>
+    <link href="bower_components/worldskills-bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/control.css" rel="stylesheet">
+</head>
+<body ng-controller="ControlCtrl">
+
+    <div class="navbar navbar-worldskills navbar-static-top">
+        <div class="cube-container">
+            <div class="cube-right-bottom-blue">&nbsp;</div>
+        </div>
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand">Ceremonies</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="screen.html" target="_blank">
+                        Launch Screen
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-6" ng-repeat="(id, screen) in screens">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{ screen.label }}</h3>
+                    </div>
+                    <div class="list-group">
+                        <a class="list-group-item" ng-class="{'list-group-item-success': slide.done}" ng-repeat="slide in screen.slides" ng-click="showSlide(id, slide)">
+                            <div class="list-group-item-heading">{{ slide.label }}</div>
+                            <div ng-show="screens[id].slide == slide">
+                                <p class="list-group-item-text">
+                                    <div class="btn-toolbar">
+                                        <button class="btn btn-success" ng-click="slide.edit = !slide.edit"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                                        <div class="btn-group" ng-show="slide.states">
+                                            <button class="btn btn-default" ng-repeat="state in slide.states" ng-click="toggleState(id, slide, state)">
+                                                <span ng-show="hasState(slide, state)" class="glyphicon glyphicon-eye-close"></span>
+                                                <span ng-show="!hasState(slide, state)" class="glyphicon glyphicon-eye-open"></span>
+                                                {{ state }}
+                                            </button>
+                                        </div>
+                                        <button class="btn btn-danger" ng-show="slide.states" ng-click="resetStates(id, slide)">Reset</button>
+                                    </div>
+                                </p>
+                                <p class="list-group-item-text" ng-show="slide.edit">
+                                    <textarea class="form-control" json-text rows="9" ng-model="slide.context" ng-change="updateContext(id, slide)"></textarea>
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="hr-extended" />
+
+        <footer>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p>© 2017 WorldSkills International</p>
+                </div>
+            </div>
+
+        </footer>
+
+    </div>
+
+    <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/worldskills-bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/intercom.js/intercom.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/control.js"></script>
+</body>
+</html>
