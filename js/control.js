@@ -82,7 +82,7 @@
                 // check sector
                 var currentSector = skill.sector.name.text;
                 if (currentSector != previousSector) {
-                    //c = 0;
+                    c = 0;
                     previousSector = currentSector;
                 }
 
