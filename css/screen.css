@@ -380,7 +380,12 @@ html, body {
 .screen-state-Preview .screen-medal-Silver,
 .screen-state-Preview .screen-medal-Gold,
 .screen-state-Name .screen-albert-vidal-award,
-.screen-state-Countries .screen-best-of-nation,
+.screen-state-1 .screen-best-of-nation-line-1,
+.screen-state-2 .screen-best-of-nation-line-2,
+.screen-state-3 .screen-best-of-nation-line-3,
+.screen-state-4 .screen-best-of-nation-line-4,
+.screen-state-5 .screen-best-of-nation-line-5,
+.screen-state-6 .screen-best-of-nation-line-6,
 .screen-state-Preview .screen-best-of-nation,
 .screen-state-Preview .screen-albert-vidal-award {
     visibility: visible;

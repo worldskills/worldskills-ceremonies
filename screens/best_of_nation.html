@@ -17,7 +17,7 @@
     <div class="screen-best-of-nation-name">
         Best of Nation
     </div>
-    <div class="screen-best-of-nation" ng-repeat="result in context.results">
+    <div class="screen-best-of-nation screen-best-of-nation-line-{{ $index + 1 }}" ng-repeat="result in context.results">
         <div class="screen-flag">
             <img ng-src="data/flags/{{ result.memberCode }}.png">
         </div>

@@ -172,12 +172,18 @@
             // slides for Best of Nation
             for (var i = 1; i <= 99 && resultsBestOfNation.length > 0; i++) {
 
+                var resultsBestOfNationSlice = resultsBestOfNation.splice(0, 5);
+                var states = [];
+                angular.forEach(resultsBestOfNationSlice, function(result, i) {
+                    states.push(i + 1);
+                });
+
                 var slide = {
                     label: 'Best of Nation ' + i,
                     template: 'best_of_nation.html',
-                    states: ['Countries'],
+                    states: states,
                     context: {
-                        results: resultsBestOfNation.splice(0, 5),
+                        results: resultsBestOfNationSlice,
                     }
                 };
 
