@@ -334,7 +334,7 @@ html, body {
 .screen-medal-Gold,
 .screen-medal-Silver,
 .screen-medal-Bronze,
-.screen-content-best-of-nation,
+.screen-best-of-nation,
 .screen-albert-vidal-award {
     visibility: hidden;
 }
@@ -346,8 +346,8 @@ html, body {
 .screen-state-Preview .screen-medal-Silver,
 .screen-state-Preview .screen-medal-Gold,
 .screen-state-Name .screen-albert-vidal-award,
-.screen-state-Countries .screen-content-best-of-nation,
-.screen-state-Preview .screen-content-best-of-nation,
+.screen-state-Countries .screen-best-of-nation,
+.screen-state-Preview .screen-best-of-nation,
 .screen-state-Preview .screen-albert-vidal-award {
     visibility: visible;
 }
