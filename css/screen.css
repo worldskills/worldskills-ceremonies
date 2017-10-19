@@ -7,30 +7,27 @@ html, body {
 
 .screen-content {
     position: absolute;
-    left: 6vw;
+    left: 5vw;
     top: 18vw;
     font-size: 2.5vw;
     color: #302683;
 }
 
 .screen-content-skill-name {
-    top: 16vw;
-    right: 18vw;
+    top: 10vw;
+    right: 4vw;
     color: #FFF;
     text-transform: uppercase;
 }
 
 .screen-content-skill-callup {
-    left: 3vw;
-    right: 3vw;
-    top: 16vw;
-    color: #FFF;
-    text-transform: uppercase;
+    left: 2vw;
+    right: 2vw;
+    top: 10vw;
 }
 
 .screen-content-skill-medals {
-    left: 5vw;
-    top: 14vw;
+    top: 10vw;
     font-size: 3vw;
 }
 
@@ -126,8 +123,8 @@ html, body {
 
 .screen-skill-callup-cube svg {
     position: absolute;
-    left: -270vw;
-    top: -130vw;
+    left: -9vw;
+    top: -187vw;
     width: 400vw;
     height: 400vw;
 }
@@ -150,8 +147,8 @@ html, body {
 
 .screen-skill-medals-cube svg {
     position: absolute;
-    left: -293vw;
-    top: -190vw;
+    left: -9vw;
+    top: -187vw;
     width: 400vw;
     height: 400vw;
 }
@@ -172,12 +169,20 @@ html, body {
     fill: #62C2D0;
 }
 
+.screen-skill-number {
+    font-weight: normal;
+}
+
 .screen-skill-name,
 .screen-skill-medals-name,
 .screen-skill-callup-name {
     font-size: 5vw;
     margin-bottom: 4vw;
     text-transform: uppercase;
+}
+
+.screen-skill-callup-number {
+    margin-left: 3vw;
 }
 
 .screen-skill-callup-name {
@@ -187,18 +192,26 @@ html, body {
 
 .screen-skill-name-flow {
     float: right;
-    width: 30vw;
-    height: 15vw;
+    width: 60vw;
+    height: 30vw;
     shape-outside: polygon(0 100%, 100% 0, 100% 100%);
 }
 
-.screen-a .screen-skill-medals-name {
+.screen-skill-medals-number {
+    font-size: 2.5vw;
+}
+
+.screen-a .screen-skill-callup-number,
+.screen-a .screen-skill-callup-name,
+.screen-a .screen-skill-medals-number,
+.screen-a .screen-skill-medals-name,
+.screen-a .screen-table-countries {
     color: #EA5A0B;
 }
 
 .screen-sponsors {
     position: absolute;
-    left: 30vw;
+    left: 25vw;
     right: 0;
     bottom: 4vw;
     text-align: right;
@@ -206,9 +219,30 @@ html, body {
 
 .screen-sponsors-flow {
     float: left;
-    width: 30vw;
-    height: 15vw;
+    width: 10vw;
+    height: 5vw;
     shape-outside: polygon(0 0, 0 100%, 100% 0);
+}
+
+
+.screen-sponsors-skill-01 .screen-sponsors-flow {
+    width: 20vw;
+    height: 10vw;
+}
+
+.screen-sponsors-skill-03 .screen-sponsors-flow {
+    width: 60vw;
+    height: 30vw;
+}
+
+.screen-sponsors-skill-06 .screen-sponsors-flow {
+    width: 20vw;
+    height: 10vw;
+}
+
+.screen-sponsors-skill-48 .screen-sponsors-flow {
+    width: 50vw;
+    height: 25vw;
 }
 
 .screen-table-countries {
@@ -254,7 +288,7 @@ html, body {
 
 .screen-img-sponsor {
     max-width: 8vw;
-    max-height: 3vw;
+    max-height: 4vw;
     margin-right: 4vw;
     margin-bottom: 2vw;
     vertical-align: middle;

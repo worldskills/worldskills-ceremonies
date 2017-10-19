@@ -1,4 +1,4 @@
-<div class="screen-sponsors">
+<div class="screen-sponsors screen-sponsors-skill-{{ context.skill.number }}">
     <div class="screen-sponsors-flow">
     </div>
     <span ng-repeat="sponsor in context.skill.sponsors">
@@ -20,6 +20,9 @@
 </div>
 <div class="screen-content screen-content-skill-name">
     <div class="screen-skill-name-flow">
+    </div>
+    <div class="screen-skill-number">
+        {{ context.skill.number }}
     </div>
     <div class="screen-skill-name">
         {{ context.skill.name.text }}

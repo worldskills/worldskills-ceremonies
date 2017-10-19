@@ -48,6 +48,7 @@
 
         $scope.simplifySkill = function (skill) {
             var s = {};
+            s.number = skill.number;
             s.name = skill.name.text;
             return s;
         };
