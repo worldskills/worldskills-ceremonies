@@ -34,12 +34,18 @@
             input = input.toLowerCase();
 
             var inputPieces = input.split(' ');
-
             for (var i = 0; i < inputPieces.length; i++){
                 inputPieces[i] = $scope.capitalizeString(inputPieces[i]);
             }
+            input = inputPieces.join(' ');
 
-            return inputPieces.toString().replace(/,/g, ' ');
+            inputPieces = input.split('-');
+            for (var i = 0; i < inputPieces.length; i++){
+                inputPieces[i] = $scope.capitalizeString(inputPieces[i]);
+            }
+            input = inputPieces.join('-');
+
+            return input;
         };
 
         $scope.capitalizeString = function (inputString) {
