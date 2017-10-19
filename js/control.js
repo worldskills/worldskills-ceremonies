@@ -202,8 +202,8 @@
 
             var slide = {
                 label: 'Best of Nation Host',
-                template: 'best_of_nation.html',
-                states: ['Countries'],
+                template: 'best_of_nation_host.html',
+                states: ['Name'],
                 context: {
                     results: [resultBestOfNationHost],
                 }

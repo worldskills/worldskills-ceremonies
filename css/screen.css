@@ -301,8 +301,8 @@ html, body {
 
 .screen-best-of-nation-cube svg {
     position: absolute;
-    left: -290vw;
-    top: -190vw;
+    left: -9vw;
+    top: -187vw;
     width: 400vw;
     height: 400vw;
 }
@@ -312,11 +312,11 @@ html, body {
 }
 
 .screen-a .screen-best-of-nation-cube svg #Fill-6 {
-    fill: #302683;
+    fill: #62C2D0;
 }
 
 .screen-b .screen-best-of-nation-cube svg #Fill-1 {
-    fill: #62C2D0;
+    fill: #302683;
 }
 
 .screen-b .screen-best-of-nation-cube svg #Fill-6 {
@@ -325,15 +325,11 @@ html, body {
 
 .screen-best-of-nation-name {
     font-size: 6vw;
-    color: #FFF;
     text-transform: uppercase;
     margin-bottom: 4vw;
-    text-align: right;
 }
 
 .screen-best-of-nation {
-    text-transform: uppercase;
-    color: #FFF;
     display: block;
 }
 
