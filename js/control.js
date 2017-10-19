@@ -76,6 +76,13 @@
             var previousSector = '';
             var c = 0;
 
+            var empty = {
+                label: 'Empty',
+                template: 'empty.html',
+                states: [],
+                context: {}
+            };
+
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
 
@@ -84,6 +91,8 @@
                 if (currentSector != previousSector) {
                     c = 0;
                     previousSector = currentSector;
+                    $scope.screens.a.slides.push(angular.copy(empty));
+                    $scope.screens.b.slides.push(angular.copy(empty));
                 }
 
                 // find results for skill
@@ -140,6 +149,9 @@
                 }
             });
 
+            $scope.screens.a.slides.push(angular.copy(empty));
+            $scope.screens.b.slides.push(angular.copy(empty));
+
             // find results for Best of Nation
             var resultsBestOfNation = [];
             var resultBestOfNationHost;
@@ -187,6 +199,9 @@
             $scope.screens.a.slides.push(slide);
             $scope.screens.b.slides.push(angular.copy(slide));
 
+            $scope.screens.a.slides.push(angular.copy(empty));
+            $scope.screens.b.slides.push(angular.copy(empty));
+
             // find results for Albert Vidal Award
             var resultsAlbertVidalAward = [];
             angular.forEach($scope.results, function(result, j) {
@@ -206,6 +221,9 @@
             };
             $scope.screens.a.slides.push(slide);
             $scope.screens.b.slides.push(angular.copy(slide));
+
+            $scope.screens.a.slides.push(angular.copy(empty));
+            $scope.screens.b.slides.push(angular.copy(empty));
         };
 
         $scope.hasState = function (slide, state) {

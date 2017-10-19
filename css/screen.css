@@ -100,6 +100,30 @@ html, body {
     background-color: #302683;
 }
 
+.screen-empty-cube svg {
+    position: absolute;
+    left: -270vw;
+    top: -160vw;
+    width: 400vw;
+    height: 400vw;
+}
+
+.screen-a .screen-empty-cube svg #Fill-1 {
+    fill: #302683;
+}
+
+.screen-a .screen-empty-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
+.screen-b .screen-empty-cube svg #Fill-1 {
+    fill: #773E90;
+}
+
+.screen-b .screen-empty-cube svg #Fill-6 {
+    fill: #62C2D0;
+}
+
 .screen-skill-callup-cube svg {
     position: absolute;
     left: -270vw;
