@@ -172,6 +172,7 @@
                 }
             });
             resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member_1058');
+            resultsBestOfNation.splice(34, 0, {});
 
             var c = 0;
 
