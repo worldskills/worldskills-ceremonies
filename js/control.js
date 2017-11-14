@@ -173,13 +173,6 @@
             });
             resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member_1058');
             resultsBestOfNation.splice(34, 0, {});
-            resultsBestOfNation.splice(40, 0, {
-                member: 'Palestine',
-                memberCode: 'PS',
-                competitors: [
-                    'Ameen Baker'
-                ],
-            });
 
             var c = 0;
 
