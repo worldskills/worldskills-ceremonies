@@ -36,7 +36,7 @@ html, body {
     left: 10vw;
     right: 10vw;
     color: #003B5C;
-    font-size: 4vw;
+    font-size: 3vw;
 }
 
 .screen-content-albert-vidal-award {
@@ -265,6 +265,19 @@ html, body {
     height: 25vw;
 }
 
+.screen-skill-medals-39 .screen-medal {
+    font-size: 1.5vw;
+}
+
+.screen-skill-medals-39 .screen-flag img {
+    max-width: 4vw;
+    max-height: 3vw;
+}
+
+.screen-skill-medals-09 .screen-medal {
+    font-size: 2.5vw;
+}
+
 .screen-table-countries {
     width: 100%;
     table-layout: fixed;
@@ -419,8 +432,14 @@ html, body {
 .screen-state-4 .screen-best-of-nation-line-4,
 .screen-state-5 .screen-best-of-nation-line-5,
 .screen-state-6 .screen-best-of-nation-line-6,
+.screen-state-Preview .screen-best-of-nation-line-1,
+.screen-state-Preview .screen-best-of-nation-line-2,
+.screen-state-Preview .screen-best-of-nation-line-3,
+.screen-state-Preview .screen-best-of-nation-line-4,
+.screen-state-Preview .screen-best-of-nation-line-5,
+.screen-state-Preview .screen-best-of-nation-line-6,
 .screen-state-Name .screen-best-of-nation-host,
-.screen-state-Preview .screen-best-of-nation,
+.screen-state-Preview .screen-best-of-nation-host,
 .screen-state-Preview .screen-albert-vidal-award {
     visibility: visible;
 }
