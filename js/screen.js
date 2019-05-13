@@ -3,42 +3,50 @@
 
     angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, SCREENS) {
 
-        var intercom = Intercom.getInstance();
-
         $scope.screens = SCREENS;
 
         $scope.enableFullscreen = function () {
             document.documentElement.webkitRequestFullScreen();
         };
 
+        window.addEventListener('storage', function (e) {
+            if (e.key == 'screen-' + $scope.screen) {
+                $scope.$apply(function () {
+                    $scope.render();
+                })
+            }
+        });
+
         $scope.setScreen = function (screen, preview) {
 
             $scope.screen = screen;
+            $scope.preview = preview;
 
-            intercom.on('update.' + $scope.screen, function(data) {
-                $scope.$apply(function () {
-
-                    if (data.template != $scope.template) {
-                        // clear context before loading new template
-                        $scope.context = {};
-                    }
-
-                    $scope.states = [];
-                    if (preview) {
-                        $scope.states.push('screen-state-Preview');
-                    } else {
-                        angular.forEach(data.state, function(state) {
-                            $scope.states.push('screen-state-' + state);
-                        });
-                    }
-
-                    $scope.template = data.template;
-                    $scope.context = data.context;
-                });
-            });
-
-            intercom.emit('poll.' + $scope.screen);
+            $scope.render();
         };
+
+        $scope.render = function () {
+
+            var data = angular.fromJson(window.localStorage.getItem('screen-' + $scope.screen));
+
+            if (data.template != $scope.template) {
+                // clear context before loading new template
+                $scope.context = {};
+            }
+
+            $scope.states = [];
+            if ($scope.preview) {
+                $scope.states.push('screen-state-Preview');
+            } else {
+                angular.forEach(data.state, function(state) {
+                    $scope.states.push('screen-state-' + state);
+                });
+            }
+
+            $scope.template = data.template;
+            $scope.context = data.context;
+        };
+
     });
 
 })();

@@ -3,12 +3,10 @@
 
     angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $filter, SCREENS) {
 
-        var intercom = Intercom.getInstance();
-
         $scope.update = function (screen) {
             var slide = $scope.screens[screen].slide;
             if (typeof slide != 'undefined') {
-                intercom.emit('update.' + screen, {template: 'screens/' + slide.template, context: slide.context, state: slide.state});
+                window.localStorage.setItem('screen-' + screen, angular.toJson({template: 'screens/' + slide.template, context: slide.context, state: slide.state}));
             }
         };
 
@@ -272,13 +270,6 @@
                 $scope.update(screen);
             }
         };
-
-        // screen polling
-        angular.forEach($scope.screens, function(screen, id) {
-            intercom.on('poll.' + id, function () {
-                $scope.update(id);
-            });
-        });
     });
 
     angular.module('ceremoniesApp').directive('jsonText', function ($filter) {
