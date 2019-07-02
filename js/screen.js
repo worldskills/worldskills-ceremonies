@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, SCREENS) {
+    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $location, $sce, SCREENS) {
 
         $scope.screens = SCREENS;
 
@@ -18,6 +18,9 @@
         });
 
         $scope.setScreen = function (screen, preview) {
+
+            $location.search('screen', screen)
+            $location.search('preview', preview + '');
 
             $scope.screen = screen;
             $scope.preview = preview;
@@ -46,6 +49,11 @@
             $scope.template = data.template;
             $scope.context = data.context;
         };
+
+        var parameter = $location.search();
+        if (typeof parameter.screen !== 'undefined') {
+            $scope.setScreen(parameter.screen, parameter.preview)
+        }
 
     });
 
