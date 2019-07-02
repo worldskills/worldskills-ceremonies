@@ -4,24 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ceremonator Screen</title>
-    <link href="node_modules/@worldskills/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/screen.css" rel="stylesheet">
 </head>
 <body ng-controller="ScreenCtrl">
 
-    <div class="container-fluid" ng-show="!screen">
+    <div ng-show="!screen">
         <p>
             <br>
-            <button class="btn btn-default btn-lg" ng-click="enableFullscreen()">Enable Fullscreen</button>
+            <button ng-click="enableFullscreen()">Enable Fullscreen</button>
         </p>
         <p>
             <span ng-repeat="(id, screen) in screens">
-                <button class="btn btn-default btn-lg" ng-click="setScreen(id, false)">{{ screen.label }}</button>
+                <button ng-click="setScreen(id, false)">{{ screen.label }}</button>
             </span>
         </p>
         <p>
             <span ng-repeat="(id, screen) in screens">
-                <button class="btn btn-default" ng-click="setScreen(id, true)">Preview {{ screen.label }}</button>
+                <button ng-click="setScreen(id, true)">Preview {{ screen.label }}</button>
             </span>
         </p>
     </div>
