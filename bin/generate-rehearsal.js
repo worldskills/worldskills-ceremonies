@@ -10,7 +10,9 @@ var json = fs.readFileSync(filename);
 var results = JSON.parse(json);
 
 for (let result of results.results) {
-    result.skill.id += 98;
+    if (result.skill.id < 593) {
+        result.skill.id += 111;
+    }
 }
 
 fs.writeFileSync(filename, JSON.stringify(results));
