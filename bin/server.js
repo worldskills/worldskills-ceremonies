@@ -3,12 +3,14 @@
 'use strict';
 
 var http = require('http');
+var url = require('url');
 var fs = require('fs');
 var path = require('path');
 
 http.createServer(function (request, response) {
 
-    var filePath = '.' + request.url;
+    var parsedUrl = url.parse(request.url);
+    var filePath = '.' + parsedUrl.pathname;
     var extname = path.extname(filePath);
 
     fs.readFile(filePath, function(error, content) {
