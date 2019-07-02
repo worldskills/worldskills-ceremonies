@@ -1,9 +1,0 @@
-{
-  "name": "worldskills-ceremonies",
-  "private": true,
-  "dependencies": {
-    "angular": "~1.5.0",
-    "jquery": "~1.10.2",
-    "worldskills-bootstrap": "v3.3.7.1"
-  }
-}
