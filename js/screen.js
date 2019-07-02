@@ -23,7 +23,9 @@
             $location.search('preview', preview + '');
 
             $scope.screen = screen;
-            $scope.preview = preview;
+            $scope.preview = (preview == 'true');
+
+            document.title = 'Ceremonator ' + ($scope.preview ? 'Preview ' : '') + $scope.screens[screen].label;
 
             $scope.render();
         };

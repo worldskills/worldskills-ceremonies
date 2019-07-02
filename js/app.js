@@ -4,7 +4,7 @@
     var ceremoniesApp = angular.module('ceremoniesApp', []);
 
     var screens = {
-        a: {label: 'Screen Orange', slides: []},
+        a: {label: 'Screen Pink', slides: []},
         b: {label: 'Screen Blue', slides: []}
     };
 

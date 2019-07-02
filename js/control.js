@@ -17,10 +17,33 @@
             $scope.buildScreens();
         });
 
+        // members
+        $scope.members = [];
+        $http({method: 'GET', url: 'data/json/members.json'}).then(function(response) {
+            $scope.members = response.data.members;
+            $scope.buildScreens();
+        });
+
+        $scope.loadExcel = function (data) {
+            var wb = XLSX.read(data, {type:'array'});
+
+            var wsname = wb.SheetNames[0];
+            var ws = wb.Sheets[wsname];
+
+            return XLSX.utils.sheet_to_json(ws, {raw:false});
+        };
+
         // results
         $scope.results = [];
-        $http({method: 'GET', url: 'data/json/results.json'}).then(function(response) {
-            $scope.results = response.data.results;
+        $http({method: 'GET', url: 'data/cis/Competitor_results.xlsx', responseType: 'arraybuffer'}).then(function(response) {
+            $scope.results = $scope.loadExcel(response.data);
+            $scope.buildScreens();
+        });
+
+        // best of nations
+        $scope.resultsBestOfNations = [];
+        $http({method: 'GET', url: 'data/cis/Best_of_Nation.xlsx', responseType: 'arraybuffer'}).then(function(response) {
+            $scope.resultsBestOfNations = $scope.loadExcel(response.data);
             $scope.buildScreens();
         });
 
@@ -52,24 +75,19 @@
 
         $scope.simplifySkill = function (skill) {
             var s = {};
-            s.number = skill.number;
-            s.name = skill.name.text;
+            s.name = skill.name.text.replace('â', 'a');
             return s;
         };
 
         $scope.simplifyResult = function (result) {
             var r = {};
-            r.position = result.position;
-            if (result.medal) {
-                r.medal = result.medal.name.text;
+            r.position = result['Position'];
+            if (result['Medal']) {
+                r.medal = $scope.capitalize(result['Medal']);
             }
-            r.member = result.member.name.text;
-            r.member_1058 = result.member.name_1058.text;
-            r.memberCode = result.member.code;
-            r.competitors = [];
-            angular.forEach(result.competitors, function (competitor) {
-                r.competitors.push($scope.capitalize(competitor.first_name) + ' ' + $scope.capitalize(competitor.last_name));
-            });
+            r.member = result['Member Name'];
+            r.memberCode = result['Member'];
+            r.competitor= $scope.capitalize(result['First Name']) + ' ' + $scope.capitalize(result['Last Name']);
             return r;
         };
 
@@ -82,31 +100,56 @@
             var c = 0;
 
             var empty = {
-                label: 'Empty',
+                label: '• Empty',
                 template: 'empty.html',
                 states: [],
                 context: {}
             };
 
+            var sectorsTotal = $scope.skills.reduce(function (accumulator, skill) {
+              accumulator[skill.sector.id] = accumulator[skill.sector.id] + 1 || 1;
+              return accumulator;
+            }, {});
+
+            var sectorCount = 0;
+
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
+
+                sectorCount += 1;
 
                 // check sector
                 var currentSector = skill.sector.name.text;
                 if (currentSector != previousSector) {
-                    c = 0;
                     previousSector = currentSector;
                     $scope.screens.a.slides.push(angular.copy(empty));
                     $scope.screens.b.slides.push(angular.copy(empty));
+                    sectorCount = 1;
+                } else {
+    
+                    // check large sectors
+                    if (sectorsTotal[skill.sector.id] >= 12 && sectorCount > sectorsTotal[skill.sector.id] / 2) {
+                        $scope.screens.a.slides.push(angular.copy(empty));
+                        $scope.screens.b.slides.push(angular.copy(empty));
+
+                        // set to zero for last skill in sector
+                        sectorCount = 0;
+                    }
+
                 }
 
                 // find results for skill
-                var results = [];
-                angular.forEach($scope.results, function(result, i) {
-                    if (result.skill.id == skill.id && result.medal && result.medal.code != 'MFE') {
-                        results.push($scope.simplifyResult(result));
-                    }
-                });
+                var results = Object.values($scope.results
+                    .filter(function (result) { return result['Skill Number'] == skill.number && result['Medal'] && result['Medal'] != 'Medallion For Excellence'; })
+                    .reduce(function (accumulator, result) {
+                        var resultSimplified = $scope.simplifyResult(result);
+                        if (typeof accumulator[result['Member']] == 'undefined') {
+                            accumulator[result['Member']] = resultSimplified;
+                            accumulator[result['Member']].competitors = [];
+                        }
+                        accumulator[result['Member']].competitors.push(resultSimplified.competitor);
+                        return accumulator;
+                    }, {}));
 
                 // prepare medals states
                 var states = [];
@@ -116,39 +159,29 @@
                     }
                 });
 
-                var slideName = {
-                    label: skill.number + ' ' + skill.name.text + ' Name',
-                    template: 'skill_name.html',
-                    states: [],
-                    context: {
-                        skill: skill
-                    }
-                };
                 var slideCallup = {
-                    label: skill.number + ' ' + skill.name.text + ' Callup',
+                    label: skill.name.text + ' Callup',
                     template: 'skill_callup.html',
-                    states: [],
+                    states: ['Countries'],
                     context: {
-                        results: $filter('orderBy')(results, 'member_1058'),
+                        results: $filter('orderBy')(results, 'member'),
                         skill: $scope.simplifySkill(skill)
                     }
                 };
                 var slideMedals = {
-                    label: skill.number + ' ' + skill.name.text + ' Medals',
+                    label: skill.name.text + ' Medals',
                     template: 'skill_medals.html',
                     states: states,
                     context: {
-                        results: $filter('orderBy')(results, ['position', 'member_1058']),
+                        results: $filter('orderBy')(results, ['position', 'member']),
                         skill: $scope.simplifySkill(skill)
                     }
                 };
 
                 if (c++ % 2 == 0) {
-                    $scope.screens.a.slides.push(slideName);
                     $scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
                 } else {
-                    $scope.screens.b.slides.push(slideName);
                     $scope.screens.b.slides.push(slideCallup);
                     $scope.screens.b.slides.push(slideMedals);
                 }
@@ -158,25 +191,31 @@
             $scope.screens.b.slides.push(angular.copy(empty));
 
             // find results for Best of Nation
-            var resultsBestOfNation = [];
+            var resultsBestOfNationMembers = [];
             var resultBestOfNationHost;
-            angular.forEach($scope.results, function(result, j) {
-                if (result.best_of_nation) {
-                    if (result.member.code != 'AE') {
-                        resultsBestOfNation.push($scope.simplifyResult(result));
+            angular.forEach($scope.members, function(member, j) {
+                var memberResult = $scope.resultsBestOfNations
+                    .filter(function (result) { return result['Member Name'] && result['Member'] == member.code; })
+                    .reduce(function (accumulator, result) {
+                        accumulator.competitors.push($scope.capitalize(result['First Name']) + ' ' + $scope.capitalize(result['Last Name']));
+                        return accumulator;
+                    }, {memberCode: member.code, memberName: member.name.text, competitors: []});
+
+                if (memberResult.competitors.length > 0) {
+                    if (member.code != 'RU') {
+                        resultsBestOfNationMembers.push(memberResult);
                     } else {
-                        resultBestOfNationHost = $scope.simplifyResult(result);
+                        resultBestOfNationHost = memberResult;
                     }
                 }
             });
-            resultsBestOfNation = $filter('orderBy')(resultsBestOfNation, 'member_1058');
 
             var c = 0;
 
             // slides for Best of Nation
-            for (var i = 1; i <= 99 && resultsBestOfNation.length > 0; i++) {
+            for (var i = 1; i <= 99 && resultsBestOfNationMembers.length > 0; i++) {
 
-                var resultsBestOfNationSlice = resultsBestOfNation.splice(0, 5);
+                var resultsBestOfNationSlice = resultsBestOfNationMembers.splice(0, 5);
                 var states = [];
                 angular.forEach(resultsBestOfNationSlice, function(result, i) {
                     states.push(i + 1);
@@ -214,12 +253,18 @@
             $scope.screens.b.slides.push(angular.copy(empty));
 
             // find results for Albert Vidal Award
-            var resultsAlbertVidalAward = [];
-            angular.forEach($scope.results, function(result, j) {
-                if (result.albert_vidal_award) {
-                    resultsAlbertVidalAward.push($scope.simplifyResult(result));
-                }
-            });
+            var maxResult = Math.max.apply(Math, $scope.results.map(function (result) { return result['WorldSkills Scale Score']; }));
+            var resultsAlbertVidalAward = Object.values($scope.results
+                .filter(function (result) { return result['WorldSkills Scale Score'] == maxResult; })
+                .reduce(function (accumulator, result) {
+                    var resultSimplified = $scope.simplifyResult(result);
+                    if (typeof accumulator[result['Member']] == 'undefined') {
+                        accumulator[result['Member']] = resultSimplified;
+                        accumulator[result['Member']].competitors = [];
+                    }
+                    accumulator[result['Member']].competitors.push(resultSimplified.competitor);
+                    return accumulator;
+                }, {}));
 
             // slides for Albert Vidal Award
             var slide = {
