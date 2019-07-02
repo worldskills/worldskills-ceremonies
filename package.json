@@ -4,6 +4,7 @@
   "dependencies": {
     "@worldskills/bootstrap": "^4.3.3",
     "angular": "^1.5.11",
+    "font-awesome": "^4.7.0",
     "jquery": "^1.11.3"
   }
 }
