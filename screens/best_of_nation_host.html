@@ -8,8 +8,8 @@
                 <img ng-src="data/flags/{{ result.memberCode }}.png">
             </div>
             <div class="screen-competitors">
-                <div class="screen-competitor" ng-repeat="competitor in result.competitors">
-                    {{ competitor }}
+                <div class="screen-competitor">
+                    <span ng-repeat="competitor in result.competitors"><span ng-if="!$first">, </span>{{ competitor }}</span>
                 </div>
             </div>
         </div>

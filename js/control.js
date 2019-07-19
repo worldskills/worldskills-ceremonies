@@ -76,6 +76,7 @@
         $scope.simplifySkill = function (skill) {
             var s = {};
             s.name = skill.name.text.replace('â', 'a');
+            s.number = skill.number;
             return s;
         };
 
@@ -151,12 +152,14 @@
                         return accumulator;
                     }, {}));
 
-                // prepare medals states
+                // prepare medals states and competitors total
                 var states = [];
+                var total = 0;
                 angular.forEach(results, function(result, i) {
                     if (states.indexOf(result.medal) < 0) {
                         states.unshift(result.medal);
                     }
+                    total += result.competitors.length;
                 });
 
                 var slideCallup = {
@@ -174,7 +177,8 @@
                     states: states,
                     context: {
                         results: $filter('orderBy')(results, ['position', 'member']),
-                        skill: $scope.simplifySkill(skill)
+                        skill: $scope.simplifySkill(skill),
+                        total: total
                     }
                 };
 

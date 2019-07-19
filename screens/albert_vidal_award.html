@@ -2,13 +2,15 @@
     <div class="screen-albert-vidal-award-name">
         Albert Vidal Award
     </div>
-    <div class="screen-albert-vidal-award" ng-repeat="result in context.results">
-        <div class="screen-flag">
-            <img ng-src="data/flags/{{ result.memberCode }}.png">
-        </div>
-        <div class="screen-competitors">
-            <div class="screen-competitor" ng-repeat="competitor in result.competitors">
-                {{ competitor }}
+    <div class="screen-albert-vidal-award-award">
+        <div class="screen-albert-vidal-award" ng-repeat="result in context.results">
+            <div class="screen-flag">
+                <img ng-src="data/flags/{{ result.memberCode }}.png">
+            </div>
+            <div class="screen-competitors">
+                <div class="screen-competitor">
+                    <span ng-repeat="competitor in result.competitors"><span ng-if="!$first">, </span>{{ competitor }}</span>
+                </div>
             </div>
         </div>
     </div>

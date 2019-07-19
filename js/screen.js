@@ -52,11 +52,18 @@
             $scope.context = data.context;
         };
 
-        var parameter = $location.search();
-        if (typeof parameter.screen !== 'undefined') {
-            $scope.setScreen(parameter.screen, parameter.preview)
-        }
+        $scope.loadScreen = function () {
+            var parameter = $location.search();
+            if (typeof parameter.screen !== 'undefined') {
+                $scope.setScreen(parameter.screen, parameter.preview)
+            }
+        };
 
+        $scope.$on("$locationChangeSuccess", function () {
+           $scope.loadScreen();
+        });
+
+        $scope.loadScreen();
     });
 
 })();

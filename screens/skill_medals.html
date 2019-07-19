@@ -1,14 +1,14 @@
-<div class="screen-content screen-content-skill-medals screen-skill-medals">
+<div class="screen-content screen-content-skill-medals screen-skill-medals screen-skill-medals-{{ context.skill.number }}">
     <div class="screen-skill-medals-name">
         {{ context.skill.name }}
     </div>
     <div class="screen-skill-medals-medals">
-        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results">
-            <div class="screen-medal-name">
-                {{ result.medal }}
-            </div>
+        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results" style="font-size: {{ (12 / context.total + 1) }}rem;">
             <div class="screen-flag">
                 <img ng-src="data/flags/{{ result.memberCode }}.png">
+            </div>
+            <div class="screen-medal-name">
+                {{ result.medal }}:
             </div>
             <div class="screen-competitors">
                 <div class="screen-competitor">

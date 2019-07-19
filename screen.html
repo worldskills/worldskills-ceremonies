@@ -27,7 +27,9 @@
     </div>
 
     <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
-        <div ng-include="template"></div>
+        <div class="screen-canvas">
+            <div ng-include="template"></div>
+        </div>
     </div>
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
