@@ -6,7 +6,7 @@
         <table class="screen-table-countries">
             <tr>
                 <td ng-repeat="result in context.results">
-                    <img ng-src="data/flags/{{ result.memberCode }}.png" class="screen-img-flag">
+                    <img ng-src="data/flags/{{ result.memberCode }}.png" class="screen-img-flag" style="max-width: {{ (13.5 - 0.5 * context.results.length) }}rem;">
                 </td>
             </tr>
             <tr>
