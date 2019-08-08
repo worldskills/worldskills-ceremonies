@@ -100,16 +100,16 @@ button:hover {
 }
 
 .screen-skill-medals-39 .screen-skill-medals-name,
-.screen-skill-medals-39 .screen-skill-callup-name {
+.screen-content-skill-callup-39 .screen-skill-callup-name {
     font-size: 3.5rem;
 }
 
 .screen-skill-medals-09 .screen-skill-medals-name,
-.screen-skill-medals-09 .screen-skill-callup-name,
+.screen-content-skill-callup-09 .screen-skill-callup-name,
 .screen-skill-medals-38 .screen-skill-medals-name,
-.screen-skill-medals-38 .screen-skill-callup-name,
+.screen-content-skill-callup-38 .screen-skill-callup-name,
 .screen-skill-medals-52 .screen-skill-medals-name,
-.screen-skill-medals-52 .screen-skill-callup-name {
+.screen-content-skill-callup-52 .screen-skill-callup-name {
     font-size: 4rem;
 }
 
