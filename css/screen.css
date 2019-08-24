@@ -1,8 +1,8 @@
 :root {
-  --primary-a: #DF4661;
-  --secondary-a: #72D0EB;
-  --primary-b: #62B5E5;
-  --secondary-b: #8AE2D1;
+  --primary-a: #62B5E5;
+  --secondary-a: #8AE2D1;
+  --primary-b: #DF4661;
+  --secondary-b: #72D0EB;
 }
 
 html, body {
