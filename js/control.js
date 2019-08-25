@@ -114,6 +114,31 @@
 
             var sectorCount = 0;
 
+            // demo slides
+            var slideCallup = {
+                label: 'Demo Callup',
+                template: 'skill_callup.html',
+                states: ['Countries'],
+                context: {
+                    results: [{member: 'Country A', memberCode: 'WS'}, {member: 'Country B', memberCode: 'WS'}, {member: 'Country C', memberCode: 'WS'}],
+                    skill: {name: 'Skill Name', number: '00'}
+                }
+            };
+            var slideMedals = {
+                label: 'Demo Medals',
+                template: 'skill_medals.html',
+                states: ['Bronze', 'Silver', 'Gold'],
+                context: {
+                    results: [{medal: 'Gold', memberCode: 'WS', competitors: ['Alice']}, {medal: 'Silver', memberCode: 'WS', competitors: ['Bob']}, {medal: 'Bronze', memberCode: 'WS', competitors: ['Eve']}],
+                    skill: {name: 'Skill Name'},
+                    total: 3
+                }
+            };
+            $scope.screens.a.slides.push(angular.copy(slideCallup));
+            $scope.screens.a.slides.push(angular.copy(slideMedals));
+            $scope.screens.b.slides.push(angular.copy(slideCallup));
+            $scope.screens.b.slides.push(angular.copy(slideMedals));
+
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
 
