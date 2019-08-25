@@ -19,6 +19,18 @@ var worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
 var resultsBestOfNations = XLSX.utils.sheet_to_json(worksheet, {raw:false});
 
+var maxResult = Math.max.apply(Math, results.map(function (result) { return result['WorldSkills Scale Score']; }));
+var resultsAlbertVidalAward = Object.values(results
+    .filter(function (result) { return result['WorldSkills Scale Score'] == maxResult; })
+    .reduce(function (accumulator, result) {
+        if (typeof accumulator[result['Member']] == 'undefined') {
+            accumulator[result['Member']] = result;
+            accumulator[result['Member']].competitors = [];
+        }
+        accumulator[result['Member']].competitors.push(result['First Name'] + ' ' + result['Last Name']);
+        return accumulator;
+    }, {}));
+
 var sequence = 1;
 var c = 0;
 
@@ -89,6 +101,16 @@ function bestOfNationSequence (sequence, stage, result) {
   return xml;
 }
 
+function albertVidalSequence (sequence, stage, results) {
+  let xml = '  <AlbertVidalAward Sequence="' + sequence + '" Stage="' + stage + '">\n';
+  let sortedResults = results.concat().sort((a, b) => (a['Member Name'] > b['Member Name']) ? 1 : ((b['Member Name'] > a['Member Name']) ? -1 : 0));
+  for (let result of sortedResults) {
+    xml += '    <Participant CountryCode="' + result['Member'] + '" CountryName="' + result['Member Name'] + '" Name="' + result.competitors.join(', ') + '" />\n';
+  }
+  xml += '  </AlbertVidalAward>\n';
+  return xml;
+}
+
 for (let sector of sectorGroups) {
 
   //xml += '  <Sector Name="' + sector.name.text + '" />\n';
@@ -155,6 +177,12 @@ for (var i = 1; i <= 99 && resultsBestOfNationMembers.length > 0; i++) {
 var stage = 1;
 xml += bestOfNationSequence(sequence, stage, resultBestOfNationHost);
 sequence += 1;
+
+var stage = 1;
+for (let result of resultsAlbertVidalAward) {
+  xml += albertVidalSequence(sequence, stage, resultsAlbertVidalAward);
+  sequence += 1;
+}
 
 xml += '</Root>\n';
 
