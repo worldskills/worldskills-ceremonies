@@ -5,7 +5,7 @@
 
     var screens = {
         a: {label: 'Screen Blue', slides: []},
-        b: {label: 'Screen Pink', slides: []}
+        b: {label: 'Screen Red', slides: []}
     };
 
     ceremoniesApp.constant('SCREENS', screens);
