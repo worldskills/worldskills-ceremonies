@@ -79,6 +79,7 @@ xml += '<Root>\n';
 
 function rewardingSequence (sequence, stage, skill) {
   let xml = '  <Rewarding Sequence="' + sequence + '" Stage="' + stage + '" Skill="' + skill.name.text + '" SkillRu="' + skillsRu.skills.filter(function (skillRu) { return skillRu.id === skill.id; }).map(function (skillRu) { return skillRu.name.text; }) + '">\n';
+  let skillResults = skill.results.sort((a, b) => (a['Position'] > b['Position']) ? 1 : ((b['Position'] > a['Position']) ? -1 : (a['Member Name'] > b['Member Name']) ? 1 : ((b['Member Name'] > a['Member Name']) ? -1 : 0)));
   for (let result of skill.results) {
     xml += '    <Participant Country="' + result['Member'] + '" Reward="' + result['Medal'] + '" Name="' + result.competitors.join(', ') + '" />\n';
   }
@@ -88,7 +89,7 @@ function rewardingSequence (sequence, stage, skill) {
 
 function callupSequence (sequence, stage, skill) {
   let xml = '  <Callup Sequence="' + sequence + '" Stage="' + stage + '" Skill="' + skill.name.text + '">\n';
-  let skillResults = skill.results.concat().sort((a, b) => (a['Member Name'] > b['Member Name']) ? 1 : ((b['Member Name'] > a['Member Name']) ? -1 : 0));
+  let skillResults = skill.results.sort((a, b) => (a['Member Name'] > b['Member Name']) ? 1 : ((b['Member Name'] > a['Member Name']) ? -1 : 0));
   for (let result of skillResults) {
     xml += '    <Country Code="' + result['Member'] + '" Name="' + result['Member Name'] + '" />\n';
   }
