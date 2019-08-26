@@ -119,7 +119,7 @@ for (let sector of sectorGroups) {
 
   for (let skill of sector.skills) {
 
-    var stage = (c++ % 2 == 0) ? 2 : 1;
+    var stage = (c++ % 2 == 0) ? 1 : 2;
 
     if (pendingSkills[stage]) {
       xml += rewardingSequence(sequence, stage, pendingSkills[stage]);

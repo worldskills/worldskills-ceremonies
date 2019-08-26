@@ -208,11 +208,11 @@
                 };
 
                 if (c++ % 2 == 0) {
-                    $scope.screens.b.slides.push(slideCallup);
-                    $scope.screens.b.slides.push(slideMedals);
-                } else {
                     $scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
+                } else {
+                    $scope.screens.b.slides.push(slideCallup);
+                    $scope.screens.b.slides.push(slideMedals);
                 }
             });
 
