@@ -115,29 +115,48 @@
             var sectorCount = 0;
 
             // demo slides
-            var slideCallup = {
+            var slideCallup1 = {
                 label: 'Demo Callup',
                 template: 'skill_callup.html',
                 states: ['Countries'],
                 context: {
                     results: [{member: 'Country A', memberCode: 'WS'}, {member: 'Country B', memberCode: 'WS'}, {member: 'Country C', memberCode: 'WS'}],
-                    skill: {name: 'Skill Name', number: '00'}
+                    skill: {name: 'Skill 1', number: '00'}
                 }
             };
-            var slideMedals = {
+            var slideMedals1 = {
                 label: 'Demo Medals',
                 template: 'skill_medals.html',
                 states: ['Bronze', 'Silver', 'Gold'],
                 context: {
                     results: [{medal: 'Gold', memberCode: 'WS', competitors: ['Alice']}, {medal: 'Silver', memberCode: 'WS', competitors: ['Bob']}, {medal: 'Bronze', memberCode: 'WS', competitors: ['Eve']}],
-                    skill: {name: 'Skill Name'},
+                    skill: {name: 'Skill 1'},
                     total: 3
                 }
             };
-            $scope.screens.a.slides.push(angular.copy(slideCallup));
-            $scope.screens.a.slides.push(angular.copy(slideMedals));
-            $scope.screens.b.slides.push(angular.copy(slideCallup));
-            $scope.screens.b.slides.push(angular.copy(slideMedals));
+            var slideCallup2 = {
+                label: 'Demo Callup',
+                template: 'skill_callup.html',
+                states: ['Countries'],
+                context: {
+                    results: [{member: 'Country D', memberCode: 'WS'}, {member: 'Country E', memberCode: 'WS'}, {member: 'Country F', memberCode: 'WS'}],
+                    skill: {name: 'Skill 2', number: '00'}
+                }
+            };
+            var slideMedals2 = {
+                label: 'Demo Medals',
+                template: 'skill_medals.html',
+                states: ['Bronze', 'Silver', 'Gold'],
+                context: {
+                    results: [{medal: 'Gold', memberCode: 'WS', competitors: ['Alice']}, {medal: 'Silver', memberCode: 'WS', competitors: ['Bob']}, {medal: 'Bronze', memberCode: 'WS', competitors: ['Eve']}],
+                    skill: {name: 'Skill 2'},
+                    total: 3
+                }
+            };
+            $scope.screens.a.slides.push(slideCallup1);
+            $scope.screens.a.slides.push(slideMedals1);
+            $scope.screens.b.slides.push(slideCallup2);
+            $scope.screens.b.slides.push(slideMedals2);
 
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
