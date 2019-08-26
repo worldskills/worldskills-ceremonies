@@ -48,7 +48,7 @@ button:hover {
     border: 1px solid #eee;
 }
 
-.scresen-content::before {
+.screen-content::before {
     position: fixed;
     bottom: -25%;
     right: -25%;
