@@ -51,15 +51,15 @@
                             <div ng-show="screens[id].slide == slide">
                                 <p class="list-group-item-text">
                                     <div class="btn-toolbar">
-                                        <button class="btn btn-success mr-1" ng-click="slide.edit = !slide.edit"><i class="fa fa-pencil"></i> Edit</button>
+                                        <button class="btn btn-sm btn-success mr-1" ng-click="slide.edit = !slide.edit"><i class="fa fa-pencil"></i> Edit</button>
                                         <div class="btn-group mr-1" ng-show="slide.states">
-                                            <button type="button" class="btn btn-primary" ng-repeat="state in slide.states" ng-click="toggleState(id, slide, state)">
+                                            <button type="button" class="btn btn-sm btn-primary" ng-repeat="state in slide.states" ng-click="toggleState(id, slide, state)">
                                                 <i ng-show="hasState(slide, state)" class="fa fa-ban fa-fw"></i>
                                                 <i ng-show="!hasState(slide, state)" class="fa fa-trophy fa-fw"></i>
                                                 {{ state }}
                                             </button>
                                         </div>
-                                        <button class="btn btn-danger" ng-show="slide.states" ng-click="resetStates(id, slide)">Reset</button>
+                                        <button class="btn btn-sm btn-danger" ng-show="slide.states" ng-click="resetStates(id, slide)">Reset</button>
                                     </div>
                                 </p>
                                 <p class="list-group-item-text" ng-show="slide.edit">
