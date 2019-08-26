@@ -119,6 +119,24 @@ button:hover {
     font-weight: 900;
 }
 
+.screen-skill-medals-05 .screen-medal,
+.screen-skill-medals-08 .screen-medal,
+.screen-skill-medals-19 .screen-medal,
+.screen-skill-medals-41 .screen-medal,
+.screen-skill-medals-55 .screen-medal {
+   font-size: 3.5rem !important;
+}
+
+.screen-skill-medals-03 .screen-medal,
+.screen-skill-medals-04 .screen-medal,
+.screen-skill-medals-54 .screen-medal {
+   font-size: 2.5rem !important;
+}
+
+.screen-skill-medals-37 .screen-medal {
+   font-size: 2.3rem !important;
+}
+
 .screen-skill-medals-39 .screen-skill-medals-name,
 .screen-content-skill-callup-39 .screen-skill-callup-name {
     font-size: 3.5rem;
@@ -131,10 +149,6 @@ button:hover {
 .screen-skill-medals-52 .screen-skill-medals-name,
 .screen-content-skill-callup-52 .screen-skill-callup-name {
     font-size: 4rem;
-}
-
-.screen-skill-callup-number {
-    margin-left: 3rem;
 }
 
 .screen-skill-callup-name,
