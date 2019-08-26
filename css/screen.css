@@ -5,7 +5,11 @@
   --secondary-b: #72D0EB;
 }
 
-html, body {
+html {
+    font-size: 0.833333333vw;
+}
+
+body {
     background-color: #FFF;
     font-family: "FrutigerLTW04", Frutiger, Arial, sans-serif;
     font-weight: bold;
@@ -40,8 +44,8 @@ button:hover {
 }
 
 .screen-content {
-    width: 1456px;
-    height: 1040px;
+    width: 75.833333315vw;
+    height: 54.166666671vw;
     overflow: hidden;
     font-size: 2.5rem;
     color: #003764;
@@ -146,6 +150,7 @@ button:hover {
     background-image: url('../images/columns.svg');
     background-position: bottom right;
     background-repeat: no-repeat;
+    background-size: 5.989583333vw 8.645833334vw;
 }
 
 .screen-a .screen-skill-callup-name,
@@ -189,7 +194,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    min-height: 580px;
+    min-height: 30.20833333vw;
 }
 
 .screen-skill-medals-medals,
