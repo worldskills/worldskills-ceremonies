@@ -189,7 +189,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    min-height: 600px;
+    min-height: 580px;
 }
 
 .screen-skill-medals-medals,
