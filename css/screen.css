@@ -52,6 +52,7 @@ button:hover {
     border: 1px solid #eee;
 }
 
+/*
 .screen-content::before {
     position: fixed;
     bottom: -25%;
@@ -67,6 +68,7 @@ button:hover {
     color: #ff0523;
     z-index: 99999999;
 }
+*/
 
 .screen-content-skill-medals {
     font-size: 3rem;
