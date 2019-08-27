@@ -81,7 +81,7 @@ button:hover {
 }
 
 .screen-content-albert-vidal-award {
-    font-size: 7rem;
+    font-size: 6rem;
 }
 
 .screen-a .screen-empty-logo {
@@ -124,6 +124,7 @@ button:hover {
 .screen-skill-medals-19 .screen-medal,
 .screen-skill-medals-31 .screen-medal,
 .screen-skill-medals-41 .screen-medal,
+.screen-skill-medals-43 .screen-medal,
 .screen-skill-medals-55 .screen-medal {
    font-size: 3.5rem !important;
 }
