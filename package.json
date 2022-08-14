@@ -13,6 +13,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
+    "ng-file-upload": "^12.2.13",
     "xlsx": "^0.14.3"
   },
   "devDependencies": {

@@ -14,15 +14,23 @@
         $scope.skills = [];
         $http({method: 'GET', url: 'data/json/skills.json'}).then(function(response) {
             $scope.skills = response.data.skills;
-            $scope.buildScreens();
         });
 
         // members
         $scope.members = [];
         $http({method: 'GET', url: 'data/json/members.json'}).then(function(response) {
             $scope.members = response.data.members;
-            $scope.buildScreens();
         });
+
+        $scope.upload = function (file) {
+            file.arrayBuffer().then(function (buffer) {
+                var data = new Uint8Array(buffer);
+                $scope.results = $scope.loadExcel(data);
+                $scope.$apply(function () {
+                    $scope.buildScreens();
+                });
+            });
+        };
 
         $scope.loadExcel = function (data) {
             var wb = XLSX.read(data, {type:'array'});
@@ -35,17 +43,17 @@
 
         // results
         $scope.results = [];
-        $http({method: 'GET', url: 'data/cis/Competitor_results.xlsx', responseType: 'arraybuffer'}).then(function(response) {
-            $scope.results = $scope.loadExcel(response.data);
-            $scope.buildScreens();
-        });
+        // $http({method: 'GET', url: 'data/cis/Competitor_results.xlsx', responseType: 'arraybuffer'}).then(function(response) {
+        //     $scope.results = $scope.loadExcel(response.data);
+        //     $scope.buildScreens();
+        // });
 
         // best of nations
         $scope.resultsBestOfNations = [];
-        $http({method: 'GET', url: 'data/cis/Best_of_Nation.xlsx', responseType: 'arraybuffer'}).then(function(response) {
-            $scope.resultsBestOfNations = $scope.loadExcel(response.data);
-            $scope.buildScreens();
-        });
+        // $http({method: 'GET', url: 'data/cis/Best_of_Nation.xlsx', responseType: 'arraybuffer'}).then(function(response) {
+        //     $scope.resultsBestOfNations = $scope.loadExcel(response.data);
+        //     $scope.buildScreens();
+        // });
 
         // screens
         $scope.screens = SCREENS;

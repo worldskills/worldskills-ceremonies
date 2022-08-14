@@ -12,7 +12,7 @@
 
     <nav class="navbar sticky-top navbar-expand-md ws-navbar-stripe navbar-dark ws-navbar-main">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand">
                 <svg width="115px" height="22px" viewBox="0 0 220 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;" class="d-inline-block align-baseline" aria-label="WorldSkills">
                     <g>
                         <path d="M52.271,39.434c-5.36,0 -8.958,-4.397 -8.958,-10.943c0,-6.546 3.598,-10.945 8.958,-10.945c5.358,0 8.959,4.399 8.959,10.945c0,6.546 -3.601,10.943 -8.959,10.943Zm0,-24.453c-9.152,0 -12.397,7.275 -12.397,13.51c0,6.233 3.245,13.509 12.397,13.509c9.151,0 12.398,-7.276 12.398,-13.509c0,-6.235 -3.247,-13.51 -12.398,-13.51Z" style="fill:#fff;fill-rule:nonzero;"></path>
@@ -41,7 +41,12 @@
 
         <div class="row">
             <div class="col-sm-12" ng-repeat="(id, screen) in screens">
-                <div class="card">
+                <div class="card py-5 text-center" ng-show="screen.slides.length == 0" ngf-drop ngf-select ngf-change="upload($file)">
+                    <div class="card-body py-5">
+                        <div class="py-5 text-muted">Drag &amp; Drop results file from CIS here or<br>click to choose file</div>
+                    </div>
+                </div>
+                <div class="card" ng-show="screen.slides.length > 0">
                     <div class="card-header">
                         <h3 class="card-title">{{ screen.label }}</h3>
                     </div>
@@ -88,6 +93,7 @@
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
     <script src="node_modules/xlsx/dist/xlsx.full.min.js"></script>
     <script src="js/app.js"></script>
     <script src="js/control.js"></script>

@@ -1,3 +1,7 @@
+body {
+    cursor: default !important;
+}
+
 .nav.nav-tabs {
     margin: 0 0 30px 0;
 }
