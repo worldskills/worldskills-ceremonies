@@ -4,4 +4,3 @@
 
 require(__dirname + '/fetch-skills');
 require(__dirname + '/fetch-flags');
-require(__dirname + '/fetch-results');
