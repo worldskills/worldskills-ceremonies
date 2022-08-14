@@ -4,8 +4,7 @@
     var ceremoniesApp = angular.module('ceremoniesApp', []);
 
     var screens = {
-        a: {label: 'Screen Blue', slides: []},
-        b: {label: 'Screen Red', slides: []}
+        a: {label: 'Screen', slides: []}
     };
 
     ceremoniesApp.constant('SCREENS', screens);

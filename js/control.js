@@ -95,10 +95,6 @@
         $scope.buildScreens = function () {
 
             $scope.screens.a.slides = [];
-            $scope.screens.b.slides = [];
-
-            var previousSector = '';
-            var c = 0;
 
             var empty = {
                 label: '• Empty',
@@ -106,13 +102,6 @@
                 states: [],
                 context: {}
             };
-
-            var sectorsTotal = $scope.skills.reduce(function (accumulator, skill) {
-              accumulator[skill.sector.id] = accumulator[skill.sector.id] + 1 || 1;
-              return accumulator;
-            }, {});
-
-            var sectorCount = 0;
 
             // demo slides
             var slideCallup1 = {
@@ -134,54 +123,11 @@
                     total: 3
                 }
             };
-            var slideCallup2 = {
-                label: 'Demo Callup',
-                template: 'skill_callup.html',
-                states: ['Countries'],
-                context: {
-                    results: [{member: 'Country D', memberCode: 'WS'}, {member: 'Country E', memberCode: 'WS'}, {member: 'Country F', memberCode: 'WS'}],
-                    skill: {name: 'Skill 2', number: '00'}
-                }
-            };
-            var slideMedals2 = {
-                label: 'Demo Medals',
-                template: 'skill_medals.html',
-                states: ['Bronze', 'Silver', 'Gold'],
-                context: {
-                    results: [{medal: 'Gold', memberCode: 'WS', competitors: ['Alice']}, {medal: 'Silver', memberCode: 'WS', competitors: ['Bob']}, {medal: 'Bronze', memberCode: 'WS', competitors: ['Eve']}],
-                    skill: {name: 'Skill 2'},
-                    total: 3
-                }
-            };
             $scope.screens.a.slides.push(slideCallup1);
             $scope.screens.a.slides.push(slideMedals1);
-            $scope.screens.b.slides.push(slideCallup2);
-            $scope.screens.b.slides.push(slideMedals2);
 
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
-
-                sectorCount += 1;
-
-                // check sector
-                var currentSector = skill.sector.name.text;
-                if (currentSector != previousSector) {
-                    previousSector = currentSector;
-                    $scope.screens.a.slides.push(angular.copy(empty));
-                    $scope.screens.b.slides.push(angular.copy(empty));
-                    sectorCount = 1;
-                } else {
-    
-                    // check large sectors
-                    if (sectorsTotal[skill.sector.id] >= 12 && sectorCount > sectorsTotal[skill.sector.id] / 2) {
-                        $scope.screens.a.slides.push(angular.copy(empty));
-                        $scope.screens.b.slides.push(angular.copy(empty));
-
-                        // set to zero for last skill in sector
-                        sectorCount = 0;
-                    }
-
-                }
 
                 // find results for skill
                 var results = Object.values($scope.results
@@ -226,21 +172,14 @@
                     }
                 };
 
-                if (c++ % 2 == 0) {
-                    $scope.screens.a.slides.push(slideCallup);
-                    $scope.screens.a.slides.push(slideMedals);
-                } else {
-                    $scope.screens.b.slides.push(slideCallup);
-                    $scope.screens.b.slides.push(slideMedals);
-                }
+                $scope.screens.a.slides.push(slideCallup);
+                $scope.screens.a.slides.push(slideMedals);
             });
 
             $scope.screens.a.slides.push(angular.copy(empty));
-            $scope.screens.b.slides.push(angular.copy(empty));
 
             // find results for Best of Nation
             var resultsBestOfNationMembers = [];
-            var resultBestOfNationHost;
             angular.forEach($scope.members, function(member, j) {
                 var memberResult = $scope.resultsBestOfNations
                     .filter(function (result) { return result['Member Name'] && result['Member'] == member.code; })
@@ -250,11 +189,7 @@
                     }, {memberCode: member.code, memberName: member.name.text, competitors: []});
 
                 if (memberResult.competitors.length > 0) {
-                    if (member.code != 'RU') {
-                        resultsBestOfNationMembers.push(memberResult);
-                    } else {
-                        resultBestOfNationHost = memberResult;
-                    }
+                    resultsBestOfNationMembers.push(memberResult);
                 }
             });
 
@@ -278,27 +213,10 @@
                     }
                 };
 
-                if (c++ % 2 == 0) {
-                    $scope.screens.a.slides.push(slide);
-                } else {
-                    $scope.screens.b.slides.push(slide);
-                }
+                //$scope.screens.a.slides.push(slide);
             }
 
-            var slide = {
-                label: 'Best of Nation Host',
-                template: 'best_of_nation_host.html',
-                states: ['Name'],
-                context: {
-                    results: [resultBestOfNationHost],
-                }
-            };
-
-            $scope.screens.a.slides.push(slide);
-            $scope.screens.b.slides.push(angular.copy(slide));
-
             $scope.screens.a.slides.push(angular.copy(empty));
-            $scope.screens.b.slides.push(angular.copy(empty));
 
             // find results for Albert Vidal Award
             var maxResult = Math.max.apply(Math, $scope.results.map(function (result) { return result['WorldSkills Scale Score']; }));
@@ -323,11 +241,9 @@
                     results: $filter('orderBy')(resultsAlbertVidalAward, 'member_1058'),
                 }
             };
-            $scope.screens.a.slides.push(slide);
-            $scope.screens.b.slides.push(angular.copy(slide));
+            //$scope.screens.a.slides.push(slide);
 
             $scope.screens.a.slides.push(angular.copy(empty));
-            $scope.screens.b.slides.push(angular.copy(empty));
         };
 
         $scope.hasState = function (slide, state) {
