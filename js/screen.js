@@ -25,7 +25,7 @@
             $scope.screen = screen;
             $scope.preview = (preview == 'true');
 
-            document.title = 'Ceremonator ' + ($scope.preview ? 'Preview ' : '') + $scope.screens[screen].label;
+            document.title = 'Ceremonies ' + ($scope.preview ? 'Preview ' : '') + $scope.screens[screen].label;
 
             $scope.render();
         };

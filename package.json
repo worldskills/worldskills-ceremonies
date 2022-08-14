@@ -25,7 +25,10 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "name": "Ceremonies",
+        "icon": "images/worldskills-hand"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
