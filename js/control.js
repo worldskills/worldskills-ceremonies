@@ -150,38 +150,40 @@
                         return accumulator;
                     }, {}));
 
-                // prepare medals states and competitors total
-                var states = [];
-                var total = 0;
-                angular.forEach(results, function(result, i) {
-                    if (states.indexOf(result.medal) < 0) {
-                        states.unshift(result.medal);
-                    }
-                    total += result.competitors.length;
-                });
+                if (results.length > 0) {
+                    // prepare medals states and competitors total
+                    var states = [];
+                    var total = 0;
+                    angular.forEach(results, function(result, i) {
+                        if (states.indexOf(result.medal) < 0) {
+                            states.unshift(result.medal);
+                        }
+                        total += result.competitors.length;
+                    });
 
-                var slideCallup = {
-                    label: skill.name.text + ' Callup',
-                    template: 'skill_callup.html',
-                    states: ['Countries'],
-                    context: {
-                        results: $filter('orderBy')(results, 'member'),
-                        skill: $scope.simplifySkill(skill)
-                    }
-                };
-                var slideMedals = {
-                    label: skill.name.text + ' Medals',
-                    template: 'skill_medals.html',
-                    states: states,
-                    context: {
-                        results: $filter('orderBy')(results, ['position', 'member']),
-                        skill: $scope.simplifySkill(skill),
-                        total: total
-                    }
-                };
+                    var slideCallup = {
+                        label: skill.name.text + ' Callup',
+                        template: 'skill_callup.html',
+                        states: ['Countries'],
+                        context: {
+                            results: $filter('orderBy')(results, 'member'),
+                            skill: $scope.simplifySkill(skill)
+                        }
+                    };
+                    var slideMedals = {
+                        label: skill.name.text + ' Medals',
+                        template: 'skill_medals.html',
+                        states: states,
+                        context: {
+                            results: $filter('orderBy')(results, ['position', 'member']),
+                            skill: $scope.simplifySkill(skill),
+                            total: total
+                        }
+                    };
 
-                $scope.screens.a.slides.push(slideCallup);
-                $scope.screens.a.slides.push(slideMedals);
+                    $scope.screens.a.slides.push(slideCallup);
+                    $scope.screens.a.slides.push(slideMedals);
+                }
             });
 
             $scope.screens.a.slides.push(angular.copy(empty));
@@ -224,7 +226,7 @@
                 //$scope.screens.a.slides.push(slide);
             }
 
-            $scope.screens.a.slides.push(angular.copy(empty));
+            //$scope.screens.a.slides.push(angular.copy(empty));
 
             // find results for Albert Vidal Award
             var maxResult = Math.max.apply(Math, $scope.results.map(function (result) { return result['WorldSkills Scale Score']; }));
@@ -251,7 +253,7 @@
             };
             //$scope.screens.a.slides.push(slide);
 
-            $scope.screens.a.slides.push(angular.copy(empty));
+            //$scope.screens.a.slides.push(angular.copy(empty));
         };
 
         $scope.hasState = function (slide, state) {
