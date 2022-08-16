@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron')
+const { app, Menu, BrowserWindow } = require('electron')
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -6,7 +6,6 @@ if (require('electron-squirrel-startup')) {
 
 const createWindow = () => {
   const win = new BrowserWindow({
-    autoHideMenuBar: true,
     width: 800,
     height: 600,
   })
@@ -14,5 +13,6 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null)
   createWindow()
 })
