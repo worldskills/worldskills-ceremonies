@@ -60,6 +60,10 @@
         {
           "name": "@electron-forge/publisher-github",
           "config": {
+            "repository": {
+              "owner": "worldskills",
+              "name": "worldskills-ceremonies"
+            },
             "prerelease": false,
             "draft": true
           }
