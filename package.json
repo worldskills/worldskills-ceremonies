@@ -37,9 +37,7 @@
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "worldskills_ceremonies"
-          }
+          "config": {}
         },
         {
           "name": "@electron-forge/maker-zip",
