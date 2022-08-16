@@ -28,6 +28,9 @@ jobs:
         with:
           node-version: 16.x
 
+      - name: Setup
+        run: npm ci
+
       - name: Make
         run: npm run make
 
