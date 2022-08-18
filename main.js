@@ -16,3 +16,7 @@ app.whenReady().then(() => {
   Menu.setApplicationMenu(null)
   createWindow()
 })
+
+try {
+	require('electron-reloader')(module);
+} catch {}
