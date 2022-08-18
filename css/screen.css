@@ -274,7 +274,8 @@ button:hover {
 .screen-medal-Silver,
 .screen-medal-Bronze,
 .screen-best-of-nation,
-.screen-albert-vidal-award-award {
+.screen-albert-vidal-award-award,
+.screen-medallion-for-excellence {
     visibility: hidden;
 }
 
@@ -301,6 +302,8 @@ button:hover {
 .screen-state-Preview .screen-best-of-nation-line-6,
 .screen-state-Name .screen-best-of-nation,
 .screen-state-Preview .screen-best-of-nation,
-.screen-state-Preview .screen-albert-vidal-award-award {
+.screen-state-Preview .screen-albert-vidal-award-award,
+.screen-state-Name .screen-medallion-for-excellence,
+.screen-state-Preview .screen-medallion-for-excellence {
     visibility: visible;
 }

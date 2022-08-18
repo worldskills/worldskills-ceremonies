@@ -184,6 +184,40 @@
                     $scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
                 }
+
+                // find results for Medallion For Excellence
+                var resultsMedallionForExcellence = Object.values($scope.results
+                    .filter(function (result) { return result['Skill Number'] == skill.number && result['Medal'] && result['Medal'] == 'Medallion For Excellence'; })
+                    .reduce(function (accumulator, result) {
+                        var resultSimplified = $scope.simplifyResult(result);
+                        if (typeof accumulator[result['Member']] == 'undefined') {
+                            accumulator[result['Member']] = resultSimplified;
+                            accumulator[result['Member']].competitors = [];
+                        }
+                        accumulator[result['Member']].competitors.push(resultSimplified.competitor);
+                        return accumulator;
+                    }, {}));
+
+                if (resultsMedallionForExcellence.length > 0) {
+
+                    var total = 0;
+                    angular.forEach(results, function(result, i) {
+                        total += result.competitors.length;
+                    });
+
+                    // slides for Medallion For Excellence
+                    var slide = {
+                        label: skill.name.text + ' Medallion For Excellence',
+                        template: 'medallion_for_excellence.html',
+                        states: ['Name'],
+                        context: {
+                            results: $filter('orderBy')(resultsMedallionForExcellence, ['position', 'member']),
+                            skill: $scope.simplifySkill(skill),
+                            total: total
+                        }
+                    };
+                    $scope.screens.a.slides.push(slide);
+                }
             });
 
             $scope.screens.a.slides.push(angular.copy(empty));
