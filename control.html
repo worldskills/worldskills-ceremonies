@@ -41,12 +41,7 @@
 
         <div class="row">
             <div class="col-sm-12" ng-repeat="(id, screen) in screens">
-                <div class="card py-5 text-center" ng-show="screen.slides.length == 0" ngf-drop ngf-select ngf-change="upload($file)">
-                    <div class="card-body py-5">
-                        <div class="py-5 text-muted">Drag &amp; Drop results file from CIS here or<br>click to choose file</div>
-                    </div>
-                </div>
-                <div class="card" ng-show="screen.slides.length > 0">
+                <div class="card mb-2" ng-show="screen.slides.length > 0">
                     <div class="card-header">
                         <h3 class="card-title">{{ screen.label }}</h3>
                     </div>
@@ -72,6 +67,11 @@
                                 </p>
                             </div>
                         </a>
+                    </div>
+                </div>
+                <div class="card py-3 text-center" ng-hide="uploaded" ngf-drop ngf-select ngf-change="upload($file)">
+                    <div class="card-body py-3">
+                        <div class="py-3 text-muted">Drag &amp; Drop results file from CIS here or<br>click to choose file</div>
                     </div>
                 </div>
             </div>

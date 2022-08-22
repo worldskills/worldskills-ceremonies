@@ -3,6 +3,8 @@
 
     angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $filter, SCREENS) {
 
+        $scope.uploaded = false;
+
         $scope.update = function (screen) {
             var slide = $scope.screens[screen].slide;
             if (typeof slide != 'undefined') {
@@ -14,6 +16,7 @@
         $scope.skills = [];
         $http({method: 'GET', url: 'data/json/skills.json'}).then(function(response) {
             $scope.skills = response.data.skills;
+            $scope.buildScreens();
         });
 
         // members
@@ -23,6 +26,7 @@
         });
 
         $scope.upload = function (file) {
+            $scope.uploaded = true;
             file.arrayBuffer().then(function (buffer) {
                 var data = new Uint8Array(buffer);
                 $scope.results = $scope.loadExcel(data);
@@ -106,10 +110,19 @@
 
             var empty = {
                 label: '• Empty',
-                template: 'empty.html',
+                template: 'intro.html',
                 states: [],
                 context: {}
             };
+
+            // intro slide
+            var slideIntro = {
+                label: 'Intro',
+                template: 'intro.html',
+                states: [],
+                context: {}
+            };
+            $scope.screens.a.slides.push(slideIntro);
 
             // demo slides
             var slideCallup1 = {
@@ -131,8 +144,19 @@
                     total: 3
                 }
             };
-            $scope.screens.a.slides.push(slideCallup1);
+            var slideMedallionForExcellence1 = {
+                label: 'Demo Medallion For Excellence',
+                template: 'medallion_for_excellence.html',
+                states: ['Name'],
+                context: {
+                    results: [{memberCode: 'WS', competitors: ['Alice']}, {memberCode: 'WS', competitors: ['Bob']}, {memberCode: 'WS', competitors: ['Eve']}],
+                    skill: {name: 'Skill 1'},
+                    total: 3
+                }
+            };
+            //$scope.screens.a.slides.push(slideCallup1);
             $scope.screens.a.slides.push(slideMedals1);
+            $scope.screens.a.slides.push(slideMedallionForExcellence1);
 
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {

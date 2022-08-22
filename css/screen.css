@@ -55,6 +55,8 @@ button:hover {
     font-size: calc(var(--screen-height) * 0.06);
     color: var(--font-color);
     border: 1px solid #eee;
+    background-image: url('../images/WSC2022SE_empty.png');
+    background-size: contain;
 }
 
 /*
@@ -170,10 +172,6 @@ button:hover {
     padding-left: 5rem;
     padding-right: 3rem;
     margin-bottom: 6rem;
-    background-image: url('../images/columns.svg');
-    background-position: bottom right;
-    background-repeat: no-repeat;
-    background-size: 5.989583333vw 8.645833334vw;
 }
 
 .screen-a .screen-skill-callup-name,
@@ -181,7 +179,6 @@ button:hover {
 .screen-a .screen-best-of-nation-name,
 .screen-a .screen-best-of-nation-name-host,
 .screen-a .screen-albert-vidal-award-name {
-    background-color: var(--primary-a);
     color: #fff;
 }
 
