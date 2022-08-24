@@ -3,16 +3,18 @@
         {{ context.skill.name }}
     </div>
     <div class="screen-skill-medals-medals">
-        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results" style="font-size: calc(var(--screen-height) * {{ (0.02 * context.total) }});">
+        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results" style="font-size: calc(var(--unit) * 0.7 + var(--unit) * {{ (8 / context.max) }});">
             <div class="screen-flag">
                 <img ng-src="data/flags/{{ result.memberCode }}.png">
             </div>
-            <div class="screen-medal-name">
-                {{ result.medal }}:
-            </div>
-            <div class="screen-competitors">
-                <div class="screen-competitor">
-                    <span ng-repeat="competitor in result.competitors"><span ng-if="!$first">, </span>{{ competitor }}</span>
+            <div class="screen-medal-text">
+                <div class="screen-medal-name">
+                    {{ result.medal }}:
+                </div>
+                <div class="screen-competitors">
+                    <div class="screen-competitor">
+                        <span ng-repeat="competitor in result.competitors"><span ng-if="!$first">, </span>{{ competitor }}</span>
+                    </div>
                 </div>
             </div>
         </div>

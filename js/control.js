@@ -135,23 +135,23 @@
                 }
             };
             var slideMedals1 = {
-                label: 'Demo Medals',
+                label: 'Demo - Medals',
                 template: 'skill_medals.html',
                 states: ['Bronze', 'Silver', 'Gold'],
                 context: {
-                    results: [{medal: 'Gold', memberCode: 'WS', competitors: ['Alice']}, {medal: 'Silver', memberCode: 'WS', competitors: ['Bob']}, {medal: 'Bronze', memberCode: 'WS', competitors: ['Eve']}],
+                    results: [{medal: 'Gold', memberCode: 'WS', competitors: ['First Name Last Name']}, {medal: 'Silver', memberCode: 'WS', competitors: ['First Name Last Name']}, {medal: 'Bronze', memberCode: 'WS', competitors: ['First Name Last Name']}],
                     skill: {name: 'Skill 1'},
-                    total: 3
+                    max: 23
                 }
             };
             var slideMedallionForExcellence1 = {
-                label: 'Demo Medallion For Excellence',
+                label: 'Demo - Medallion For Excellence',
                 template: 'medallion_for_excellence.html',
                 states: ['Name'],
                 context: {
-                    results: [{memberCode: 'WS', competitors: ['Alice']}, {memberCode: 'WS', competitors: ['Bob']}, {memberCode: 'WS', competitors: ['Eve']}],
+                    results: [{memberCode: 'WS', competitors: ['First Name Last Name']}, {memberCode: 'WS', competitors: ['First Name Last Name']}, {memberCode: 'WS', competitors: ['First Name Last Name']}],
                     skill: {name: 'Skill 1'},
-                    total: 3
+                    total: 69
                 }
             };
             //$scope.screens.a.slides.push(slideCallup1);
@@ -175,18 +175,18 @@
                     }, {}));
 
                 if (results.length > 0) {
-                    // prepare medals states and competitors total
+                    // prepare medals states and competitors max length
                     var states = [];
-                    var total = 0;
+                    var max = 0;
                     angular.forEach(results, function(result, i) {
                         if (states.indexOf(result.medal) < 0) {
                             states.unshift(result.medal);
                         }
-                        total += result.competitors.length;
+                        max = Math.max(max, result.competitors.join(', ').length);
                     });
 
                     var slideCallup = {
-                        label: skill.name.text + ' Callup',
+                        label: skill.name.text + ' - Callup',
                         template: 'skill_callup.html',
                         states: ['Countries'],
                         context: {
@@ -195,17 +195,17 @@
                         }
                     };
                     var slideMedals = {
-                        label: skill.name.text + ' Medals',
+                        label: skill.name.text + ' - Medals',
                         template: 'skill_medals.html',
                         states: states,
                         context: {
                             results: $filter('orderBy')(results, ['position', 'member']),
                             skill: $scope.simplifySkill(skill),
-                            total: total
+                            max: max
                         }
                     };
 
-                    $scope.screens.a.slides.push(slideCallup);
+                    //$scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
                 }
 
@@ -225,13 +225,13 @@
                 if (resultsMedallionForExcellence.length > 0) {
 
                     var total = 0;
-                    angular.forEach(results, function(result, i) {
-                        total += result.competitors.length;
+                    angular.forEach(resultsMedallionForExcellence, function(result, i) {
+                        total += result.competitors.join(', ').length;
                     });
 
                     // slides for Medallion For Excellence
                     var slide = {
-                        label: skill.name.text + ' Medallion For Excellence',
+                        label: skill.name.text + ' - Medallion For Excellence',
                         template: 'medallion_for_excellence.html',
                         states: ['Name'],
                         context: {
