@@ -205,6 +205,26 @@
                         }
                     };
 
+                    // prepare medals for script
+                    var scriptMedals = 'And here are the Medallists for ' + skill.name.text + ':\n\n';
+                    var scriptMedalsResults = {};
+                    angular.forEach(slideMedals.context.results.slice().reverse(), function(result) {
+                        if (typeof scriptMedalsResults[result.medal] == 'undefined') {
+                            scriptMedalsResults[result.medal] = [];
+                        }
+                        scriptMedalsResults[result.medal].push(result);
+                    });
+                    for (var medal in scriptMedalsResults) {
+                        scriptMedals += 'The ' + medal + ' medal goes to:\n';
+                        angular.forEach(scriptMedalsResults[medal], function(result) {
+                            scriptMedals += result.competitors.join(' and ');
+                            scriptMedals += ', ' + result.member + '\n';
+                        });
+                        scriptMedals += '\n';
+                    }
+                    scriptMedals += 'Congratulations to all of you!';
+                    slideMedals.script = scriptMedals;
+
                     //$scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
                 }
@@ -240,6 +260,16 @@
                             total: total
                         }
                     };
+
+                    // prepare script
+                    var script = 'And the Medallion(s) for Excellence for ' + skill.name.text + ' go to:\n\n';
+                    angular.forEach(slide.context.results, function(result, i) {
+                        script += result.competitors.join(' and ');
+                        script += ', ' + result.member + '\n';
+                    });
+                    script += '\nCongratulations!';
+                    slide.script = script;
+
                     $scope.screens.a.slides.push(slide);
                 }
             });
@@ -347,6 +377,20 @@
                 $scope.update(screen);
             }
         };
+
+        $scope.copyPaste = function ($event, text) {
+            $event.stopPropagation();
+
+            navigator.permissions.query({name: 'clipboard-write'}).then((result) => {
+                if (result.state === 'granted' || result.state === 'prompt') {
+                    navigator.clipboard.writeText(text).then(() => {
+                        $event.target.style.color = '#379d44';
+                    }, () => {
+                        alert('Failed to paste to clipboard.')
+                    });
+                }
+            });
+        }
     });
 
     angular.module('ceremoniesApp').directive('jsonText', function ($filter) {

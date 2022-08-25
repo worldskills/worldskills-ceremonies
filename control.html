@@ -46,8 +46,15 @@
                         <h3 class="card-title">{{ screen.label }}</h3>
                     </div>
                     <div class="list-group list-group-flush">
-                        <a class="list-group-item" ng-class="{'list-group-item-secondary': slide.done}" ng-repeat="slide in screen.slides" ng-click="showSlide(id, slide)">
-                            <div class="list-group-item-heading">{{ slide.label }}</div>
+                        <a class="list-group-item clearfix" ng-class="{'list-group-item-secondary': slide.done}" ng-repeat="slide in screen.slides" ng-click="showSlide(id, slide)">
+                            <div class="d-flex w-100 justify-content-between">
+                                <span>{{ slide.label }}</span>
+                                <span ng-show="slide.script">
+                                    <span class="btn btn-sm btn-white py-0" ng-click="copyPaste($event, slide.script)">
+                                        <i class="fa fa-clipboard" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </div>
                             <div ng-show="screens[id].slide == slide">
                                 <p class="list-group-item-text">
                                     <div class="btn-toolbar">
