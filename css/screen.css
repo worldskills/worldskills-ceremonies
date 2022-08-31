@@ -55,7 +55,7 @@ button:hover {
     background-image: url('../images/WSC2022SE_empty.png');
     background-size: contain;
 }
-
+/* 
 .screen-content::before {
     position: absolute;
     display: block;
@@ -68,7 +68,7 @@ button:hover {
     color: #ff0523;
     z-index: 99999999;
 }
-
+*/
 .screen-a .screen-empty-logo {
     background-color: var(--primary-a);
 }
