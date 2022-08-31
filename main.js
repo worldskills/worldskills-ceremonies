@@ -15,6 +15,9 @@ const createWindow = () => {
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null)
   createWindow()
+  app.setAboutPanelOptions({
+    applicationName: 'Ceremonator',
+  });
 })
 
 try {
