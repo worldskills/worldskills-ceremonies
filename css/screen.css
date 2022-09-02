@@ -18,19 +18,32 @@ body {
     font-size: 1rem;
 }
 
+.setup {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+}
+
 button {
-    font-size: 2rem;
+    font-size: calc(var(--unit) * 1);
     color: #444;
     border: 1px solid #444;
     background-color: #fff;
-    border-radius: 0.25rem;
-    padding: 0.5rem 1rem;
+    border-radius: 0.25em;
+    padding: 0.5em 1em;
     cursor: pointer;
 }
 
 button:hover {
-  color: #fff;
-  background-color: #444;
+    background-color: rgb(184, 240, 255);
+}
+
+button.secondary {
+    background-color: #ccc;
+}
+
+button.secondary:hover {
+    background-color: #aaa;
 }
 
 .screen-canvas {
