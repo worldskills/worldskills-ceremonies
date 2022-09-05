@@ -33,7 +33,15 @@
     "forge": {
       "packagerConfig": {
         "name": "Ceremonies",
-        "icon": "images/worldskills-hand"
+        "icon": "images/worldskills-hand",
+        "appBundleId": "org.worldskills.ceremonies",
+        "osxSign": {
+          "identity": "Developer ID Application: WorldSkills International (7CQ5662QVR)",
+          "hardenedRuntime": true,
+          "entitlements": "entitlements.plist",
+          "entitlements-inherit": "entitlements.plist",
+          "signature-flags": "library"
+        }
       },
       "makers": [
         {
