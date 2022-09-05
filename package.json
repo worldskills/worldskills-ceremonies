@@ -30,52 +30,6 @@
     "electron-reloader": "^1.2.3"
   },
   "config": {
-    "forge": {
-      "packagerConfig": {
-        "name": "Ceremonies",
-        "icon": "images/worldskills-hand",
-        "appBundleId": "org.worldskills.ceremonies",
-        "osxSign": {
-          "identity": "Developer ID Application: WorldSkills International (7CQ5662QVR)",
-          "hardenedRuntime": true,
-          "entitlements": "entitlements.plist",
-          "entitlements-inherit": "entitlements.plist",
-          "signature-flags": "library"
-        }
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ],
-      "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "config": {
-            "repository": {
-              "owner": "worldskills",
-              "name": "worldskills-ceremonies"
-            },
-            "prerelease": false,
-            "draft": true
-          }
-        }
-      ]
-    }
+    "forge": "./forge.config.js"
   }
 }
