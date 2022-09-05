@@ -23,6 +23,7 @@ jobs:
           node-version: 16.x
 
       - name: Setup Code Signing
+        if: startsWith(matrix.os, 'macos')
         env: 
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
         run: |
