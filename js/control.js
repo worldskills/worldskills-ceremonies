@@ -115,6 +115,7 @@
                 states: [],
                 context: {}
             };
+            $scope.screens.a.slides.push(angular.copy(empty));
 
             // intro slide
             var slideIntro = {
@@ -123,7 +124,7 @@
                 states: [],
                 context: {}
             };
-            $scope.screens.a.slides.push(slideIntro);
+            //$scope.screens.a.slides.push(slideIntro);
 
             // demo slides
             var slideCallup1 = {
@@ -163,8 +164,11 @@
             angular.forEach($scope.skills, function(skill, i) {
 
                 // find results for skill
-                var results = Object.values($scope.results
-                    .filter(function (result) { return result['Skill Number'] == skill.number && result['Medal'] && result['Medal'] != 'Medallion For Excellence'; })
+                var skillResults = Object.values($scope.results
+                    .filter(function (result) { return result['Skill Number'] == skill.number; }));
+
+                var results = Object.values(skillResults
+                    .filter(function (result) { return result['Medal'] && result['Medal'] != 'Medallion For Excellence'; })
                     .reduce(function (accumulator, result) {
                         var resultSimplified = $scope.simplifyResult(result);
                         if (typeof accumulator[result['Member']] == 'undefined') {
@@ -231,8 +235,8 @@
                 }
 
                 // find results for Medallion For Excellence
-                var resultsMedallionForExcellence = Object.values($scope.results
-                    .filter(function (result) { return result['Skill Number'] == skill.number && result['Medal'] && result['Medal'] == 'Medallion For Excellence'; })
+                var resultsMedallionForExcellence = Object.values(skillResults
+                    .filter(function (result) { return result['Medal'] && result['Medal'] == 'Medallion For Excellence'; })
                     .reduce(function (accumulator, result) {
                         var resultSimplified = $scope.simplifyResult(result);
                         if (typeof accumulator[result['Member']] == 'undefined') {
@@ -273,9 +277,11 @@
 
                     $scope.screens.a.slides.push(slide);
                 }
-            });
 
-            $scope.screens.a.slides.push(angular.copy(empty));
+                if (skillResults.length > 0) {
+                    $scope.screens.a.slides.push(angular.copy(empty));
+                }
+            });
 
             // find results for Best of Nation
             var resultsBestOfNationMembers = [];
