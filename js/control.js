@@ -95,6 +95,7 @@
         $scope.simplifyResult = function (result) {
             var r = {};
             r.position = result['Position'];
+            r.score = result['WorldSkills Scale Score'];
             if (result['Medal']) {
                 r.medal = $scope.capitalize(result['Medal']);
             }
@@ -199,7 +200,7 @@
                         template: 'skill_medals.html',
                         states: states,
                         context: {
-                            results: $filter('orderBy')(results, ['position', 'member']),
+                            results: $filter('orderBy')(results, ['-score', 'member']),
                             skill: $scope.simplifySkill(skill),
                             max: max
                         }
@@ -255,7 +256,7 @@
                         template: 'medallion_for_excellence.html',
                         states: ['Name'],
                         context: {
-                            results: $filter('orderBy')(resultsMedallionForExcellence, ['position', 'member']),
+                            results: $filter('orderBy')(resultsMedallionForExcellence, ['-score', 'member']),
                             skill: $scope.simplifySkill(skill),
                             total: total
                         }
