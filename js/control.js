@@ -156,8 +156,8 @@
                 }
             };
             //$scope.screens.a.slides.push(slideCallup1);
-            $scope.screens.a.slides.push(slideMedals1);
-            $scope.screens.a.slides.push(slideMedallionForExcellence1);
+            //$scope.screens.a.slides.push(slideMedals1);
+            //$scope.screens.a.slides.push(slideMedallionForExcellence1);
 
             // slides for Skills
             angular.forEach($scope.skills, function(skill, i) {
