@@ -62,6 +62,11 @@
         // screens
         $scope.screens = SCREENS;
 
+        // clear local storage
+        angular.forEach($scope.screens, function(config, screen) {
+            window.localStorage.removeItem('screen-' + screen);
+        });
+
         $scope.capitalize = function (input) {
 
             input = input.toLowerCase();
