@@ -5,12 +5,12 @@
     <div class="screen-skill-callup-countries">
         <table class="screen-table-countries">
             <tr>
-                <td ng-repeat="result in context.results">
-                    <img ng-src="data/flags/{{ result.memberCode }}.png" class="screen-img-flag" style="max-width: {{ (13.5 - 0.5 * context.results.length) }}rem;">
+                <td ng-repeat="result in context.results" class="screen-table-countries-flag">
+                    <img ng-src="data/flags/{{ result.memberCode }}.png" class="screen-img-flag" style="max-width: calc(var(--unit) * 16 * {{ (1 / context.results.length) }}); max-height: calc(var(--unit) * 12 * {{ (1 / context.results.length) }});">
                 </td>
             </tr>
             <tr>
-                <td ng-repeat="result in context.results">
+                <td ng-repeat="result in context.results" class="screen-table-countries-member" style="font-size: calc(var(--unit) * 3 * {{ (1 / context.results.length) }});">
                     {{ result.member }}
                 </td>
             </tr>

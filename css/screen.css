@@ -124,9 +124,9 @@ button.secondary:hover {
 }
 
 .screen-skill-callup-countries {
-    padding-top: 6rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
+    padding-top: calc(var(--unit) * 2.5);
+    padding-left: calc(var(--unit) * 0.5);
+    padding-right: calc(var(--unit) * 0.5);
 }
 
 .screen-table-countries {
@@ -137,7 +137,15 @@ button.secondary:hover {
 .screen-table-countries td {
     text-align: center;
     vertical-align: top;
-    line-height: 3rem;
+}
+
+.screen-table-countries td.screen-table-countries-flag {
+    vertical-align: middle;
+}
+
+.screen-table-countries td.screen-table-countries-member {
+    padding-top: 1em;
+    line-height: 1.4em;
 }
 
 .screen-skill-medals-medals,
@@ -202,12 +210,6 @@ button.secondary:hover {
 .screen-flag img,
 .screen-table-countries img {
     border: 1px solid #444;
-}
-
-.screen-img-flag {
-    max-width: 12rem;
-    max-height: 8rem;
-    margin-bottom: 3rem;
 }
 
 .screen-best-of-nation-name {
