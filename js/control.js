@@ -235,7 +235,7 @@
                     scriptMedals += 'Congratulations to all of you!';
                     slideMedals.script = scriptMedals;
 
-                    //$scope.screens.a.slides.push(slideCallup);
+                    $scope.screens.a.slides.push(slideCallup);
                     $scope.screens.a.slides.push(slideMedals);
                 }
 
