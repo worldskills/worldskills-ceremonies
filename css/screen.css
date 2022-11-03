@@ -64,10 +64,14 @@ button.secondary:hover {
     overflow: hidden;
     font-size: calc(var(--unit) * 1);
     color: var(--font-color);
-    border: 1px solid #eee;
     background-image: url('../images/WSC2022SE_empty.png');
     background-size: contain;
 }
+
+body.preview .screen-content {
+    border: 1px solid #eee;
+}
+
 /* 
 .screen-content::before {
     position: absolute;
