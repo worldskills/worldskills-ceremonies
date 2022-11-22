@@ -1,4 +1,5 @@
 <div class="screen-content screen-content-skill-medals screen-skill-medals screen-skill-medals-{{ context.skill.number }}">
+    <div class="screen-inner">
     <div class="screen-skill-medals-name">
         {{ context.skill.name }}<br>
         <span class="screen-skill-medals-name-mfe">Medallion For Excellence</span>
@@ -17,5 +18,6 @@
         <div ng-if="context.results.length == 0">
             No results for this skill
         </div>
+    </div>
     </div>
 </div>

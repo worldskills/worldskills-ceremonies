@@ -1,4 +1,5 @@
 <div class="screen-content screen-content-skill-callup screen-content-skill-callup-{{ context.skill.number }}">
+    <div class="screen-inner">
     <div class="screen-skill-callup-name">
         {{ context.skill.name }}
     </div>
@@ -18,5 +19,6 @@
     </div>
     <div ng-if="context.results.length == 0">
         No results for this skill
+    </div>
     </div>
 </div>
