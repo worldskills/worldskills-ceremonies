@@ -5,7 +5,7 @@
   --secondary-b: #72D0EB;
   --background: #003764;
   --font-color: #fff;
-  --screen-ratio: calc(32 / 9);
+  --screen-ratio: calc(16 / 9);
   --screen-height: min(calc(100vw / var(--screen-ratio)), 100vh);
   --unit: calc(var(--screen-height) / 16);
 }
@@ -64,7 +64,7 @@ button.secondary:hover {
     overflow: hidden;
     font-size: calc(var(--unit) * 1);
     color: var(--font-color);
-    background-image: url('../images/WSC2022SE_wide_empty.png');
+    background-image: url('../images/WSC2022SE_empty.png');
     background-size: contain;
 }
 
@@ -103,11 +103,6 @@ body.preview .screen-content {
     margin: -10rem 0 0 -14rem;
 }
 
-.screen-inner {
-    width: calc(var(--screen-height) * var(--screen-ratio) / 2);
-    margin-left: calc(var(--screen-height) * var(--screen-ratio) / 4);
-}
-
 .screen-skill-medals-name,
 .screen-skill-callup-name {
     font-weight: 900;
@@ -126,7 +121,7 @@ body.preview .screen-content {
 .screen-albert-vidal-award-name {
     box-sizing: border-box;
     height: calc(var(--screen-height) * 0.25);
-    padding-top: calc(var(--unit) * 1.7);
+    padding-top: calc(var(--unit) * 2);
     padding-left: calc(var(--unit) * 1);
     padding-right: calc(var(--unit) * 5);
     font-size: calc(var(--unit) * 1.2);
