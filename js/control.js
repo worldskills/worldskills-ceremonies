@@ -173,7 +173,7 @@
                     .filter(function (result) { return result['Skill Number'] == skill.number; }));
 
                 var results = Object.values(skillResults
-                    .filter(function (result) { return result['Medal'] && result['Medal'] != 'Medallion for Excellence'; })
+                    .filter(function (result) { return result['Medal'] && result['Medal'].toUpperCase() != 'MEDALLION FOR EXCELLENCE'; })
                     .reduce(function (accumulator, result) {
                         var resultSimplified = $scope.simplifyResult(result);
                         if (typeof accumulator[result['Member']] == 'undefined') {
@@ -241,7 +241,7 @@
 
                 // find results for Medallion for Excellence
                 var resultsMedallionForExcellence = Object.values(skillResults
-                    .filter(function (result) { return result['Medal'] && result['Medal'] == 'Medallion for Excellence'; })
+                    .filter(function (result) { return result['Medal'] && result['Medal'].toUpperCase() == 'MEDALLION FOR EXCELLENCE'; })
                     .reduce(function (accumulator, result) {
                         var resultSimplified = $scope.simplifyResult(result);
                         if (typeof accumulator[result['Member']] == 'undefined') {
