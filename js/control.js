@@ -152,7 +152,7 @@
                 }
             };
             var slideMedallionForExcellence1 = {
-                label: 'Demo - Medallion For Excellence',
+                label: 'Demo - Medallion for Excellence',
                 template: 'medallion_for_excellence.html',
                 states: ['Name'],
                 context: {
@@ -173,7 +173,7 @@
                     .filter(function (result) { return result['Skill Number'] == skill.number; }));
 
                 var results = Object.values(skillResults
-                    .filter(function (result) { return result['Medal'] && result['Medal'] != 'Medallion For Excellence'; })
+                    .filter(function (result) { return result['Medal'] && result['Medal'] != 'Medallion for Excellence'; })
                     .reduce(function (accumulator, result) {
                         var resultSimplified = $scope.simplifyResult(result);
                         if (typeof accumulator[result['Member']] == 'undefined') {
@@ -239,9 +239,9 @@
                     $scope.screens.a.slides.push(slideMedals);
                 }
 
-                // find results for Medallion For Excellence
+                // find results for Medallion for Excellence
                 var resultsMedallionForExcellence = Object.values(skillResults
-                    .filter(function (result) { return result['Medal'] && result['Medal'] == 'Medallion For Excellence'; })
+                    .filter(function (result) { return result['Medal'] && result['Medal'] == 'Medallion for Excellence'; })
                     .reduce(function (accumulator, result) {
                         var resultSimplified = $scope.simplifyResult(result);
                         if (typeof accumulator[result['Member']] == 'undefined') {
@@ -259,9 +259,9 @@
                         total += result.competitors.join(', ').length;
                     });
 
-                    // slides for Medallion For Excellence
+                    // slides for Medallion for Excellence
                     var slide = {
-                        label: skill.name.text + ' - Medallion For Excellence',
+                        label: skill.name.text + ' - Medallion for Excellence',
                         template: 'medallion_for_excellence.html',
                         states: ['Name'],
                         context: {

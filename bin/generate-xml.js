@@ -47,7 +47,7 @@ var sectors = Object.values(skills.skills.reduce(function (accumulator, skill) {
   accumulator[sectorId].skills.push(skill);
 
   skill.results = Object.values(results
-      .filter(function (result) { return result['Skill Number'] == skill.number && result['Medal'] && result['Medal'] != 'Medallion For Excellence'; })
+      .filter(function (result) { return result['Skill Number'] == skill.number && result['Medal'] && result['Medal'] != 'Medallion for Excellence'; })
       .reduce(function (accumulator, result) {
           if (typeof accumulator[result['Member']] == 'undefined') {
               accumulator[result['Member']] = result;
