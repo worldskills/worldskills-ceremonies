@@ -351,9 +351,9 @@
                     results: $filter('orderBy')(resultsAlbertVidalAward, 'member_1058'),
                 }
             };
-            //$scope.screens.a.slides.push(slide);
+            $scope.screens.a.slides.push(slide);
 
-            //$scope.screens.a.slides.push(angular.copy(empty));
+            $scope.screens.a.slides.push(angular.copy(empty));
         };
 
         $scope.hasState = function (slide, state) {
