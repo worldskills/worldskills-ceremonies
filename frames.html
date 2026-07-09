@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Ceremonies Frames</title>
+    <link href="css/frames.css" rel="stylesheet">
+</head>
+<body>
+    <div id="grid" class="frames-grid"></div>
+    <script>
+        (function () {
+            var params = {};
+            location.search.replace(/^\?/, '').split('&').forEach(function (pair) {
+                var parts = pair.split('=');
+                if (parts.length === 2) params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
+            });
+
+            var frameIds = (params.frames || 'a').split(',').filter(Boolean);
+            var cols = parseInt(params.cols) || 2;
+            var rows = parseInt(params.rows) || 1;
+            var frameW = parseInt(params.frameW) || 1100;
+            var frameH = parseInt(params.frameH) || 500;
+            var gap = parseInt(params.gap) || 0;
+
+            var grid = document.getElementById('grid');
+            grid.style.setProperty('--grid-cols', cols);
+            grid.style.setProperty('--grid-rows', rows);
+            grid.style.setProperty('--frame-w', frameW + 'px');
+            grid.style.setProperty('--frame-h', frameH + 'px');
+            grid.style.setProperty('--grid-gap', gap + 'px');
+
+            frameIds.forEach(function (id) {
+                var iframe = document.createElement('iframe');
+                iframe.src = 'screen.html?screen=' + encodeURIComponent(id);
+                iframe.width = frameW;
+                iframe.height = frameH;
+                iframe.frameBorder = '0';
+                iframe.scrolling = 'no';
+                iframe.className = 'frame-cell';
+                grid.appendChild(iframe);
+            });
+        })();
+    </script>
+</body>
+</html>

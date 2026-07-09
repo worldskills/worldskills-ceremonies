@@ -6,7 +6,7 @@
     <div class="screen-skill-medallion-for-excellence">
         <div class="screen-medal screen-medallion-for-excellence" ng-repeat="result in context.results" style="font-size: calc(var(--unit) * 0.6 + var(--unit) * {{ (4 / context.total) }});">
             <div class="screen-flag">
-                <img ng-src="data/flags/{{ result.memberCode }}.png">
+                <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'">
             </div>
             <div class="screen-competitors">
                 <div class="screen-competitor">

@@ -5,7 +5,7 @@
     <div class="screen-albert-vidal-award-award">
         <div class="screen-albert-vidal-award" ng-repeat="result in context.results">
             <div class="screen-flag">
-                <img ng-src="data/flags/{{ result.memberCode }}.png">
+                <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'">
             </div>
             <div class="screen-competitors">
                 <div class="screen-competitor">

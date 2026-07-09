@@ -4,31 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ceremonies Screen</title>
-    <link href="css/fonts.css" rel="stylesheet">
-    <link href="css/screen.css" rel="stylesheet">
+    <link href="wstemplate://active/css/fonts.css" rel="stylesheet">
+    <link href="wstemplate://active/css/screen.css" rel="stylesheet">
 </head>
 <body ng-controller="ScreenCtrl" ng-class="{'preview': preview}">
-
-    <div class="setup" ng-show="!screen">
-        <p>
-            <button ng-click="enableFullscreen()">Enable Fullscreen</button>
-        </p>
-        <p>
-            <span ng-repeat="(id, screen) in screens">
-                <button ng-click="setScreen(id, 'false')">Live {{ screen.label }}</button>
-            </span>
-        </p>
-        <p>
-            <span ng-repeat="(id, screen) in screens">
-                <button ng-click="setScreen(id, 'true')" class="secondary">Preview {{ screen.label }}</button>
-            </span>
-        </p>
-    </div>
 
     <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
         <div class="screen-canvas">
             <div ng-include="template"></div>
         </div>
+    </div>
+
+    <div class="setup" ng-show="!screen">
+        <p style="color:#fff;font-family:sans-serif;padding:20px">Open this screen from the control panel. Press F11 for fullscreen.</p>
+    </div>
+
+    <div class="screen-toolbar" ng-show="showToolbar && !!screen" ng-cloak>
+        <span class="screen-toolbar-frame">{{ frameLabel }}</span>
+        <span class="screen-toolbar-sep">|</span>
+        <span class="screen-toolbar-slide">{{ slideLabel || '—' }}</span>
+        <span class="screen-toolbar-sep">|</span>
+        <span class="screen-toolbar-mode" ng-class="{'screen-toolbar-preview': preview}">{{ preview ? 'PREVIEW' : 'LIVE' }}</span>
+        <button class="screen-toolbar-hide-btn" ng-click="showToolbar = false" title="Hide toolbar">T to hide</button>
     </div>
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>

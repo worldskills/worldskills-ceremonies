@@ -6,7 +6,7 @@
         <table class="screen-table-countries">
             <tr>
                 <td ng-repeat="result in context.results" class="screen-table-countries-flag">
-                    <img ng-src="data/flags/{{ result.memberCode }}.png" class="screen-img-flag" style="max-width: calc(var(--unit) * 16 * {{ (1 / context.results.length) }}); max-height: calc(var(--unit) * 12 * {{ (1 / context.results.length) }});">
+                    <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'" class="screen-img-flag" style="max-width: calc(var(--unit) * 16 * {{ (1 / context.results.length) }}); max-height: calc(var(--unit) * 12 * {{ (1 / context.results.length) }});">
                 </td>
             </tr>
             <tr>

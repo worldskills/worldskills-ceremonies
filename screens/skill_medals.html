@@ -5,7 +5,7 @@
     <div class="screen-skill-medals-medals">
         <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results" style="font-size: calc(var(--unit) * 0.7 + var(--unit) * {{ (8 / context.max) }});">
             <div class="screen-flag">
-                <img ng-src="data/flags/{{ result.memberCode }}.png">
+                <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'">
             </div>
             <div class="screen-medal-text">
                 <div class="screen-medal-name">

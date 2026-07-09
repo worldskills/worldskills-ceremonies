@@ -10,9 +10,13 @@
 </head>
 <body ng-controller="ControlCtrl" ngf-drop="upload($file)">
 
+    <!-- ── Navbar ───────────────────────────────────────────────── -->
     <nav class="navbar sticky-top navbar-expand-md ws-navbar-stripe navbar-dark ws-navbar-main">
         <div class="container-fluid">
-            <a class="navbar-brand">
+            <a class="navbar-brand d-flex align-items-center" style="gap:8px">
+                <button class="btn btn-sm btn-outline-light navbar-exit-btn" ng-click="exitToStartup()" title="Back to project select">
+                    <i class="fa fa-home"></i>
+                </button>
                 <svg width="115px" height="22px" viewBox="0 0 220 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;" class="d-inline-block align-baseline" aria-label="WorldSkills">
                     <g>
                         <path d="M52.271,39.434c-5.36,0 -8.958,-4.397 -8.958,-10.943c0,-6.546 3.598,-10.945 8.958,-10.945c5.358,0 8.959,4.399 8.959,10.945c0,6.546 -3.601,10.943 -8.959,10.943Zm0,-24.453c-9.152,0 -12.397,7.275 -12.397,13.51c0,6.233 3.245,13.509 12.397,13.509c9.151,0 12.398,-7.276 12.398,-13.509c0,-6.235 -3.247,-13.51 -12.398,-13.51Z" style="fill:#fff;fill-rule:nonzero;"></path>
@@ -30,27 +34,196 @@
                     </g>
                 </svg>
                 <span class="ml-1 text-white">Awards Ceremonies</span>
+                <span class="navbar-project-name" ng-show="projectName">{{ projectName }}</span>
             </a>
-            <a class="btn btn-white btn-sm" href="screen.html" target="_blank">
-                Launch Screen
-            </a>
+            <div class="d-flex align-items-center flex-wrap justify-content-end" style="gap:6px">
+                <!-- Import results -->
+                <label class="btn btn-white btn-sm mb-0" ngf-select="upload($file)" title="Import results — load a WorldSkills results spreadsheet (.xlsx) and recalculate skill ordering">
+                    <i class="fa fa-upload mr-1"></i> Import results
+                </label>
+
+                <!-- Import Best of Nation -->
+                <label class="btn btn-white btn-sm mb-0" ngf-select="uploadBestOfNation($file)" accept=".xlsx,.xls" title="Import Best of Nation — load a Best of Nation spreadsheet (.xlsx). Import results first.">
+                    <i class="fa fa-upload mr-1"></i> Import Best of Nation
+                </label>
+
+                <!-- Preview all -->
+                <button class="btn btn-white btn-sm" ng-show="uploaded" ng-click="previewAllFrames()" title="Preview all — open a preview window for every frame">
+                    <i class="fa fa-eye"></i>
+                </button>
+
+                <!-- Open all live (fullscreen on assigned displays) -->
+                <button class="btn btn-success btn-sm" ng-show="uploaded" ng-click="openAllFramesLive()" title="Open all live — fullscreen on each frame's assigned display">
+                    <i class="fa fa-desktop"></i>
+                </button>
+
+                <!-- All frames view -->
+                <button class="btn btn-white btn-sm" ng-show="uploaded" ng-class="{'btn-active-mode': allFramesViewOpen}" ng-click="allFramesViewOpen = !allFramesViewOpen" title="All frames — skill assignment">
+                    <i class="fa fa-th"></i>
+                </button>
+
+                <!-- Grid view (all frames in one window) -->
+                <button class="btn btn-white btn-sm" ng-click="openGridView()" title="Grid view — all frames in one window">
+                    <i class="fa fa-th-large"></i>
+                </button>
+
+                <!-- Queue view -->
+                <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': queueViewOpen}" ng-click="queueViewOpen = !queueViewOpen" title="Queue — unified slide queue">
+                    <i class="fa fa-list-ol mr-1"></i> Queue
+                </button>
+
+                <!-- Project dropdown (Angular-driven, no Bootstrap JS required) -->
+                <div class="position-relative">
+                    <button class="btn btn-white btn-sm" ng-click="projectMenuOpen = !projectMenuOpen" title="Project — save, save as, load, or reload templates">
+                        Project <span class="project-dirty-dot" ng-show="projectDirty" title="Unsaved changes"></span><i class="fa fa-caret-down ml-1"></i>
+                    </button>
+                    <div class="project-dropdown" ng-show="projectMenuOpen" ng-click="projectMenuOpen = false">
+                        <button class="project-dropdown-item" ng-click="saveProject()">
+                            <i class="fa fa-save mr-2"></i> Save project
+                        </button>
+                        <button class="project-dropdown-item" ng-click="saveAsProject()">
+                            <i class="fa fa-copy mr-2"></i> Save As…
+                        </button>
+                        <button class="project-dropdown-item" ng-click="loadProject()">
+                            <i class="fa fa-folder-open mr-2"></i> Load project
+                        </button>
+                        <div class="project-dropdown-divider"></div>
+                        <button class="project-dropdown-item" ng-click="reloadTemplates()">
+                            <i class="fa fa-refresh mr-2"></i> Reload templates
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div class="container-fluid mt-3">
+    <!-- ── Notification banner ──────────────────────────────────── -->
+    <div class="ceremony-banner" ng-repeat="note in notices" ng-class="'ceremony-banner-' + note.level">
+        <i class="fa" ng-class="{'fa-exclamation-triangle': note.level === 'error', 'fa-info-circle': note.level !== 'error'}"></i>
+        <span class="ceremony-banner-text">{{ note.text }}</span>
+        <button type="button" class="ceremony-banner-close" ng-click="dismissNotice(note)" title="Dismiss">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
 
-        <div class="row">
-            <div class="col-sm-12" ng-repeat="(id, screen) in screens">
-                <div class="card mb-2" ng-show="screen.slides.length > 0">
-                    <div class="card-header">
-                        <h3 class="card-title">{{ screen.label }}</h3>
+    <!-- ── Main body ────────────────────────────────────────────── -->
+    <div class="app-body">
+
+        <!-- All Frames panel sits at the top of app-body -->
+        <div class="all-frames-panel" ng-show="allFramesViewOpen">
+            <div class="all-frames-header">
+                <strong><i class="fa fa-th mr-2"></i>All Frames — Skill Assignment</strong>
+                <div class="d-flex" style="gap:8px">
+                    <label class="btn btn-sm btn-outline-light mb-0" ngf-select="importFrameOrdering($file)" accept=".xlsx,.xls" title="Import Skill Number → Frame Name mapping from Excel">
+                        <i class="fa fa-upload mr-1"></i> Import ordering
+                    </label>
+                    <button class="btn btn-sm btn-outline-light" ng-click="allFramesViewOpen = false">
+                        <i class="fa fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+            <div class="all-frames-body">
+                <div ng-show="!uploaded" class="text-muted p-3" style="color:#94a3b8 !important">Import a results file first to see skill groups.</div>
+                <div ng-show="uploaded && catalogSkillList.length === 0" class="text-muted p-3" style="color:#94a3b8 !important">No skills found in results file.</div>
+                <table class="table table-sm table-dark mb-0" ng-show="uploaded && catalogSkillList.length > 0">
+                    <thead>
+                        <tr>
+                            <th style="width:60px">#</th>
+                            <th>Skill</th>
+                            <th style="width:200px">Assigned to frame</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="skill in catalogSkillList">
+                            <td class="text-muted">{{ skill.number }}</td>
+                            <td>{{ skill.name }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-sm"
+                                            ng-repeat="(fid, frame) in screens"
+                                            ng-class="skill.assignedFrame === fid ? 'btn-primary' : 'btn-outline-secondary'"
+                                            ng-click="moveSkillToFrame(skill.number, fid)">
+                                        {{ frame.label }}
+                                    </button>
+                                    <button type="button" class="btn btn-sm"
+                                            ng-class="!skill.assignedFrame ? 'btn-secondary' : 'btn-outline-secondary'"
+                                            ng-click="moveSkillToFrame(skill.number, '')">
+                                        —
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-show="catalog && catalog['__albertVidal__']">
+                            <td class="text-muted">AVA</td>
+                            <td>Albert Vidal Award</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-sm"
+                                            ng-repeat="(fid, frame) in screens"
+                                            ng-class="albertVidalFrame === fid ? 'btn-primary' : 'btn-outline-secondary'"
+                                            ng-click="toggleAlbertVidalForFrame(fid)">
+                                        {{ frame.label }}
+                                    </button>
+                                    <button type="button" class="btn btn-sm"
+                                            ng-class="!albertVidalFrame ? 'btn-secondary' : 'btn-outline-secondary'"
+                                            ng-click="toggleAlbertVidalForFrame('')">
+                                        —
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Queue view (replaces frame rail + main panel) -->
+        <div class="queue-panel" ng-show="queueViewOpen">
+
+            <div class="slide-nav-bar">
+                <strong><i class="fa fa-list-ol mr-1"></i> Slide Queue</strong>
+                <small class="text-muted ml-2">All frames — each frame is controlled independently</small>
+                <!-- Prev/Next through the whole queue, across all frames (list layout) -->
+                <div class="d-flex align-items-center ml-auto mr-2" ng-show="queueLayout === 'list' && queueList.length">
+                    <span class="queue-frame-chip mr-2" ng-show="screens[FrameService.activeFrameId]" style="background: {{ FrameService.getFrameColor(FrameService.activeFrameId) }}" title="Current frame">{{ screens[FrameService.activeFrameId].label }}</span>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-sm btn-outline-secondary" ng-click="queueListPrev()" title="Previous slide/state (whole queue, across frames)">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" ng-click="queueListNext()" title="Next slide/state (whole queue, across frames)">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
                     </div>
+                </div>
+                <div class="btn-group btn-group-sm ml-auto">
+                    <button class="btn btn-sm btn-outline-secondary" ng-class="{'active': queueLayout === 'list'}" ng-click="queueLayout = 'list'" title="Flat list">
+                        <i class="fa fa-list"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" ng-class="{'active': queueLayout === 'grid'}" ng-click="queueLayout = 'grid'" title="Card grouped by frame">
+                        <i class="fa fa-th-large"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" ng-class="{'active': queueLayout === 'skills'}" ng-click="queueLayout = 'skills'" title="Navigate by skill">
+                        <i class="fa fa-sitemap"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Pure list ── -->
+            <div class="slide-list-area" ng-show="queueLayout === 'list'">
+                <div class="card mb-2" ng-show="queueList.length > 0">
                     <div class="list-group list-group-flush">
-                        <a class="list-group-item clearfix" ng-class="{'list-group-item-secondary': slide.done}" ng-repeat="slide in screen.slides" ng-click="showSlide(id, slide)">
+                        <a class="list-group-item clearfix"
+                           ng-class="{'list-group-item-secondary': item.slide.done, 'list-group-item-primary': screens[item.frameId].slide === item.slide}"
+                           ng-repeat="item in queueList track by $index"
+                           data-queue-idx="{{ $index }}"
+                           ng-click="showSlideFromQueue(item, $index)">
                             <div class="d-flex w-100 justify-content-between">
-                                <span>{{ slide.label }}</span>
-                                <span ng-show="slide.script">
-                                    <span class="btn btn-sm btn-white py-0" ng-click="copyPaste($event, slide.script)">
+                                <span>
+                                    <span class="queue-frame-chip" style="background: {{ FrameService.getFrameColor(item.frameId) }}">{{ item.frame.label }}</span>
+                                    {{ item.slide.label }}
+                                </span>
+                                <span ng-show="item.slide.script">
+                                    <span class="btn btn-sm btn-white py-0" ng-click="copyPaste($event, item.slide.script)">
                                         <i class="fa fa-clipboard" aria-hidden="true"></i>
                                     </span>
                                 </span>
@@ -58,44 +231,415 @@
                             <div>
                                 <p class="list-group-item-text">
                                     <div class="btn-toolbar">
-                                        <button class="btn btn-sm btn-success mr-1" ng-click="slide.edit = !slide.edit" ng-disabled="screens[id].slide !== slide"><i class="fa fa-pencil"></i> Edit</button>
-                                        <div class="btn-group mr-1" ng-show="slide.states">
-                                            <button type="button" class="btn btn-sm btn-primary" ng-repeat="state in slide.states" ng-click="toggleState(id, slide, state)" ng-disabled="screens[id].slide !== slide">
-                                                <i ng-show="hasState(slide, state)" class="fa fa-ban fa-fw"></i>
-                                                <i ng-show="!hasState(slide, state)" class="fa fa-trophy fa-fw"></i>
+                                        <button class="btn btn-sm btn-success mr-1" ng-click="item.slide.edit = !item.slide.edit" ng-disabled="screens[item.frameId].slide !== item.slide"><i class="fa fa-pencil"></i> Edit</button>
+                                        <div class="btn-group mr-1" ng-show="item.slide.states">
+                                            <button type="button" class="btn btn-sm btn-primary" ng-repeat="state in item.slide.states" ng-click="toggleState(item.frameId, item.slide, state)" ng-disabled="screens[item.frameId].slide !== item.slide">
+                                                <i ng-show="hasState(item.slide, state)" class="fa fa-ban fa-fw"></i>
+                                                <i ng-show="!hasState(item.slide, state)" class="fa fa-trophy fa-fw"></i>
                                                 {{ state }}
                                             </button>
                                         </div>
-                                        <button class="btn btn-sm btn-danger" ng-show="slide.states" ng-click="resetStates(id, slide)" ng-disabled="screens[id].slide !== slide">Reset</button>
+                                        <button class="btn btn-sm btn-danger" ng-show="item.slide.states" ng-click="resetStates(item.frameId, item.slide)" ng-disabled="screens[item.frameId].slide !== item.slide">Reset</button>
                                     </div>
                                 </p>
-                                <p class="list-group-item-text" ng-show="slide.edit">
-                                    <textarea class="form-control" json-text rows="9" ng-model="slide.context" ng-change="updateContext(id, slide)"></textarea>
+                                <p class="list-group-item-text" ng-show="item.slide.edit">
+                                    <textarea class="form-control" json-text rows="9" ng-model="item.slide.context" ng-change="updateContext(item.frameId, item.slide)"></textarea>
                                 </p>
                             </div>
                         </a>
                     </div>
                 </div>
-                <div class="card py-3 text-center" ng-hide="uploaded" ngf-select="upload($file)">
-                    <div class="card-body py-3">
-                        <div class="py-3 text-muted">Drag &amp; Drop results file from CIS here or<br>click to choose file</div>
+                <div class="text-muted p-3" ng-show="queueList.length === 0">
+                    Import results first to build the queue.
+                </div>
+            </div>
+
+            <!-- ── Skills navigator ── -->
+            <div class="skills-layout" ng-show="queueLayout === 'skills'">
+
+                <!-- Left: skill list -->
+                <div class="skills-list-pane">
+                    <div class="p-3 text-muted" style="font-size:13px" ng-show="!uploaded || !catalogSkillList || catalogSkillList.length === 0">
+                        Import results first to see skills.
+                    </div>
+                    <div ng-show="uploaded && catalogSkillList && catalogSkillList.length > 0">
+                        <div class="skills-list-item"
+                             ng-repeat="skill in catalogSkillList"
+                             ng-class="{'skills-list-item-active': skillsSelectedSkill && skillsSelectedSkill.number === skill.number, 'skills-list-item-done': isSkillFullyDisplayed(skill.number)}"
+                             ng-click="selectSkillForQueue(skill)">
+                            <span class="skills-list-num">{{ skill.number }}</span>
+                            <span class="skills-list-name">{{ skill.name }}</span>
+                            <i class="fa fa-check skills-list-done-icon" ng-show="isSkillFullyDisplayed(skill.number)" title="All slides displayed"></i>
+                            <span class="queue-frame-chip" ng-show="skill.assignedFrame" style="background: {{ FrameService.getFrameColor(skill.assignedFrame) }}">
+                                {{ screens[skill.assignedFrame] && screens[skill.assignedFrame].label }}
+                            </span>
+                        </div>
+                        <div class="skills-list-divider"></div>
+                        <div class="skills-list-item skills-list-item-ava"
+                             ng-show="catalog && catalog['__albertVidal__']"
+                             ng-class="{'skills-list-item-active': skillsSelectedSkill && skillsSelectedSkill.number === '__albertVidal__', 'skills-list-item-done': isSkillFullyDisplayed('__albertVidal__')}"
+                             ng-click="selectSkillForQueue({number: '__albertVidal__', name: 'Albert Vidal Award'})">
+                            <span class="skills-list-num">★</span>
+                            <span class="skills-list-name">Albert Vidal Award</span>
+                            <i class="fa fa-check skills-list-done-icon" ng-show="isSkillFullyDisplayed('__albertVidal__')" title="Displayed"></i>
+                            <span class="queue-frame-chip" ng-show="albertVidalFrame" style="background: {{ FrameService.getFrameColor(albertVidalFrame) }}">
+                                {{ screens[albertVidalFrame] && screens[albertVidalFrame].label }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: detail pane -->
+                <div class="skills-detail-pane">
+
+                    <!-- Placeholder -->
+                    <div class="skills-detail-placeholder" ng-show="!skillsSelectedSkill">
+                        <span class="text-muted">Select a skill from the list.</span>
+                    </div>
+
+                    <!-- Skill selected -->
+                    <div class="skills-detail-inner" ng-show="skillsSelectedSkill">
+
+                        <!-- Header -->
+                        <div class="skills-detail-header">
+                            <span class="skills-detail-title">{{ skillsSelectedSkill && skillsSelectedSkill.name }}</span>
+                            <div class="btn-group btn-group-sm ml-auto">
+                                <button class="btn btn-sm btn-outline-secondary" ng-click="skillPrev()" ng-disabled="!skillsSelectedSlides.length" title="Prev state / slide">
+                                    <i class="fa fa-chevron-left"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" ng-click="skillNext()" ng-disabled="!skillsSelectedSlides.length" title="Next state / slide">
+                                    <i class="fa fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Frame selector -->
+                        <div class="skills-detail-frame-row">
+                            <span class="skills-detail-label">Frame</span>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-sm"
+                                        ng-repeat="(fid, frame) in screens"
+                                        ng-class="(skillsSelectedSkill.number === '__albertVidal__' ? albertVidalFrame : getSkillFrame(skillsSelectedSkill.number)) === fid ? 'btn-primary' : 'btn-outline-secondary'"
+                                        ng-click="reassignSkillFrame(skillsSelectedSkill.number, fid)">
+                                    <span class="frame-color-dot" style="background: {{ FrameService.getFrameColor(fid) }}"></span>
+                                    {{ frame.label }}
+                                    <i class="fa fa-circle ml-1" style="font-size:7px;opacity:0.7" ng-show="fid === FrameService.activeFrameId" title="Active frame"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Slides -->
+                        <div class="skills-slides-area">
+                            <div class="skills-slide-row"
+                                 ng-repeat="item in skillsSelectedSlides"
+                                 ng-class="{'skills-slide-active': screens[item.frameId].slide === item.slide, 'skills-slide-done': item.slide.done && screens[item.frameId].slide !== item.slide}">
+                                <div class="skills-slide-main">
+                                    <span class="skills-slide-label" ng-click="showSlideFromSkillsView(item)">{{ skillShortLabel(item.slide.label, skillsSelectedSkill.name) }}</span>
+                                    <span class="btn btn-sm btn-white py-0 ml-auto" ng-show="item.slide.script" ng-click="copyPaste($event, item.slide.script)" title="Copy script">
+                                        <i class="fa fa-clipboard"></i>
+                                    </span>
+                                </div>
+                                <div class="skills-slide-states" ng-show="item.slide.states && item.slide.states.length > 0">
+                                    <div class="btn-group btn-group-sm mr-2">
+                                        <button type="button" class="btn btn-sm btn-primary"
+                                                ng-repeat="state in item.slide.states"
+                                                ng-class="{'active': hasState(item.slide, state)}"
+                                                ng-disabled="screens[item.frameId].slide !== item.slide"
+                                                ng-click="toggleState(item.frameId, item.slide, state)">
+                                            <i ng-show="hasState(item.slide, state)" class="fa fa-ban fa-fw"></i>
+                                            <i ng-show="!hasState(item.slide, state)" class="fa fa-trophy fa-fw"></i>
+                                            {{ state }}
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger"
+                                            ng-disabled="screens[item.frameId].slide !== item.slide"
+                                            ng-click="resetStates(item.frameId, item.slide)">Reset</button>
+                                </div>
+                            </div>
+
+                            <div class="p-3 text-muted" style="font-size:13px" ng-show="skillsSelectedSlides.length === 0">
+                                No slides — assign this skill to a frame first.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <hr class="hr-extended" />
-
-        <footer>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <p>© 2022 WorldSkills International</p>
+            <!-- ── Card grouped ── -->
+            <div class="queue-card-grid-area" ng-show="queueLayout === 'grid'">
+                <div class="queue-card-grid">
+                    <div class="queue-frame-card card"
+                         ng-repeat="(id, frame) in screens"
+                         data-frame-id="{{ id }}"
+                         style="--frame-color: {{ FrameService.getFrameColor(id) }}">
+                        <div class="queue-frame-card-header">
+                            <span class="frame-color-chip" style="background: {{ FrameService.getFrameColor(id) }}; border:1px solid rgba(0,0,0,0.12)"></span>
+                            <strong>{{ frame.label }}</strong>
+                            <span class="status-dot {{ frame.status }} ml-2"></span>
+                            <span class="ml-1" style="font-size:11px;color:#64748b">{{ frame.status }}</span>
+                            <span class="ml-auto" style="font-size:11px;color:#94a3b8">{{ getSlidePosition(id) }}</span>
+                            <div class="btn-group btn-group-sm" style="margin-left:8px">
+                                <button class="btn btn-sm btn-outline-secondary queue-nav-btn" ng-click="prevSlideForFrame(id)" title="Prev">
+                                    <i class="fa fa-chevron-left"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary queue-nav-btn" ng-click="nextSlideForFrame(id)" title="Next">
+                                    <i class="fa fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="list-group list-group-flush queue-frame-card-body">
+                            <a class="list-group-item clearfix"
+                               ng-class="{'list-group-item-secondary': item.slide.done, 'list-group-item-primary': screens[id].slide === item.slide}"
+                               ng-repeat="item in queueByFrame[id] track by $index"
+                               ng-click="showSlideFromQueue(item, null, $index, id)">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <span>{{ item.slide.label }}</span>
+                                    <span ng-show="item.slide.script">
+                                        <span class="btn btn-sm btn-white py-0" ng-click="copyPaste($event, item.slide.script)">
+                                            <i class="fa fa-clipboard" aria-hidden="true"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="list-group-item-text">
+                                        <div class="btn-toolbar">
+                                            <button class="btn btn-sm btn-success mr-1" ng-click="item.slide.edit = !item.slide.edit" ng-disabled="screens[id].slide !== item.slide"><i class="fa fa-pencil"></i> Edit</button>
+                                            <div class="btn-group mr-1" ng-show="item.slide.states">
+                                                <button type="button" class="btn btn-sm btn-primary" ng-repeat="state in item.slide.states" ng-click="toggleState(id, item.slide, state)" ng-disabled="screens[id].slide !== item.slide">
+                                                    <i ng-show="hasState(item.slide, state)" class="fa fa-ban fa-fw"></i>
+                                                    <i ng-show="!hasState(item.slide, state)" class="fa fa-trophy fa-fw"></i>
+                                                    {{ state }}
+                                                </button>
+                                            </div>
+                                            <button class="btn btn-sm btn-danger" ng-show="item.slide.states" ng-click="resetStates(id, item.slide)" ng-disabled="screens[id].slide !== item.slide">Reset</button>
+                                        </div>
+                                    </p>
+                                    <p class="list-group-item-text" ng-show="item.slide.edit">
+                                        <textarea class="form-control" json-text rows="9" ng-model="item.slide.context" ng-change="updateContext(id, item.slide)"></textarea>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="p-3 text-muted" style="font-size:13px" ng-show="!queueByFrame[id] || queueByFrame[id].length === 0">
+                            No slides assigned to this frame.
+                        </div>
+                    </div>
                 </div>
             </div>
 
-        </footer>
+        </div>
 
+        <!-- ── Control toolbar ────────────────────────────────────── -->
+        <div class="control-toolbar" ng-show="!queueViewOpen && screens[FrameService.activeFrameId] && screens[FrameService.activeFrameId].slides && screens[FrameService.activeFrameId].slides.length > 0">
+            <button class="btn btn-sm btn-outline-secondary" ng-click="prevSlide()" ng-disabled="screens[FrameService.activeFrameId].slides.indexOf(screens[FrameService.activeFrameId].slide) <= 0">
+                <i class="fa fa-chevron-left"></i> Prev
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" ng-click="nextSlide()">
+                Next <i class="fa fa-chevron-right"></i>
+            </button>
+            <div class="btn-group ml-2 position-relative">
+                <button class="btn btn-sm btn-outline-secondary" ng-click="jumpMenuOpen = !jumpMenuOpen">
+                    Jump to… <i class="fa fa-caret-down ml-1"></i>
+                </button>
+                <div class="jump-dropdown" ng-show="jumpMenuOpen">
+                    <button class="jump-dropdown-item" ng-repeat="slide in screens[FrameService.activeFrameId].slides track by $index" ng-click="jumpToSlide(slide); jumpMenuOpen=false">
+                        {{ slide.label }}
+                    </button>
+                </div>
+            </div>
+            <div class="control-toolbar-sep"></div>
+            <span class="d-flex align-items-center" style="font-size:12px;gap:5px;color:#64748b">
+                <span class="frame-color-chip" style="background: {{ FrameService.getFrameColor(FrameService.activeFrameId) }}"></span>
+                {{ screens[FrameService.activeFrameId].label }}
+                <span class="status-dot {{ screens[FrameService.activeFrameId].status }}"></span>
+                <span style="font-size:11px">{{ getSlidePosition(FrameService.activeFrameId) }}</span>
+            </span>
+            <span class="ml-auto d-flex" style="gap:4px" ng-show="screens[FrameService.activeFrameId].status === 'closed'">
+                <button class="btn btn-sm btn-success" ng-click="openFrameWindowLive(FrameService.activeFrameId)">
+                    <i class="fa fa-play mr-1"></i> Live
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" ng-click="openFrameWindowPreview(FrameService.activeFrameId)">
+                    <i class="fa fa-eye mr-1"></i> Preview
+                </button>
+            </span>
+            <span class="ml-auto d-flex" style="gap:4px" ng-show="screens[FrameService.activeFrameId].status !== 'closed'">
+                <button class="btn btn-sm btn-outline-secondary" ng-click="reloadFrameWindow(FrameService.activeFrameId)" title="Reload this screen (recovers a crashed or frozen projector in place)">
+                    <i class="fa fa-refresh mr-1"></i> Reload
+                </button>
+                <button class="btn btn-sm btn-danger" ng-click="closeFrameWindow(FrameService.activeFrameId)">
+                    <i class="fa fa-stop mr-1"></i> Close window
+                </button>
+            </span>
+        </div>
+
+        <div class="app-body-inner" ng-show="!queueViewOpen">
+
+        <!-- Frame rail (left sidebar) -->
+        <div class="frame-rail">
+            <div class="frame-rail-title">Frames</div>
+
+            <div class="frame-card"
+                 ng-repeat="(id, frame) in screens"
+                 ng-class="{'active': id === FrameService.activeFrameId}"
+                 ng-click="setActiveFrame(id)"
+                 style="--frame-color: {{ FrameService.getFrameColor(id) }}">
+                <div class="frame-card-label" ng-click="$event.stopPropagation()">
+                    <span ng-hide="editingFrameId === id">{{ frame.label }}</span>
+                    <input class="frame-rename-input"
+                           ng-show="editingFrameId === id"
+                           ng-model="editingFrameLabel"
+                           ng-blur="finishRenameFrame(id)"
+                           ng-keydown="handleRenameKey($event, id)"
+                           auto-focus="editingFrameId === id" />
+                    <button class="frame-rename-btn"
+                            ng-hide="editingFrameId === id"
+                            ng-click="startRenameFrame(id, frame.label)"
+                            title="Rename frame">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                </div>
+                <div class="frame-card-meta">
+                    <span class="status-dot {{ frame.status }}"></span>
+                    <span>{{ getSlidePosition(id) }}</span>
+                </div>
+                <div class="frame-card-actions" ng-click="$event.stopPropagation()">
+                    <!-- Live + Preview buttons when closed -->
+                    <ng-container ng-show="frame.status === 'closed'">
+                        <button class="btn btn-success btn-sm" ng-click="openFrameWindowLive(id)" title="Open live window">
+                            Live
+                        </button>
+                        <button class="btn btn-secondary btn-sm" ng-click="openFrameWindowPreview(id)" title="Open preview window">
+                            Preview
+                        </button>
+                    </ng-container>
+                    <!-- Reload + Close buttons when open -->
+                    <button class="btn btn-outline-secondary btn-sm" ng-show="frame.status !== 'closed'" ng-click="reloadFrameWindow(id)" title="Reload screen (recover a crashed/frozen projector)">
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm" ng-show="frame.status !== 'closed'" ng-click="closeFrameWindow(id)" title="Close window">
+                        <i class="fa fa-stop"></i>
+                    </button>
+                    <!-- Remove frame (not for 'a', not while live) -->
+                    <button class="btn btn-outline-danger btn-sm" ng-show="id !== 'a'" ng-disabled="frame.status !== 'closed'" ng-click="removeFrame(id)" title="{{ frame.status !== 'closed' ? 'Close the window before removing' : 'Remove frame' }}">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn btn-outline-light btn-sm frame-add-btn" ng-click="addFrame()">
+                <i class="fa fa-plus mr-1"></i> Add frame
+            </button>
+        </div>
+
+        <!-- Main panel -->
+        <div class="main-panel">
+
+            <!-- Active frame banner + nav bar -->
+            <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
+
+                <div class="active-frame-banner" style="--frame-color: {{ FrameService.getFrameColor(id) }}">
+                    <span class="frame-color-chip" style="background: {{ FrameService.getFrameColor(id) }}; border:1px solid rgba(255,255,255,0.3)"></span>
+                    <span>CONTROLLING: "{{ frame.label }}" ({{ id }})</span>
+                    <span class="status-dot {{ frame.status }}"></span>
+                    <span>{{ frame.status }}</span>
+                    <span class="ml-auto" style="font-weight:400;opacity:0.8">{{ getSlidePosition(id) }}</span>
+                </div>
+
+            </div>
+
+            <!-- Slide list area -->
+            <div class="slide-list-area" ng-show="uploaded">
+                <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
+
+                    <div class="card mb-2" ng-show="frame.slides.length > 0">
+                        <div class="list-group list-group-flush">
+                            <a class="list-group-item clearfix"
+                               ng-class="{'list-group-item-secondary': slide.done, 'list-group-item-primary': screens[id].slide === slide}"
+                               ng-repeat="slide in frame.slides track by $index"
+                               ng-click="showSlide(id, slide)">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <span>{{ slide.label }}</span>
+                                    <span ng-show="slide.script">
+                                        <span class="btn btn-sm btn-white py-0" ng-click="copyPaste($event, slide.script)">
+                                            <i class="fa fa-clipboard" aria-hidden="true"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="list-group-item-text">
+                                        <div class="btn-toolbar">
+                                            <button class="btn btn-sm btn-success mr-1" ng-click="slide.edit = !slide.edit" ng-disabled="screens[id].slide !== slide"><i class="fa fa-pencil"></i> Edit</button>
+                                            <div class="btn-group mr-1" ng-show="slide.states">
+                                                <button type="button" class="btn btn-sm btn-primary" ng-repeat="state in slide.states" ng-click="toggleState(id, slide, state)" ng-disabled="screens[id].slide !== slide">
+                                                    <i ng-show="hasState(slide, state)" class="fa fa-ban fa-fw"></i>
+                                                    <i ng-show="!hasState(slide, state)" class="fa fa-trophy fa-fw"></i>
+                                                    {{ state }}
+                                                </button>
+                                            </div>
+                                            <button class="btn btn-sm btn-danger" ng-show="slide.states" ng-click="resetStates(id, slide)" ng-disabled="screens[id].slide !== slide">Reset</button>
+                                        </div>
+                                    </p>
+                                    <p class="list-group-item-text" ng-show="slide.edit">
+                                        <textarea class="form-control" json-text rows="9" ng-model="slide.context" ng-change="updateContext(id, slide)"></textarea>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="text-muted p-3" ng-show="frame.slides.length === 0 && uploaded">
+                        No slides assigned to this frame. Use <strong>All frames</strong> to assign skills.
+                    </div>
+
+                </div>
+            </div>
+
+        </div><!-- /.main-panel -->
+        </div><!-- /.app-body-inner -->
+    </div><!-- /.app-body -->
+
+    <!-- Click-away to close dropdowns -->
+    <div class="dropdown-backdrop" ng-show="projectMenuOpen" ng-click="projectMenuOpen=false"></div>
+    <div class="jump-backdrop" ng-show="jumpMenuOpen" ng-click="jumpMenuOpen=false"></div>
+
+    <!-- Grid view configuration dialog -->
+    <div class="modal-backdrop" ng-show="gridConfigDialogOpen" ng-click="gridConfigDialogOpen = false"></div>
+    <div class="modal-dialog-box" ng-show="gridConfigDialogOpen">
+        <div class="modal-dialog-header">
+            <i class="fa fa-th-large mr-2"></i><strong>Grid View Configuration</strong>
+        </div>
+        <div class="modal-dialog-body">
+            <div class="form-group">
+                <label>Columns <span style="font-weight:400;text-transform:none;letter-spacing:0">(leave blank for auto)</span></label>
+                <input class="form-control form-control-sm" type="number" min="1" ng-model="gridConfig.cols" placeholder="auto" style="width:90px">
+                <div class="mt-1" style="font-size:12px" ng-if="!gridConfig.cols">
+                    <span style="color:#94a3b8">Auto: {{ getAutoGridPreview() }}</span>
+                </div>
+                <div class="mt-1" style="font-size:12px" ng-if="gridConfig.cols">
+                    <span ng-if="getFrameCount() % gridConfig.cols === 0" style="color:#22c55e">
+                        {{ gridConfig.cols }} × {{ getFrameCount() / gridConfig.cols }} grid ({{ getFrameCount() }} frames)
+                    </span>
+                    <span ng-if="getFrameCount() % gridConfig.cols !== 0" style="color:#ef4444">
+                        Invalid — {{ getFrameCount() }} frames can't fill {{ gridConfig.cols }} columns evenly
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Frame size (px)</label>
+                <div class="btn-group btn-group-sm mb-2" role="group">
+                    <button type="button" class="btn btn-sm" ng-class="gridConfig.frameWidth == 1280 && gridConfig.frameHeight == 720 ? 'btn-primary' : 'btn-outline-secondary'" ng-click="gridConfig.frameWidth = 1280; gridConfig.frameHeight = 720">1280×720</button>
+                    <button type="button" class="btn btn-sm" ng-class="gridConfig.frameWidth == 1920 && gridConfig.frameHeight == 1080 ? 'btn-primary' : 'btn-outline-secondary'" ng-click="gridConfig.frameWidth = 1920; gridConfig.frameHeight = 1080">1920×1080</button>
+                </div>
+                <div class="d-flex" style="gap:8px;align-items:center">
+                    <input class="form-control form-control-sm" type="number" min="320" max="7680" ng-model="gridConfig.frameWidth" style="width:90px"> ×
+                    <input class="form-control form-control-sm" type="number" min="240" max="4320" ng-model="gridConfig.frameHeight" style="width:90px">
+                </div>
+            </div>
+        </div>
+        <div class="modal-dialog-footer">
+            <button class="btn btn-secondary btn-sm" ng-click="gridConfigDialogOpen = false">Cancel</button>
+            <button class="btn btn-primary btn-sm" ng-click="confirmOpenGridView()" ng-disabled="gridConfig.cols && getFrameCount() % gridConfig.cols !== 0"><i class="fa fa-th-large mr-1"></i>Open Grid View</button>
+        </div>
     </div>
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
@@ -103,6 +647,7 @@
     <script src="node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
     <script src="node_modules/xlsx/dist/xlsx.full.min.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/frame.service.js"></script>
     <script src="js/control.js"></script>
 </body>
 </html>
