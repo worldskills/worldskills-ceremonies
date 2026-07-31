@@ -1,25 +1,26 @@
 <div class="screen-content screen-content-skill-medals screen-skill-medals screen-skill-medals-{{ context.skill.number }}">
-    <div class="screen-skill-medals-name">
+    <div class="screen-skill-medals-name screen-region-kv">
         {{ context.skill.name }}
     </div>
-    <div class="screen-skill-medals-medals">
-        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results" style="font-size: calc(var(--unit) * 0.7 + var(--unit) * {{ (8 / context.max) }});">
-            <div class="screen-flag">
-                <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'">
-            </div>
-            <div class="screen-medal-text">
-                <div class="screen-medal-name">
-                    {{ result.medal }}:
-                </div>
-                <div class="screen-competitors">
-                    <div class="screen-competitor">
-                        <span ng-repeat="competitor in result.competitors"><span ng-if="!$first">, </span>{{ competitor }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div ng-if="context.results.length == 0">
-            No results for this skill
+    <div class="screen-skill-medals-medals screen-region-state screen-grid"
+         style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length >= 5 ? 2 : 1 }}; --grid-chars: {{ context.max || 40 }}; --grid-chars-wrap: {{ context.maxWrap || context.max || 40 }};">
+        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results">
+
+           <div class="screen-medal-row">
+               <div class="screen-medal-row-position">
+                   <span>{{ result.medal }}</span>
+               </div>
+               <div class="screen-medal-row-competitors">
+                   <div class="screen-flag">
+                       <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'">
+                   </div>
+                   <div class="screen-medal-text">
+                       <div class="screen-competitors">
+                           <span>{{ result.competitors.join(', ') }}</span>
+                       </div>
+                   </div>
+               </div>
+           </div>
         </div>
     </div>
 </div>

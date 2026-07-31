@@ -8,3 +8,6 @@
 .serena
 .claude
 **/.DS_Store
+.env
+
+**/test-project

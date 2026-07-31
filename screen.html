@@ -7,7 +7,7 @@
     <link href="wstemplate://active/css/fonts.css" rel="stylesheet">
     <link href="wstemplate://active/css/screen.css" rel="stylesheet">
 </head>
-<body ng-controller="ScreenCtrl" ng-class="{'preview': preview}">
+<body ng-controller="ScreenCtrl" ng-class="{'preview': preview, 'screen-blackout': screenMode === 'blackout', 'screen-cut-logo': screenMode === 'logo'}">
 
     <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
         <div class="screen-canvas">
@@ -19,14 +19,6 @@
         <p style="color:#fff;font-family:sans-serif;padding:20px">Open this screen from the control panel. Press F11 for fullscreen.</p>
     </div>
 
-    <div class="screen-toolbar" ng-show="showToolbar && !!screen" ng-cloak>
-        <span class="screen-toolbar-frame">{{ frameLabel }}</span>
-        <span class="screen-toolbar-sep">|</span>
-        <span class="screen-toolbar-slide">{{ slideLabel || '—' }}</span>
-        <span class="screen-toolbar-sep">|</span>
-        <span class="screen-toolbar-mode" ng-class="{'screen-toolbar-preview': preview}">{{ preview ? 'PREVIEW' : 'LIVE' }}</span>
-        <button class="screen-toolbar-hide-btn" ng-click="showToolbar = false" title="Hide toolbar">T to hide</button>
-    </div>
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/angular/angular.min.js"></script>

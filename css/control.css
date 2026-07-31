@@ -48,16 +48,32 @@ a.list-group-item {
     display: none !important;
 }
 
-/* ── Navbar extras ──────────────────────────────────────────── */
-
 .navbar-project-name {
     font-size: 13px;
     font-weight: 400;
     letter-spacing: 0;
     color: rgba(255, 255, 255, 0.55);
-    border-left: 1px solid rgba(255, 255, 255, 0.25);
     padding-left: 10px;
     margin-left: 2px;
+}
+
+.navbar-dev-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.18);
+    border: 1px solid rgba(99, 102, 241, 0.5);
+    border-radius: 3px;
+    padding: 3px 6px;
+    flex-shrink: 0;
+}
+
+.navbar-dev-badge-warn {
+    color: #fcd34d;
+    background: rgba(245, 158, 11, 0.18);
+    border-color: rgba(245, 158, 11, 0.55);
 }
 
 .navbar-exit-btn {
@@ -73,9 +89,6 @@ a.list-group-item {
     color: #fff;
 }
 
-/* ── Multi-frame layout ─────────────────────────────────────── */
-
-/* Frame rail (left sidebar) */
 .frame-rail {
     width: 180px;
     min-width: 180px;
@@ -128,6 +141,26 @@ a.list-group-item {
     align-items: center;
     gap: 4px;
     margin-top: 2px;
+}
+
+.frame-card-monitor {
+    margin-top: 4px;
+}
+
+.frame-monitor-select {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 3px;
+    color: #cbd5e1;
+    font-size: 11px;
+    padding: 2px 4px;
+    cursor: pointer;
+}
+
+.frame-monitor-select:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .frame-card-actions {
@@ -247,7 +280,6 @@ a.list-group-item {
     padding: 12px 16px;
 }
 
-/* Frame color palette — applied as border-left on .frame-card.active and banner bg */
 .frame-color-0 { --frame-color: #8B5CF6; }
 .frame-color-1 { --frame-color: #3B82F6; }
 .frame-color-2 { --frame-color: #10B981; }
@@ -272,7 +304,6 @@ a.list-group-item {
     margin-right: -15px;
 }
 
-/* ── Dropdowns (Angular-driven, no Bootstrap JS) ────────────── */
 .project-dropdown {
     position: absolute;
     top: calc(100% + 4px);
@@ -305,6 +336,26 @@ a.list-group-item {
     height: 1px;
     background: #dee2e6;
     margin: 4px 0;
+}
+
+.dropdown-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 16px 2px;
+}
+
+.dropdown-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px 10px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #212529;
+    cursor: pointer;
 }
 
 .jump-dropdown {
@@ -340,12 +391,9 @@ a.list-group-item {
 .dropdown-backdrop {
     position: fixed;
     inset: 0;
-    /* Must be below the sticky navbar's stacking context (z-index: 1020) so
-       dropdown items inside the navbar remain clickable above this backdrop. */
     z-index: 1019;
 }
 
-/* Backdrop for the jump-to dropdown — sits above main content but below the dropdown itself */
 .jump-backdrop {
     position: fixed;
     inset: 0;
@@ -358,7 +406,6 @@ a.list-group-item {
     line-height: 1.4;
 }
 
-/* ── All Frames panel ───────────────────────────────────────── */
 .all-frames-panel {
     background: #0f172a;
     border-bottom: 2px solid #334155;
@@ -391,7 +438,6 @@ a.list-group-item {
     vertical-align: middle;
 }
 
-/* app-body is a column; all-frames panel is at top, inner row below */
 .app-body {
     flex-direction: column;
     display: flex;
@@ -406,7 +452,6 @@ a.list-group-item {
     min-height: 0;
 }
 
-/* Unsaved-changes indicator dot (shown inside the Project button) */
 .project-dirty-dot {
     display: inline-block;
     width: 6px;
@@ -417,14 +462,12 @@ a.list-group-item {
     vertical-align: middle;
 }
 
-/* Active navbar toggle button */
 .btn-active-mode {
     background: #e0e7ff !important;
     color: #3730a3 !important;
     border-color: #a5b4fc !important;
 }
 
-/* ── Queue panel ────────────────────────────────────────────── */
 .queue-panel {
     display: flex;
     flex-direction: column;

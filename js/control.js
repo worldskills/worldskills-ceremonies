@@ -1,11 +1,17 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $filter, $timeout, SCREENS, TEMPLATE_BASE, FrameService) {
+    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $filter, $timeout, $q, SCREENS, TEMPLATE_BASE, FrameService, DevSession) {
 
         $scope.uploaded = false;
         $scope.FrameService = FrameService;
         $scope.projectDirty = false;
+
+        // Development flags, surfaced as navbar badges (see control.html).
+        $scope.dev = {
+            enabled: DevSession.enabled,
+            forceDefaultTemplate: DevSession.forceDefaultTemplate
+        };
 
         // ── Notification banner ────────────────────────────────────
         $scope.notices = [];
@@ -28,6 +34,22 @@
             if (idx >= 0) $scope.notices.splice(idx, 1);
         };
 
+        // ── Display list (for per-frame monitor assignment) ────────────
+        $scope.displays = [];
+        if (window.ceremonator && window.ceremonator.displays) {
+            window.ceremonator.displays.list().then(function (list) {
+                $scope.$apply(function () {
+                    $scope.displays = (list || []).map(function (d, i) {
+                        return { index: i, label: d.label || ('Display ' + (i + 1)) };
+                    });
+                });
+            });
+        }
+
+        $scope.frameMonitorChanged = function () {
+            $scope.projectDirty = true;
+        };
+
         // NOTE: There is intentionally no autosave-on-close. Saving is an
         // explicit action (Project → Save). The Home button warns before
         // discarding unsaved changes (see exitToStartup).
@@ -48,13 +70,16 @@
         });
 
         $scope.update = function (screen) {
-            var slide = $scope.screens[screen].slide;
+            var frame = $scope.screens[screen];
+            var slide = frame.slide;
             if (typeof slide != 'undefined') {
                 window.localStorage.setItem('screen-' + screen, angular.toJson({
                     template: TEMPLATE_BASE + slide.template,
                     context: slide.context,
                     state: slide.state,
-                    label: slide.label || ''
+                    label: slide.label || '',
+                    frameLabel: frame.label || screen,
+                    accent: FrameService.getFrameColor(screen)
                 }));
             }
             $scope.projectDirty = true;
@@ -62,42 +87,51 @@
 
         // skills
         $scope.skills = [];
-        $http({method: 'GET', url: 'data/json/skills.json'}).then(function(response) {
+        var skillsLoaded = $http({method: 'GET', url: 'data/json/skills.json'}).then(function(response) {
             if (!response.data || !response.data.skills) {
                 $scope.addNotice('error', 'Skill catalog (data/json/skills.json) is missing its "skills" list. The app cannot build ceremonies.', 'skills-load');
                 return;
             }
             $scope.skills = response.data.skills;
-            if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
-                window.ceremonator.project.current().then(function (result) {
-                    if (result && result.project) {
-                        $scope.$apply(function () {
-                            $scope.projectName = result.project.name;
-                            $scope.displayMode = result.project.displayMode;
-                            if (result.project.gridConfig) {
-                                $scope.gridConfig = angular.extend({}, $scope.gridConfig, result.project.gridConfig);
-                            }
-                            if (result.project.frames) {
-                                FrameService.loadFromProject(result.project.frames);
-                            }
-                        });
-                    }
-                    $scope.buildScreens();
-                });
-            } else {
-                $scope.buildScreens();
-            }
         }, function (error) {
             $scope.addNotice('error', 'Failed to load the skill catalog (data/json/skills.json). The app data may be missing from this build. Ceremonies cannot be built until this is resolved.', 'skills-load');
         });
 
         // members
         $scope.members = [];
-        $http({method: 'GET', url: 'data/json/members.json'}).then(function(response) {
+        var membersLoaded = $http({method: 'GET', url: 'data/json/members.json'}).then(function(response) {
             $scope.members = (response.data && response.data.members) || [];
         }, function (error) {
             $scope.addNotice('warning', 'Failed to load the member list (data/json/members.json). Member names may be incomplete.', 'members-load');
         });
+
+        function loadProjectConfig() {
+            if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.current) {
+                return $q.resolve();
+            }
+            // $q.when bridges the preload promise into the digest, so no $apply.
+            return $q.when(window.ceremonator.project.current()).then(function (result) {
+                if (!result || !result.project) return;
+                var project = result.project;
+                $scope.projectName = project.name;
+                $scope.displayMode = project.displayMode;
+                if (project.gridConfig) {
+                    $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
+                }
+                if (project.frames) {
+                    FrameService.loadFromProject(project.frames);
+                }
+            });
+        }
+
+        // Best of Nation grouping in buildCatalog() reads $scope.members, so the
+        // first build has to wait for both catalogs — not just the skills one.
+        $q.all([skillsLoaded, membersLoaded])
+            .then(loadProjectConfig)
+            .then(restoreDevSession)
+            .then(function (restored) {
+                if (!restored) $scope.buildScreens();
+            });
 
         $scope.upload = function (file) {
             if (!file) return;
@@ -211,10 +245,20 @@
         // screens
         $scope.screens = SCREENS;
 
-        // clear local storage
-        angular.forEach($scope.screens, function(config, screen) {
-            window.localStorage.removeItem('screen-' + screen);
-        });
+        // Clear stale screen state left by a previous control session, so an open
+        // screen window can't keep rendering content this session doesn't know
+        // about. In dev this is deferred until we know there is no session to
+        // restore — otherwise every hot reload would blank the screens it is
+        // about to repopulate. See restoreDevSession().
+        function clearScreenStorage() {
+            angular.forEach($scope.screens, function(config, screen) {
+                window.localStorage.removeItem('screen-' + screen);
+            });
+        }
+
+        if (!DevSession.enabled) {
+            clearScreenStorage();
+        }
 
         $scope.capitalize = function (input) {
 
@@ -260,13 +304,80 @@
             r.position = result['Position'];
             r.score = result['WorldSkills Scale Score'];
             if (result['Medal']) {
-                r.medal = $scope.capitalize(result['Medal']);
+                r.medal = $scope.capitalize(result['Medal'].trim());
             }
             r.member = result['Member Name'];
             r.memberCode = result['Member'];
             r.competitor= $scope.capitalize(result['First Name']) + ' ' + $scope.capitalize(result['Last Name']);
             return r;
         };
+
+        // Normalize a skill number for comparison: strip leading zeros so "07" and "7" match.
+        function normalizeSkillNum(n) {
+            return String(n).trim().replace(/^0+(\d)/, '$1');
+        }
+
+        // Lines a column `width` characters wide takes to hold `words`, breaking
+        // greedily at spaces — the same algorithm the browser uses.
+        function greedyLineCount(words, width) {
+            var lines = 1;
+            var used = words[0].length;
+            for (var i = 1; i < words.length; i++) {
+                if (used + 1 + words[i].length <= width) {
+                    used += 1 + words[i].length;
+                } else {
+                    lines++;
+                    used = words[i].length;
+                }
+            }
+            return lines;
+        }
+
+        // Narrowest column, in characters, that still holds `text` within
+        // `maxLines` lines. A single word can't wrap, so it returns its own
+        // length.
+        //
+        // The screens size their text from this: one very long name would
+        // otherwise shrink every other name on the slide to fit itself on one
+        // line — "Democratic Republic of the Congo" needs 32 characters on one
+        // line but only 11 across three, which is 1.7x the font size.
+        function narrowestColumn(text, maxLines) {
+            var value = String(text == null ? '' : text);
+            var words = value.split(' ').filter(function (word) { return !!word; });
+            if (words.length < 2 || maxLines < 2) return value.length;
+
+            // No column can be narrower than the longest single word.
+            var low = 0;
+            angular.forEach(words, function (word) { low = Math.max(low, word.length); });
+            var high = value.length;
+            while (low < high) {
+                var mid = Math.floor((low + high) / 2);
+                if (greedyLineCount(words, mid) <= maxLines) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
+            }
+            return low;
+        }
+
+        // The longest of `results` under `measure`, on one line and wrapped over
+        // `maxLines` — the pair of inputs every results layout needs. Never 0: a
+        // blank name must not turn a "width / chars" formula into Infinity.
+        function measureLongest(results, measure, maxLines) {
+            var longest = 0;
+            var longestWrapped = 0;
+            angular.forEach(results, function (result) {
+                var text = measure(result);
+                longest = Math.max(longest, String(text || '').length);
+                longestWrapped = Math.max(longestWrapped, narrowestColumn(text, maxLines));
+            });
+            return { chars: longest || 1, wrapped: longestWrapped || 1 };
+        }
+
+        function competitorsOf(result) {
+            return result.competitors.join(', ');
+        }
 
         $scope.buildCatalog = function () {
             var catalog = {};
@@ -288,7 +399,9 @@
             angular.forEach($scope.skills, function(skill, i) {
 
                 var skillResults = Object.values($scope.results
-                    .filter(function (result) { return result['Skill Number'] == skill.number; }));
+                    .filter(function (result) {
+                        return normalizeSkillNum(result['Skill Number']) === normalizeSkillNum(skill.number);
+                    }));
 
                 var results = Object.values(skillResults
                     .filter(function (result) { return result['Medal'] && result['Medal'].toUpperCase() != 'MEDALLION FOR EXCELLENCE'; })
@@ -304,13 +417,15 @@
 
                 if (results.length > 0) {
                     var states = [];
-                    var max = 0;
                     angular.forEach(results, function(result, i) {
                         if (states.indexOf(result.medal) < 0) {
                             states.unshift(result.medal);
                         }
-                        max = Math.max(max, result.competitors.join(', ').length);
                     });
+                    // The results grid can spare one extra line per row; the
+                    // call-up row has height for three lines under the flags.
+                    var competitorSize = measureLongest(results, competitorsOf, 2);
+                    var memberSize = measureLongest(results, function (result) { return result.member; }, 3);
 
                     var slideCallup = {
                         label: skill.name.text + ' - Callup',
@@ -318,7 +433,11 @@
                         states: ['Countries'],
                         context: {
                             results: $filter('orderBy')(results, 'member'),
-                            skill: $scope.simplifySkill(skill)
+                            skill: $scope.simplifySkill(skill),
+                            // Longest country name, on one line and wrapped over
+                            // three — sizes the call-up row (see .screen-table-countries).
+                            maxMemberLen: memberSize.chars,
+                            maxMemberWrap: memberSize.wrapped
                         }
                     };
                     var slideMedals = {
@@ -328,7 +447,10 @@
                         context: {
                             results: $filter('orderBy')(results, ['-score', 'member']),
                             skill: $scope.simplifySkill(skill),
-                            max: max
+                            // Longest competitor row, on one line and wrapped onto
+                            // two — sizes the results grid (see .screen-grid).
+                            max: competitorSize.chars,
+                            maxWrap: competitorSize.wrapped
                         }
                     };
 
@@ -371,8 +493,12 @@
                 if (resultsMedallionForExcellence.length > 0) {
                     var total = 0;
                     angular.forEach(resultsMedallionForExcellence, function(result, i) {
-                        total += result.competitors.join(', ').length;
+                        total += competitorsOf(result).length;
                     });
+                    // Never 0 — a blank name must not turn a "width / chars"
+                    // font-size formula into a NaN/Infinity value.
+                    total = total || 1;
+                    var mfeSize = measureLongest(resultsMedallionForExcellence, competitorsOf, 2);
 
                     var slideMfe = {
                         label: skill.name.text + ' - Medallion for Excellence',
@@ -381,7 +507,11 @@
                         context: {
                             results: $filter('orderBy')(resultsMedallionForExcellence, ['-score', 'member']),
                             skill: $scope.simplifySkill(skill),
-                            total: total
+                            total: total,
+                            // Longest name row, on one line and wrapped onto two —
+                            // sizes the results grid (see .screen-grid).
+                            max: mfeSize.chars,
+                            maxWrap: mfeSize.wrapped
                         }
                     };
 
@@ -524,20 +654,13 @@
         $scope.buildScreens = function (forceRedistribute) {
             $scope.catalog = $scope.buildCatalog();
 
-            // Distribute skills evenly (round-robin) across all frames when
-            // importing results (forceRedistribute) or on a first import where
-            // no frame has any skills yet. Importing always recalculates the
-            // ordering rather than reusing whatever was saved in the project.
             var frameIds = Object.keys(FrameService.frames);
             var anyHasSkills = frameIds.some(function (id) {
                 return FrameService.frames[id].ordering.skillNumbers.length > 0;
             });
-            if ((forceRedistribute || !anyHasSkills) && $scope.results.length > 0) {
-                // Clear existing assignments so the recalculation is authoritative.
-                frameIds.forEach(function (id) {
-                    FrameService.frames[id].ordering.skillNumbers = [];
-                    FrameService.frames[id].ordering.includeAlbertVidal = false;
-                });
+
+            if (!anyHasSkills && $scope.results.length > 0) {
+                // Fresh state — distribute all skills evenly across frames.
                 var skillNums = $scope.skills
                     .filter(function (s) { return !!$scope.catalog[s.number]; })
                     .map(function (s) { return s.number; });
@@ -545,8 +668,29 @@
                     var targetId = frameIds[i % frameIds.length];
                     FrameService.frames[targetId].ordering.skillNumbers.push(num);
                 });
-                // Albert Vidal Award to the first frame
                 FrameService.frames[frameIds[0]].ordering.includeAlbertVidal = true;
+            } else if (forceRedistribute && anyHasSkills && $scope.results.length > 0) {
+                // Frames already have a saved ordering — only auto-assign skills that
+                // are new in this import and not yet assigned to any frame.
+                var assignedNums = {};
+                frameIds.forEach(function (id) {
+                    FrameService.frames[id].ordering.skillNumbers.forEach(function (n) {
+                        assignedNums[n] = true;
+                    });
+                });
+                var newSkillNums = $scope.skills
+                    .filter(function (s) { return !!$scope.catalog[s.number] && !assignedNums[s.number]; })
+                    .map(function (s) { return s.number; });
+                newSkillNums.forEach(function (num, i) {
+                    var targetId = frameIds[i % frameIds.length];
+                    FrameService.frames[targetId].ordering.skillNumbers.push(num);
+                });
+                var anyHasAV = frameIds.some(function (id) {
+                    return FrameService.frames[id].ordering.includeAlbertVidal;
+                });
+                if (!anyHasAV) {
+                    FrameService.frames[frameIds[0]].ordering.includeAlbertVidal = true;
+                }
             }
 
             angular.forEach(FrameService.frames, function (frame, id) {
@@ -716,11 +860,16 @@
             $scope.editingFrameLabel = currentLabel;
         };
 
-        $scope.finishRenameFrame = function (id) {
+        // `childLabel` is passed from the ng-repeat child scope where ng-model writes —
+        // without it, $scope.editingFrameLabel would read the parent scope's stale value
+        // due to AngularJS prototype-chain shadowing.
+        $scope.finishRenameFrame = function (id, childLabel) {
             if ($scope.editingFrameId !== id) return;
-            var label = ($scope.editingFrameLabel || '').trim();
+            var label = (childLabel !== undefined ? childLabel : $scope.editingFrameLabel || '').trim();
             if (label && FrameService.frames[id]) {
                 FrameService.frames[id].label = label;
+                writeFrameStateToLocalStorage(id);
+                $scope.projectDirty = true;
             }
             $scope.editingFrameId = null;
             $scope.editingFrameLabel = '';
@@ -731,9 +880,9 @@
             $scope.editingFrameLabel = '';
         };
 
-        $scope.handleRenameKey = function ($event, id) {
+        $scope.handleRenameKey = function ($event, id, childLabel) {
             if ($event.key === 'Enter') {
-                $scope.finishRenameFrame(id);
+                $scope.finishRenameFrame(id, childLabel);
                 $event.preventDefault();
             } else if ($event.key === 'Escape') {
                 $scope.cancelRenameFrame();
@@ -822,6 +971,8 @@
         };
 
         $scope.projectMenuOpen = false;
+        $scope.feedMenuOpen = false;
+        $scope.importMenuOpen = false;
         $scope.allFramesViewOpen = false;
         $scope.gridConfigDialogOpen = false;
         $scope.queueViewOpen = false;
@@ -830,7 +981,7 @@
         $scope.skillsSelectedSlides = [];
         $scope.queueList = [];
         $scope.queueByFrame = {};
-        $scope.gridConfig = { cols: null, frameWidth: 1280, frameHeight: 720 };
+        $scope.gridConfig = { cols: null, frameWidth: 1280, frameHeight: 720, splitContainers: false };
 
         function writeFrameStateToLocalStorage(frameId) {
             var frame = FrameService.frames[frameId];
@@ -841,16 +992,29 @@
                     template: TEMPLATE_BASE + slide.template,
                     context: slide.context || {},
                     state: slide.state || [],
-                    label: slide.label || ''
+                    label: slide.label || '',
+                    frameLabel: frame.label || frameId,
+                    accent: FrameService.getFrameColor(frameId)
                 }));
             } else {
                 window.localStorage.setItem('screen-' + frameId, angular.toJson({
                     template: TEMPLATE_BASE + 'empty.html',
                     context: {},
                     state: [],
-                    label: ''
+                    label: '',
+                    frameLabel: frame.label || frameId,
+                    accent: FrameService.getFrameColor(frameId)
                 }));
             }
+        }
+
+        // Aspect ratio for the frame's content, derived from its configured size —
+        // falls back to 16/9 in screen.js when absent (e.g. an ultra-wide LED
+        // ribbon gets 'w/h' instead of the default letterboxed 16:9 island).
+        function frameRatio(frame) {
+            return (frame.size && frame.size.width && frame.size.height)
+                ? (frame.size.width + '/' + frame.size.height)
+                : null;
         }
 
         $scope.openFrameWindow = function (frameId, isPreview) {
@@ -860,17 +1024,45 @@
             writeFrameStateToLocalStorage(frameId);
             frame.status = 'connecting';
             if (window.ceremonator && window.ceremonator.frames) {
-                window.ceremonator.frames.openWindow({
-                    frameId: frameId,
-                    size: frame.size,
-                    position: frame.position,
-                    preview: !!isPreview,
-                    label: frame.label
-                });
+                var ratio = frameRatio(frame);
+                if ($scope.gridConfig.splitContainers) {
+                    // Two independent windows — one per region. Both currently
+                    // share the frame's single configured position/size; the
+                    // operator drags the second one to its own physical panel,
+                    // same as arranging any other windowed output.
+                    ['kv', 'state'].forEach(function (container) {
+                        window.ceremonator.frames.openWindow({
+                            frameId: frameId,
+                            size: frame.size,
+                            position: frame.position,
+                            preview: !!isPreview,
+                            label: frame.label,
+                            container: container,
+                            ratio: ratio
+                        });
+                    });
+                } else {
+                    window.ceremonator.frames.openWindow({
+                        frameId: frameId,
+                        size: frame.size,
+                        position: frame.position,
+                        preview: !!isPreview,
+                        label: frame.label,
+                        ratio: ratio
+                    });
+                }
             } else {
                 var url = 'screen.html?screen=' + frameId + (isPreview ? '&preview=true' : '') + '&label=' + encodeURIComponent(frame.label || frameId);
                 window.open(url, '_blank');
                 frame.status = 'ready';
+            }
+        };
+
+        // Panic path — wired to the control toolbar buttons (see control.html)
+        // and to the same IPC channel the global keyboard accelerators use.
+        $scope.setScreenMode = function (mode) {
+            if (window.ceremonator && window.ceremonator.screen && window.ceremonator.screen.setMode) {
+                window.ceremonator.screen.setMode(mode);
             }
         };
 
@@ -883,6 +1075,8 @@
         };
 
         $scope.previewAllFrames = function () {
+            var count = Object.keys(FrameService.frames).length;
+            if (!confirm('Open preview windows for all ' + count + ' frame(s)?')) return;
             angular.forEach(FrameService.frames, function (frame, id) {
                 $scope.openFrameWindow(id, true);
             });
@@ -917,23 +1111,48 @@
             frame.status = 'closed';
         };
 
-        // Returns the most-square divisor pair for n (cols >= rows, no empty cells).
+        // Near-square column count for n cells, ceil-based so it always
+        // resolves (n need not have a nice divisor pair) — the grid may end
+        // with trailing empty cells rather than forcing a lopsided N×1 row.
         $scope.computeBestCols = function (n) {
-            var bestRows = 1;
-            for (var d = 1; d * d <= n; d++) {
-                if (n % d === 0) bestRows = d;
-            }
-            return n / bestRows; // cols = n/rows, always >= rows (landscape)
+            return Math.max(1, Math.ceil(Math.sqrt(n)));
         };
 
         $scope.getFrameCount = function () {
             return Object.keys(FrameService.frames).length;
         };
 
-        $scope.getAutoGridPreview = function () {
+        $scope.getGridCellCount = function () {
             var n = $scope.getFrameCount();
-            var cols = $scope.computeBestCols(n);
-            return cols + ' × ' + (n / cols);
+            return $scope.gridConfig.splitContainers ? n * 2 : n;
+        };
+
+        // Grid columns/rows are computed in FRAME units, then doubled to CELL
+        // units when Split is on — this guarantees a frame's kv/state pair
+        // always lands in the same row (every row is a whole number of pairs),
+        // instead of splitting across a row boundary.
+        function gridLayout(frameColsOverride) {
+            var frameCount = $scope.getFrameCount();
+            var split = $scope.gridConfig.splitContainers;
+            var frameCols = frameColsOverride > 0
+                ? (split ? Math.max(1, Math.round(frameColsOverride / 2)) : frameColsOverride)
+                : $scope.computeBestCols(frameCount);
+            var gridCols = split ? frameCols * 2 : frameCols;
+            var cellCount = $scope.getGridCellCount();
+            var gridRows = Math.ceil(cellCount / gridCols);
+            return { cols: gridCols, rows: gridRows };
+        }
+
+        $scope.getAutoGridPreview = function () {
+            var layout = gridLayout(0);
+            return layout.cols + ' × ' + layout.rows;
+        };
+
+        $scope.getManualGridPreview = function () {
+            var colsInput = parseInt($scope.gridConfig.cols, 10);
+            if (!colsInput || colsInput < 1) return '';
+            var layout = gridLayout(colsInput);
+            return layout.cols + ' × ' + layout.rows + ' (' + $scope.getGridCellCount() + ' windows)';
         };
 
         $scope.openGridView = function () {
@@ -941,9 +1160,6 @@
         };
 
         $scope.confirmOpenGridView = function () {
-            var count = $scope.getFrameCount();
-            var colsInput = parseInt($scope.gridConfig.cols, 10);
-            if (colsInput && count % colsInput !== 0) return;
             $scope.gridConfigDialogOpen = false;
             if (!window.ceremonator || !window.ceremonator.frames) return;
 
@@ -952,12 +1168,27 @@
                 writeFrameStateToLocalStorage(id);
             });
 
+            var colsInput = parseInt($scope.gridConfig.cols, 10);
+            var layout = gridLayout(colsInput);
+
             var frameIds = Object.keys(FrameService.frames);
-            var cols = (colsInput && colsInput > 0) ? colsInput : $scope.computeBestCols(count);
-            var rows = count / cols;
+            var cells = [];
+            frameIds.forEach(function (id) {
+                var frame = FrameService.frames[id];
+                var ratio = frameRatio(frame);
+                var label = frame.label || id;
+                var accent = FrameService.getFrameColor(id);
+                if ($scope.gridConfig.splitContainers) {
+                    cells.push({ frameId: id, container: 'kv', ratio: ratio, label: label + ' — Key Info', accent: accent });
+                    cells.push({ frameId: id, container: 'state', ratio: ratio, label: label + ' — Results', accent: accent });
+                } else {
+                    cells.push({ frameId: id, ratio: ratio, label: label, accent: accent });
+                }
+            });
+
             window.ceremonator.frames.openLargeWindow({
-                frames: frameIds.map(function (id) { return { frameId: id }; }),
-                grid: { cols: cols, rows: rows, gap: 4 },
+                frames: cells,
+                grid: { cols: layout.cols, rows: layout.rows, gap: 4 },
                 frameSize: {
                     width: parseInt($scope.gridConfig.frameWidth, 10) || 1280,
                     height: parseInt($scope.gridConfig.frameHeight, 10) || 720
@@ -1440,34 +1671,142 @@
             });
         };
 
+        // ── Development session (survives hot reload) ──────────────────
+        // Only active in a dev run; see js/dev-session.service.js.
+
+        // Replay the snapshot taken before the last reload: the imported rows,
+        // the frame configuration, and where each frame was in its slide list.
+        // Resolves to whether anything was restored.
+        function restoreDevSession() {
+            if (!DevSession.enabled) return $q.resolve(false);
+
+            return $q.when(DevSession.load()).then(function (saved) {
+                if (!saved) {
+                    clearScreenStorage();
+                    DevSession.restoring = false;
+                    return false;
+                }
+
+                if (saved.projectName) $scope.projectName = saved.projectName;
+                if (saved.displayMode) $scope.displayMode = saved.displayMode;
+                if (saved.gridConfig) {
+                    $scope.gridConfig = angular.extend({}, $scope.gridConfig, saved.gridConfig);
+                }
+                if (saved.frames) FrameService.loadFromProject(saved.frames);
+
+                $scope.results = saved.results || [];
+                $scope.resultsBestOfNations = saved.resultsBestOfNations || [];
+                $scope.uploaded = !!saved.uploaded;
+
+                // Rebuilds the catalog and reassembles every frame from the
+                // restored ordering — no redistribution, so the saved
+                // skill→frame assignment is kept as-is.
+                $scope.buildScreens();
+                DevSession.restoreRuntime(saved.runtime);
+
+                angular.forEach(FrameService.frames, function (frame, id) {
+                    writeFrameStateToLocalStorage(id);
+                });
+
+                if (saved.activeFrameId) FrameService.setActiveFrame(saved.activeFrameId);
+                restoreDevSessionUi(saved.ui || {});
+                syncFrameStatuses();
+                $scope.projectDirty = !!saved.projectDirty;
+
+                DevSession.restoring = false;
+                $scope.addNotice('info', 'Dev: restored session after reload — ' +
+                    $scope.results.length + ' result row(s), ' +
+                    Object.keys(FrameService.frames).length + ' frame(s).', 'dev-session');
+                return true;
+            });
+        }
+
+        // A dev restart reopens the frame windows before this renderer has its
+        // frame list back, so their 'connecting'/'ready' notices arrive too early
+        // to land on a frame. Reconcile the badges once, after restoring.
+        function syncFrameStatuses() {
+            if (!window.ceremonator || !window.ceremonator.frames || !window.ceremonator.frames.openIds) return;
+            $q.when(window.ceremonator.frames.openIds()).then(function (ids) {
+                angular.forEach(ids || [], function (id) {
+                    if (FrameService.frames[id]) FrameService.frames[id].status = 'ready';
+                });
+            });
+        }
+
+        function restoreDevSessionUi(ui) {
+            $scope.queueViewOpen = !!ui.queueViewOpen;
+            $scope.allFramesViewOpen = !!ui.allFramesViewOpen;
+            if (ui.queueLayout) $scope.queueLayout = ui.queueLayout;
+            if (ui.selectedSkillNumber) {
+                // Reselect from catalogSkillList (rebuilt by buildScreens) so the
+                // object is the same shape the skills navigator binds to.
+                angular.forEach($scope.catalogSkillList || [], function (skill) {
+                    if (skill.number === ui.selectedSkillNumber) {
+                        $scope.selectSkillForQueue(skill);
+                    }
+                });
+            }
+        }
+
+        if (DevSession.enabled) {
+            DevSession.registerCollector(function () {
+                return {
+                    projectName: $scope.projectName || null,
+                    displayMode: $scope.displayMode || null,
+                    gridConfig: angular.copy($scope.gridConfig),
+                    uploaded: !!$scope.uploaded,
+                    projectDirty: !!$scope.projectDirty,
+                    activeFrameId: FrameService.activeFrameId,
+                    results: $scope.results || [],
+                    resultsBestOfNations: $scope.resultsBestOfNations || [],
+                    frames: FrameService.serializeForProject(),
+                    runtime: DevSession.serializeRuntime(),
+                    ui: {
+                        queueViewOpen: !!$scope.queueViewOpen,
+                        allFramesViewOpen: !!$scope.allFramesViewOpen,
+                        queueLayout: $scope.queueLayout,
+                        selectedSkillNumber: $scope.skillsSelectedSkill ? $scope.skillsSelectedSkill.number : null
+                    }
+                };
+            });
+
+            // One watcher on a cheap signature, rather than a save call at every
+            // mutation site: anything that changes the show state also changes
+            // the fingerprint.
+            $scope.$watch(function () {
+                return DevSession.fingerprint($scope);
+            }, function () {
+                DevSession.schedule();
+            });
+        }
+
         if (window.ceremonator && window.ceremonator.onNotice) {
             window.ceremonator.onNotice(function (data) {
                 if (!data || !data.text) return;
-                $scope.$apply(function () {
-                    $scope.addNotice(data.level || 'info', data.text);
-                });
+                var apply = function () { $scope.addNotice(data.level || 'info', data.text); };
+                if (!$scope.$$phase) $scope.$apply(apply); else apply();
             });
         }
 
         if (window.ceremonator && window.ceremonator.onFrameStatus) {
             window.ceremonator.onFrameStatus(function (data) {
                 var frame = FrameService.frames[data.frameId];
-                if (frame) {
-                    $scope.$apply(function () {
-                        frame.status = data.status;
-                        if (data.x != null && data.y != null && frame.position) {
-                            frame.position.x = data.x;
-                            frame.position.y = data.y;
-                        }
-                        if (data.monitor != null && frame.position) {
-                            frame.position.monitor = data.monitor;
-                        }
-                        if (data.width != null && data.height != null && frame.size) {
-                            frame.size.width = data.width;
-                            frame.size.height = data.height;
-                        }
-                    });
-                }
+                if (!frame) return;
+                var apply = function () {
+                    frame.status = data.status;
+                    if (data.x != null && data.y != null && frame.position) {
+                        frame.position.x = data.x;
+                        frame.position.y = data.y;
+                    }
+                    if (data.monitor != null && frame.position) {
+                        frame.position.monitor = data.monitor;
+                    }
+                    if (data.width != null && data.height != null && frame.size) {
+                        frame.size.width = data.width;
+                        frame.size.height = data.height;
+                    }
+                };
+                if (!$scope.$$phase) $scope.$apply(apply); else apply();
             });
         }
 
