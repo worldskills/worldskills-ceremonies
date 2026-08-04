@@ -76,6 +76,15 @@ a.list-group-item {
     border-color: rgba(245, 158, 11, 0.55);
 }
 
+.navbar-dev-badge-clickable {
+    cursor: pointer;
+}
+
+.navbar-dev-badge-clickable:hover {
+    background: rgba(99, 102, 241, 0.32);
+    border-color: rgba(99, 102, 241, 0.85);
+}
+
 .navbar-exit-btn {
     border-color: rgba(255, 255, 255, 0.3);
     color: rgba(255, 255, 255, 0.75);

@@ -31,5 +31,10 @@
   },
   "config": {
     "forge": "./forge.config.js"
+  },
+  "allowScripts": {
+    "electron@20.3.12": true,
+    "electron-winstaller@5.4.0": true,
+    "fsevents@2.3.3": true
   }
 }

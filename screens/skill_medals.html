@@ -3,8 +3,9 @@
         {{ context.skill.name }}
     </div>
     <div class="screen-skill-medals-medals screen-region-state screen-grid"
-         style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length >= 5 ? 2 : 1 }}; --grid-chars: {{ context.max || 40 }}; --grid-chars-wrap: {{ context.maxWrap || context.max || 40 }};">
-        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results">
+         style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length >= 5 ? 2 : 1 }};">
+        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results"
+             style="--grid-chars: {{ result.nameChars || 40 }}; --grid-chars-wrap: {{ result.nameWrapped || result.nameChars || 40 }};">
 
            <div class="screen-medal-row">
                <div class="screen-medal-row-position">

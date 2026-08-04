@@ -3,19 +3,19 @@ module.exports = {
         "name": "Ceremonies",
         "icon": "images/worldskills-hand",
         "appBundleId": "org.worldskills.ceremonies",
-        "osxSign": {
-            "identity": "Developer ID Application: WorldSkills International (7CQ5662QVR)",
-            "hardenedRuntime": true,
-            "gatekeeper-assess": false,
-            "entitlements": "entitlements.plist",
-            "entitlements-inherit": "entitlements.plist",
-            "signature-flags": "library"
-        },
-        "osxNotarize": {
-            "appleId": process.env.APPLE_ID,
-            "appleIdPassword": process.env.APPLE_ID_PASSWORD,
-            "teamId": process.env.APPLE_TEAM_ID,
-        }
+        // "osxSign": {
+        //     "identity": "Developer ID Application: WorldSkills International (7CQ5662QVR)",
+        //     "hardenedRuntime": true,
+        //     "gatekeeper-assess": false,
+        //     "entitlements": "entitlements.plist",
+        //     "entitlements-inherit": "entitlements.plist",
+        //     "signature-flags": "library"
+        // },
+        // "osxNotarize": {
+        //     "appleId": process.env.APPLE_ID,
+        //     "appleIdPassword": process.env.APPLE_ID_PASSWORD,
+        //     "teamId": process.env.APPLE_TEAM_ID,
+        // }
     },
     "makers": [
         {

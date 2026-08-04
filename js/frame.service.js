@@ -40,6 +40,20 @@
             return service.frames[id];
         };
 
+        service.count = function () {
+            return Object.keys(service.frames).length;
+        };
+
+        // Next unused single-letter frame id, or null once a-z are exhausted.
+        service.nextFreeId = function () {
+            var ids = Object.keys(service.frames);
+            var letters = 'abcdefghijklmnopqrstuvwxyz';
+            for (var i = 0; i < letters.length; i++) {
+                if (ids.indexOf(letters[i]) < 0) return letters[i];
+            }
+            return null;
+        };
+
         service.addFrame = function (id, label) {
             service.frames[id] = {
                 id: id,
@@ -152,18 +166,6 @@
                 gridConfig: gridConfig || null
             };
             return window.ceremonator.project.saveAs(project);
-        };
-
-        service.loadProject = function () {
-            if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.loadDialog) {
-                return Promise.resolve(null);
-            }
-            return window.ceremonator.project.loadDialog().then(function (project) {
-                if (project && project.frames) {
-                    service.loadFromProject(project.frames);
-                }
-                return project;
-            });
         };
 
         return service;

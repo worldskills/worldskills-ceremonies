@@ -7,7 +7,6 @@
 </head>
 <body>
     <div id="grid" class="frames-grid"></div>
-    <div id="panic-overlay" class="frames-panic-overlay"></div>
     <script>
         (function () {
             var params = new URLSearchParams(window.location.search);
@@ -43,7 +42,6 @@
                 var iframe = document.createElement('iframe');
                 var src = 'screen.html?screen=' + encodeURIComponent(cell.frameId) + '&preview=true';
                 if (cell.container) src += '&container=' + encodeURIComponent(cell.container);
-                if (cell.ratio) src += '&ratio=' + encodeURIComponent(cell.ratio);
                 if (cell.label) src += '&label=' + encodeURIComponent(cell.label);
                 iframe.src = src;
                 iframe.width = frameW;
@@ -53,9 +51,6 @@
                 iframe.className = 'frame-cell';
                 wrap.appendChild(iframe);
 
-                // Caption + accent border live OUTSIDE the iframe document, so the
-                // label stays visible even if that cell's iframe goes blank/crashes —
-                // exactly the moment an operator most needs to identify which cell it is.
                 if (cell.label) {
                     var caption = document.createElement('div');
                     caption.className = 'frame-cell-caption';
@@ -66,21 +61,20 @@
                 grid.appendChild(wrap);
             });
 
-            // Panic path — a full-window overlay is simpler and more reliable than
-            // reaching into each iframe individually (subframe preload/IPC delivery
-            // isn't guaranteed), and it blacks out the whole wall represented by
-            // this window either way.
-            if (window.ceremonator && window.ceremonator.onScreenMode) {
-                window.ceremonator.onScreenMode(function (data) {
-                    var overlay = document.getElementById('panic-overlay');
-                    var mode = data && data.mode;
-                    if (mode && mode !== 'restore') {
-                        overlay.className = 'frames-panic-overlay frames-panic-overlay-' + mode + ' frames-panic-overlay-visible';
-                    } else {
-                        overlay.className = 'frames-panic-overlay';
-                    }
-                });
-            }
+            // Cell captions are hidden by default (see css/frames.css) so the
+            // grid reads as a clean wall of output; hold Control to reveal them
+            // for a quick "which cell is which" check.
+            window.addEventListener('keydown', function (e) {
+                if (e.key === 'Control') document.body.classList.add('show-overlays');
+            });
+            window.addEventListener('keyup', function (e) {
+                if (e.key === 'Control') document.body.classList.remove('show-overlays');
+            });
+            // If focus is lost while Control is held (e.g. alt-tabbing away),
+            // keyup never fires — drop the overlay so it can't get stuck on.
+            window.addEventListener('blur', function () {
+                document.body.classList.remove('show-overlays');
+            });
         })();
     </script>
 </body>

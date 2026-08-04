@@ -4,8 +4,9 @@
         <span class="screen-skill-medals-name-mfe">Medallion for Excellence</span>
     </div>
     <div class="screen-skill-medallion-for-excellence screen-region-state screen-grid"
-         style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length > 10 ? 2 : 1 }}; --grid-chars: {{ context.max || 40 }}; --grid-chars-wrap: {{ context.maxWrap || context.max || 40 }};">
-        <div class="screen-medal screen-medallion-for-excellence" ng-repeat="result in context.results">
+         style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length > 10 ? 2 : 1 }};">
+        <div class="screen-medal screen-medallion-for-excellence" ng-repeat="result in context.results"
+             style="--grid-chars: {{ result.nameChars || 40 }}; --grid-chars-wrap: {{ result.nameWrapped || result.nameChars || 40 }};">
             <div class="screen-flag">
                 <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'">
             </div>

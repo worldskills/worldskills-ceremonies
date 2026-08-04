@@ -10,13 +10,8 @@ contextBridge.exposeInMainWorld('ceremonator', {
         openWindow: (opts) => ipcRenderer.invoke('frames:openWindow', opts),
         closeWindow: (opts) => ipcRenderer.invoke('frames:closeWindow', opts),
         openLargeWindow: (config) => ipcRenderer.invoke('frames:openLarge', config),
-        closeGrid: () => ipcRenderer.invoke('frames:closeGrid'),
-        updateWindow: (opts) => ipcRenderer.invoke('frames:updateWindow', opts),
         getPositions: () => ipcRenderer.invoke('frames:getPositions'),
         openIds: () => ipcRenderer.invoke('frames:openIds'),
-    },
-    screen: {
-        setMode: (mode) => ipcRenderer.invoke('screen:setMode', { mode }),
     },
     displays: {
         list: () => ipcRenderer.invoke('displays:list'),
@@ -25,10 +20,6 @@ contextBridge.exposeInMainWorld('ceremonator', {
         list: () => ipcRenderer.invoke('flags:list'),
     },
     project: {
-        save: (project) => ipcRenderer.invoke('project:save', { project }),
-        load: (path) => ipcRenderer.invoke('project:load', { path }),
-        saveDialog: (project) => ipcRenderer.invoke('project:saveDialog', { project }),
-        loadDialog: () => ipcRenderer.invoke('project:loadDialog'),
         recent: () => ipcRenderer.invoke('project:recent'),
         removeRecent: (dir) => ipcRenderer.invoke('project:removeRecent', { dir }),
         create: () => ipcRenderer.invoke('project:create'),
@@ -47,15 +38,11 @@ contextBridge.exposeInMainWorld('ceremonator', {
     },
     app: {
         openControl: () => ipcRenderer.invoke('app:openControl'),
-        reloadScreens: () => ipcRenderer.invoke('app:reloadScreens'),
         reloadScreen: (frameId) => ipcRenderer.invoke('app:reloadScreen', { frameId }),
         exitToStartup: () => ipcRenderer.invoke('app:exitToStartup'),
     },
     onFrameStatus: (callback) => {
         ipcRenderer.on('frames:status', (_event, data) => callback(data));
-    },
-    onScreenMode: (callback) => {
-        ipcRenderer.on('screen:mode', (_event, data) => callback(data));
     },
     onNotice: (callback) => {
         ipcRenderer.on('app:notice', (_event, data) => callback(data));

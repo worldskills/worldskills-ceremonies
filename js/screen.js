@@ -7,7 +7,6 @@
         $scope.showToolbar = true;
         $scope.frameLabel = '';
         $scope.slideLabel = '';
-        $scope.screenMode = null; // null | 'blackout' | 'logo'
 
         $scope.enableFullscreen = function () {
             if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -48,22 +47,6 @@
                 }
             }
         });
-
-        // Panic path — blackout / cut-to-logo / restore. Driven straight from
-        // main-process IPC and toggled on $scope (see body ng-class in
-        // screen.html), never routed through the ng-include'd template, so it
-        // can never be delayed by a template fetch.
-        if (window.ceremonator && window.ceremonator.onScreenMode) {
-            window.ceremonator.onScreenMode(function (data) {
-                var mode = data && data.mode;
-                var next = (mode === 'restore') ? null : mode;
-                if (!$scope.$$phase) {
-                    $scope.$apply(function () { $scope.screenMode = next; });
-                } else {
-                    $scope.screenMode = next;
-                }
-            });
-        }
 
         $scope.setScreen = function (screen, preview) {
             $scope.screen = screen;
@@ -127,7 +110,15 @@
             }
         };
 
+        $scope.calculateResolution = function () {
+            document.documentElement.style.setProperty('--screen-real-width', window.innerWidth);
+            document.documentElement.style.setProperty('--screen-real-height', window.innerHeight);
+        };
+
+        window.addEventListener('resize', $scope.calculateResolution);
+
         $scope.loadScreen();
+        $scope.calculateResolution();
     });
 
 })();
