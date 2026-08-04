@@ -116,7 +116,6 @@ body.preview .screen-content {
 .screen-best-of-nation-name-host,
 .screen-albert-vidal-award-name {
     box-sizing: border-box;
-    height: calc(var(--screen-height) * 0.25);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -256,11 +255,12 @@ body.preview .screen-content {
     justify-content: flex-start !important;
 }
 
-.screen-container-kv .screen-region-kv {
-    height: calc(var(--screen-height) * 0.25);
+.screen-region-kv {
+    padding-top: var(--unit);
     display: flex;
     flex-direction: column;
     justify-content: center !important;
+    height: auto !important;
 }
 
 .screen-container-state .screen-region-state {
@@ -403,4 +403,33 @@ body.preview .screen-content {
 
 .screen-grid .screen-medal-row-position {
     margin-left: -0.1em;
+}
+
+.screen-translation {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    gap: 8px;
+}
+
+/* Text-fit for stacked translation lines: --translation-lines is set inline
+   from languages.length (see screens/*.html). 1 line → scale 1, no change
+   from before translations existed. More lines shrink proportionally so N
+   stacked lines (primary + (N-1) secondary, each already 0.7x) still fit
+   the fixed-height band above (.screen-region-kv) instead of overflowing
+   into — and resizing — the results grid below it. */
+.screen-translation:not(.screen-translation-row) {
+    --translation-lines: 1;
+    font-size: min(1em, calc(2em / (var(--translation-lines) + 1)));
+}
+
+/* em, not rem: scales with the containing row's own auto-fit font-size
+   (see .screen-grid .screen-medal) instead of the root --unit. */
+.screen-translation-line:not(.screen-translation-primary) {
+    font-size: 0.7em;
+}
+
+.screen-translation-row {
+    flex-direction: row;
+    align-items: center;
 }

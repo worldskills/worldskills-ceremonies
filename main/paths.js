@@ -10,8 +10,6 @@ const bundledTemplateDir = path.join(appRoot, 'screens');
 const bundledImagesDir = path.join(appRoot, 'images');
 const flagsDir = path.join(appRoot, 'data', 'flags');
 
-console.log(userDataPath)
-
 module.exports = {
     appRoot,
     preloadPath,

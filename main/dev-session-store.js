@@ -4,11 +4,6 @@ const { devSessionFilePath } = require('./paths');
 
 const DEV_SESSION_VERSION = 1;
 
-// electron-reloader reloads every renderer on a file change (and restarts the
-// app outright when main.js or preload.js changes), which throws away the
-// imported results and the assembled slide catalog — they live only in the
-// control renderer's memory. This snapshot lets both sides come back.
-
 function readDevSession() {
     if (!isDev) return null;
     try {
@@ -22,8 +17,6 @@ function readDevSession() {
 
 function writeDevSession(snapshot) {
     try {
-        // Not pretty-printed: the raw imported result rows make this file large
-        // and it is rewritten on every debounced change.
         fs.writeFileSync(devSessionFilePath, JSON.stringify(snapshot));
     } catch (e) {}
 }

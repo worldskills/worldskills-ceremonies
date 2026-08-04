@@ -1,7 +1,13 @@
 <div class="screen-content screen-content-skill-medals screen-skill-medals screen-skill-medals-{{ context.skill.number }}">
     <div class="screen-skill-medals-name screen-region-kv">
-        {{ context.skill.name }}<br>
-        <span class="screen-skill-medals-name-mfe">Medallion for Excellence</span>
+        <div class="screen-translation" style="--translation-lines: {{ languages.length || 1 }};">
+             <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                   translate="{{ context.skill.name }}" translate-language="{{ l.lang_code }}"></span>
+        </div>
+        <div class="screen-skill-medals-name-mfe screen-translation screen-translation-row">
+            <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                 translate="Medal of Excellence" translate-language="{{ l.lang_code }}"></span>
+        </div>
     </div>
     <div class="screen-skill-medallion-for-excellence screen-region-state screen-grid"
          style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length > 10 ? 2 : 1 }};">

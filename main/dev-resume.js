@@ -5,11 +5,6 @@ const { createControlWindow, getControlWindow } = require('./app-windows');
 const { reopenFrameWindowFromSnapshot } = require('./frame-windows');
 const { openGridWindow } = require('./grid-window');
 
-// After electron-reloader restarts the app (a main.js or preload.js edit), go
-// straight back to the project, control panel, and windows that were open. The
-// control renderer restores its own state from the same snapshot — see
-// js/dev-session.service.js.
-// Set CEREMONATOR_NO_RESUME=1 to start at the project picker instead.
 function devResume() {
     if (!isDev || process.env.CEREMONATOR_NO_RESUME === '1') return false;
 

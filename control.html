@@ -39,6 +39,10 @@
                         <label class="project-dropdown-item" ngf-select="uploadBestOfNation($file)" accept=".xlsx,.xls" title="Import Best of Nation — load a Best of Nation spreadsheet (.xlsx). Import results first.">
                             <i class="fa fa-upload mr-2"></i> Import Best of Nation
                         </label>
+                        <label class="project-dropdown-item" ngf-select="importTranslations($file)" accept=".xlsx,.xls"
+                               title="Import translations — a Key column plus one column per language code">
+                            <i class="fa fa-language mr-2"></i> Import translations
+                        </label>
                     </div>
                 </div>
 
@@ -656,6 +660,7 @@
 
     <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="node_modules/angular/angular.min.js"></script>
+    <script src="node_modules/angular-translate/dist/angular-translate.min.js"></script>
     <script src="node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
     <script src="node_modules/xlsx/dist/xlsx.full.min.js"></script>
     <script src="js/app.js"></script>
@@ -664,6 +669,7 @@
     <script src="js/services/result-format.service.js"></script>
     <script src="js/services/excel.service.js"></script>
     <script src="js/services/notice.service.js"></script>
+    <script src="js/services/translations-loader.service.js"></script>
     <script src="js/frame.service.js"></script>
     <script src="js/services/frame-state.service.js"></script>
     <script src="js/services/catalog.service.js"></script>

@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('ceremonator', {
         current: () => ipcRenderer.invoke('project:current'),
         saveCurrent: (project) => ipcRenderer.invoke('project:saveCurrent', project),
         saveAs: (project) => ipcRenderer.invoke('project:saveAs', project),
+        readTranslations: () => ipcRenderer.invoke('project:readTranslations'),
+        writeTranslations: (languages) => ipcRenderer.invoke('project:writeTranslations', languages),
     },
     dev: {
         isDev: isDev,

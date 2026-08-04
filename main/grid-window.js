@@ -79,6 +79,12 @@ function openGridWindow(config) {
         webPreferences: {
             preload: preloadPath,
             contextIsolation: true,
+            // Each grid cell is a screen.html <iframe>, not a top-level window —
+            // without this, Electron only runs the preload script (and so
+            // exposes window.ceremonator) in frames.html itself, not its
+            // iframes, so the languages/translations IPC calls in js/screen.js
+            // silently no-op inside grid view.
+            nodeIntegrationInSubFrames: true,
             devTools: true,
             backgroundThrottling: false,
             additionalArguments: devArguments(),

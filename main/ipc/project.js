@@ -58,11 +58,13 @@ function registerProjectIpc() {
                 frames: { a: { mode: 'skills', skillNumbers: [], includeAlbertVidal: true } }
             };
             fs.writeFileSync(path.join(dir, 'ordering.json'), JSON.stringify(defaultOrdering, null, 2));
+            fs.writeFileSync(path.join(dir, 'translations.json'), JSON.stringify({ version: 1, languages: {} }, null, 2));
 
             const project = {
                 version: 2,
                 name: path.basename(dir),
                 displayMode: 'windows',
+                languages: [{ lang_code: 'en' }],
                 frames: [{
                     id: 'a',
                     label: 'Main Stage',
@@ -175,6 +177,45 @@ function registerProjectIpc() {
         }
     });
 
+    ipcMain.handle('project:readTranslations', () => {
+        const activeProjectDir = projectStore.getActiveProjectDir();
+        if (!activeProjectDir) return { ok: false, languages: {} };
+        try {
+            const raw = fs.readFileSync(path.join(activeProjectDir, 'translations.json'), 'utf8');
+            /**
+             * Example shape:
+             *
+             * {
+             *   "version": 1,
+             *   "languages": {
+             *     "zh_CN": {
+             *       "Medal of Excellence": "卓越奖章",
+             *       "Gold": "金牌",
+             *       "Silver": "银牌",
+             *       "Bronze": "铜牌"
+             *     }
+             *   }
+             * }
+             */
+            const data = JSON.parse(raw);
+            return { ok: true, languages: (data && data.languages) || {} };
+        } catch (e) {
+            return { ok: true, languages: {} };
+        }
+    });
+
+    ipcMain.handle('project:writeTranslations', (_event, languages) => {
+        const activeProjectDir = projectStore.getActiveProjectDir();
+        if (!activeProjectDir) return { ok: false, error: 'No active project open.' };
+        try {
+            const data = { version: 1, languages: languages || {} };
+            fs.writeFileSync(path.join(activeProjectDir, 'translations.json'), JSON.stringify(data, null, 2));
+            return { ok: true };
+        } catch (e) {
+            return { ok: false, error: e.message };
+        }
+    });
+
     ipcMain.handle('project:saveAs', async (_event, project) => {
         const { canceled, filePaths } = await dialog.showOpenDialog({
             title: 'Save Project As — Choose Folder',
@@ -198,6 +239,12 @@ function registerProjectIpc() {
                 } else {
                     projectStore.copyDefaultTemplate(templateDest);
                 }
+            }
+
+            const activeProjectDir = projectStore.getActiveProjectDir();
+            const sourceTranslations = activeProjectDir && path.join(activeProjectDir, 'translations.json');
+            if (sourceTranslations && fs.existsSync(sourceTranslations)) {
+                fs.copyFileSync(sourceTranslations, path.join(dir, 'translations.json'));
             }
 
             fs.writeFileSync(path.join(dir, 'ordering.json'), JSON.stringify(projectStore.extractOrdering(project), null, 2));

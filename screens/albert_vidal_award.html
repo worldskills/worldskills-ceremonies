@@ -2,15 +2,16 @@
     <div class="screen-albert-vidal-award-name screen-region-kv">
         Albert Vidal Award
     </div>
-    <div class="screen-albert-vidal-award-award screen-region-state">
-        <div class="screen-albert-vidal-award" ng-repeat="result in context.results">
+
+    <div class="screen-region-state screen-grid"
+         style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length > 10 ? 2 : 1 }};">
+        <div class="screen-medal screen-albert-vidal-award" ng-repeat="result in context.results"
+             style="--grid-chars: {{ result.nameChars || 40 }}; --grid-chars-wrap: {{ result.nameWrapped || result.nameChars || 40 }};">
             <div class="screen-flag">
                 <img ng-src="data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='data/flags/_placeholder.svg'">
             </div>
             <div class="screen-competitors">
-                <div class="screen-competitor">
-                    <span ng-repeat="competitor in result.competitors"><span ng-if="!$first">, </span>{{ competitor }}</span>
-                </div>
+                <span>{{ result.competitors.join(', ') }}</span>
             </div>
         </div>
     </div>

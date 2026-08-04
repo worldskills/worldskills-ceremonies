@@ -7,6 +7,19 @@
         $scope.showToolbar = true;
         $scope.frameLabel = '';
         $scope.slideLabel = '';
+        $scope.languages = [];
+
+        if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
+            window.ceremonator.project.current().then(function (result) {
+                var configured = result && result.project && result.project.languages;
+                var languages = (configured && configured.length) ? configured : [{ lang_code: 'en' }];
+                if (!$scope.$$phase) {
+                    $scope.$apply(function () { $scope.languages = languages; });
+                } else {
+                    $scope.languages = languages;
+                }
+            });
+        }
 
         $scope.enableFullscreen = function () {
             if (document.fullscreenElement || document.webkitFullscreenElement) {

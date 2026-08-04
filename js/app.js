@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var ceremoniesApp = angular.module('ceremoniesApp', ['ngFileUpload']);
+    var ceremoniesApp = angular.module('ceremoniesApp', ['ngFileUpload', 'pascalprecht.translate']);
 
     var screens = {
         a: {
@@ -22,6 +22,12 @@
 
     ceremoniesApp.config(function ($sceDelegateProvider) {
         $sceDelegateProvider.resourceUrlWhitelist(['self', 'wstemplate://active/**']);
+    });
+
+    ceremoniesApp.config(function ($translateProvider) {
+        $translateProvider.useLoader('TranslationsLoader');
+        $translateProvider.preferredLanguage('en'); // IDs are English, so the 'en' table is empty
+        $translateProvider.useSanitizeValueStrategy(null); // trusted content; set explicitly to silence the 2.x startup warning
     });
 
 })();

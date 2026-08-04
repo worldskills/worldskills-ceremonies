@@ -140,7 +140,7 @@
             service.activeFrameId = Object.keys(service.frames)[0];
         };
 
-        service.saveProject = function (projectName, displayMode, gridConfig) {
+        service.saveProject = function (projectName, displayMode, gridConfig, languages) {
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.saveCurrent) {
                 return Promise.resolve({ ok: false, error: 'Electron API unavailable' });
             }
@@ -149,12 +149,13 @@
                 name: projectName || 'Ceremony Project',
                 displayMode: displayMode || 'windows',
                 frames: service.serializeForProject(),
-                gridConfig: gridConfig || null
+                gridConfig: gridConfig || null,
+                languages: languages || []
             };
             return window.ceremonator.project.saveCurrent(project);
         };
 
-        service.saveAsProject = function (projectName, displayMode, gridConfig) {
+        service.saveAsProject = function (projectName, displayMode, gridConfig, languages) {
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.saveAs) {
                 return Promise.resolve({ ok: false, error: 'Electron API unavailable' });
             }
@@ -163,7 +164,8 @@
                 name: projectName || 'Ceremony Project',
                 displayMode: displayMode || 'windows',
                 frames: service.serializeForProject(),
-                gridConfig: gridConfig || null
+                gridConfig: gridConfig || null,
+                languages: languages || []
             };
             return window.ceremonator.project.saveAs(project);
         };

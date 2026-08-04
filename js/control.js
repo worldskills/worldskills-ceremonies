@@ -87,6 +87,7 @@
                 var project = result.project;
                 $scope.projectName = project.name;
                 $scope.displayMode = project.displayMode;
+                $scope.languages = (project.languages && project.languages.length) ? project.languages : [{ lang_code: 'en' }];
                 if (project.gridConfig) {
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
                 }
