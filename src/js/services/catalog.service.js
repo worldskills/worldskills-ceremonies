@@ -30,6 +30,7 @@
             var members = input.members || [];
             var results = input.results || [];
             var resultsBestOfNations = input.bestOfNation || [];
+            var bestOfNationGroupSize = input.bestOfNationGroupSize > 0 ? input.bestOfNationGroupSize : 5;
 
             var catalog = {};
 
@@ -112,31 +113,31 @@
                     catalog[skill.number].push(slideMedals);
                 }
 
-                var resultsMedallionForExcellence = groupByMember(skillResults
+                var resultsMedalForExcellence = groupByMember(skillResults
                     .filter(function (result) { return result[COL.MEDAL] && result[COL.MEDAL].toUpperCase() == 'MEDALLION FOR EXCELLENCE'; }));
 
-                if (resultsMedallionForExcellence.length > 0) {
+                if (resultsMedalForExcellence.length > 0) {
                     var total = 0;
-                    angular.forEach(resultsMedallionForExcellence, function (result, i) {
+                    angular.forEach(resultsMedalForExcellence, function (result, i) {
                         total += ResultFormat.competitorsOf(result).length;
                     });
                     // Never 0 — a blank name must not turn a "width / chars" formula into NaN/Infinity.
                     total = total || 1;
                     // Per-row sizing, not per-slide (see .screen-medal in screen.css).
-                    TextFit.annotateEach(resultsMedallionForExcellence, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
+                    TextFit.annotateEach(resultsMedalForExcellence, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
 
                     var slideMfe = {
-                        label: skill.name.text + ' - Medallion for Excellence',
-                        template: 'medallion_for_excellence.html',
+                        label: skill.name.text + ' - Medal for Excellence',
+                        template: 'medal_for_excellence.html',
                         states: ['Name'],
                         context: {
-                            results: $filter('orderBy')(resultsMedallionForExcellence, ['-score', 'member']),
+                            results: $filter('orderBy')(resultsMedalForExcellence, ['-score', 'member']),
                             skill: ResultFormat.simplifySkill(skill),
                             total: total
                         }
                     };
 
-                    var script = 'And the Medallion(s) for Excellence for ' + skill.name.text + ' go to:\n\n';
+                    var script = 'And the Medal(s) for Excellence for ' + skill.name.text + ' go to:\n\n';
                     angular.forEach(slideMfe.context.results, function (result, i) {
                         script += result.competitors.join(' and ');
                         script += ', ' + result.member + '\n';
@@ -166,15 +167,12 @@
             if (resultsBestOfNationMembers.length > 0) {
                 var bestOfNationSlides = [];
                 for (var bon = 1; bon <= 99 && resultsBestOfNationMembers.length > 0; bon++) {
-                    var bestOfNationSlice = resultsBestOfNationMembers.splice(0, 5);
-                    var bestOfNationStates = [];
-                    angular.forEach(bestOfNationSlice, function (result, si) {
-                        bestOfNationStates.push(si + 1);
-                    });
+                    var bestOfNationSlice = resultsBestOfNationMembers.splice(0, bestOfNationGroupSize);
                     bestOfNationSlides.push({
                         label: 'Best of Nation ' + bon,
+                        // Single 'Name' state — names stay hidden until revealed on stage, no per-person progression.
                         template: 'best_of_nation.html',
-                        states: bestOfNationStates,
+                        states: ['Name'],
                         context: {
                             results: bestOfNationSlice
                         }

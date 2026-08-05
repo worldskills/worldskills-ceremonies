@@ -7,6 +7,8 @@
             scope.projectMenuOpen = false;
             scope.feedMenuOpen = false;
             scope.importMenuOpen = false;
+            scope.bestOfNationImportDialogOpen = false;
+            scope.pendingBestOfNationFile = null;
 
             scope.frameMonitorChanged = function () {
                 scope.projectDirty = true;
@@ -54,6 +56,23 @@
 
             scope.uploadBestOfNation = function (file) {
                 if (!file) return;
+                scope.pendingBestOfNationFile = file;
+                scope.bestOfNationGroupSize = scope.bestOfNationGroupSize || 5;
+                scope.bestOfNationImportDialogOpen = true;
+            };
+
+            scope.cancelBestOfNationImport = function () {
+                scope.bestOfNationImportDialogOpen = false;
+                scope.pendingBestOfNationFile = null;
+            };
+
+            scope.confirmBestOfNationImport = function () {
+                var file = scope.pendingBestOfNationFile;
+                scope.bestOfNationImportDialogOpen = false;
+                scope.pendingBestOfNationFile = null;
+                if (!file) return;
+                if (!(scope.bestOfNationGroupSize > 0)) scope.bestOfNationGroupSize = 5;
+
                 Excel.readRows(file).then(function (rows) {
                     scope.$apply(function () {
                         if (!rows || !rows.length) {
@@ -62,7 +81,7 @@
                         }
                         scope.resultsBestOfNations = rows;
                         scope.buildScreens();
-                        scope.addNotice('info', 'Imported ' + rows.length + ' Best of Nation row(s).', 'import-bon');
+                        scope.addNotice('info', 'Imported ' + rows.length + ' Best of Nation row(s), ' + scope.bestOfNationGroupSize + ' per slide.', 'import-bon');
                     });
                 }).catch(function (error) {
                     scope.$apply(function () {

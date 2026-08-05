@@ -165,7 +165,7 @@ body.preview .screen-content {
     padding-right: 1rem;
 }
 
-.screen-medallion-for-excellence {
+.screen-medal-for-excellence {
     font-weight: normal !important;
 }
 
@@ -213,7 +213,7 @@ body.preview .screen-content {
 .screen-medal-Bronze,
 .screen-best-of-nation,
 .screen-albert-vidal-award-award,
-.screen-medallion-for-excellence {
+.screen-medal-for-excellence {
     visibility: hidden;
 }
 
@@ -225,24 +225,12 @@ body.preview .screen-content {
 .screen-state-Preview .screen-medal-Bronze,
 .screen-state-Preview .screen-medal-Silver,
 .screen-state-Preview .screen-medal-Gold,
-.screen-state-Name .screen-albert-vidal-award,
-.screen-state-1 .screen-best-of-nation-line-1,
-.screen-state-2 .screen-best-of-nation-line-2,
-.screen-state-3 .screen-best-of-nation-line-3,
-.screen-state-4 .screen-best-of-nation-line-4,
-.screen-state-5 .screen-best-of-nation-line-5,
-.screen-state-6 .screen-best-of-nation-line-6,
-.screen-state-Preview .screen-best-of-nation-line-1,
-.screen-state-Preview .screen-best-of-nation-line-2,
-.screen-state-Preview .screen-best-of-nation-line-3,
-.screen-state-Preview .screen-best-of-nation-line-4,
-.screen-state-Preview .screen-best-of-nation-line-5,
-.screen-state-Preview .screen-best-of-nation-line-6,
+.screen-state-Name .screen-albert-vidal-award-award,
 .screen-state-Name .screen-best-of-nation,
 .screen-state-Preview .screen-best-of-nation,
 .screen-state-Preview .screen-albert-vidal-award-award,
-.screen-state-Name .screen-medallion-for-excellence,
-.screen-state-Preview .screen-medallion-for-excellence {
+.screen-state-Name .screen-medal-for-excellence,
+.screen-state-Preview .screen-medal-for-excellence {
     visibility: visible;
 }
 
@@ -327,7 +315,7 @@ body.preview .screen-content {
     --grid-lines: 2.4;
 }
 
-.screen-grid.screen-skill-medallion-for-excellence {
+.screen-grid.screen-skill-medal-for-excellence {
     --grid-lines: 1;
     --grid-band: min(0.75, calc(var(--grid-count) / 8));
 }

@@ -607,13 +607,14 @@
         </div><!-- /.app-body-inner -->
     </div><!-- /.app-body -->
 
-    <!-- Click-away to close dropdowns — one shared backdrop below every .dropdown-menu (z-index 1000) -->
     <div class="dropdown-backdrop" ng-show="projectMenuOpen || feedMenuOpen || importMenuOpen || jumpMenuOpen"
          ng-click="projectMenuOpen = feedMenuOpen = importMenuOpen = jumpMenuOpen = false"></div>
 
-    <!-- Grid view configuration dialog — Bootstrap .modal markup, shown/hidden by Angular instead of Bootstrap JS -->
-    <div class="modal-backdrop" ng-show="gridConfigDialogOpen" ng-class="{show: gridConfigDialogOpen}"></div>
-    <div class="modal grid-config-modal" ng-show="gridConfigDialogOpen" ng-class="{show: gridConfigDialogOpen}" ng-click="gridConfigDialogOpen = false">
+    <div class="modal-backdrop" ng-show="gridConfigDialogOpen || bestOfNationImportDialogOpen"
+         ng-class="{show: gridConfigDialogOpen || bestOfNationImportDialogOpen}"></div>
+
+    <!-- Grid view configuration dialog -->
+    <div class="modal dark-modal" ng-show="gridConfigDialogOpen" ng-class="{show: gridConfigDialogOpen}" ng-click="gridConfigDialogOpen = false">
         <div class="modal-dialog modal-dialog-centered" ng-click="$event.stopPropagation()">
             <div class="modal-content">
                 <div class="modal-header">
@@ -653,6 +654,27 @@
                 <div class="modal-footer">
                     <button class="btn btn-secondary btn-sm" ng-click="gridConfigDialogOpen = false">Cancel</button>
                     <button class="btn btn-primary btn-sm" ng-click="confirmOpenGridView()"><i class="fa fa-th-large mr-1"></i>Open Grid View</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best of Nation import — ask how many people to display per slide before importing -->
+    <div class="modal dark-modal" ng-show="bestOfNationImportDialogOpen" ng-class="{show: bestOfNationImportDialogOpen}" ng-click="cancelBestOfNationImport()">
+        <div class="modal-dialog modal-dialog-centered" ng-click="$event.stopPropagation()">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fa fa-users mr-2"></i>Best of Nation</h6>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>People per slide</label>
+                        <input class="form-control form-control-sm" type="number" min="1" ng-model="bestOfNationGroupSize" style="width:90px">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" ng-click="cancelBestOfNationImport()">Cancel</button>
+                    <button class="btn btn-primary btn-sm" ng-click="confirmBestOfNationImport()"><i class="fa fa-upload mr-1"></i>Import</button>
                 </div>
             </div>
         </div>

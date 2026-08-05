@@ -648,28 +648,27 @@ a.list-group-item {
     margin-right: 2px;
 }
 
-/* ── Grid config modal (Bootstrap .modal, shown via Angular not Bootstrap JS) ── */
 .modal.show {
     display: block;
 }
 
-.grid-config-modal .modal-content {
+.dark-modal .modal-content {
     background: #1e293b;
     border-color: #334155;
     color: #e2e8f0;
     min-width: 380px;
 }
 
-.grid-config-modal .modal-header,
-.grid-config-modal .modal-footer {
+.dark-modal .modal-header,
+.dark-modal .modal-footer {
     border-color: #334155;
 }
 
-.grid-config-modal .modal-body .form-group:last-child {
+.dark-modal .modal-body .form-group:last-child {
     margin-bottom: 0;
 }
 
-.grid-config-modal .modal-body label {
+.dark-modal .modal-body label {
     display: block;
     font-size: 11px;
     font-weight: 700;

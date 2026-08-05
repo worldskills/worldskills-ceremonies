@@ -98,13 +98,15 @@
         $scope.results = [];
 
         $scope.resultsBestOfNations = [];
+        $scope.bestOfNationGroupSize = 5;
 
         $scope.buildCatalog = function () {
             var result = Catalog.build({
                 skills: $scope.skills,
                 members: $scope.members,
                 results: $scope.results,
-                bestOfNation: $scope.resultsBestOfNations
+                bestOfNation: $scope.resultsBestOfNations,
+                bestOfNationGroupSize: $scope.bestOfNationGroupSize
             });
             $scope.lastImportSkipped = result.skippedRows;
             return result.slides;
@@ -296,6 +298,7 @@
 
                 $scope.results = saved.results || [];
                 $scope.resultsBestOfNations = saved.resultsBestOfNations || [];
+                $scope.bestOfNationGroupSize = saved.bestOfNationGroupSize || 5;
                 $scope.uploaded = !!saved.uploaded;
 
                 // No forceRedistribute — keeps the restored skill→frame
@@ -358,6 +361,7 @@
                     activeFrameId: FrameService.activeFrameId,
                     results: $scope.results || [],
                     resultsBestOfNations: $scope.resultsBestOfNations || [],
+                    bestOfNationGroupSize: $scope.bestOfNationGroupSize || 5,
                     frames: FrameService.serializeForProject(),
                     runtime: DevSession.serializeRuntime(),
                     ui: {

@@ -1,16 +1,19 @@
 <div class="screen-content screen-content-best-of-nation">
     <div class="screen-best-of-nation-name screen-region-kv">
-        Best of Nation
+        <div class="screen-translation">
+             <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                   translate="Best of Nation" translate-language="{{ l.lang_code }}"></span>
+        </div>
     </div>
-    <div class="screen-best-of-nation-nation screen-region-state">
-        <div class="screen-best-of-nation screen-best-of-nation-line-{{ $index + 1 }}" ng-repeat="result in context.results">
+    <div class="screen-skill-best-of-nation-nation screen-region-state screen-grid"
+         style="--grid-count: {{ context.results.length }}; --grid-cols: {{ context.results.length >= 8 ? 2 : 1 }};">
+        <div class="screen-medal screen-best-of-nation" ng-repeat="result in context.results"
+             style="--grid-chars: {{ result.nameChars || 40 }}; --grid-chars-wrap: {{ result.nameWrapped || result.nameChars || 40 }};">
             <div class="screen-flag">
                 <img ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='wstemplate://project/data/flags/_placeholder.svg'">
             </div>
             <div class="screen-competitors">
-                <div class="screen-competitor">
-                    <span ng-repeat="competitor in result.competitors"><span ng-if="!$first">, </span>{{ competitor }}</span>
-                </div>
+                <span>{{ result.competitors.join(', ') }}</span>
             </div>
         </div>
     </div>
