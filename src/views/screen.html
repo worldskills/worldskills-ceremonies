@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ceremoniesApp" ng-controller="ScreenCtrl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceremonies Screen</title>
+    <link href="wstemplate://active/css/fonts.css" rel="stylesheet">
+    <link href="wstemplate://active/css/screen.css" rel="stylesheet">
+</head>
+<body ng-class="{'preview': preview}">
+
+    <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
+        <div class="screen-canvas">
+            <div ng-include="template"></div>
+        </div>
+    </div>
+
+    <div class="setup" ng-show="!screen">
+        <p style="color:#fff;font-family:sans-serif;padding:20px">Open this screen from the control panel. Press F11 for fullscreen.</p>
+    </div>
+
+
+    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../../node_modules/angular/angular.min.js"></script>
+    <script src="../../node_modules/angular-translate/dist/angular-translate.min.js"></script>
+    <script src="../../node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/services/translations-loader.service.js"></script>
+    <script src="../js/screen.js"></script>
+</body>
+</html>
+`

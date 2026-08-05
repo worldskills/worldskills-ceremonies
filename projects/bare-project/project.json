@@ -1,0 +1,116 @@
+{
+  "version": 2,
+  "name": "WSI Bare Project",
+  "displayMode": "windows",
+  "languages": [
+    {
+      "lang_code": "en"
+    },
+    {
+      "lang_code": "zh_CN"
+    }
+  ],
+  "frames": [
+    {
+      "id": "a",
+      "label": "Main Stage",
+      "size": {
+        "width": 589,
+        "height": 553
+      },
+      "position": {
+        "monitor": 0,
+        "x": 8,
+        "y": 47,
+        "fullscreen": false,
+        "kiosk": false
+      },
+      "ordering": {
+        "mode": "skills",
+        "skillNumbers": [
+          "50",
+          "47",
+          "52",
+          "34",
+          "28",
+          "19",
+          "09",
+          "05",
+          "21",
+          "44"
+        ],
+        "includeAlbertVidal": true
+      },
+      "color": "#8B5CF6"
+    },
+    {
+      "id": "b",
+      "label": "Frame B",
+      "size": {
+        "width": 589,
+        "height": 553
+      },
+      "position": {
+        "monitor": 0,
+        "x": 606,
+        "y": 47,
+        "fullscreen": false,
+        "kiosk": false
+      },
+      "ordering": {
+        "mode": "skills",
+        "skillNumbers": [
+          "57",
+          "30",
+          "53",
+          "54",
+          "40",
+          "59",
+          "27",
+          "04",
+          "15",
+          "12"
+        ],
+        "sourceFile": null
+      },
+      "color": "#3B82F6"
+    },
+    {
+      "id": "c",
+      "label": "Frame C",
+      "size": {
+        "width": 588,
+        "height": 553
+      },
+      "position": {
+        "monitor": 0,
+        "x": 1204,
+        "y": 47,
+        "fullscreen": false,
+        "kiosk": false
+      },
+      "ordering": {
+        "mode": "skills",
+        "skillNumbers": [
+          "14",
+          "20",
+          "07",
+          "58",
+          "29",
+          "01",
+          "25",
+          "08",
+          "38",
+          "55"
+        ],
+        "sourceFile": null
+      },
+      "color": "#10B981"
+    }
+  ],
+  "gridConfig": {
+    "cols": null,
+    "frameWidth": 500,
+    "frameHeight": 300
+  }
+}

@@ -1,0 +1,151 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #1e1040;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+}
+
+.startup-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 32px 40px 24px;
+    box-sizing: border-box;
+}
+
+.startup-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.startup-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+.startup-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.startup-actions .btn {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+.startup-error {
+    background: #7f1d1d;
+    color: #fca5a5;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.startup-recent-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.startup-recent {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.recent-item:hover:not(.recent-item-unavailable) {
+    background: rgba(255,255,255,0.1);
+}
+
+.recent-item-unavailable {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.recent-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.recent-name {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recent-path {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.recent-badge {
+    font-size: 10px;
+    background: #475569;
+    color: #cbd5e1;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.recent-badge-source {
+    background: #1e40af;
+    color: #bfdbfe;
+}
+
+.recent-remove {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 2px 6px;
+    margin-left: 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.recent-remove:hover {
+    background: rgba(239,68,68,0.15);
+}
+
+.startup-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 14px;
+}

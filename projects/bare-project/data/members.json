@@ -1,0 +1,882 @@
+[
+  {
+    "code": "AR",
+    "name": {
+      "lang_code": "en",
+      "text": "Argentina",
+      "translations": {
+        "zh_CN": "阿根廷"
+      }
+    }
+  },
+  {
+    "code": "AM",
+    "name": {
+      "lang_code": "en",
+      "text": "Armenia",
+      "translations": {
+        "zh_CN": "亚美尼亚"
+      }
+    }
+  },
+  {
+    "code": "AU",
+    "name": {
+      "lang_code": "en",
+      "text": "Australia",
+      "translations": {
+        "zh_CN": "澳大利亚"
+      }
+    }
+  },
+  {
+    "code": "AT",
+    "name": {
+      "lang_code": "en",
+      "text": "Austria",
+      "translations": {
+        "zh_CN": "奥地利"
+      }
+    }
+  },
+  {
+    "code": "AZ",
+    "name": {
+      "lang_code": "en",
+      "text": "Azerbaijan",
+      "translations": {
+        "zh_CN": "阿塞拜疆"
+      }
+    }
+  },
+  {
+    "code": "BH",
+    "name": {
+      "lang_code": "en",
+      "text": "Kingdom of Bahrain",
+      "translations": {
+        "zh_CN": "巴林王国"
+      }
+    }
+  },
+  {
+    "code": "BD",
+    "name": {
+      "lang_code": "en",
+      "text": "Bangladesh",
+      "translations": {
+        "zh_CN": "孟加拉国"
+      }
+    }
+  },
+  {
+    "code": "BB",
+    "name": {
+      "lang_code": "en",
+      "text": "Barbados",
+      "translations": {
+        "zh_CN": "巴巴多斯"
+      }
+    }
+  },
+  {
+    "code": "BY",
+    "name": {
+      "lang_code": "en",
+      "text": "Belarus",
+      "translations": {
+        "zh_CN": "白俄罗斯"
+      }
+    }
+  },
+  {
+    "code": "BE",
+    "name": {
+      "lang_code": "en",
+      "text": "Belgium",
+      "translations": {
+        "zh_CN": "比利时"
+      }
+    }
+  },
+  {
+    "code": "BR",
+    "name": {
+      "lang_code": "en",
+      "text": "Brazil",
+      "translations": {
+        "zh_CN": "巴西"
+      }
+    }
+  },
+  {
+    "code": "BN",
+    "name": {
+      "lang_code": "en",
+      "text": "Brunei Darussalam",
+      "translations": {
+        "zh_CN": "文莱达鲁萨兰国"
+      }
+    }
+  },
+  {
+    "code": "CA",
+    "name": {
+      "lang_code": "en",
+      "text": "Canada",
+      "translations": {
+        "zh_CN": "加拿大"
+      }
+    }
+  },
+  {
+    "code": "CL",
+    "name": {
+      "lang_code": "en",
+      "text": "Chile",
+      "translations": {
+        "zh_CN": "智利"
+      }
+    }
+  },
+  {
+    "code": "CN",
+    "name": {
+      "lang_code": "en",
+      "text": "China",
+      "translations": {
+        "zh_CN": "中国"
+      }
+    }
+  },
+  {
+    "code": "CO",
+    "name": {
+      "lang_code": "en",
+      "text": "Colombia",
+      "translations": {
+        "zh_CN": "哥伦比亚"
+      }
+    }
+  },
+  {
+    "code": "CR",
+    "name": {
+      "lang_code": "en",
+      "text": "Costa Rica",
+      "translations": {
+        "zh_CN": "哥斯达黎加"
+      }
+    }
+  },
+  {
+    "code": "HR",
+    "name": {
+      "lang_code": "en",
+      "text": "Croatia",
+      "translations": {
+        "zh_CN": "克罗地亚"
+      }
+    }
+  },
+  {
+    "code": "CD",
+    "name": {
+      "lang_code": "en",
+      "text": "Democratic Republic of the Congo",
+      "translations": {
+        "zh_CN": "刚果民主共和国"
+      }
+    }
+  },
+  {
+    "code": "DK",
+    "name": {
+      "lang_code": "en",
+      "text": "Denmark",
+      "translations": {
+        "zh_CN": "丹麦"
+      }
+    }
+  },
+  {
+    "code": "DO",
+    "name": {
+      "lang_code": "en",
+      "text": "Dominican Republic",
+      "translations": {
+        "zh_CN": "多米尼加共和国"
+      }
+    }
+  },
+  {
+    "code": "EC",
+    "name": {
+      "lang_code": "en",
+      "text": "Ecuador",
+      "translations": {
+        "zh_CN": "厄瓜多尔"
+      }
+    }
+  },
+  {
+    "code": "EG",
+    "name": {
+      "lang_code": "en",
+      "text": "Egypt",
+      "translations": {
+        "zh_CN": "埃及"
+      }
+    }
+  },
+  {
+    "code": "EE",
+    "name": {
+      "lang_code": "en",
+      "text": "Estonia",
+      "translations": {
+        "zh_CN": "爱沙尼亚"
+      }
+    }
+  },
+  {
+    "code": "ET",
+    "name": {
+      "lang_code": "en",
+      "text": "Ethiopia",
+      "translations": {
+        "zh_CN": "埃塞俄比亚"
+      }
+    }
+  },
+  {
+    "code": "FI",
+    "name": {
+      "lang_code": "en",
+      "text": "Finland",
+      "translations": {
+        "zh_CN": "芬兰"
+      }
+    }
+  },
+  {
+    "code": "FR",
+    "name": {
+      "lang_code": "en",
+      "text": "France",
+      "translations": {
+        "zh_CN": "法国"
+      }
+    }
+  },
+  {
+    "code": "GE",
+    "name": {
+      "lang_code": "en",
+      "text": "Georgia",
+      "translations": {
+        "zh_CN": "格鲁吉亚"
+      }
+    }
+  },
+  {
+    "code": "DE",
+    "name": {
+      "lang_code": "en",
+      "text": "Germany",
+      "translations": {
+        "zh_CN": "德国"
+      }
+    }
+  },
+  {
+    "code": "GH",
+    "name": {
+      "lang_code": "en",
+      "text": "Ghana",
+      "translations": {
+        "zh_CN": "加纳"
+      }
+    }
+  },
+  {
+    "code": "HK",
+    "name": {
+      "lang_code": "en",
+      "text": "Hong Kong, China",
+      "translations": {
+        "zh_CN": "中国香港"
+      }
+    }
+  },
+  {
+    "code": "HU",
+    "name": {
+      "lang_code": "en",
+      "text": "Hungary",
+      "translations": {
+        "zh_CN": "匈牙利"
+      }
+    }
+  },
+  {
+    "code": "IS",
+    "name": {
+      "lang_code": "en",
+      "text": "Iceland",
+      "translations": {
+        "zh_CN": "冰岛"
+      }
+    }
+  },
+  {
+    "code": "IN",
+    "name": {
+      "lang_code": "en",
+      "text": "India",
+      "translations": {
+        "zh_CN": "印度"
+      }
+    }
+  },
+  {
+    "code": "ID",
+    "name": {
+      "lang_code": "en",
+      "text": "Indonesia",
+      "translations": {
+        "zh_CN": "印度尼西亚"
+      }
+    }
+  },
+  {
+    "code": "IR",
+    "name": {
+      "lang_code": "en",
+      "text": "Iran",
+      "translations": {
+        "zh_CN": "伊朗"
+      }
+    }
+  },
+  {
+    "code": "IE",
+    "name": {
+      "lang_code": "en",
+      "text": "Ireland",
+      "translations": {
+        "zh_CN": "爱尔兰"
+      }
+    }
+  },
+  {
+    "code": "IL",
+    "name": {
+      "lang_code": "en",
+      "text": "Israel",
+      "translations": {
+        "zh_CN": "以色列"
+      }
+    }
+  },
+  {
+    "code": "IT",
+    "name": {
+      "lang_code": "en",
+      "text": "South Tyrol, Italy",
+      "translations": {
+        "zh_CN": "意大利南蒂罗尔"
+      }
+    }
+  },
+  {
+    "code": "JM",
+    "name": {
+      "lang_code": "en",
+      "text": "Jamaica",
+      "translations": {
+        "zh_CN": "牙买加"
+      }
+    }
+  },
+  {
+    "code": "JP",
+    "name": {
+      "lang_code": "en",
+      "text": "Japan",
+      "translations": {
+        "zh_CN": "日本"
+      }
+    }
+  },
+  {
+    "code": "KZ",
+    "name": {
+      "lang_code": "en",
+      "text": "Kazakhstan",
+      "translations": {
+        "zh_CN": "哈萨克斯坦"
+      }
+    }
+  },
+  {
+    "code": "KE",
+    "name": {
+      "lang_code": "en",
+      "text": "Kenya",
+      "translations": {
+        "zh_CN": "肯尼亚"
+      }
+    }
+  },
+  {
+    "code": "KR",
+    "name": {
+      "lang_code": "en",
+      "text": "Korea",
+      "translations": {
+        "zh_CN": "韩国"
+      }
+    }
+  },
+  {
+    "code": "KW",
+    "name": {
+      "lang_code": "en",
+      "text": "Kuwait",
+      "translations": {
+        "zh_CN": "科威特"
+      }
+    }
+  },
+  {
+    "code": "KG",
+    "name": {
+      "lang_code": "en",
+      "text": "Kyrgyzstan",
+      "translations": {
+        "zh_CN": "吉尔吉斯斯坦"
+      }
+    }
+  },
+  {
+    "code": "LV",
+    "name": {
+      "lang_code": "en",
+      "text": "Latvia",
+      "translations": {
+        "zh_CN": "拉脱维亚"
+      }
+    }
+  },
+  {
+    "code": "LI",
+    "name": {
+      "lang_code": "en",
+      "text": "Principality of Liechtenstein",
+      "translations": {
+        "zh_CN": "列支敦士登公国"
+      }
+    }
+  },
+  {
+    "code": "LU",
+    "name": {
+      "lang_code": "en",
+      "text": "Luxembourg",
+      "translations": {
+        "zh_CN": "卢森堡"
+      }
+    }
+  },
+  {
+    "code": "MO",
+    "name": {
+      "lang_code": "en",
+      "text": "Macao, China",
+      "translations": {
+        "zh_CN": "中国澳门"
+      }
+    }
+  },
+  {
+    "code": "MY",
+    "name": {
+      "lang_code": "en",
+      "text": "Malaysia",
+      "translations": {
+        "zh_CN": "马来西亚"
+      }
+    }
+  },
+  {
+    "code": "MX",
+    "name": {
+      "lang_code": "en",
+      "text": "Mexico",
+      "translations": {
+        "zh_CN": "墨西哥"
+      }
+    }
+  },
+  {
+    "code": "MN",
+    "name": {
+      "lang_code": "en",
+      "text": "Mongolia",
+      "translations": {
+        "zh_CN": "蒙古"
+      }
+    }
+  },
+  {
+    "code": "MA",
+    "name": {
+      "lang_code": "en",
+      "text": "Morocco",
+      "translations": {
+        "zh_CN": "摩洛哥"
+      }
+    }
+  },
+  {
+    "code": "NA",
+    "name": {
+      "lang_code": "en",
+      "text": "Namibia",
+      "translations": {
+        "zh_CN": "纳米比亚"
+      }
+    }
+  },
+  {
+    "code": "NL",
+    "name": {
+      "lang_code": "en",
+      "text": "Netherlands",
+      "translations": {
+        "zh_CN": "荷兰"
+      }
+    }
+  },
+  {
+    "code": "NZ",
+    "name": {
+      "lang_code": "en",
+      "text": "New Zealand",
+      "translations": {
+        "zh_CN": "新西兰"
+      }
+    }
+  },
+  {
+    "code": "NO",
+    "name": {
+      "lang_code": "en",
+      "text": "Norway",
+      "translations": {
+        "zh_CN": "挪威"
+      }
+    }
+  },
+  {
+    "code": "OM",
+    "name": {
+      "lang_code": "en",
+      "text": "Oman",
+      "translations": {
+        "zh_CN": "阿曼"
+      }
+    }
+  },
+  {
+    "code": "PK",
+    "name": {
+      "lang_code": "en",
+      "text": "Pakistan",
+      "translations": {
+        "zh_CN": "巴基斯坦"
+      }
+    }
+  },
+  {
+    "code": "PS",
+    "name": {
+      "lang_code": "en",
+      "text": "Palestine",
+      "translations": {
+        "zh_CN": "巴勒斯坦"
+      }
+    }
+  },
+  {
+    "code": "PY",
+    "name": {
+      "lang_code": "en",
+      "text": "Paraguay",
+      "translations": {
+        "zh_CN": "巴拉圭"
+      }
+    }
+  },
+  {
+    "code": "PH",
+    "name": {
+      "lang_code": "en",
+      "text": "Philippines",
+      "translations": {
+        "zh_CN": "菲律宾"
+      }
+    }
+  },
+  {
+    "code": "PL",
+    "name": {
+      "lang_code": "en",
+      "text": "Poland",
+      "translations": {
+        "zh_CN": "波兰"
+      }
+    }
+  },
+  {
+    "code": "PT",
+    "name": {
+      "lang_code": "en",
+      "text": "Portugal",
+      "translations": {
+        "zh_CN": "葡萄牙"
+      }
+    }
+  },
+  {
+    "code": "RO",
+    "name": {
+      "lang_code": "en",
+      "text": "Romania",
+      "translations": {
+        "zh_CN": "罗马尼亚"
+      }
+    }
+  },
+  {
+    "code": "RU",
+    "name": {
+      "lang_code": "en",
+      "text": "Russia",
+      "translations": {
+        "zh_CN": "俄罗斯"
+      }
+    }
+  },
+  {
+    "code": "SA",
+    "name": {
+      "lang_code": "en",
+      "text": "Saudi Arabia",
+      "translations": {
+        "zh_CN": "沙特阿拉伯"
+      }
+    }
+  },
+  {
+    "code": "SG",
+    "name": {
+      "lang_code": "en",
+      "text": "Singapore",
+      "translations": {
+        "zh_CN": "新加坡"
+      }
+    }
+  },
+  {
+    "code": "ZA",
+    "name": {
+      "lang_code": "en",
+      "text": "South Africa",
+      "translations": {
+        "zh_CN": "南非"
+      }
+    }
+  },
+  {
+    "code": "ES",
+    "name": {
+      "lang_code": "en",
+      "text": "Spain",
+      "translations": {
+        "zh_CN": "西班牙"
+      }
+    }
+  },
+  {
+    "code": "LK",
+    "name": {
+      "lang_code": "en",
+      "text": "Sri Lanka",
+      "translations": {
+        "zh_CN": "斯里兰卡"
+      }
+    }
+  },
+  {
+    "code": "SE",
+    "name": {
+      "lang_code": "en",
+      "text": "Sweden",
+      "translations": {
+        "zh_CN": "瑞典"
+      }
+    }
+  },
+  {
+    "code": "CH",
+    "name": {
+      "lang_code": "en",
+      "text": "Switzerland",
+      "translations": {
+        "zh_CN": "瑞士"
+      }
+    }
+  },
+  {
+    "code": "TW",
+    "name": {
+      "lang_code": "en",
+      "text": "Chinese Taipei",
+      "translations": {
+        "zh_CN": "中国台北"
+      }
+    }
+  },
+  {
+    "code": "TH",
+    "name": {
+      "lang_code": "en",
+      "text": "Thailand",
+      "translations": {
+        "zh_CN": "泰国"
+      }
+    }
+  },
+  {
+    "code": "TT",
+    "name": {
+      "lang_code": "en",
+      "text": "Trinidad and Tobago",
+      "translations": {
+        "zh_CN": "特立尼达和多巴哥"
+      }
+    }
+  },
+  {
+    "code": "TN",
+    "name": {
+      "lang_code": "en",
+      "text": "Tunisia",
+      "translations": {
+        "zh_CN": "突尼斯"
+      }
+    }
+  },
+  {
+    "code": "TR",
+    "name": {
+      "lang_code": "en",
+      "text": "Türkiye",
+      "translations": {
+        "zh_CN": "土耳其"
+      }
+    }
+  },
+  {
+    "code": "UG",
+    "name": {
+      "lang_code": "en",
+      "text": "Uganda",
+      "translations": {
+        "zh_CN": "乌干达"
+      }
+    }
+  },
+  {
+    "code": "UA",
+    "name": {
+      "lang_code": "en",
+      "text": "Ukraine",
+      "translations": {
+        "zh_CN": "乌克兰"
+      }
+    }
+  },
+  {
+    "code": "AE",
+    "name": {
+      "lang_code": "en",
+      "text": "United Arab Emirates",
+      "translations": {
+        "zh_CN": "阿拉伯联合酋长国"
+      }
+    }
+  },
+  {
+    "code": "UK",
+    "name": {
+      "lang_code": "en",
+      "text": "United Kingdom",
+      "translations": {
+        "zh_CN": "英国"
+      }
+    }
+  },
+  {
+    "code": "US",
+    "name": {
+      "lang_code": "en",
+      "text": "United States of America",
+      "translations": {
+        "zh_CN": "美利坚合众国"
+      }
+    }
+  },
+  {
+    "code": "UZ",
+    "name": {
+      "lang_code": "en",
+      "text": "Uzbekistan",
+      "translations": {
+        "zh_CN": "乌兹别克斯坦"
+      }
+    }
+  },
+  {
+    "code": "VE",
+    "name": {
+      "lang_code": "en",
+      "text": "Venezuela",
+      "translations": {
+        "zh_CN": "委内瑞拉"
+      }
+    }
+  },
+  {
+    "code": "VN",
+    "name": {
+      "lang_code": "en",
+      "text": "Vietnam",
+      "translations": {
+        "zh_CN": "越南"
+      }
+    }
+  },
+  {
+    "code": "ZM",
+    "name": {
+      "lang_code": "en",
+      "text": "Zambia",
+      "translations": {
+        "zh_CN": "赞比亚"
+      }
+    }
+  }
+]

@@ -1,0 +1,433 @@
+:root {
+    --primary-a: #62B5E5;
+    --secondary-a: #8AE2D1;
+    --primary-b: #DF4661;
+    --secondary-b: #72D0EB;
+    --background: #000;
+    --callup-color: #f5ae1e;
+    --font-color: #fff;
+    --screen-real-width: 1100px;
+    --screen-real-height: 500px;
+    --screen-ratio: calc(var(--screen-real-width) / var(--screen-real-height));
+    --screen-height: min(calc(100vw / var(--screen-ratio)), 100vh);
+    --unit: calc(var(--screen-height) / 16);
+}
+
+html {
+    font-size: var(--unit);
+}
+
+body {
+    background-color: var(--background);
+    font-family: "FrutigerLTW04", Frutiger, Arial, sans-serif;
+    font-weight: bold;
+    overflow: hidden;
+    font-size: 1rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body:not(.preview) {
+    cursor: none;
+}
+
+.setup {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+}
+
+button {
+    font-size: calc(var(--unit) * 1);
+    color: #444;
+    border: 1px solid #444;
+    background-color: #fff;
+    border-radius: 0.25em;
+    padding: 0.5em 1em;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: rgb(184, 240, 255);
+}
+
+button.secondary {
+    background-color: #ccc;
+}
+
+button.secondary:hover {
+    background-color: #aaa;
+}
+
+.screen-canvas {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen-content {
+    position: relative;
+    height: var(--screen-height);
+    width: calc(var(--screen-height) * var(--screen-ratio));
+    object-fit: contain;
+    overflow: hidden;
+    font-size: calc(var(--unit) * 1);
+    color: var(--font-color);
+    background-image: url('../images/empty.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top;
+}
+
+body.preview .screen-content {
+    border: 1px solid #eee;
+}
+
+.screen-empty-logo {
+    background-color: var(--frame-accent, var(--primary-a));
+}
+
+.screen-empty-logo svg {
+    width: calc(var(--unit) * 6.4);
+    height: calc(var(--unit) * 3.79);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.screen-skill-medals-name,
+.screen-skill-callup-name {
+    font-weight: 800;
+    color: var(--callup-color) !important;
+}
+
+.screen-skill-medals-name .screen-skill-medals-name-mfe {
+    color: #FFF !important;
+}
+
+.screen-skill-callup-name,
+.screen-skill-medals-name,
+.screen-best-of-nation-name,
+.screen-best-of-nation-name-host,
+.screen-albert-vidal-award-name {
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: calc(var(--unit) * 1);
+    padding-right: calc(var(--unit) * 5);
+    font-size: calc(var(--unit) * 1.2);
+    line-height: 1.3;
+}
+
+.screen-table-countries {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    font-size: 0.7rem;
+    line-height: 1.25;
+    gap: 1em;
+    padding-left: var(--unit);
+    padding-top: var(--unit);
+}
+
+.screen-table-country {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    align-items: center;
+    text-align: center;
+    min-width: 0;
+    flex: 0 1 6rem;
+}
+
+.screen-table-country img {
+    width: min(100%, calc(var(--unit) * 4));
+    height: auto;
+    aspect-ratio: 4 / 2.5;
+}
+
+.screen-best-of-nation-nation,
+.screen-albert-vidal-award-award {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.screen-medallion-for-excellence {
+    font-weight: normal !important;
+}
+
+.screen-medal,
+.screen-best-of-nation,
+.screen-albert-vidal-award {
+    display: flex;
+    align-items: center;
+}
+
+.screen-medal-text {
+    display: flex;
+    min-width: 0;
+}
+
+.screen-medal-name {
+    padding-right: calc(var(--unit) * 0.3);
+}
+
+
+.screen-competitor span {
+    word-break: break-all;
+    white-space: pre-line;
+}
+
+
+.screen-best-of-nation-name {
+    font-size: calc(var(--unit) * 1.42);
+    font-weight: 900;
+}
+
+.screen-best-of-nation-name-host {
+    font-size: calc(var(--unit) * 1.42);
+    font-weight: 900;
+}
+
+.screen-albert-vidal-award-name {
+    font-size: calc(var(--unit) * 0.95);
+    font-weight: 900;
+}
+
+.screen-table-countries,
+.screen-medal-Gold,
+.screen-medal-Silver,
+.screen-medal-Bronze,
+.screen-best-of-nation,
+.screen-albert-vidal-award-award,
+.screen-medallion-for-excellence {
+    visibility: hidden;
+}
+
+.screen-state-Countries .screen-table-countries,
+.screen-state-Preview .screen-table-countries,
+.screen-state-Bronze .screen-medal-Bronze,
+.screen-state-Silver .screen-medal-Silver,
+.screen-state-Gold .screen-medal-Gold,
+.screen-state-Preview .screen-medal-Bronze,
+.screen-state-Preview .screen-medal-Silver,
+.screen-state-Preview .screen-medal-Gold,
+.screen-state-Name .screen-albert-vidal-award,
+.screen-state-1 .screen-best-of-nation-line-1,
+.screen-state-2 .screen-best-of-nation-line-2,
+.screen-state-3 .screen-best-of-nation-line-3,
+.screen-state-4 .screen-best-of-nation-line-4,
+.screen-state-5 .screen-best-of-nation-line-5,
+.screen-state-6 .screen-best-of-nation-line-6,
+.screen-state-Preview .screen-best-of-nation-line-1,
+.screen-state-Preview .screen-best-of-nation-line-2,
+.screen-state-Preview .screen-best-of-nation-line-3,
+.screen-state-Preview .screen-best-of-nation-line-4,
+.screen-state-Preview .screen-best-of-nation-line-5,
+.screen-state-Preview .screen-best-of-nation-line-6,
+.screen-state-Name .screen-best-of-nation,
+.screen-state-Preview .screen-best-of-nation,
+.screen-state-Preview .screen-albert-vidal-award-award,
+.screen-state-Name .screen-medallion-for-excellence,
+.screen-state-Preview .screen-medallion-for-excellence {
+    visibility: visible;
+}
+
+.screen-container-kv    .screen-region-state { display: none; }
+.screen-container-state .screen-region-kv    { display: none; }
+
+.screen-container-kv    .screen-content,
+.screen-container-state .screen-content {
+    background-size: cover;
+    display: flex; flex-direction: column;
+    justify-content: flex-start !important;
+}
+
+.screen-region-kv {
+    padding-top: var(--unit);
+    display: flex;
+    flex-direction: column;
+    justify-content: center !important;
+    height: auto !important;
+}
+
+.screen-container-state .screen-region-state {
+    height: 100%;
+}
+
+.screen-grid {
+    --grid-count: 8;
+    --grid-cols: 1;
+    --grid-lines: 1;
+
+    /* The design size, and the ceiling --grid-em can never exceed. One --unit
+       is what these blocks have always rendered at, so a short list looks
+       exactly as it did before; only long lists shrink. */
+    --grid-em-max: calc(var(--unit) * 1);
+
+    /* Share of the screen height this block occupies: the band below the 25%
+       title area, or all of it in Split KV/State mode. */
+    --grid-band: 0.75;
+
+    /* Absolute, never em — the em is derived from these, so making them
+       relative to it would be a circular definition. */
+    --grid-pad-y: calc(var(--unit) * 0.3);
+    --grid-pad-x: calc(var(--unit) * 1);
+    --grid-gap-x: calc(var(--unit) * 1.5);
+
+    --grid-line-h: 1.25;
+    /* Per-character advance of the name text, in em, at its own 0.8em size:
+       this font averages ~0.5em per glyph, so 0.5 × 0.8. */
+    --grid-char-w: 0.4;
+    /* Everything on a row that isn't the name: flag plus gaps, in em. */
+    --grid-row-fixed: 2.2;
+
+    --grid-height: calc(var(--screen-height) * var(--grid-band) - var(--grid-pad-y) * 2);
+    --grid-width: calc(var(--screen-height) * var(--screen-ratio) - var(--grid-pad-x) * 2);
+    /* Row height = band ÷ rows, where rows = ceil(count / cols). ceil() is not
+       available in Chromium 104, so the row count is expanded inline as
+       (count + cols - 1) / cols — an exact upper bound. Over-reserving by at
+       most one row costs nothing. */
+    --grid-row-height: calc(var(--grid-height) * var(--grid-cols) / (var(--grid-count) + var(--grid-cols) - 1));
+    --grid-col-width: calc((var(--grid-width) - var(--grid-gap-x) * (var(--grid-cols) - 1)) / var(--grid-cols));
+
+    box-sizing: border-box;
+    height: calc(var(--screen-height) * var(--grid-band));
+    padding: var(--grid-pad-y) var(--grid-pad-x);
+    line-height: var(--grid-line-h);
+
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
+    /* Equal slices of a definite height: N rows always fit, whatever N is. */
+    grid-auto-rows: minmax(0, 1fr);
+    grid-auto-flow: row;
+    column-gap: var(--grid-gap-x);
+    row-gap: 0;
+    align-items: center;
+}
+
+.screen-container-state .screen-grid {
+    --grid-band: 1;
+}
+
+.screen-grid.screen-skill-medals-medals {
+    --grid-lines: 2.4;
+}
+
+.screen-grid.screen-skill-medallion-for-excellence {
+    --grid-lines: 1;
+    --grid-band: min(0.75, calc(var(--grid-count) / 8));
+}
+
+.screen-grid .screen-medal {
+    /* Per-row: this row's own char count (set inline from context.results[i]
+       .nameChars/.nameWrapped), falling back to the design default if a row
+       doesn't set one. Longest name once wrapped onto a second line
+       defaults to the one-line width, i.e. "assume wrapping buys nothing". */
+    --grid-chars: 40;
+    --grid-chars-wrap: var(--grid-chars);
+
+    /* Two candidates — this name on one line, or wrapped onto a second —
+       and the larger em wins. Wrapping is never forced: it is used only
+       when it keeps the text bigger. Sizing per row (not per slide) means
+       one long name only shrinks its own row, not every other name. */
+    --grid-em-flat: min(
+        var(--grid-em-max),
+        calc(var(--grid-row-height) / (var(--grid-lines) * var(--grid-line-h))),
+        calc(var(--grid-col-width) / (var(--grid-chars) * var(--grid-char-w) + var(--grid-row-fixed)))
+    );
+    --grid-em-wrap: min(
+        var(--grid-em-max),
+        calc(var(--grid-row-height) / ((var(--grid-lines) + 1) * var(--grid-line-h))),
+        calc(var(--grid-col-width) / (var(--grid-chars-wrap) * var(--grid-char-w) + var(--grid-row-fixed)))
+    );
+    --grid-em: max(var(--grid-em-flat), var(--grid-em-wrap));
+    font-size: var(--grid-em);
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+    min-width: 0;
+}
+
+.screen-grid .screen-flag {
+    width: 1.4em;
+    height: 0.9em;
+    display: flex;
+    flex-shrink: 0;
+}
+
+.screen-flag img {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    aspect-ratio: 16/9;
+}
+
+.screen-grid .screen-competitors {
+    display: flex;
+    flex-direction: row;
+    font-size: 0.8em;
+    min-width: 0;
+    overflow-wrap: break-word;
+    line-height: 32px;
+}
+
+.screen-grid .screen-medal-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    min-width: 0;
+}
+
+.screen-grid .screen-medal-row-competitors {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+    min-width: 0;
+}
+
+.screen-grid .screen-medal-row-position {
+    margin-left: -0.1em;
+}
+
+.screen-translation {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    gap: 8px;
+}
+
+.screen-translation:not(.screen-translation-row) {
+    --translation-lines: 1;
+    font-size: min(1em, calc(2em / (var(--translation-lines) + 1)));
+}
+
+.screen-translation-line:not(.screen-translation-primary) {
+    font-size: 0.7em;
+}
+
+.screen-translation-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.screen-table-country .screen-translation {
+    align-self: center !important;
+    font-size: 1rem;
+}

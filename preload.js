@@ -1,9 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Injected by main.js via webPreferences.additionalArguments, so the renderer
-// can read the dev flags synchronously during startup.
+// Injected by main.js via webPreferences.additionalArguments — lets the renderer read dev flags synchronously at startup.
 const isDev = process.argv.includes('--ceremonator-dev');
-const forceDefaultTemplate = process.argv.includes('--ceremonator-default-templates');
 
 contextBridge.exposeInMainWorld('ceremonator', {
     frames: {
@@ -21,6 +19,7 @@ contextBridge.exposeInMainWorld('ceremonator', {
     },
     project: {
         recent: () => ipcRenderer.invoke('project:recent'),
+        bundled: () => ipcRenderer.invoke('project:bundled'),
         removeRecent: (dir) => ipcRenderer.invoke('project:removeRecent', { dir }),
         create: () => ipcRenderer.invoke('project:create'),
         open: () => ipcRenderer.invoke('project:open'),
@@ -33,7 +32,6 @@ contextBridge.exposeInMainWorld('ceremonator', {
     },
     dev: {
         isDev: isDev,
-        forceDefaultTemplate: forceDefaultTemplate,
         loadSession: () => ipcRenderer.invoke('dev:loadSession'),
         saveSession: (control) => ipcRenderer.invoke('dev:saveSession', control),
         clearSession: () => ipcRenderer.invoke('dev:clearSession'),
@@ -41,7 +39,6 @@ contextBridge.exposeInMainWorld('ceremonator', {
     app: {
         openControl: () => ipcRenderer.invoke('app:openControl'),
         reloadScreen: (frameId) => ipcRenderer.invoke('app:reloadScreen', { frameId }),
-        exitToStartup: () => ipcRenderer.invoke('app:exitToStartup'),
     },
     onFrameStatus: (callback) => {
         ipcRenderer.on('frames:status', (_event, data) => callback(data));
