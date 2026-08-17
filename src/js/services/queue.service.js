@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('Queue', function (FrameService, SLIDE_KEYS) {
+    angular.module('ceremoniesApp').factory('Queue', function (FrameService, SLIDE_KEYS, ALBERT_VIDAL_AWARD_LABEL) {
 
         function getSkillFrame(skillNumber) {
             var found = null;
@@ -23,25 +23,29 @@
 
         function getSkillQueueSlides(catalog, albertVidalFrame, skillNumber) {
             if (!catalog) return [];
+
             if (skillNumber === SLIDE_KEYS.ALBERT_VIDAL) {
                 var avaFrameId = albertVidalFrame;
                 if (!avaFrameId || !catalog[SLIDE_KEYS.ALBERT_VIDAL]) return [];
                 var avaFrame = FrameService.frames[avaFrameId];
                 if (!avaFrame || !avaFrame.slides) return [];
                 var avaResult = [];
+
                 angular.forEach(avaFrame.slides, function (slide) {
-                    if (slide.label === 'Albert Vidal Award') {
+                    if (slide.label === ALBERT_VIDAL_AWARD_LABEL) {
                         avaResult.push({ slide: slide, frameId: avaFrameId, frame: avaFrame });
                     }
                 });
                 return avaResult;
             }
+
             var frameId = getSkillFrame(skillNumber);
             if (!frameId) return [];
             var frame = FrameService.frames[frameId];
             if (!frame || !frame.slides) return [];
             var catalogSlides = catalog[skillNumber] || [];
             var result = [];
+
             angular.forEach(catalogSlides, function (catalogSlide) {
                 angular.forEach(frame.slides, function (slide) {
                     if (slide.label === catalogSlide.label) {
@@ -49,6 +53,7 @@
                     }
                 });
             });
+
             return result;
         }
 
@@ -90,7 +95,7 @@
                 var avaFrame = FrameService.frames[albertVidalFrame];
                 if (avaFrame && avaFrame.slides) {
                     angular.forEach(avaFrame.slides, function (slide) {
-                        if (slide.label === 'Albert Vidal Award') {
+                        if (slide.label === ALBERT_VIDAL_AWARD_LABEL) {
                             list.push({ slide: slide, frameId: albertVidalFrame, frame: avaFrame });
                         }
                     });

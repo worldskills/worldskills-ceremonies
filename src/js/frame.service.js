@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('FrameService', function (SCREENS) {
+    angular.module('ceremoniesApp').factory('FrameService', function (SCREENS, FRAMES_WINDOW_STATUS) {
 
         var frameColors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
 
@@ -58,9 +58,9 @@
                 slide: undefined,
                 previewSlide: undefined,
                 size: { width: 1920, height: 1080 },
-                position: { monitor: 0, x: null, y: null, fullscreen: false, kiosk: false },
+                position: { monitor: 0, x: null, y: null, fullscreen: false },
                 ordering: { mode: 'skills', skillNumbers: [], sourceFile: null },
-                status: 'closed',
+                status: FRAMES_WINDOW_STATUS.CLOSED,
                 windows: { live: 0, preview: 0 },
                 color: pickColor()
             };
@@ -129,7 +129,7 @@
                     });
                 } else {
                     service.frames[config.id] = angular.extend({
-                        slides: [], slide: undefined, previewSlide: undefined, status: 'closed',
+                        slides: [], slide: undefined, previewSlide: undefined, status: FRAMES_WINDOW_STATUS.CLOSED,
                         windows: { live: 0, preview: 0 }
                     }, config);
                 }
@@ -141,7 +141,7 @@
             service.activeFrameId = Object.keys(service.frames)[0];
         };
 
-        service.saveProject = function (projectName, displayMode, gridConfig, languages) {
+        service.saveProject = function (projectName, displayMode, gridConfig, languages, bestOfNationGroupSize) {
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.saveCurrent) {
                 return Promise.resolve({ ok: false, error: 'Electron API unavailable' });
             }
@@ -151,24 +151,10 @@
                 displayMode: displayMode || 'windows',
                 frames: service.serializeForProject(),
                 gridConfig: gridConfig || null,
-                languages: languages || []
+                languages: languages || [],
+                bestOfNationGroupSize: bestOfNationGroupSize || 5
             };
             return window.ceremonator.project.saveCurrent(project);
-        };
-
-        service.saveAsProject = function (projectName, displayMode, gridConfig, languages) {
-            if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.saveAs) {
-                return Promise.resolve({ ok: false, error: 'Electron API unavailable' });
-            }
-            var project = {
-                version: 2,
-                name: projectName || 'Ceremony Project',
-                displayMode: displayMode || 'windows',
-                frames: service.serializeForProject(),
-                gridConfig: gridConfig || null,
-                languages: languages || []
-            };
-            return window.ceremonator.project.saveAs(project);
         };
 
         return service;

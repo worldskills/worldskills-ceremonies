@@ -12,7 +12,7 @@
 <body ng-controller="RemoteCtrl" ng-cloak>
     <div class="remote-pin-screen p-4" ng-show="!connected">
         <form ng-submit="connect()">
-            <h5 class="mb-3">Ceremonator Remote</h5>
+            <h5 class="mb-3">Ceremonator Remote Control Panel</h5>
             <div class="form-group">
                 <label for="pinInput">PIN</label>
                 <input id="pinInput" class="form-control remote-pin-input" ng-model="auth.pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" autofocus>
@@ -41,7 +41,7 @@
     </div>
 
     <script src="/node_modules/angular/angular.min.js"></script>
-    <script src="/js/control-workspace.js"></script>
+    <script src="/js/control/control-workspace.js"></script>
     <script src="/js/remote.js"></script>
 </body>
 </html>

@@ -10,7 +10,6 @@
 </head>
 <body ng-controller="ControlCtrl" ngf-drop="upload($file)">
 
-    <!-- ── Navbar ───────────────────────────────────────────────── -->
     <nav class="navbar sticky-top navbar-expand-md ws-navbar-stripe navbar-dark ws-navbar-main">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" style="gap:8px">
@@ -24,18 +23,18 @@
                         <span class="navbar-dev-badge navbar-dev-badge-clickable" ng-show="remoteInfo && remoteInfo.urls.length" ng-cloak
                             ng-click="copyPaste($event, remoteInfo.urls[0])"
                             title="Copy the remote control URL; enter the PIN separately on the tablet">
-                            <i class="fa fa-clipboard"></i> Remote {{ remoteInfo.pin }}
+                            <i class="fa fa-clipboard"></i> Remote. PIN: {{ remoteInfo.pin }}
                         </span>
                     </div>
                 </div>
             </a>
             <div class="d-flex align-items-center flex-wrap justify-content-end" style="gap:6px">
                 <div class="btn-group" role="group" aria-label="Workspace mode">
-                    <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': workspaceMode === 'setup'}" ng-click="workspaceMode = 'setup'">Setup</button>
-                    <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': workspaceMode === 'run'}" ng-click="workspaceMode = 'run'; queueViewOpen = true">Run</button>
+                    <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': workspaceMode === WORKSPACE_MODES.SETUP}" ng-click="workspaceMode = WORKSPACE_MODES.SETUP">Setup</button>
+                    <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': workspaceMode === WORKSPACE_MODES.RUN}" ng-click="workspaceMode = WORKSPACE_MODES.RUN; queueViewOpen = true">Run</button>
                 </div>
                 <!-- Import dropdown -->
-                <div class="position-relative" ng-show="workspaceMode === 'setup'">
+                <div class="position-relative" ng-show="workspaceMode === WORKSPACE_MODES.SETUP">
                     <button class="btn btn-white btn-sm" ng-click="importMenuOpen = !importMenuOpen" title="Import — load results or Best of Nation spreadsheets">
                         <i class="fa fa-upload mr-1"></i> Import <i class="fa fa-caret-down ml-1"></i>
                     </button>
@@ -68,42 +67,24 @@
                         <button class="dropdown-item" ng-click="openGridView()">
                             <i class="fa fa-th-large mr-2"></i> Grid view
                         </button>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-section-label">Config</div>
-                        <label class="dropdown-checkbox-item" ng-click="$event.stopPropagation()">
-                            <input type="checkbox" ng-model="gridConfig.splitContainers"> Split KV / State (2 windows per frame)
-                        </label>
                     </div>
                 </div>
 
-                <!-- All frames view -->
-                <button class="btn btn-white btn-sm" ng-show="workspaceMode === 'setup' && uploaded" ng-class="{'btn-active-mode': allFramesViewOpen}" ng-click="allFramesViewOpen = !allFramesViewOpen" title="All frames — skill assignment">
+                <button class="btn btn-white btn-sm" ng-show="workspaceMode === WORKSPACE_MODES.SETUP && uploaded" ng-class="{'btn-active-mode': allFramesViewOpen}" ng-click="allFramesViewOpen = !allFramesViewOpen" title="All frames — skill assignment">
                     <i class="fa fa-th"></i>
                 </button>
 
-                <!-- Queue view -->
                 <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': queueViewOpen}" ng-click="queueViewOpen = !queueViewOpen" title="Queue — unified slide queue">
                     <i class="fa fa-list-ol mr-1"></i> Queue
                 </button>
 
-                <!-- Project dropdown (Bootstrap .dropdown-menu markup, toggled by Angular — no Bootstrap JS/Popper needed) -->
-                <div class="position-relative" ng-show="workspaceMode === 'setup'">
-                    <button class="btn btn-white btn-sm" ng-click="projectMenuOpen = !projectMenuOpen" title="Project — save, save as, load, or reload templates">
+                <div class="position-relative" ng-show="workspaceMode === WORKSPACE_MODES.SETUP">
+                    <button class="btn btn-white btn-sm" ng-click="projectMenuOpen = !projectMenuOpen">
                         Project <span class="project-dirty-dot" ng-show="projectDirty" title="Unsaved changes"></span><i class="fa fa-caret-down ml-1"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right" ng-class="{show: projectMenuOpen}" ng-click="projectMenuOpen = false">
                         <button class="dropdown-item" ng-click="saveProject()">
                             <i class="fa fa-save mr-2"></i> Save project
-                        </button>
-                        <button class="dropdown-item" ng-click="saveAsProject()">
-                            <i class="fa fa-copy mr-2"></i> Save As…
-                        </button>
-                        <button class="dropdown-item" ng-click="loadProject()">
-                            <i class="fa fa-folder-open mr-2"></i> Load project
-                        </button>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item" ng-click="reloadTemplates()">
-                            <i class="fa fa-refresh mr-2"></i> Reload templates
                         </button>
                     </div>
                 </div>
@@ -497,7 +478,7 @@
                     <button class="btn btn-secondary btn-sm" ng-click="openFrameWindowPreview(id)" ng-disabled="!canOpenFramePreview(id)" title="{{ !frame.windows.live ? 'Open a Live window first' : (frame.windows.preview ? 'Preview already open' : 'Open a new preview window') }}">
                         Preview
                     </button>
-                    <button class="btn btn-outline-info btn-sm" ng-show="frame.previewSlide" ng-click="resetPreview(id)" title="Reset preview to match live (R)">
+                    <button class="btn btn-outline-info btn-sm" ng-show="frame.previewSlide" ng-click="resetPreview(id)" title="Reset preview to match live (Ctrl+R)">
                         <i class="fa fa-undo"></i>
                     </button>
                     <button class="btn btn-outline-warning btn-sm" ng-click="resetFrame(id)" title="Reset this frame to blank">
@@ -542,11 +523,10 @@
                     <div class="form-group">
                         <label>Columns <span style="font-weight:400;text-transform:none;letter-spacing:0">(leave blank for auto)</span></label>
                         <input class="form-control form-control-sm" type="number" min="1" ng-model="gridConfig.cols" placeholder="auto" style="width:90px">
-                        <div class="mt-1" style="font-size:12px" ng-if="!gridConfig.cols">
-                            <span style="color:#94a3b8">Auto: {{ getAutoGridPreview() }}</span>
-                        </div>
-                        <div class="mt-1" style="font-size:12px" ng-if="gridConfig.cols">
-                            <span style="color:#22c55e">{{ getManualGridPreview() }}</span>
+                        <div class="mt-1" style="font-size:12px">
+                            <span ng-if="!gridConfig.cols" style="color:#94a3b8">Auto: {{ getGridCols() }} columns</span>
+                            <span ng-if="gridConfig.cols" style="color:#22c55e">{{ getGridCols() }} columns</span>
+                            <span style="color:#64748b">— the project's template/grid.html may override this.</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -564,10 +544,10 @@
                     <div class="form-group">
                         <label>Feed</label>
                         <div class="btn-group btn-group-sm" role="group">
-                            <button type="button" class="btn btn-sm" ng-class="gridConfig.feed !== 'preview' ? 'btn-primary' : 'btn-outline-secondary'" ng-click="gridConfig.feed = 'live'">
+                            <button type="button" class="btn btn-sm" ng-class="gridConfig.feed !== FEED.PREVIEW ? 'btn-primary' : 'btn-outline-secondary'" ng-click="gridConfig.feed = FEED.LIVE">
                                 <i class="fa fa-desktop mr-1"></i> Live
                             </button>
-                            <button type="button" class="btn btn-sm" ng-class="gridConfig.feed === 'preview' ? 'btn-primary' : 'btn-outline-secondary'" ng-click="gridConfig.feed = 'preview'">
+                            <button type="button" class="btn btn-sm" ng-class="gridConfig.feed === FEED.PREVIEW ? 'btn-primary' : 'btn-outline-secondary'" ng-click="gridConfig.feed = FEED.PREVIEW">
                                 <i class="fa fa-eye mr-1"></i> Preview
                             </button>
                         </div>
@@ -614,7 +594,7 @@
     <script src="../../node_modules/angular-translate/dist/angular-translate.min.js"></script>
     <script src="../../node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
     <script src="../../node_modules/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="../js/control-workspace.js"></script>
+    <script src="../js/control/control-workspace.js"></script>
     <script src="../js/app.js"></script>
     <script src="../js/directives.js"></script>
     <script src="../js/services/text-fit.service.js"></script>
@@ -622,15 +602,18 @@
     <script src="../js/services/excel.service.js"></script>
     <script src="../js/services/notice.service.js"></script>
     <script src="../js/services/translations-loader.service.js"></script>
+    <script src="../js/services/storage-keys.service.js"></script>
     <script src="../js/frame.service.js"></script>
     <script src="../js/services/frame-state.service.js"></script>
     <script src="../js/services/catalog.service.js"></script>
     <script src="../js/services/queue.service.js"></script>
     <script src="../js/services/queue-scroll.service.js"></script>
-    <script src="../js/dev-session.service.js"></script>
+    <script src="../js/services/dev-session.service.js"></script>
     <script src="../js/control/frames.part.js"></script>
     <script src="../js/control/queue.part.js"></script>
     <script src="../js/control/project.part.js"></script>
+    <script src="../js/control/control-remote.js"></script>
+    <script src="../js/control/control-dev.js"></script>
     <script src="../js/control.js"></script>
 </body>
 </html>

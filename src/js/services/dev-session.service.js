@@ -23,8 +23,13 @@
         };
 
         service.load = function () {
-            if (!service.enabled || !dev.loadSession) return Promise.resolve(null);
-            return dev.loadSession().catch(function () { return null; });
+            if (!service.enabled || !dev.loadSession) {
+                return Promise.resolve(null);
+            }
+
+            return dev.loadSession().catch(function () {
+                return null;
+            });
         };
 
         service.clear = function () {
@@ -38,7 +43,9 @@
             if (pendingSave) $timeout.cancel(pendingSave);
             pendingSave = $timeout(function () {
                 pendingSave = null;
-                if (dev.saveSession) dev.saveSession(collect());
+                if (dev.saveSession) {
+                    dev.saveSession(collect());
+                }
             }, SAVE_DEBOUNCE_MS);
         };
 
@@ -54,6 +61,7 @@
                 var slides = frame.slides || [];
                 var slide = frame.slide;
                 var state = (slide && slide.state) || [];
+
                 parts.push([
                     id,
                     frame.label || '',
@@ -101,6 +109,7 @@
                         if (!slide && candidate.label === saved.slideLabel) slide = candidate;
                     });
                 }
+
                 if (!slide) return;
 
                 slide.state = angular.copy(saved.state || []);

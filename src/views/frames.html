@@ -6,74 +6,129 @@
     <link href="../css/frames.css" rel="stylesheet">
 </head>
 <body>
-    <div id="grid" class="frames-grid"></div>
+    <div id="grid"></div>
     <script>
         (function () {
             var params = new URLSearchParams(window.location.search);
-            var cells = [];
-            try { cells = JSON.parse(params.get('cells') || '[]'); } catch (e) { cells = []; }
+            var frames = [];
+            try { frames = JSON.parse(params.get('frames') || '[]'); } catch (e) { frames = []; }
 
-            var cols = parseInt(params.get('cols'), 10) || 2;
-            var rows = parseInt(params.get('rows'), 10) || 1;
-            var frameW = parseInt(params.get('frameW'), 10) || 1100;
-            var frameH = parseInt(params.get('frameH'), 10) || 500;
+            var cellW = parseInt(params.get('cellW'), 10) || 1100;
+            var cellH = parseInt(params.get('cellH'), 10) || 500;
             var gap = parseInt(params.get('gap'), 10) || 0;
-            var scale = parseFloat(params.get('scale')) || 1;
             var feed = params.get('feed') || 'live';
+            var waW = parseInt(params.get('waW'), 10) || 0;
+            var waH = parseInt(params.get('waH'), 10) || 0;
 
-            var grid = document.getElementById('grid');
-            grid.style.setProperty('--grid-cols', cols);
-            grid.style.setProperty('--grid-rows', rows);
-            grid.style.setProperty('--frame-w', frameW + 'px');
-            grid.style.setProperty('--frame-h', frameH + 'px');
-            grid.style.setProperty('--grid-gap', gap + 'px');
-            if (scale > 0 && scale < 1) {
-                // Cells shrink to fit the work area instead of spilling off-screen —
-                // the grid box itself stays full size and is scaled down as a whole.
-                grid.style.transform = 'scale(' + scale + ')';
-                grid.style.transformOrigin = 'top left';
+            var root = document.getElementById('grid');
+
+            var rootStyle = document.documentElement.style;
+            rootStyle.setProperty('--grid-cols', parseInt(params.get('cols'), 10) || 2);
+            rootStyle.setProperty('--cell-w', cellW + 'px');
+            rootStyle.setProperty('--cell-h', cellH + 'px');
+            rootStyle.setProperty('--grid-gap', gap + 'px');
+
+            var byId = {};
+            frames.forEach(function (f) { byId[f.frameId] = f; });
+
+            function expandEach() {
+                Array.prototype.forEach.call(root.querySelectorAll('[data-frame-each]'), function (proto) {
+                    var parent = proto.parentNode;
+                    frames.forEach(function (frame) {
+                        var el = proto.cloneNode(true);
+                        el.removeAttribute('data-frame-each');
+                        if (!el.hasAttribute('data-frame')) el.setAttribute('data-frame', frame.frameId);
+                        if (!el.hasAttribute('data-label')) el.setAttribute('data-label', frame.label || frame.frameId);
+                        parent.insertBefore(el, proto);
+                    });
+                    parent.removeChild(proto);
+                });
             }
 
-            cells.forEach(function (cell) {
-                var wrap = document.createElement('div');
-                wrap.className = 'frame-cell-wrap';
-                if (cell.container) wrap.classList.add('frame-cell-wrap-' + cell.container);
-                if (cell.accent) wrap.style.setProperty('--cell-accent', cell.accent);
+            function fillCell(el) {
+                var frameId = el.getAttribute('data-frame');
+                var frame = byId[frameId] || {};
+                var container = el.getAttribute('data-container') || '';
+                var label = el.hasAttribute('data-label') ? el.getAttribute('data-label') : (frame.label || '');
+                var accent = el.getAttribute('data-accent') || frame.accent || '';
+                if (accent) el.style.setProperty('--cell-accent', accent);
 
                 var iframe = document.createElement('iframe');
-                var src = 'screen.html?screen=' + encodeURIComponent(cell.frameId) + '&preview=true';
+                var src = 'screen.html?screen=' + encodeURIComponent(frameId) + '&preview=true';
                 if (feed === 'preview') src += '&feed=preview';
-                if (cell.container) src += '&container=' + encodeURIComponent(cell.container);
-                if (cell.label) src += '&label=' + encodeURIComponent(cell.label);
+                if (container) src += '&container=' + encodeURIComponent(container);
+                if (label) src += '&label=' + encodeURIComponent(label);
                 iframe.src = src;
-                iframe.width = frameW;
-                iframe.height = frameH;
                 iframe.frameBorder = '0';
                 iframe.scrolling = 'no';
-                iframe.className = 'frame-cell';
-                wrap.appendChild(iframe);
+                iframe.className = 'frame-cell-screen';
+                el.appendChild(iframe);
 
-                if (cell.label) {
+                if (label) {
                     var caption = document.createElement('div');
                     caption.className = 'frame-cell-caption';
-                    caption.textContent = cell.label;
-                    wrap.appendChild(caption);
+                    caption.textContent = label;
+                    el.appendChild(caption);
                 }
+                return frameId;
+            }
 
-                grid.appendChild(wrap);
-            });
+            function fitAndShow(frameIds) {
+                var width = root.scrollWidth;
+                var height = root.scrollHeight;
+                var scale = Math.min(1, waW && width ? waW / width : 1, waH && height ? waH / height : 1);
+                if (scale > 0 && scale < 1) {
+                    root.style.transform = 'scale(' + scale + ')';
+                    root.style.transformOrigin = 'top left';
+                }
+                if (window.ceremonator && window.ceremonator.grid) {
+                    window.ceremonator.grid.fit({
+                        width: Math.round(width * scale),
+                        height: Math.round(height * scale),
+                        frameIds: frameIds
+                    });
+                }
+            }
 
-            // Cell captions are hidden by default (see css/frames.css) so the
-            // grid reads as a clean wall of output; hold Control to reveal them
-            // for a quick "which cell is which" check.
+            function build(html) {
+                // innerHTML does not execute <script>, deliberately — grid templates are declarative.
+                root.innerHTML = html;
+                expandEach();
+                var frameIds = [];
+                Array.prototype.forEach.call(root.querySelectorAll('[data-frame]'), function (el) {
+                    var id = fillCell(el);
+                    if (id && frameIds.indexOf(id) < 0) frameIds.push(id);
+                });
+                fitAndShow(frameIds);
+            }
+
+            // A black window with no explanation is the worst outcome on show day.
+            function fail(message) {
+                root.innerHTML = '';
+                var p = document.createElement('div');
+                p.className = 'frames-grid-error';
+                p.textContent = 'Grid view could not load this project’s template/grid.html: ' + message;
+                root.appendChild(p);
+                fitAndShow([]);
+            }
+
+            if (window.ceremonator && window.ceremonator.grid) {
+                window.ceremonator.grid.template().then(function (html) {
+                    if (html) build(html); else fail('file not found');
+                }).catch(function (error) {
+                    fail(error.message || String(error));
+                });
+            } else {
+                fail('grid API unavailable');
+            }
+
             window.addEventListener('keydown', function (e) {
                 if (e.key === 'Control') document.body.classList.add('show-overlays');
             });
             window.addEventListener('keyup', function (e) {
                 if (e.key === 'Control') document.body.classList.remove('show-overlays');
             });
-            // If focus is lost while Control is held (e.g. alt-tabbing away),
-            // keyup never fires — drop the overlay so it can't get stuck on.
+
             window.addEventListener('blur', function () {
                 document.body.classList.remove('show-overlays');
             });

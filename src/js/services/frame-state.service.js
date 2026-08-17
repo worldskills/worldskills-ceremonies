@@ -1,22 +1,12 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS) {
+    angular.module('ceremoniesApp').factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys) {
 
-        function screenKey(frameId) {
-            return 'screen-' + frameId;
-        }
+        var screenKey = StorageKeys.screenKey;
+        var previewKey = StorageKeys.previewKey;
 
-        // Preview windows read a second, independent channel — same shape, just never touched
-        // by showSlide()'s live push. See publishPreview().
-        function previewKey(frameId) {
-            return 'screen-' + frameId + '-preview';
-        }
-
-        // Shared payload builder for both channels — slide may be undefined (blank/no slide).
-        // stateOverride lets publishPreview() substitute frame.previewState for slide.state,
-        // so previewing the exact slide that's live can still show its own revealed states.
-        function payload(frame, slide, frameId, stateOverride) {
+        function createStoragePayload(frame, slide, frameId, stateOverride) {
             return {
                 template: TEMPLATE_BASE + (slide ? slide.template : 'empty.html'),
                 context: (slide && slide.context) || {},
@@ -28,40 +18,26 @@
             };
         }
 
-        // frame.blanked (set by resetFrame's "Blank" button) hides the live slide from both
-        // channels without clearing frame.slide itself — getSlidePosition (frames.part.js) keeps
-        // reading frame.slide directly, so blanking the screen doesn't also reset the operator's
-        // position in the slide list. showSlide() clears the flag when going live again.
         function liveSlideFor(frame) {
             return frame.blanked ? undefined : frame.slide;
         }
 
-        // Single writer for screen-<id> — every slide-push code path must go through this.
         function publish(frameId) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
-            window.localStorage.setItem(screenKey(frameId), angular.toJson(payload(frame, liveSlideFor(frame), frameId)));
+            window.localStorage.setItem(screenKey(frameId), angular.toJson(createStoragePayload(frame, liveSlideFor(frame), frameId)));
             publishPreview(frameId);
         }
 
-        // Single writer for the preview-only channel — falls back to the live slide (and its
-        // own state) so a Preview window with nothing explicitly previewed just mirrors what's
-        // live (including a blanked live screen). Once a slide is pinned (frame.previewSlide
-        // set), its states come from frame.previewState instead of slide.state — see
-        // control.js's stateArrayFor — which is what keeps a Preview-only state toggle from ever
-        // touching the live slide's state, even when the previewed slide is the one that's live.
         function publishPreview(frameId) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
             var slide = frame.previewSlide || liveSlideFor(frame);
             var stateOverride = frame.previewSlide ? (frame.previewState || []) : null;
-            window.localStorage.setItem(previewKey(frameId), angular.toJson(payload(frame, slide, frameId, stateOverride)));
+            window.localStorage.setItem(previewKey(frameId), angular.toJson(createStoragePayload(frame, slide, frameId, stateOverride)));
             syncRemote();
         }
 
-        // Every publish/publishPreview ends up here — the one place that pushes a full snapshot
-        // out to the remote control server (see main/remote-server.js), so remote browsers always
-        // reflect whatever the operator just did, however they did it.
         function syncRemote() {
             if (!window.ceremonator || !window.ceremonator.remote) return;
             var frames = [];
@@ -83,13 +59,11 @@
             window.ceremonator.remote.sync(frames);
         }
 
-        // Single remover for both screen-<id> channels, paired with publish() as the single writer.
         function clear(frameId) {
             window.localStorage.removeItem(screenKey(frameId));
             window.localStorage.removeItem(previewKey(frameId));
         }
 
-        // Bumps a cache-busting query param so open screen windows re-render — they only react to the localStorage 'storage' event.
         function reloadTemplates() {
             var t = Date.now();
             angular.forEach(FrameService.frames, function (frame, id) {
@@ -105,7 +79,6 @@
             });
         }
 
-        // State reset (to []) happens in the caller ($scope.refreshFramesAfterOrderingChange), not here: moving it here reintroduces "re-import un-reveals medals"; dropping it from the caller reintroduces "skill reassignment doesn't reset state".
         function assembleFrame(frame, catalog) {
             // angular.copy() below breaks object identity; ng-disabled="screens[id].slide !== slide" depends on it, so save the label to restore the reference.
             var prevLabel  = frame.slide ? frame.slide.label : null;

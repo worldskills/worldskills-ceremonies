@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { readConfig, writeConfig, addRecent } = require('../config-store');
 const projectStore = require('../project-store');
+const { applyRemoteConfig } = require('../remote-server');
 const { readJson, writeJson } = require('../json-store');
 const { projectFilePath, templateDirPath, translationsFilePath, projectDataDir, appRoot, projectsRootDir } = require('../paths');
 
@@ -80,7 +81,7 @@ function registerProjectIpc() {
                     id: 'a',
                     label: 'Main Stage',
                     size: { width: 1920, height: 1080 },
-                    position: { monitor: 0, x: null, y: null, fullscreen: false, kiosk: false },
+                    position: { monitor: 0, x: null, y: null, fullscreen: false },
                     ordering: { mode: 'skills', skillNumbers: [], includeAlbertVidal: true }
                 }]
             };
@@ -88,6 +89,7 @@ function registerProjectIpc() {
             projectStore.writeProjectFiles(dir, project);
 
             projectStore.setActive(dir, project, templateDest);
+            applyRemoteConfig(project);
             addRecent(dir, project.name);
             return { ok: true, dir, project };
         } catch (e) {
@@ -129,6 +131,7 @@ function registerProjectIpc() {
         }
 
         projectStore.setActive(dir, loaded.project, templateDir);
+        applyRemoteConfig(loaded.project);
         addRecent(dir, loaded.project.name || path.basename(dir));
         const orderingWarning = loaded.orderingWarning;
         return orderingWarning
@@ -155,6 +158,7 @@ function registerProjectIpc() {
         }
 
         projectStore.setActive(dir, loaded.project, templateDir);
+        applyRemoteConfig(loaded.project);
         addRecent(dir, loaded.project.name || path.basename(dir));
         const orderingWarning = loaded.orderingWarning;
         return orderingWarning
@@ -175,6 +179,7 @@ function registerProjectIpc() {
         try {
             projectStore.writeProjectFiles(activeProjectDir, project);
             projectStore.setActiveProject(project);
+            applyRemoteConfig(project);
             if (project.name) addRecent(activeProjectDir, project.name);
             return { ok: true };
         } catch (e) {
@@ -195,53 +200,6 @@ function registerProjectIpc() {
         try {
             writeJson(translationsFilePath(activeProjectDir), { version: 1, languages: languages || {} });
             return { ok: true };
-        } catch (e) {
-            return { ok: false, error: e.message };
-        }
-    });
-
-    ipcMain.handle('project:saveAs', async (_event, project) => {
-        const { canceled, filePaths } = await dialog.showOpenDialog({
-            title: 'Save Project As — Choose Folder',
-            properties: ['openDirectory', 'createDirectory']
-        });
-        if (canceled || !filePaths || !filePaths.length) return { canceled: true };
-        const dir = filePaths[0];
-
-        try {
-            fs.accessSync(dir, fs.constants.W_OK);
-        } catch (e) {
-            return { ok: false, error: 'Folder is not writable: ' + dir };
-        }
-
-        try {
-            const templateDest = templateDirPath(dir);
-            const activeTemplateDir = projectStore.getActiveTemplateDir();
-            if (!fs.existsSync(templateDest)) {
-                if (activeTemplateDir && fs.existsSync(activeTemplateDir)) {
-                    fs.cpSync(activeTemplateDir, templateDest, { recursive: true });
-                } else {
-                    projectStore.copyDefaultTemplate(templateDest);
-                }
-            }
-
-            const activeProjectDir = projectStore.getActiveProjectDir();
-            const sourceTranslations = activeProjectDir && translationsFilePath(activeProjectDir);
-            if (sourceTranslations && fs.existsSync(sourceTranslations)) {
-                fs.copyFileSync(sourceTranslations, translationsFilePath(dir));
-            }
-
-            const sourceData = activeProjectDir && projectDataDir(activeProjectDir);
-            if (sourceData && fs.existsSync(sourceData)) {
-                fs.cpSync(sourceData, projectDataDir(dir), { recursive: true });
-            } else {
-                projectStore.copyDefaultData(dir);
-            }
-
-            projectStore.writeProjectFiles(dir, project);
-            projectStore.setActive(dir, project, templateDest);
-            addRecent(dir, project.name || path.basename(dir));
-            return { ok: true, dir };
         } catch (e) {
             return { ok: false, error: e.message };
         }

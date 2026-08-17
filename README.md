@@ -12,7 +12,7 @@ my-ceremony/
   project.json          # frames, sizes, ordering
   translations.json
   data/                  # skills.json, members.json, flags/*.png
-  template/              # slide html, css, fonts, images — fully self-contained
+  template/              # slide html, grid.html, css, fonts, images — fully self-contained
 ```
 
 `projects/bare-project` ships in this repo as the starter project — open it directly, or use it as
@@ -20,9 +20,6 @@ the seed for new ones ("Create New Project" copies it). Because it's a normal fo
 source control, any organiser's real project can live alongside it under `projects/` and be shared
 with the whole team just by sharing the repo — no separate "bundle" build step required. The
 startup screen lists everything under `projects/` alongside your OS-level recent-projects list.
-
-`boilerplate/screens/*.html` is a plain, uncoupled reference copy of the slide templates (no css/
-fonts/images) — handy for reading or diffing, not used at runtime.
 
 ## Installation
 

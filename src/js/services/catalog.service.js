@@ -1,24 +1,14 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('Catalog', function ($filter, ResultFormat, TextFit, SLIDE_KEYS) {
-
-        var COL = {
-            MEMBER: 'Member',
-            MEMBER_NAME: 'Member Name',
-            SKILL_NUMBER: 'Skill Number',
-            MEDAL: 'Medal',
-            FIRST_NAME: 'First Name',
-            LAST_NAME: 'Last Name',
-            SCALE_SCORE: 'WorldSkills Scale Score'
-        };
+    angular.module('ceremoniesApp').factory('Catalog', function ($filter, ResultFormat, TextFit, SLIDE_KEYS, EXCEL_COLUMNS, ALBERT_VIDAL_AWARD_LABEL) {
 
         function groupByMember(filteredResults) {
             return Array.from(filteredResults.reduce(function (accumulator, result) {
                 var resultSimplified = ResultFormat.simplifyResult(result);
                 // A missing member code must not merge unrelated winners; Map also makes
                 // prototype-like codes such as "__proto__" safe.
-                var memberCode = result[COL.MEMBER];
+                var memberCode = result[EXCEL_COLUMNS.MEMBER];
                 var key = memberCode ? String(memberCode) : '__missing__' + accumulator.size;
                 if (!accumulator.has(key)) {
                     resultSimplified.competitors = [];
@@ -34,7 +24,7 @@
             var members = input.members || [];
             var rawResults = input.results || [];
             var results = rawResults.filter(function (result) {
-                return result && result[COL.FIRST_NAME] && result[COL.LAST_NAME];
+                return result && result[EXCEL_COLUMNS.FIRST_NAME] && result[EXCEL_COLUMNS.LAST_NAME];
             });
             var resultsBestOfNations = input.bestOfNation || [];
             var bestOfNationGroupSize = input.bestOfNationGroupSize > 0 ? input.bestOfNationGroupSize : 5;
@@ -47,11 +37,17 @@
 
                 var skillResults = Object.values(results
                     .filter(function (result) {
-                        return ResultFormat.normalizeSkillNum(result[COL.SKILL_NUMBER]) === ResultFormat.normalizeSkillNum(skill.number);
+                        return ResultFormat.normalizeSkillNum(result[EXCEL_COLUMNS.SKILL_NUMBER]) === ResultFormat.normalizeSkillNum(skill.number);
                     }));
 
-                var skillMedalResults = groupByMember(skillResults
-                    .filter(function (result) { return result[COL.MEDAL] && result[COL.MEDAL].toUpperCase() != 'MEDAL FOR EXCELLENCE'; }));
+                /**
+                 * Medal results (Gold, Silver, Bronze) calculation
+                 */
+
+                var skillMedalResults = groupByMember(
+                    skillResults
+                        .filter(function (result) { return result[EXCEL_COLUMNS.MEDAL] && result[EXCEL_COLUMNS.MEDAL].toUpperCase() != 'MEDAL FOR EXCELLENCE'; })
+                );
 
                 if (skillMedalResults.length > 0) {
                     var states = [];
@@ -76,6 +72,7 @@
                             maxMemberWrap: memberSize.wrapped
                         }
                     };
+
                     var slideMedals = {
                         label: skill.name.text + ' - Medals',
                         template: 'skill_medals.html',
@@ -86,6 +83,7 @@
                         }
                     };
 
+                    // Create script:
                     var scriptMedals = 'And here are the Medallists for ' + skill.name.text + ':\n\n';
                     var scriptMedalsResults = {};
                     angular.forEach(slideMedals.context.results.slice().reverse(), function (result) {
@@ -94,6 +92,7 @@
                         }
                         scriptMedalsResults[result.medal].push(result);
                     });
+
                     for (var medal in scriptMedalsResults) {
                         scriptMedals += 'The ' + medal + ' medal goes to:\n';
                         angular.forEach(scriptMedalsResults[medal], function (result) {
@@ -110,17 +109,21 @@
                     catalog[skill.number].push(slideMedals);
                 }
 
-                var resultsMedalForExcellence = groupByMember(skillResults
-                    .filter(function (result) { return result[COL.MEDAL] && result[COL.MEDAL].toUpperCase() == 'MEDAL FOR EXCELLENCE'; }));
+                // Medal for Excellence calculation
+
+                var resultsMedalForExcellence = groupByMember(
+                    skillResults
+                        .filter(function (result) { return result[EXCEL_COLUMNS.MEDAL] && result[EXCEL_COLUMNS.MEDAL].toUpperCase() == 'MEDAL FOR EXCELLENCE'; })
+                );
 
                 if (resultsMedalForExcellence.length > 0) {
                     var total = 0;
                     angular.forEach(resultsMedalForExcellence, function (result, i) {
                         total += ResultFormat.competitorsOf(result).length;
                     });
-                    // Never 0 — a blank name must not turn a "width / chars" formula into NaN/Infinity.
+
                     total = total || 1;
-                    // Per-row sizing, not per-slide (see .screen-medal in screen.css).
+
                     TextFit.annotateEach(resultsMedalForExcellence, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
 
                     var slideMfe = {
@@ -133,6 +136,8 @@
                             total: total
                         }
                     };
+
+                    // Create script:
 
                     var script = 'And the Medal(s) for Excellence for ' + skill.name.text + ' go to:\n\n';
                     angular.forEach(slideMfe.context.results, function (result, i) {
@@ -147,12 +152,16 @@
                 }
             });
 
+            /**
+             * Best of nation slides
+             */
+
             var resultsBestOfNationMembers = [];
             angular.forEach(members, function (member) {
                 var memberResult = (resultsBestOfNations || [])
-                    .filter(function (result) { return result && result[COL.MEMBER_NAME] && result[COL.FIRST_NAME] && result[COL.LAST_NAME] && result[COL.MEMBER] == member.code; })
+                    .filter(function (result) { return result && result[EXCEL_COLUMNS.MEMBER_NAME] && result[EXCEL_COLUMNS.FIRST_NAME] && result[EXCEL_COLUMNS.LAST_NAME] && result[EXCEL_COLUMNS.MEMBER] == member.code; })
                     .reduce(function (accumulator, result) {
-                        accumulator.competitors.push(ResultFormat.capitalize(result[COL.FIRST_NAME]) + ' ' + ResultFormat.capitalize(result[COL.LAST_NAME]));
+                        accumulator.competitors.push(ResultFormat.capitalize(result[EXCEL_COLUMNS.FIRST_NAME]) + ' ' + ResultFormat.capitalize(result[EXCEL_COLUMNS.LAST_NAME]));
                         return accumulator;
                     }, { memberCode: member.code, memberName: member.name.text, competitors: [] });
 
@@ -170,7 +179,6 @@
                     var bestOfNationSlice = resultsBestOfNationMembers.splice(0, bestOfNationGroupSize);
                     bestOfNationSlides.push({
                         label: 'Best of Nation ' + bon,
-                        // Single 'Name' state — names stay hidden until revealed on stage, no per-person progression.
                         template: 'best_of_nation.html',
                         states: ['Name'],
                         context: {
@@ -183,15 +191,22 @@
 
             // Parse scores numerically, ignoring blank/non-numeric cells so one bad cell can't poison Math.max into NaN.
             var numericScores = results
-                .map(function (result) { return parseFloat(result[COL.SCALE_SCORE]); })
+                .map(function (result) { return parseFloat(result[EXCEL_COLUMNS.SCALE_SCORE]); })
                 .filter(function (n) { return !isNaN(n); });
+
             var maxResult = numericScores.length ? Math.max.apply(Math, numericScores) : null;
+
+            // Create Albert Vidal Reward slide
+
             var resultsAlbertVidalAward = maxResult === null ? [] : groupByMember(results
-                .filter(function (result) { return parseFloat(result[COL.SCALE_SCORE]) === maxResult; }));
+                .filter(function (result) {
+                    return parseFloat(result[EXCEL_COLUMNS.SCALE_SCORE]) === maxResult;
+                }));
+
             TextFit.annotateEach(resultsAlbertVidalAward, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
 
             catalog[SLIDE_KEYS.ALBERT_VIDAL] = [{
-                label: 'Albert Vidal Award',
+                label: ALBERT_VIDAL_AWARD_LABEL,
                 template: 'albert_vidal_award.html',
                 states: ['Name'],
                 context: {

@@ -1,8 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, TEMPLATE_BASE) {
+    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, TEMPLATE_BASE, FEED, StorageKeys) {
 
+        $scope.FEED = FEED;
         $scope.languages = [];
 
         if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
@@ -25,19 +26,10 @@
             }
         };
 
-        // F11 only in preview — on a live window a stray keystroke must not desync DOM fullscreen from Electron's native fullscreen.
-        window.addEventListener('keydown', function (e) {
-            if (!$scope.preview) return;
-            if (e.key === 'F11') {
-                e.preventDefault();
-                $scope.enableFullscreen();
-            }
-        });
-
         // Preview windows read a separate '-preview' channel (see frame-state.service.js) so
         // Preview can show a different slide than what's live — the key this window listens on.
         $scope.storageKey = function () {
-            return 'screen-' + $scope.screen + ($scope.feed === 'preview' ? '-preview' : '');
+            return $scope.feed === FEED.PREVIEW ? StorageKeys.previewKey($scope.screen) : StorageKeys.screenKey($scope.screen);
         };
 
         window.addEventListener('storage', function (e) {
@@ -55,7 +47,7 @@
         $scope.setScreen = function (screen, preview, feed) {
             $scope.screen = screen;
             $scope.preview = (preview === 'true' || preview === true);
-            $scope.feed = feed || 'live';
+            $scope.feed = feed || FEED.LIVE;
 
             $scope.render();
         };
@@ -74,7 +66,7 @@
                 $scope.states = [];
                 $scope.slideLabel = '';
                 $scope.frame = { id: $scope.screen, label: $scope.screen, color: '', video: '', feed: $scope.feed };
-                document.title = 'Ceremonies ' + ($scope.feed === 'preview' ? 'Preview ' : '') + $scope.screen;
+                document.title = 'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.screen;
                 return;
             }
 
@@ -91,7 +83,7 @@
             };
             document.body.dataset.frame = $scope.frame.id;
             document.body.dataset.frameLabel = $scope.frame.label;
-            document.title = 'Ceremonies ' + ($scope.feed === 'preview' ? 'Preview ' : '') + $scope.frame.label;
+            document.title = 'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.frame.label;
 
             if (data.accent) {
                 document.documentElement.style.setProperty('--frame-accent', data.accent);
@@ -131,6 +123,15 @@
 
         $scope.loadScreen();
         $scope.calculateResolution();
+
+        // F11 only in preview — on a live window a stray keystroke must not desync DOM fullscreen from Electron's native fullscreen.
+        window.addEventListener('keydown', function (e) {
+            if (!$scope.preview) return;
+            if (e.key === 'F11') {
+                e.preventDefault();
+                $scope.enableFullscreen();
+            }
+        });
     });
 
 })();

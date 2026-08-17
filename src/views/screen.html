@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ceremonies Screen</title>
-    <link href="wstemplate://active/css/fonts.css" rel="stylesheet">
     <link href="wstemplate://active/css/screen.css" rel="stylesheet">
     <style>
         .screen-preview-mark { position: fixed; inset: 0; z-index: 9999; pointer-events: none; overflow: hidden; }
@@ -22,7 +21,7 @@
         }
     </style>
 </head>
-<body ng-class="{'preview': preview}">
+<body ng-class="{'preview': preview}" style="margin: 0;">
 
     <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
         <div class="screen-canvas">
@@ -30,7 +29,7 @@
         </div>
     </div>
 
-    <div class="screen-preview-mark" ng-show="feed === 'preview'" ng-cloak>
+    <div class="screen-preview-mark" ng-show="feed === FEED.PREVIEW" ng-cloak>
         <div class="screen-preview-diagonal">PREVIEW</div>
         <div class="screen-preview-badge">PREVIEW &middot; {{ frame.label }} &middot; {{ slideLabel || '—' }}</div>
     </div>
@@ -44,9 +43,10 @@
     <script src="../../node_modules/angular/angular.min.js"></script>
     <script src="../../node_modules/angular-translate/dist/angular-translate.min.js"></script>
     <script src="../../node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>
-    <script src="../js/control-workspace.js"></script>
+    <script src="../js/control/control-workspace.js"></script>
     <script src="../js/app.js"></script>
     <script src="../js/services/translations-loader.service.js"></script>
+    <script src="../js/services/storage-keys.service.js"></script>
     <script src="../js/screen.js"></script>
 </body>
 </html>

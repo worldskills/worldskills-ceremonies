@@ -1,8 +1,5 @@
 const { app, Menu } = require('electron');
 
-// No reload / force-reload / toggle-fullscreen roles: a stray shortcut must never touch a live
-// audience window. Frame windows have their own guarded Escape/Cmd+W handling (window-close-guard.js)
-// and a Reload button in the control panel — nothing here should shadow those.
 function installAppMenu() {
     const template = [];
 

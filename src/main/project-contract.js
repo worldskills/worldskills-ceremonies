@@ -1,3 +1,5 @@
+const DEFAULT_REMOTE_PORT = 17321;
+
 function validateProject(project) {
     if (!project || project.version !== 2 || !Array.isArray(project.frames) || !project.frames.length) {
         return { ok: false, error: 'Project must use schema version 2 and contain at least one frame.' };
@@ -16,11 +18,16 @@ function validateProject(project) {
         if (ordering.mode !== 'skills' || !Array.isArray(ordering.skillNumbers)) {
             return { ok: false, error: 'Frame "' + frame.id + '" has malformed ordering.' };
         }
-        frame.position = Object.assign({ monitor: 0, x: null, y: null, fullscreen: false, kiosk: false }, frame.position || {});
+        frame.position = Object.assign({ monitor: 0, x: null, y: null, fullscreen: false }, frame.position || {});
         frame.ordering = Object.assign({ includeAlbertVidal: false }, ordering);
     }
     if (!Array.isArray(project.languages)) project.languages = [{ lang_code: 'en' }];
+
+    const remote = project.remote || {};
+    const remotePort = Number.isInteger(remote.port) && remote.port > 0 && remote.port < 65536 ? remote.port : DEFAULT_REMOTE_PORT;
+    project.remote = { enabled: remote.enabled !== false, port: remotePort };
+
     return { ok: true, project };
 }
 
-module.exports = { validateProject };
+module.exports = { validateProject, DEFAULT_REMOTE_PORT };

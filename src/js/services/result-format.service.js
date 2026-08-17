@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('ResultFormat', function () {
+    angular.module('ceremoniesApp').factory('ResultFormat', function (EXCEL_COLUMNS) {
 
         function capitalizeString(inputString) {
             return inputString.substring(0, 1).toUpperCase() + inputString.substring(1);
@@ -45,14 +45,14 @@
 
         function simplifyResult(result) {
             var r = {};
-            r.position = result['Position'];
-            r.score = result['WorldSkills Scale Score'];
-            if (result['Medal']) {
-                r.medal = capitalize(result['Medal'].trim());
+            r.position = result[EXCEL_COLUMNS.POSITION];
+            r.score = result[EXCEL_COLUMNS.SCALE_SCORE];
+            if (result[EXCEL_COLUMNS.MEDAL]) {
+                r.medal = capitalize(result[EXCEL_COLUMNS.MEDAL].trim());
             }
-            r.member = result['Member Name'];
-            r.memberCode = result['Member'];
-            r.competitor = capitalize(result['First Name']) + ' ' + capitalize(result['Last Name']);
+            r.member = result[EXCEL_COLUMNS.MEMBER_NAME];
+            r.memberCode = result[EXCEL_COLUMNS.MEMBER];
+            r.competitor = capitalize(result[EXCEL_COLUMNS.FIRST_NAME]) + ' ' + capitalize(result[EXCEL_COLUMNS.LAST_NAME]);
             return r;
         }
 

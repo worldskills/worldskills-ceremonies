@@ -31,9 +31,6 @@ function registerTemplateProtocol() {
         }
         if (url.host !== 'active' && url.host !== 'project') return cb({ error: -6 });
 
-        // Host 'project' resolves under the active project dir (its own data/ folder);
-        // any other host resolves under the template dir, falling back to the bundled default
-        // when no project template exists.
         const roots = url.host === 'project'
             ? [getActiveProjectDir(), bareProjectDir, appRoot]
             : [getActiveTemplateDir(), bundledTemplateDir, appRoot];

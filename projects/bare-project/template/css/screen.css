@@ -1,3 +1,6 @@
+@import url('./fonts.css');
+@import url('./state.css');
+
 :root {
     --primary-a: #62B5E5;
     --secondary-a: #8AE2D1;
@@ -11,6 +14,10 @@
     --screen-ratio: calc(var(--screen-real-width) / var(--screen-real-height));
     --screen-height: min(calc(100vw / var(--screen-ratio)), 100vh);
     --unit: calc(var(--screen-height) / 16);
+    /* One tile ratio for every flag, whatever the flag's own ratio is (3:2, 1:1,
+       11:28…): the tile is always this, the flag is letterboxed inside it with
+       object-fit: contain. Change it here and both flag sites follow. */
+    --flag-ratio: 8 / 5;
 }
 
 * {
@@ -39,39 +46,6 @@ body:not(.preview) {
     position: absolute;
     top: 15%;
     left: 15%;
-}
-
-button {
-    font-size: calc(var(--unit) * 1);
-    color: #444;
-    border: 1px solid #444;
-    background-color: #fff;
-    border-radius: 0.25em;
-    padding: 0.5em 1em;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: rgb(184, 240, 255);
-}
-
-button.secondary {
-    background-color: #ccc;
-}
-
-button.secondary:hover {
-    background-color: #aaa;
-}
-
-.screen-canvas {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .screen-content {
@@ -104,6 +78,8 @@ body.preview .screen-content {
     border: 1px solid #eee;
 }
 
+/* Empty logo styling */
+
 .screen-empty-logo {
     background-color: var(--frame-accent, var(--primary-a));
 }
@@ -133,63 +109,14 @@ body.preview .screen-content {
 .screen-best-of-nation-name-host,
 .screen-albert-vidal-award-name {
     box-sizing: border-box;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start !important;
     padding-left: calc(var(--unit) * 1.3);
     padding-right: calc(var(--unit) * 5);
     font-size: calc(var(--unit) * 1.2);
     line-height: 1.3;
     gap: calc(var(--unit) * 0.5);
-}
-
-.screen-table-countries {
-    --callup-cols: 4;
-    --callup-band: 0.75;
-    --callup-display: grid;
-
-    box-sizing: border-box;
-    width: 100%;
-    height: calc(var(--screen-height) * var(--callup-band));
-    padding: var(--unit);
-
-    display: var(--callup-display);
-    grid-template-columns: repeat(var(--callup-cols), minmax(0, 1fr));
-    grid-auto-rows: minmax(0, 1fr);
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: stretch;
-    column-gap: calc(var(--unit) * 1.2);
-    row-gap: calc(var(--unit) * 0.6);
-
-    font-size: 0.7rem;
-    line-height: 1.25;
-}
-
-.screen-container-state .screen-table-countries {
-    --callup-band: 1;
-}
-
-.screen-table-country {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    min-width: 0;
-    min-height: 0;
-}
-
-.screen-table-country img {
-    flex: 1 1 auto;
-    min-height: 0;
-    width: 100%;
-    max-width: min(100%, calc(var(--unit) * 8));
-    height: 100%;
-    object-fit: contain;
-    aspect-ratio: 4 / 2.5;
 }
 
 .screen-best-of-nation-nation,
@@ -222,12 +149,10 @@ body.preview .screen-content {
     padding-right: calc(var(--unit) * 0.3);
 }
 
-
 .screen-competitor span {
     word-break: break-all;
     white-space: pre-line;
 }
-
 
 .screen-best-of-nation-name {
     font-size: calc(var(--unit) * 1.42);
@@ -244,54 +169,7 @@ body.preview .screen-content {
     font-weight: 900;
 }
 
-.screen-table-countries,
-.screen-medal-Gold,
-.screen-medal-Silver,
-.screen-medal-Bronze,
-.screen-best-of-nation,
-.screen-albert-vidal-award-award,
-.screen-medal-for-excellence {
-    visibility: hidden;
-}
-
-.screen-state-Countries .screen-table-countries,
-.screen-state-Preview .screen-table-countries,
-.screen-state-Bronze .screen-medal-Bronze,
-.screen-state-Silver .screen-medal-Silver,
-.screen-state-Gold .screen-medal-Gold,
-.screen-state-Preview .screen-medal-Bronze,
-.screen-state-Preview .screen-medal-Silver,
-.screen-state-Preview .screen-medal-Gold,
-.screen-state-Name .screen-albert-vidal-award-award,
-.screen-state-Name .screen-best-of-nation,
-.screen-state-Preview .screen-best-of-nation,
-.screen-state-Preview .screen-albert-vidal-award-award,
-.screen-state-Name .screen-medal-for-excellence,
-.screen-state-Preview .screen-medal-for-excellence {
-    visibility: visible;
-}
-
-.screen-container-kv    .screen-region-state { display: none; }
-.screen-container-state .screen-region-kv    { display: none; }
-
-.screen-container-kv    .screen-content,
-.screen-container-state .screen-content {
-    background-size: cover;
-    display: flex; flex-direction: column;
-    justify-content: flex-start !important;
-}
-
-.screen-region-kv {
-    padding-top: calc( var(--unit) * 0.9 );
-    display: flex;
-    flex-direction: column;
-    justify-content: center !important;
-    height: auto !important;
-}
-
-.screen-container-state .screen-region-state {
-    height: 100%;
-}
+/* Grid layout */
 
 .screen-grid {
     --grid-count: 8;
@@ -392,16 +270,9 @@ body.preview .screen-content {
 
 .screen-grid .screen-flag {
     width: 1.4em;
-    height: 0.9em;
+    aspect-ratio: var(--flag-ratio);
     display: flex;
     flex-shrink: 0;
-}
-
-.screen-flag img {
-    width: 100%;
-    height: 100%;
-    vertical-align: middle;
-    aspect-ratio: 16/9;
 }
 
 .screen-grid .screen-competitors {
@@ -433,6 +304,8 @@ body.preview .screen-content {
     margin-left: -0.1em;
 }
 
+/* Translation renderers */
+
 .screen-translation {
     display: flex;
     flex-direction: column;
@@ -455,12 +328,68 @@ body.preview .screen-content {
     white-space: nowrap;
 }
 
-/* ponytail: font-size is fixed, not row-height-aware — a skill with many
-   countries and long wrapped names could clip/overlap in a shrunken grid
-   cell. --callup-chars/--callup-chars-wrap (skill_callup.html) and
-   context.maxMemberLen/maxMemberWrap (catalog.service.js) already carry the
-   data to fix this; wire them up if it happens. */
 .screen-table-country .screen-translation {
     align-self: center !important;
     font-size: 1rem;
+}
+
+/* Flags */
+
+.screen-flag img {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    /* The box is fixed (1.4em × 0.9em); contain letterboxes any flag ratio into
+       it instead of stretching 1:1 flags (CH, NP) to the box's own ratio. */
+    object-fit: contain;
+}
+
+
+.screen-table-countries {
+    --callup-cols: 4;
+    --callup-band: 0.75;
+    --callup-display: grid;
+
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(var(--screen-height) * var(--callup-band));
+    padding: var(--unit);
+
+    display: var(--callup-display);
+    grid-template-columns: repeat(var(--callup-cols), minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: stretch;
+    column-gap: calc(var(--unit) * 1.2);
+    row-gap: calc(var(--unit) * 0.6);
+
+    font-size: 0.7rem;
+    line-height: 1.25;
+}
+
+.screen-container-state .screen-table-countries {
+    --callup-band: 1;
+}
+
+.screen-table-country {
+    flex: 1 1 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 0;
+    min-height: 0;
+}
+
+.screen-table-country img {
+    flex: 0 1 auto;
+    min-height: 0;
+    width: min(100%, calc(var(--unit) * 8));
+    aspect-ratio: var(--flag-ratio);
+    max-height: 100%;
+    object-fit: contain;
 }

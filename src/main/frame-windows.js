@@ -1,9 +1,10 @@
 const { BrowserWindow } = require('electron');
 const { baseWebPreferences } = require('./window-factory');
-const { clampToWorkArea, clampToDisplayWorkArea, resolveTargetDisplay, displayIndexForPoint } = require('./display-geometry');
+const { centerOnDisplay, resolveTargetDisplay, displayIndexForPoint } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { markWindow } = require('./ipc/sender-role');
 const { notifyFrameStatus, sendControlNotice } = require('./control-channel');
+const { FEED, FRAME_STATUS } = require('./constants');
 
 const frameWindows = new Map();
 // Keyed like frameWindows; a dev restart uses this to reopen exactly what was open.
@@ -45,7 +46,7 @@ function countFrameWindows(frameId) {
 // or one of several duplicate Live windows).
 function emitFrameStatus(frameId, status, extra) {
     const windows = countFrameWindows(frameId);
-    const effectiveStatus = (status === 'closed' && windows.total > 0) ? 'ready' : status;
+    const effectiveStatus = (status === FRAME_STATUS.CLOSED && windows.total > 0) ? FRAME_STATUS.READY : status;
     notifyFrameStatus(frameId, effectiveStatus, Object.assign({}, extra, { windows: windows }));
 }
 
@@ -57,9 +58,7 @@ function normalizeFrameRequest(frameId, opts) {
         ? { width: 1280, height: 720 }
         : ((opts && opts.size) || { width: 1920, height: 1080 });
     const position = (opts && opts.position) || {};
-    // position.fullscreen (project.json, per frame) decides whether Live opens fullscreen at all;
-    // opts.windowed forces windowed regardless (a dev restart always reopens windowed, see
-    // reopenFrameWindowFromSnapshot below).
+
     const goFullscreenRequested = !isPreview && position.fullscreen === true && (!opts || opts.windowed !== true);
     return { container, key, isPreview, size, position, goFullscreenRequested };
 }
@@ -78,25 +77,30 @@ function frameWindowBounds(req, frameId, opts) {
     let winBounds;
     if (goFullscreenRequested) {
         const b = targetDisplay.bounds;
-        winBounds = { x: b.x, y: b.y, width: b.width, height: b.height };
+
+        winBounds = {
+            x: b.x,
+            y: b.y,
+            width: b.width,
+            height: b.height
+        };
     } else {
         // Cascade duplicate windows of the same frame by 40px per window already open, so
         // spawning several Live/Preview windows doesn't stack them invisibly on top of each other.
         const cascade = 40 * countFrameWindows(frameId).total;
-        if (position.x != null && position.y != null) {
-            // Coordinates already encode which display the user dragged it to; clampToWorkArea auto-detects that display.
-            winBounds = clampToWorkArea(position.x + cascade, position.y + cascade, size.width, size.height);
-        } else {
-            const base = clampToDisplayWorkArea(targetDisplay, position.x, position.y, size.width, size.height);
-            winBounds = clampToDisplayWorkArea(targetDisplay, base.x + cascade, base.y + cascade, size.width, size.height);
-        }
+        // Coordinates already encode which display the user dragged it to; otherwise center fresh
+        // on the assigned target display. No fit-to-display shrinking or on-screen clamping — a
+        // frame's configured size is expected to fit its assigned display.
+        const origin = (position.x != null && position.y != null)
+            ? { x: position.x, y: position.y }
+            : centerOnDisplay(targetDisplay, size.width, size.height);
+        winBounds = { x: origin.x + cascade, y: origin.y + cascade, width: size.width, height: size.height };
     }
 
     return { winBounds, fallbackNotice };
 }
 
 function createFrameBrowserWindow(winBounds, req) {
-    const { isPreview, position } = req;
     const win = new BrowserWindow({
         width: winBounds.width,
         height: winBounds.height,
@@ -105,7 +109,6 @@ function createFrameBrowserWindow(winBounds, req) {
         // Without this, width/height are outer bounds; the title bar would eat into content and drift the viewport off its configured ratio.
         useContentSize: true,
         fullscreen: false,
-        kiosk: (!isPreview && position.kiosk) || false,
         frame: true,
         show: false,
         backgroundColor: '#000',
@@ -138,27 +141,27 @@ function showWhenPainted(win, goFullscreen) {
 function frameWindowSearch(frameId, req, opts) {
     const labelParam = (opts && opts.label) ? '&label=' + encodeURIComponent(opts.label) : '';
     const containerParam = req.container ? '&container=' + encodeURIComponent(req.container) : '';
-    // preview=true stays the window-chrome flag (size/fullscreen/kiosk/F11); feed=preview is the
+    // preview=true stays the window-chrome flag (size/fullscreen/F11); feed=preview is the
     // separate localStorage channel screen.js reads from (see frame-state.service.js).
-    const feedParam = req.isPreview ? '&feed=preview' : '';
+    const feedParam = req.isPreview ? '&feed=' + FEED.PREVIEW : '';
     return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam + feedParam;
 }
 
 function reportFrameStatus(win, frameId) {
     win.webContents.on('did-finish-load', () => {
-        emitFrameStatus(frameId, 'ready');
+        emitFrameStatus(frameId, FRAME_STATUS.READY);
     });
 
     win.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
-        emitFrameStatus(frameId, 'crashed', { reason: errorDescription });
+        emitFrameStatus(frameId, FRAME_STATUS.CRASHED, { reason: errorDescription });
     });
 
     win.webContents.on('render-process-gone', (_event, details) => {
-        emitFrameStatus(frameId, 'crashed', { reason: details ? details.reason : 'render-process-gone' });
+        emitFrameStatus(frameId, FRAME_STATUS.CRASHED, { reason: details ? details.reason : 'render-process-gone' });
     });
 
     win.on('unresponsive', () => {
-        emitFrameStatus(frameId, 'crashed', { reason: 'unresponsive' });
+        emitFrameStatus(frameId, FRAME_STATUS.CRASHED, { reason: 'unresponsive' });
     });
 }
 
@@ -213,9 +216,9 @@ function cleanupOnClosed(win, key, frameId, boundsState, req) {
             const w = boundsState.lastSize ? boundsState.lastSize[0] : null;
             const h = boundsState.lastSize ? boundsState.lastSize[1] : null;
             const monitor = displayIndexForPoint(boundsState.lastPos[0], boundsState.lastPos[1]);
-            emitFrameStatus(frameId, 'closed', { x: boundsState.lastPos[0], y: boundsState.lastPos[1], width: w, height: h, monitor: monitor });
+            emitFrameStatus(frameId, FRAME_STATUS.CLOSED, { x: boundsState.lastPos[0], y: boundsState.lastPos[1], width: w, height: h, monitor: monitor });
         } else {
-            emitFrameStatus(frameId, 'closed');
+            emitFrameStatus(frameId, FRAME_STATUS.CLOSED);
         }
     });
 }
@@ -228,7 +231,9 @@ function openFrameWindow(frameId, opts) {
     const req = normalizeFrameRequest(frameId, opts);
 
     const { winBounds, fallbackNotice } = frameWindowBounds(req, frameId, opts);
-    if (fallbackNotice) sendControlNotice('warning', fallbackNotice);
+    if (fallbackNotice) {
+        sendControlNotice('warning', fallbackNotice);
+    }
 
     const win = createFrameBrowserWindow(winBounds, req);
     pinLiveWindowWhileFullscreen(win, req);
@@ -238,7 +243,7 @@ function openFrameWindow(frameId, opts) {
     win.loadFile('src/views/screen.html', { search: frameWindowSearch(frameId, req, opts) });
     frameWindows.set(req.key, win);
     frameWindowOpts.set(req.key, Object.assign({ frameId: frameId }, opts || {}));
-    emitFrameStatus(frameId, 'connecting');
+    emitFrameStatus(frameId, FRAME_STATUS.CONNECTING);
 
     reportFrameStatus(win, frameId);
     const boundsState = trackWindowedBounds(win);
@@ -273,7 +278,7 @@ function reloadFrameWindow(frameId) {
         win.webContents.reload();
         reloadedCount++;
     });
-    if (reloadedCount > 0) emitFrameStatus(frameId, 'connecting');
+    if (reloadedCount > 0) emitFrameStatus(frameId, FRAME_STATUS.CONNECTING);
     return { ok: reloadedCount > 0 };
 }
 
@@ -349,7 +354,7 @@ function reopenFrameWindowFromSnapshot(entry) {
     if (!saved.frameId) return;
 
     const opts = Object.assign({}, saved, { windowed: true });
-    opts.position = Object.assign({}, saved.position, { fullscreen: false, kiosk: false });
+    opts.position = Object.assign({}, saved.position, { fullscreen: false });
     if (entry.bounds) {
         opts.size = { width: entry.bounds.width, height: entry.bounds.height };
         opts.position.x = entry.bounds.x;
@@ -368,17 +373,6 @@ function destroyAllFrameWindows() {
     frameWindowOpts.clear();
 }
 
-function clampAllFrameWindowsToWorkArea() {
-    frameWindows.forEach((win) => {
-        if (!win.isDestroyed()) {
-            const [wx, wy] = win.getPosition();
-            const [ww, wh] = win.getSize();
-            const clamped = clampToWorkArea(wx, wy, ww, wh);
-            win.setBounds(clamped);
-        }
-    });
-}
-
 module.exports = {
     openFrameWindow,
     closeFrameWindow,
@@ -390,5 +384,4 @@ module.exports = {
     serializeOpenFrameWindows,
     reopenFrameWindowFromSnapshot,
     destroyAllFrameWindows,
-    clampAllFrameWindowsToWorkArea,
 };

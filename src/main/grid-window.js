@@ -1,14 +1,16 @@
 const { BrowserWindow, screen: electronScreen } = require('electron');
 const { baseWebPreferences } = require('./window-factory');
-const { clampToDisplayWorkArea, resolveTargetDisplay } = require('./display-geometry');
+const { centerOnDisplay, resolveTargetDisplay } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { notifyFrameStatus } = require('./control-channel');
 const { hasFrameWindowFor } = require('./frame-windows');
 const { markWindow } = require('./ipc/sender-role');
+const { FEED, FRAME_STATUS } = require('./constants');
 
 let gridWindow = null;
 let gridFrameIds = [];
 let lastGridConfig = null;
+let gridTargetDisplay = null;
 
 function forceCloseGrid() {
     if (gridWindow && !gridWindow.isDestroyed()) {
@@ -21,7 +23,7 @@ function openGridWindow(config) {
     lastGridConfig = config;
 
     const frames = config.frames || [];
-    const grid = config.grid || { cols: 2, rows: 1, gap: 0 };
+    const grid = config.grid || { cols: 2, gap: 0 };
     const frameSize = config.frameSize || { width: 1100, height: 500 };
     const gap = grid.gap || 0;
 
@@ -30,34 +32,27 @@ function openGridWindow(config) {
     gridWindow = null;
     gridFrameIds = [];
 
-    const totalWidth  = grid.cols * frameSize.width  + (grid.cols - 1) * gap;
-    const totalHeight = grid.rows * frameSize.height + (grid.rows - 1) * gap;
-
     // Explicit config.position.monitor targets that display; otherwise fall back to the primary display (pre-existing behavior).
     const target = config.position && config.position.monitor != null
         ? resolveTargetDisplay(config.position).display
         : electronScreen.getPrimaryDisplay();
     const wa = target.workArea;
+    gridTargetDisplay = target;
 
-    // Single scale factor for both axes, window sized to match exactly — independent per-axis clamping would leave dead space on the non-binding axis.
-    const scale = Math.min(1, wa.width / totalWidth, wa.height / totalHeight);
-    const winWidth = Math.round(totalWidth * scale);
-    const winHeight = Math.round(totalHeight * scale);
-    const clamped = clampToDisplayWorkArea(target, null, null, winWidth, winHeight);
+    const centered = centerOnDisplay(target, wa.width, wa.height);
 
     // JSON blob, not delimiter-joined tokens, so a frame label can contain any character without colliding with the encoding.
-    const cellsPayload = frames.map(f => ({
+    const framesPayload = frames.map(f => ({
         frameId: f.frameId,
-        container: f.container || '',
         label: f.label || '',
         accent: f.accent || ''
     }));
 
     const win = new BrowserWindow({
-        width: clamped.width,
-        height: clamped.height,
-        x: clamped.x,
-        y: clamped.y,
+        width: wa.width,
+        height: wa.height,
+        x: centered.x,
+        y: centered.y,
         // Without this the title bar eats into the content area, drifting cell iframes off their configured size (see openFrameWindow).
         useContentSize: true,
         frame: true,
@@ -74,18 +69,19 @@ function openGridWindow(config) {
 
     win.loadFile('src/views/frames.html', {
         search: [
-            'cells=' + encodeURIComponent(JSON.stringify(cellsPayload)),
+            'frames=' + encodeURIComponent(JSON.stringify(framesPayload)),
             'cols=' + grid.cols,
-            'rows=' + grid.rows,
-            'frameW=' + frameSize.width,
-            'frameH=' + frameSize.height,
+            'cellW=' + frameSize.width,
+            'cellH=' + frameSize.height,
             'gap=' + gap,
-            'scale=' + scale,
-            'feed=' + (config.feed || 'live'),
+            'waW=' + wa.width,
+            'waH=' + wa.height,
+            'feed=' + (config.feed || FEED.LIVE),
         ].join('&')
     });
 
-    win.once('ready-to-show', () => win.show());
+    // No 'ready-to-show' → show() here: the window stays hidden until fitGridWindow() has sized it
+    // to the rendered grid, so it never flashes at work-area size first.
 
     // Routes through the 'close' handler below for confirm-before-close, same as the title-bar button.
     attachCloseShortcuts(win, {});
@@ -103,21 +99,46 @@ function openGridWindow(config) {
     win.webContents.on('did-finish-load', () => {
         // Skip frames with their own live window — overwriting its status here would desync the operator panel.
         gridFrameIds.forEach(fId => {
-            if (!hasFrameWindowFor(fId)) notifyFrameStatus(fId, 'ready');
+            if (!hasFrameWindowFor(fId)) notifyFrameStatus(fId, FRAME_STATUS.READY);
         });
+        // Safety net: if the renderer never reports a size (crashed, or its preload API is missing),
+        // show it anyway at work-area size. A wrong-sized grid beats an invisible one on show day.
+        setTimeout(() => {
+            if (gridWindow === win && !win.isDestroyed() && !win.isVisible()) win.show();
+        }, 3000);
     });
 
     win.on('closed', () => {
         // Stale closure guard: if a newer grid window already replaced this one, this handler must not touch current state.
         if (gridWindow !== win) return;
         gridFrameIds.forEach(fId => {
-            if (!hasFrameWindowFor(fId)) notifyFrameStatus(fId, 'closed');
+            if (!hasFrameWindowFor(fId)) notifyFrameStatus(fId, FRAME_STATUS.CLOSED);
         });
         gridWindow = null;
         gridFrameIds = [];
         lastGridConfig = null;
+        gridTargetDisplay = null;
     });
 
+    return { ok: true };
+}
+
+// Called once by the grid renderer after the project's grid.html has rendered and been scaled to
+// fit — it is the only side that knows how many cells the project actually laid out.
+function fitGridWindow(sender, size) {
+    if (!gridWindow || gridWindow.isDestroyed() || gridWindow.webContents !== sender) {
+        return { ok: false, error: 'Not the grid window' };
+    }
+    const width = Math.max(320, Math.round(size && size.width) || 0);
+    const height = Math.max(240, Math.round(size && size.height) || 0);
+
+    if (Array.isArray(size && size.frameIds)) gridFrameIds = [...new Set(size.frameIds)];
+
+    gridWindow.setContentSize(width, height);
+    const target = gridTargetDisplay || electronScreen.getPrimaryDisplay();
+    const centered = centerOnDisplay(target, width, height);
+    gridWindow.setPosition(centered.x, centered.y);
+    gridWindow.show();
     return { ok: true };
 }
 
@@ -133,4 +154,4 @@ function getLastGridConfig() {
     return lastGridConfig;
 }
 
-module.exports = { openGridWindow, isGridOpen, getGridFrameIds, getLastGridConfig, forceCloseGrid };
+module.exports = { openGridWindow, fitGridWindow, isGridOpen, getGridFrameIds, getLastGridConfig, forceCloseGrid };

@@ -21,7 +21,9 @@ function devResume() {
     if (windows.length || snapshot.grid) {
         getControlWindow().webContents.once('did-finish-load', () => {
             windows.forEach(reopenFrameWindowFromSnapshot);
-            if (snapshot.grid) openGridWindow(snapshot.grid);
+            if (snapshot.grid) {
+                openGridWindow(snapshot.grid);
+            }
         });
     }
     return true;

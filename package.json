@@ -5,9 +5,6 @@
   "description": "Ceremonies",
   "author": "WorldSkills International",
   "scripts": {
-    "test": "node --test",
-    "lint": "node bin/check-js.js",
-    "check:templates": "node bin/check-templates.js",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",

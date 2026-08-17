@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "WSI Bare Project",
+  "name": "WorldSkills Competition 2026",
   "displayMode": "windows",
   "languages": [
     {
@@ -23,8 +23,7 @@
         "monitor": 0,
         "x": 8,
         "y": 47,
-        "fullscreen": false,
-        "kiosk": false
+        "fullscreen": false
       },
       "ordering": {
         "mode": "skills",
@@ -42,7 +41,7 @@
         ],
         "includeAlbertVidal": true
       },
-      "color": "#8B5CF6"
+      "color": "#D51067"
     },
     {
       "id": "b",
@@ -56,8 +55,7 @@
         "monitor": 0,
         "x": 606,
         "y": 47,
-        "fullscreen": false,
-        "kiosk": false
+        "fullscreen": false
       },
       "ordering": {
         "mode": "skills",
@@ -75,11 +73,11 @@
         ],
         "sourceFile": null
       },
-      "color": "#3B82F6"
+      "color": "#0084AD"
     },
     {
       "id": "c",
-      "label": "Yellow",
+      "label": "Podium Yellow",
       "video": "yellow.mp4",
       "size": {
         "width": 588,
@@ -89,8 +87,7 @@
         "monitor": 0,
         "x": 1204,
         "y": 47,
-        "fullscreen": false,
-        "kiosk": false
+        "fullscreen": false
       },
       "ordering": {
         "mode": "skills",
@@ -108,7 +105,7 @@
         ],
         "sourceFile": null
       },
-      "color": "#10B981"
+      "color": "#FEE300"
     }
   ],
   "gridConfig": {

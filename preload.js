@@ -13,6 +13,10 @@ const fullApi = {
         getPositions: () => ipcRenderer.invoke('frames:getPositions'),
         openIds: () => ipcRenderer.invoke('frames:openIds'),
     },
+    grid: {
+        template: () => ipcRenderer.invoke('grid:template'),
+        fit: (size) => ipcRenderer.invoke('grid:fit', size),
+    },
     displays: {
         list: () => ipcRenderer.invoke('displays:list'),
     },
@@ -71,7 +75,9 @@ const outputApi = {
     project: {
         current: fullApi.project.current,
         readTranslations: fullApi.project.readTranslations
-    }
+    },
+    // Only the grid window itself gets past grid:fit's sender check; screen windows share this role.
+    grid: fullApi.grid
 };
 
 contextBridge.exposeInMainWorld('ceremonator', role === 'control' ? fullApi : (role === 'startup' ? startupApi : outputApi));

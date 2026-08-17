@@ -1,0 +1,49 @@
+
+.screen-table-countries,
+.screen-medal-Gold,
+.screen-medal-Silver,
+.screen-medal-Bronze,
+.screen-best-of-nation,
+.screen-albert-vidal-award-award,
+.screen-medal-for-excellence {
+    visibility: hidden;
+}
+
+.screen-state-Countries .screen-table-countries,
+.screen-state-Preview .screen-table-countries,
+.screen-state-Bronze .screen-medal-Bronze,
+.screen-state-Silver .screen-medal-Silver,
+.screen-state-Gold .screen-medal-Gold,
+.screen-state-Preview .screen-medal-Bronze,
+.screen-state-Preview .screen-medal-Silver,
+.screen-state-Preview .screen-medal-Gold,
+.screen-state-Name .screen-albert-vidal-award-award,
+.screen-state-Name .screen-best-of-nation,
+.screen-state-Preview .screen-best-of-nation,
+.screen-state-Preview .screen-albert-vidal-award-award,
+.screen-state-Name .screen-medal-for-excellence,
+.screen-state-Preview .screen-medal-for-excellence {
+    visibility: visible;
+}
+
+.screen-container-kv    .screen-region-state { display: none; }
+.screen-container-state .screen-region-kv    { display: none; }
+
+.screen-container-kv    .screen-content,
+.screen-container-state .screen-content {
+    background-size: cover;
+    display: flex; flex-direction: column;
+    justify-content: flex-start !important;
+}
+
+.screen-region-kv {
+    padding-top: calc( var(--unit) * 0.9 );
+    display: flex;
+    flex-direction: column;
+    justify-content: center !important;
+    height: auto !important;
+}
+
+.screen-container-state .screen-region-state {
+    height: 100%;
+}

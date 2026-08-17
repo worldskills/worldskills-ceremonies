@@ -8,7 +8,7 @@
     </div>
     <div class="screen-skill-callup-countries screen-region-state">
         <div class="screen-table-countries"
-             style="--callup-count: {{ context.results.length }}; --callup-display: {{ context.results.length <= 3 ? 'flex' : 'grid' }}; --callup-cols: {{ context.results.length <= 4 ? 2 : 3 }}; --callup-chars: {{ context.maxMemberLen || 14 }}; --callup-chars-wrap: {{ context.maxMemberWrap || context.maxMemberLen || 14 }};">
+             style="--callup-count: {{ context.results.length }}; --callup-display: {{ context.results.length <= 4 ? 'flex' : 'grid' }}; --callup-cols: {{ context.results.length <= 4 ? 2 : 3 }}; --callup-chars: {{ context.maxMemberLen || 14 }}; --callup-chars-wrap: {{ context.maxMemberWrap || context.maxMemberLen || 14 }};">
             <div class="screen-table-country" ng-repeat="result in context.results">
                 <img ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='wstemplate://project/data/flags/_placeholder.svg'" class="screen-img-flag">
                 <div class="screen-translation" style="--translation-lines: {{ languages.length || 1 }};">

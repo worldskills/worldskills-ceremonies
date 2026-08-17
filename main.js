@@ -1,4 +1,4 @@
-const { app, screen: electronScreen } = require('electron');
+const { app } = require('electron');
 
 if (require('electron-squirrel-startup')) {
     app.quit();
@@ -12,9 +12,10 @@ const { registerDevIpc } = require('./src/main/ipc/dev');
 const { registerRemoteIpc } = require('./src/main/ipc/remote');
 const { installAppMenu } = require('./src/main/app-menu');
 const { createStartupWindow, createControlWindow, hasControlWindow } = require('./src/main/app-windows');
-const { clampAllFrameWindowsToWorkArea, destroyAllFrameWindows } = require('./src/main/frame-windows');
+const { destroyAllFrameWindows } = require('./src/main/frame-windows');
 const { devResume } = require('./src/main/dev-resume');
-const { startRemoteServer } = require('./src/main/remote-server');
+const { applyRemoteConfig } = require('./src/main/remote-server');
+const { getActiveProject } = require('./src/main/project-store');
 
 // Must be called before app.whenReady
 registerTemplateScheme();
@@ -33,9 +34,9 @@ app.whenReady().then(() => {
         createStartupWindow();
     }
     app.setAboutPanelOptions({ applicationName: 'Ceremonator' });
-    startRemoteServer();
-
-    electronScreen.on('display-removed', clampAllFrameWindowsToWorkArea);
+    // Reflects whatever project devResume() may have already made active (or none) — reapplied
+    // on every subsequent project open/create/save, see ipc/project.js.
+    applyRemoteConfig(getActiveProject());
 });
 
 app.on('window-all-closed', () => {

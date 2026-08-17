@@ -1,24 +1,13 @@
 const { screen: electronScreen } = require('electron');
 
-function clampToWorkArea(x, y, width, height) {
-    const displays = electronScreen.getAllDisplays();
-    let display = displays.find(d =>
-        x >= d.bounds.x && x < d.bounds.x + d.bounds.width &&
-        y >= d.bounds.y && y < d.bounds.y + d.bounds.height
-    ) || electronScreen.getPrimaryDisplay();
-
-    return clampToDisplayWorkArea(display, x, y, width, height);
-}
-
-function clampToDisplayWorkArea(display, x, y, width, height) {
+// Centered default position for a window opening fresh on a given display (no saved/dragged
+// position to reuse) — pure placement, no fit-to-display resizing or on-screen clamping.
+function centerOnDisplay(display, width, height) {
     const wa = display.workArea;
-    const w = Math.min(width, wa.width);
-    const h = Math.min(height, wa.height);
-    const defaultX = wa.x + Math.round((wa.width - w) / 2);
-    const defaultY = wa.y + Math.round((wa.height - h) / 2);
-    const cx = Math.max(wa.x, Math.min(x != null ? x : defaultX, wa.x + wa.width - w));
-    const cy = Math.max(wa.y, Math.min(y != null ? y : defaultY, wa.y + wa.height - h));
-    return { x: cx, y: cy, width: w, height: h };
+    return {
+        x: wa.x + Math.round((wa.width - width) / 2),
+        y: wa.y + Math.round((wa.height - height) / 2)
+    };
 }
 
 function displayIndexForPoint(x, y) {
@@ -56,8 +45,7 @@ function listDisplays() {
 }
 
 module.exports = {
-    clampToWorkArea,
-    clampToDisplayWorkArea,
+    centerOnDisplay,
     displayIndexForPoint,
     resolveTargetDisplay,
     listDisplays,

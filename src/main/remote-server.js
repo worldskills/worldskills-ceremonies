@@ -8,7 +8,7 @@ const { appRoot } = require('./paths');
 const { resolveUnder } = require('./template-protocol');
 const { sendRemoteAction, sendControlNotice } = require('./control-channel');
 
-const PORT = 17321;
+const DEFAULT_PORT = 17321;
 
 const MIME = {
     '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
@@ -21,7 +21,7 @@ const MIME = {
 const STATIC_FILES = {
     '/': path.join(appRoot, 'src', 'views', 'remote.html'),
     '/partials/control-workspace.html': path.join(appRoot, 'src', 'views', 'partials', 'control-workspace.html'),
-    '/js/control-workspace.js': path.join(appRoot, 'src', 'js', 'control-workspace.js'),
+    '/js/control/control-workspace.js': path.join(appRoot, 'src', 'js', 'control', 'control-workspace.js'),
     '/js/remote.js': path.join(appRoot, 'src', 'js', 'remote.js'),
     '/css/control.css': path.join(appRoot, 'src', 'css', 'control.css'),
     '/css/remote.css': path.join(appRoot, 'src', 'css', 'remote.css'),
@@ -33,6 +33,8 @@ const FONT_AWESOME_FONTS_DIR = path.join(appRoot, 'node_modules', 'font-awesome'
 
 let pin = null;
 let wss = null;
+let server = null;
+let currentPort = null;
 let lastSnapshot = null;
 
 function generatePin() {
@@ -75,7 +77,7 @@ function localLanUrls() {
     Object.keys(interfaces).forEach((name) => {
         (interfaces[name] || []).forEach((iface) => {
             if (iface.family === 'IPv4' && !iface.internal) {
-                urls.push('http://' + iface.address + ':' + PORT + '/');
+                urls.push('http://' + iface.address + ':' + currentPort + '/');
             }
         });
     });
@@ -100,10 +102,27 @@ function validAction(action) {
     return true;
 }
 
-function startRemoteServer() {
+// Closes any running server/socket and forgets the last snapshot — used both when a project
+// disables the remote and right before restarting on a different port.
+function stopRemoteServer() {
+    if (wss) {
+        wss.clients.forEach((client) => client.terminate());
+        wss.close();
+        wss = null;
+    }
+    if (server) {
+        server.close();
+        server = null;
+    }
+    lastSnapshot = null;
+    currentPort = null;
+}
+
+function startRemoteServer(port) {
+    currentPort = Number.isInteger(port) && port > 0 ? port : DEFAULT_PORT;
     pin = generatePin();
 
-    const server = http.createServer(handleRequest);
+    server = http.createServer(handleRequest);
     wss = new WebSocket.Server({ server: server, path: '/ws', maxPayload: 64 * 1024 });
     const failedByIp = new Map();
 
@@ -149,14 +168,31 @@ function startRemoteServer() {
     });
 
     server.on('error', (err) => {
-        sendControlNotice('error', 'Remote control server failed to start on port ' + PORT + ': ' + err.message);
+        sendControlNotice('error', 'Remote control server failed to start on port ' + currentPort + ': ' + err.message);
     });
 
-    server.listen(PORT);
+    server.listen(currentPort);
+}
+
+// Applies a project's `remote: {enabled, port}` (project-contract.js fills in defaults for any
+// project missing the field), starting/stopping/restarting the server as needed. Called once at
+// app boot with whatever project devResume() may have already made active, and again every time
+// the active project changes (see ipc/project.js).
+function applyRemoteConfig(project) {
+    const remote = (project && project.remote) || {};
+    const wantEnabled = remote.enabled !== false;
+    const port = Number.isInteger(remote.port) && remote.port > 0 ? remote.port : DEFAULT_PORT;
+
+    if (!wantEnabled) { stopRemoteServer(); return; }
+    if (server && currentPort === port) return;
+
+    stopRemoteServer();
+    startRemoteServer(port);
 }
 
 function getInfo() {
-    return { pin: pin, port: PORT, urls: localLanUrls() };
+    if (!server) return { pin: null, port: null, urls: [] };
+    return { pin: pin, port: currentPort, urls: localLanUrls() };
 }
 
-module.exports = { startRemoteServer, getInfo, broadcastState };
+module.exports = { applyRemoteConfig, getInfo, broadcastState, DEFAULT_PORT };
