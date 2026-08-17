@@ -56,10 +56,12 @@
                 label: label || ('Frame ' + id.toUpperCase()),
                 slides: [],
                 slide: undefined,
+                previewSlide: undefined,
                 size: { width: 1920, height: 1080 },
                 position: { monitor: 0, x: null, y: null, fullscreen: false, kiosk: false },
                 ordering: { mode: 'skills', skillNumbers: [], sourceFile: null },
                 status: 'closed',
+                windows: { live: 0, preview: 0 },
                 color: pickColor()
             };
             return service.frames[id];
@@ -104,7 +106,8 @@
                     size: frame.size,
                     position: frame.position,
                     ordering: frame.ordering,
-                    color: frame.color
+                    color: frame.color,
+                    video: frame.video
                 });
             });
             return result;
@@ -121,11 +124,13 @@
                         size: config.size,
                         position: config.position,
                         ordering: config.ordering,
-                        color: config.color || service.frames[config.id].color
+                        color: config.color || service.frames[config.id].color,
+                        video: config.video
                     });
                 } else {
                     service.frames[config.id] = angular.extend({
-                        slides: [], slide: undefined, status: 'closed'
+                        slides: [], slide: undefined, previewSlide: undefined, status: 'closed',
+                        windows: { live: 0, preview: 0 }
                     }, config);
                 }
             });

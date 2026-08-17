@@ -1,0 +1,45 @@
+body {
+    min-width: 768px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.remote-pin-screen {
+    display: block;
+    height: auto;
+    overflow: auto;
+}
+
+.remote-pin-input {
+    max-width: 160px;
+}
+
+.remote-main-screen {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.remote-connection-state {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+}
+
+.remote-frame-selector {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.remote-frame-selector select {
+    width: 320px;
+}
+
+.remote-main-screen control-workspace {
+    flex: 1;
+    min-height: 0;
+}

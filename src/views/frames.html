@@ -19,6 +19,7 @@
             var frameH = parseInt(params.get('frameH'), 10) || 500;
             var gap = parseInt(params.get('gap'), 10) || 0;
             var scale = parseFloat(params.get('scale')) || 1;
+            var feed = params.get('feed') || 'live';
 
             var grid = document.getElementById('grid');
             grid.style.setProperty('--grid-cols', cols);
@@ -41,6 +42,7 @@
 
                 var iframe = document.createElement('iframe');
                 var src = 'screen.html?screen=' + encodeURIComponent(cell.frameId) + '&preview=true';
+                if (feed === 'preview') src += '&feed=preview';
                 if (cell.container) src += '&container=' + encodeURIComponent(cell.container);
                 if (cell.label) src += '&label=' + encodeURIComponent(cell.label);
                 iframe.src = src;

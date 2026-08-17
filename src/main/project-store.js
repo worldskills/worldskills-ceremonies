@@ -3,14 +3,11 @@ const path = require('path');
 const { dialog } = require('electron');
 const { bundledTemplateDir, bundledDataDir, projectFilePath, orderingFilePath, templateDirPath, projectDataDir } = require('./paths');
 const { readJson, writeJson } = require('./json-store');
+const { validateProject } = require('./project-contract');
 
 let activeProjectDir = null;
 let activeTemplateDir = null;
 let activeProject = null;
-// Corrupt-ordering.json warning, stashed here instead of pushed to the control window,
-// since project:open/openPath and dev-resume can run before that window exists. Read via
-// peekOrderingWarning() (non-destructive) and consumeOrderingWarning() (destructive) below.
-let lastOrderingWarning = null;
 
 function resolveTemplateDir(dir) {
     const templateDir = templateDirPath(dir);
@@ -27,7 +24,10 @@ function loadProjectFolder(dir) {
     }
     try {
         const project = JSON.parse(fs.readFileSync(projectFile, 'utf8'));
+        const validated = validateProject(project);
+        if (!validated.ok) return { ok: false, code: 'invalidproject', error: validated.error };
 
+        let orderingWarning = null;
         const orderingFile = orderingFilePath(dir);
         if (fs.existsSync(orderingFile)) {
             try {
@@ -39,12 +39,12 @@ function loadProjectFolder(dir) {
                 }
             } catch (e) {
                 console.error('Failed to parse ordering.json at ' + orderingFile + ':', e.message);
-                lastOrderingWarning = 'Corrupt ordering.json in this project — using the slide ordering saved in project.json instead. (' + e.message + ')';
+                orderingWarning = 'Corrupt ordering.json in this project — using the slide ordering saved in project.json instead. (' + e.message + ')';
             }
         }
 
         const templateDir = resolveTemplateDir(dir);
-        return { ok: true, dir, project, templateDir };
+        return { ok: true, dir, project, templateDir, orderingWarning };
     } catch (e) {
         return { ok: false, code: 'invalidjson', error: 'Invalid project.json: ' + e.message };
     }
@@ -74,10 +74,12 @@ function ensureTemplates(dir, fallbackTemplateDir) {
     });
 }
 
-// Order matters: ordering.json first, so a throw on project.json is at least visible via the caller's try/catch instead of a silent partial write.
 function writeProjectFiles(dir, project) {
+    const validated = validateProject(project);
+    if (!validated.ok) throw new Error(validated.error);
+    // project.json deliberately retains ordering as the recovery source if ordering.json is corrupt.
+    writeJson(projectFilePath(dir), project);
     writeJson(orderingFilePath(dir), extractOrdering(project));
-    writeJson(projectFilePath(dir), stripOrdering(project));
 }
 
 function extractOrdering(project) {
@@ -88,17 +90,6 @@ function extractOrdering(project) {
         });
     }
     return { version: 1, frames: frames };
-}
-
-function stripOrdering(project) {
-    if (!project || !project.frames) return project;
-    const stripped = Object.assign({}, project);
-    stripped.frames = project.frames.map(function (f) {
-        const copy = Object.assign({}, f);
-        delete copy.ordering;
-        return copy;
-    });
-    return stripped;
 }
 
 function copyDefaultTemplate(dest) {
@@ -141,25 +132,12 @@ function getActiveProjectDir() { return activeProjectDir; }
 function getActiveProject() { return activeProject; }
 function getActiveTemplateDir() { return activeTemplateDir; }
 
-// Non-destructive: project:open/openPath's own return value goes to the startup window.
-function peekOrderingWarning() {
-    return lastOrderingWarning;
-}
-
-// Destructive: for project:current, called once per fresh ControlCtrl (control window) boot.
-function consumeOrderingWarning() {
-    const warning = lastOrderingWarning;
-    lastOrderingWarning = null;
-    return warning;
-}
-
 module.exports = {
     loadProjectFolder,
     resolveTemplateDir,
     ensureTemplates,
     writeProjectFiles,
     extractOrdering,
-    stripOrdering,
     copyDefaultTemplate,
     copyDefaultData,
     setActive,
@@ -167,6 +145,4 @@ module.exports = {
     getActiveProjectDir,
     getActiveProject,
     getActiveTemplateDir,
-    peekOrderingWarning,
-    consumeOrderingWarning,
 };

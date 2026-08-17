@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var ceremoniesApp = angular.module('ceremoniesApp', ['ngFileUpload', 'pascalprecht.translate']);
+    var ceremoniesApp = angular.module('ceremoniesApp', ['ceremoniesControlWorkspace', 'ngFileUpload', 'pascalprecht.translate']);
 
     var screens = {
         a: {
@@ -9,10 +9,12 @@
             label: 'Main Stage',
             slides: [],
             slide: undefined,
+            previewSlide: undefined,
             size: { width: 1920, height: 1080 },
             position: { monitor: 0, x: null, y: null, fullscreen: false, kiosk: false },
             ordering: { mode: 'skills', skillNumbers: [], sourceFile: null },
-            status: 'closed'
+            status: 'closed',
+            windows: { live: 0, preview: 0 }
         }
     };
 
@@ -25,7 +27,6 @@
     // Sentinel keys shared by Catalog/FrameState/Queue — not real skill
     // numbers, so they never collide with one.
     ceremoniesApp.constant('SLIDE_KEYS', {
-        EMPTY: '__empty__',
         BEST_OF_NATION: '__bestOfNation__',
         ALBERT_VIDAL: '__albertVidal__'
     });

@@ -33,13 +33,51 @@ body {
     flex-shrink: 0;
 }
 
+control-workspace,
+.control-workspace-shell {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.workspace-frame-status {
+    gap: 5px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.workspace-slide-position {
+    font-size: 11px;
+}
+
+.workspace-toolbar-actions {
+    gap: 4px;
+}
+
+.workspace-banner-position {
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.workspace-transclusion {
+    display: flex;
+    min-height: 0;
+    flex-shrink: 0;
+}
+
 .nav.nav-tabs {
     margin: 0 0 30px 0;
 }
 
-.nav,
-a.list-group-item {
+.nav {
     cursor: pointer;
+}
+
+/* Marks whichever row is currently pinned to the Preview channel (via the eye button) —
+   an inset border composes with list-group-item-primary/-secondary instead of fighting them. */
+.list-group-item-previewing {
+    box-shadow: inset 3px 0 0 #d97706;
 }
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak],
@@ -155,6 +193,7 @@ a.list-group-item {
 
 .frame-card-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     margin-top: 6px;
 }
@@ -598,6 +637,10 @@ a.list-group-item {
     opacity: 0.5;
 }
 
+.skills-slide-previewing {
+    box-shadow: inset 3px 0 0 #d97706;
+}
+
 .skills-slide-main {
     display: flex;
     align-items: center;
@@ -613,12 +656,6 @@ a.list-group-item {
     font-size: 13px;
     font-weight: 500;
     flex: 1;
-    cursor: pointer;
-}
-
-.skills-slide-label:hover {
-    color: #2563eb;
-    text-decoration: underline;
 }
 
 .skills-slide-nav {

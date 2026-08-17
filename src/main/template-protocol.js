@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { protocol } = require('electron');
-const { appRoot, bundledTemplateDir } = require('./paths');
+const { appRoot, bareProjectDir, bundledTemplateDir } = require('./paths');
 const { getActiveTemplateDir, getActiveProjectDir } = require('./project-store');
 
 // Must be called before app.whenReady
@@ -22,25 +22,29 @@ function resolveUnder(base, rel) {
 
 function registerTemplateProtocol() {
     protocol.registerFileProtocol('wstemplate', (request, cb) => {
-        const url = new URL(request.url);
-        const rel = decodeURIComponent(url.pathname).replace(/^\/+/, '');
+        let url, rel;
+        try {
+            url = new URL(request.url);
+            rel = decodeURIComponent(url.pathname).replace(/^\/+/, '');
+        } catch (_error) {
+            return cb({ error: -300 });
+        }
+        if (url.host !== 'active' && url.host !== 'project') return cb({ error: -6 });
 
         // Host 'project' resolves under the active project dir (its own data/ folder);
         // any other host resolves under the template dir, falling back to the bundled default
         // when no project template exists.
-        const primary = url.host === 'project'
-            ? getActiveProjectDir()
-            : (getActiveTemplateDir() || bundledTemplateDir);
-
-        const hit = resolveUnder(primary, rel);
-        if (hit && fs.existsSync(hit)) {
-            return cb({ path: hit });
+        const roots = url.host === 'project'
+            ? [getActiveProjectDir(), bareProjectDir, appRoot]
+            : [getActiveTemplateDir(), bundledTemplateDir, appRoot];
+        for (const root of roots) {
+            const hit = resolveUnder(root, rel);
+            if (hit) {
+                try { if (fs.statSync(hit).isFile()) return cb({ path: hit }); } catch (_error) { /* try fallback */ }
+            }
         }
-
-        // Fall back to app root for shared assets (images/, data/, fonts/).
-        const fallback = resolveUnder(appRoot, rel);
-        return fallback ? cb({ path: fallback }) : cb({ error: -6 });
+        return cb({ error: -6 });
     });
 }
 
-module.exports = { registerTemplateScheme, registerTemplateProtocol };
+module.exports = { registerTemplateScheme, registerTemplateProtocol, resolveUnder };

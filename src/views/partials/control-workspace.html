@@ -1,0 +1,109 @@
+<div class="control-workspace-shell">
+    <div class="control-toolbar" ng-show="screens[FrameService.activeFrameId] && screens[FrameService.activeFrameId].slides && screens[FrameService.activeFrameId].slides.length > 0">
+        <button class="btn btn-sm btn-outline-secondary" ng-click="prevSlide()" ng-disabled="!screens[FrameService.activeFrameId].slide || (screens[FrameService.activeFrameId].slides.indexOf(screens[FrameService.activeFrameId].slide) <= 0 && !(screens[FrameService.activeFrameId].slide.state || []).length)">
+            <i class="fa fa-chevron-left"></i> Prev
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" ng-click="nextSlide()" ng-disabled="!screens[FrameService.activeFrameId].slide">
+            Next <i class="fa fa-chevron-right"></i>
+        </button>
+        <div class="btn-group ml-2 position-relative">
+            <button class="btn btn-sm btn-outline-secondary" ng-click="jumpMenuOpen = !jumpMenuOpen">
+                Jump to… <i class="fa fa-caret-down ml-1"></i>
+            </button>
+            <div class="dropdown-menu jump-dropdown-menu" ng-class="{show: jumpMenuOpen}">
+                <button class="dropdown-item" ng-repeat="slide in screens[FrameService.activeFrameId].slides track by $index" ng-click="jumpToSlide(slide); jumpMenuOpen=false">
+                    {{ slide.label }}
+                </button>
+            </div>
+        </div>
+        <div class="control-toolbar-sep"></div>
+        <span class="workspace-frame-status d-flex align-items-center">
+            <span class="frame-color-chip" style="background: {{ FrameService.getFrameColor(FrameService.activeFrameId) }}"></span>
+            {{ screens[FrameService.activeFrameId].label }}
+            <span class="status-dot {{ screens[FrameService.activeFrameId].status }}"></span>
+            <span class="workspace-slide-position">{{ getSlidePosition(FrameService.activeFrameId) }}</span>
+        </span>
+        <span class="workspace-toolbar-actions ml-auto d-flex">
+            <button class="btn btn-sm btn-success" ng-if="workspaceCapabilities.manageWindows" ng-click="openFrameWindowLive(FrameService.activeFrameId)" title="Open a new live window">
+                <i class="fa fa-play mr-1"></i> Live <span ng-show="screens[FrameService.activeFrameId].windows.live">&times;{{ screens[FrameService.activeFrameId].windows.live }}</span>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" ng-if="workspaceCapabilities.manageWindows" ng-click="openFrameWindowPreview(FrameService.activeFrameId)" ng-disabled="!canOpenFramePreview(FrameService.activeFrameId)" title="{{ !screens[FrameService.activeFrameId].windows.live ? 'Open a Live window first' : (screens[FrameService.activeFrameId].windows.preview ? 'Preview already open' : 'Open a new preview window') }}">
+                <i class="fa fa-eye mr-1"></i> Preview
+            </button>
+            <button class="btn btn-sm btn-outline-info" ng-show="screens[FrameService.activeFrameId].previewSlide" ng-click="resetPreview(FrameService.activeFrameId)" title="Reset preview to match live">
+                <i class="fa fa-undo mr-1"></i> Reset Preview
+            </button>
+            <button class="btn btn-sm btn-outline-warning" ng-click="resetFrame(FrameService.activeFrameId)" title="Reset this frame to blank">
+                <i class="fa fa-ban mr-1"></i> Blank
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" ng-if="workspaceCapabilities.manageWindows" ng-show="screens[FrameService.activeFrameId].status !== 'closed'" ng-click="reloadFrameWindow(FrameService.activeFrameId)" title="Reload this screen">
+                <i class="fa fa-refresh mr-1"></i> Reload
+            </button>
+            <button class="btn btn-sm btn-danger" ng-if="workspaceCapabilities.manageWindows" ng-show="screens[FrameService.activeFrameId].status !== 'closed'" ng-click="closeFrameWindow(FrameService.activeFrameId)" title="Close all windows for this frame">
+                <i class="fa fa-stop mr-1"></i> Close window
+            </button>
+        </span>
+    </div>
+
+    <div class="app-body-inner">
+        <div class="workspace-transclusion" ng-transclude></div>
+
+        <div class="main-panel">
+            <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
+                <div class="active-frame-banner" style="--frame-color: {{ FrameService.getFrameColor(id) }}">
+                    <span class="frame-color-chip" style="background: {{ FrameService.getFrameColor(id) }}; border:1px solid rgba(255,255,255,0.3)"></span>
+                    <span>CONTROLLING: "{{ frame.label }}" ({{ id }})</span>
+                    <span class="status-dot {{ frame.status }}"></span>
+                    <span>{{ frame.status }}</span>
+                    <span class="ml-auto workspace-banner-position">{{ getSlidePosition(id) }}</span>
+                </div>
+            </div>
+
+            <div class="slide-list-area" ng-show="uploaded">
+                <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
+                    <div class="card mb-2" ng-show="frame.slides.length > 0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item clearfix"
+                                 ng-class="{'list-group-item-secondary': slide.done, 'list-group-item-primary': screens[id].slide === slide, 'list-group-item-previewing': isPreviewingSlide(id, slide)}"
+                                 ng-repeat="slide in frame.slides track by $index">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <span>{{ slide.label }}</span>
+                                    <span ng-if="workspaceCapabilities.copyScript" ng-show="slide.script">
+                                        <span class="btn btn-sm btn-white py-0" ng-click="copyPaste($event, slide.script)">
+                                            <i class="fa fa-clipboard" aria-hidden="true"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="list-group-item-text">
+                                    <div class="btn-toolbar">
+                                        <button class="btn btn-sm btn-success mr-1" ng-class="{active: screens[id].slide === slide}" ng-click="showSlide(id, slide)" title="Show live"><i class="fa fa-play"></i> Live</button>
+                                        <button class="btn btn-sm btn-outline-info mr-1" ng-if="workspaceCapabilities.preview" ng-class="{active: isPreviewingSlide(id, slide)}" ng-click="previewSlide($event, id, slide)" title="Show on Preview windows only"><i class="fa fa-eye"></i> Preview</button>
+                                        <button class="btn btn-sm btn-success mr-1" ng-click="slide.edit = !slide.edit" ng-disabled="!canEditSlide(id, slide)"><i class="fa fa-pencil"></i> Edit</button>
+                                        <div class="btn-group mr-1" ng-show="slide.states && slide.states.length">
+                                            <button type="button" class="btn btn-sm btn-primary" ng-repeat="state in slide.states" ng-click="toggleState(id, slide, state)" ng-disabled="!canEditSlide(id, slide)">
+                                                <i ng-show="rowHasState(id, slide, state)" class="fa fa-ban fa-fw"></i>
+                                                <i ng-show="!rowHasState(id, slide, state)" class="fa fa-trophy fa-fw"></i>
+                                                {{ state }}
+                                            </button>
+                                        </div>
+                                        <button class="btn btn-sm btn-danger" ng-show="slide.states && slide.states.length" ng-click="resetStates(id, slide)" ng-disabled="!canEditSlide(id, slide)">Reset</button>
+                                    </div>
+                                </div>
+                                <div class="list-group-item-text mt-2" ng-show="slide.edit">
+                                    <textarea class="form-control" json-text rows="9" ng-model="slide.context" ng-change="updateContext(id, slide)"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-muted p-3" ng-show="frame.slides.length === 0">
+                        No slides assigned to this frame.
+                    </div>
+                </div>
+                <div class="text-muted p-3" ng-show="!screens[FrameService.activeFrameId]">
+                    Select a frame to begin.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

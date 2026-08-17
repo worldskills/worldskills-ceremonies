@@ -45,8 +45,8 @@
         // Cheap on purpose — recomputed every digest by ControlCtrl's watcher instead of a save call at each mutation site.
         service.fingerprint = function (scope) {
             var parts = [
-                (scope.results || []).length,
-                (scope.resultsBestOfNations || []).length,
+                angular.toJson(scope.results || []),
+                angular.toJson(scope.resultsBestOfNations || []),
                 scope.uploaded ? 1 : 0,
                 FrameService.activeFrameId
             ];
@@ -59,7 +59,7 @@
                     frame.label || '',
                     slides.indexOf(slide),
                     state.join('+'),
-                    (frame.ordering.skillNumbers || []).length,
+                    (frame.ordering.skillNumbers || []).join(','),
                     frame.ordering.includeAlbertVidal ? 1 : 0
                 ].join(':'));
             });

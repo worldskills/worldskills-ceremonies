@@ -2,8 +2,10 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Injected by main.js via webPreferences.additionalArguments — lets the renderer read dev flags synchronously at startup.
 const isDev = process.argv.includes('--ceremonator-dev');
+const roleArg = process.argv.find((arg) => arg.indexOf('--ceremonator-role=') === 0);
+const role = roleArg ? roleArg.split('=')[1] : 'output';
 
-contextBridge.exposeInMainWorld('ceremonator', {
+const fullApi = {
     frames: {
         openWindow: (opts) => ipcRenderer.invoke('frames:openWindow', opts),
         closeWindow: (opts) => ipcRenderer.invoke('frames:closeWindow', opts),
@@ -40,10 +42,36 @@ contextBridge.exposeInMainWorld('ceremonator', {
         openControl: () => ipcRenderer.invoke('app:openControl'),
         reloadScreen: (frameId) => ipcRenderer.invoke('app:reloadScreen', { frameId }),
     },
+    remote: {
+        info: () => ipcRenderer.invoke('remote:info'),
+        sync: (snapshot) => ipcRenderer.send('remote:sync', snapshot),
+        onAction: (callback) => {
+            const listener = (_event, data) => callback(data);
+            ipcRenderer.on('remote:action', listener);
+            return () => ipcRenderer.removeListener('remote:action', listener);
+        },
+    },
     onFrameStatus: (callback) => {
-        ipcRenderer.on('frames:status', (_event, data) => callback(data));
+        const listener = (_event, data) => callback(data);
+        ipcRenderer.on('frames:status', listener);
+        return () => ipcRenderer.removeListener('frames:status', listener);
     },
     onNotice: (callback) => {
-        ipcRenderer.on('app:notice', (_event, data) => callback(data));
+        const listener = (_event, data) => callback(data);
+        ipcRenderer.on('app:notice', listener);
+        return () => ipcRenderer.removeListener('app:notice', listener);
     },
-});
+};
+
+const startupApi = {
+    project: fullApi.project,
+    app: { openControl: fullApi.app.openControl }
+};
+const outputApi = {
+    project: {
+        current: fullApi.project.current,
+        readTranslations: fullApi.project.readTranslations
+    }
+};
+
+contextBridge.exposeInMainWorld('ceremonator', role === 'control' ? fullApi : (role === 'startup' ? startupApi : outputApi));

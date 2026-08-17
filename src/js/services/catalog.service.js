@@ -14,37 +14,34 @@
         };
 
         function groupByMember(filteredResults) {
-            return Object.values(filteredResults.reduce(function (accumulator, result) {
+            return Array.from(filteredResults.reduce(function (accumulator, result) {
                 var resultSimplified = ResultFormat.simplifyResult(result);
-                if (typeof accumulator[result[COL.MEMBER]] == 'undefined') {
-                    accumulator[result[COL.MEMBER]] = resultSimplified;
-                    accumulator[result[COL.MEMBER]].competitors = [];
+                // A missing member code must not merge unrelated winners; Map also makes
+                // prototype-like codes such as "__proto__" safe.
+                var memberCode = result[COL.MEMBER];
+                var key = memberCode ? String(memberCode) : '__missing__' + accumulator.size;
+                if (!accumulator.has(key)) {
+                    resultSimplified.competitors = [];
+                    accumulator.set(key, resultSimplified);
                 }
-                accumulator[result[COL.MEMBER]].competitors.push(resultSimplified.competitor);
+                accumulator.get(key).competitors.push(resultSimplified.competitor);
                 return accumulator;
-            }, {}));
+            }, new Map()).values());
         }
 
         function build(input) {
             var skills = input.skills || [];
             var members = input.members || [];
-            var results = input.results || [];
+            var rawResults = input.results || [];
+            var results = rawResults.filter(function (result) {
+                return result && result[COL.FIRST_NAME] && result[COL.LAST_NAME];
+            });
             var resultsBestOfNations = input.bestOfNation || [];
             var bestOfNationGroupSize = input.bestOfNationGroupSize > 0 ? input.bestOfNationGroupSize : 5;
 
             var catalog = {};
 
-            var skippedRows = results.filter(function (result) {
-                return !result[COL.FIRST_NAME] || !result[COL.LAST_NAME];
-            }).length;
-
-            var empty = {
-                label: '• Empty',
-                template: 'intro.html',
-                states: [],
-                context: {}
-            };
-            catalog[SLIDE_KEYS.EMPTY] = angular.copy(empty);
+            var skippedRows = rawResults.length - results.length;
 
             angular.forEach(skills, function (skill, i) {
 
@@ -54,7 +51,7 @@
                     }));
 
                 var skillMedalResults = groupByMember(skillResults
-                    .filter(function (result) { return result[COL.MEDAL] && result[COL.MEDAL].toUpperCase() != 'MEDALLION FOR EXCELLENCE'; }));
+                    .filter(function (result) { return result[COL.MEDAL] && result[COL.MEDAL].toUpperCase() != 'MEDAL FOR EXCELLENCE'; }));
 
                 if (skillMedalResults.length > 0) {
                     var states = [];
@@ -114,7 +111,7 @@
                 }
 
                 var resultsMedalForExcellence = groupByMember(skillResults
-                    .filter(function (result) { return result[COL.MEDAL] && result[COL.MEDAL].toUpperCase() == 'MEDALLION FOR EXCELLENCE'; }));
+                    .filter(function (result) { return result[COL.MEDAL] && result[COL.MEDAL].toUpperCase() == 'MEDAL FOR EXCELLENCE'; }));
 
                 if (resultsMedalForExcellence.length > 0) {
                     var total = 0;
@@ -153,13 +150,16 @@
             var resultsBestOfNationMembers = [];
             angular.forEach(members, function (member) {
                 var memberResult = (resultsBestOfNations || [])
-                    .filter(function (result) { return result[COL.MEMBER_NAME] && result[COL.MEMBER] == member.code; })
+                    .filter(function (result) { return result && result[COL.MEMBER_NAME] && result[COL.FIRST_NAME] && result[COL.LAST_NAME] && result[COL.MEMBER] == member.code; })
                     .reduce(function (accumulator, result) {
                         accumulator.competitors.push(ResultFormat.capitalize(result[COL.FIRST_NAME]) + ' ' + ResultFormat.capitalize(result[COL.LAST_NAME]));
                         return accumulator;
                     }, { memberCode: member.code, memberName: member.name.text, competitors: [] });
 
                 if (memberResult.competitors.length > 0) {
+                    var bonSize = TextFit.measureLongest([memberResult], function (result) { return result.competitors; }, 2);
+                    memberResult.nameChars = bonSize.chars;
+                    memberResult.nameWrapped = bonSize.wrapped;
                     resultsBestOfNationMembers.push(memberResult);
                 }
             });
@@ -188,6 +188,7 @@
             var maxResult = numericScores.length ? Math.max.apply(Math, numericScores) : null;
             var resultsAlbertVidalAward = maxResult === null ? [] : groupByMember(results
                 .filter(function (result) { return parseFloat(result[COL.SCALE_SCORE]) === maxResult; }));
+            TextFit.annotateEach(resultsAlbertVidalAward, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
 
             catalog[SLIDE_KEYS.ALBERT_VIDAL] = [{
                 label: 'Albert Vidal Award',

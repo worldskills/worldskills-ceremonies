@@ -10,6 +10,7 @@ function notifyFrameStatus(frameId, status, extra) {
         if (e.x != null && e.y != null) { data.x = e.x; data.y = e.y; }
         if (e.width != null && e.height != null) { data.width = e.width; data.height = e.height; }
         if (e.monitor != null) data.monitor = e.monitor;
+        if (e.windows) data.windows = e.windows;
         win.webContents.send('frames:status', data);
     }
 }
@@ -21,4 +22,13 @@ function sendControlNotice(level, text) {
     }
 }
 
-module.exports = { notifyFrameStatus, sendControlNotice };
+// Relays a remote-control-panel action into the control window, which runs it through the
+// exact same scope functions the local operator UI uses (see js/control.js's remote dispatch).
+function sendRemoteAction(action) {
+    const win = getControlWindow();
+    if (win && !win.isDestroyed()) {
+        win.webContents.send('remote:action', action);
+    }
+}
+
+module.exports = { notifyFrameStatus, sendControlNotice, sendRemoteAction };

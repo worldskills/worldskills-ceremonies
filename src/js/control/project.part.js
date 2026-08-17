@@ -185,15 +185,11 @@
                             }
                         });
 
-                        if (scope.catalog) {
-                            angular.forEach(FrameService.frames, function (frame) {
-                                scope.assembleFrame(frame, scope.catalog);
-                            });
-                        }
-                        scope.rebuildCatalogSkillList();
-                        scope.albertVidalFrame = scope.getAlbertVidalFrame() || '';
-                        scope.buildQueueList();
-                        scope.projectDirty = true;
+                        scope.refreshFramesAfterOrderingChange();
+                    });
+                }).catch(function (error) {
+                    scope.$apply(function () {
+                        scope.addNotice('error', 'Ordering import failed: ' + (error && error.message ? error.message : 'invalid spreadsheet'), 'ordering-import');
                     });
                 });
             };
@@ -247,7 +243,22 @@
             scope.loadProject = function () {
                 scope.projectMenuOpen = false;
                 if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.open) return;
-                window.ceremonator.project.open().then(function (result) {
+                if (scope.workspaceMode !== 'setup') {
+                    scope.addNotice('warning', 'Switch to Setup before loading another project.', 'load-project-mode');
+                    return;
+                }
+                var openIds = window.ceremonator.frames && window.ceremonator.frames.openIds
+                    ? window.ceremonator.frames.openIds()
+                    : Promise.resolve({ ids: [] });
+                openIds.then(function (open) {
+                    if (open && open.ids && open.ids.length) {
+                        scope.$apply(function () { scope.addNotice('warning', 'Close all Live, Preview, and grid outputs before loading another project.', 'load-project-outputs'); });
+                        return null;
+                    }
+                    if (scope.projectDirty && !confirm('This project has unsaved configuration changes. Load another project and discard them?')) return null;
+                    return window.ceremonator.project.open();
+                }).then(function (result) {
+                    if (!result) return;
                     if (!result || result.canceled) return;
                     if (!result.ok) {
                         alert('Load failed: ' + (result.error || 'unknown error'));
@@ -255,15 +266,24 @@
                     }
                     var project = result.project;
                     scope.$apply(function () {
+                        angular.forEach(FrameService.frames, function (_frame, id) { FrameState.clear(id); });
+                        scope.results = [];
+                        scope.resultsBestOfNations = [];
+                        scope.uploaded = false;
+                        scope.catalog = {};
+                        scope.queueList = [];
+                        scope.queueByFrame = {};
+                        scope.skillsSelectedSkill = null;
+                        scope.skillsSelectedSlides = [];
+                        scope.allFramesViewOpen = false;
+                        scope.queueViewOpen = false;
                         if (result.orderingWarning) {
                             scope.addNotice('warning', result.orderingWarning, 'ordering-corrupt');
                         }
                         scope.projectName = project.name;
                         scope.displayMode = project.displayMode;
                         scope.languages = (project.languages && project.languages.length) ? project.languages : [{ lang_code: 'en' }];
-                        if (project.gridConfig) {
-                            scope.gridConfig = angular.extend({}, scope.gridConfig, project.gridConfig);
-                        }
+                        scope.gridConfig = angular.extend({ cols: null, frameWidth: 1280, frameHeight: 720, splitContainers: false, monitor: null, feed: 'live' }, project.gridConfig || {});
                         if (project.frames) {
                             FrameService.loadFromProject(project.frames);
                         }
@@ -271,8 +291,11 @@
                         scope.loadCatalogs().then(function () {
                             scope.buildScreens();
                             scope.projectDirty = false;
+                            FrameState.syncRemote();
                         });
                     });
+                }).catch(function (error) {
+                    scope.$apply(function () { scope.addNotice('error', 'Load failed: ' + (error.message || error), 'load-project'); });
                 });
             };
 

@@ -1,9 +1,8 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, SCREENS, TEMPLATE_BASE) {
+    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, TEMPLATE_BASE) {
 
-        $scope.screens = SCREENS;
         $scope.languages = [];
 
         if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
@@ -35,8 +34,14 @@
             }
         });
 
+        // Preview windows read a separate '-preview' channel (see frame-state.service.js) so
+        // Preview can show a different slide than what's live — the key this window listens on.
+        $scope.storageKey = function () {
+            return 'screen-' + $scope.screen + ($scope.feed === 'preview' ? '-preview' : '');
+        };
+
         window.addEventListener('storage', function (e) {
-            if (e.key == 'screen-' + $scope.screen) {
+            if (e.key == $scope.storageKey()) {
                 if (!$scope.$$phase) {
                     $scope.$apply(function () {
                         $scope.render();
@@ -47,29 +52,46 @@
             }
         });
 
-        $scope.setScreen = function (screen, preview) {
+        $scope.setScreen = function (screen, preview, feed) {
             $scope.screen = screen;
             $scope.preview = (preview === 'true' || preview === true);
-
-            var screenConfig = $scope.screens[screen] || { label: screen };
-            document.title = 'Ceremonies ' + ($scope.preview ? 'Preview ' : '') + screenConfig.label;
+            $scope.feed = feed || 'live';
 
             $scope.render();
         };
 
         $scope.render = function () {
-            var data = angular.fromJson(window.localStorage.getItem('screen-' + $scope.screen));
+            var data = null;
+            try {
+                data = angular.fromJson(window.localStorage.getItem($scope.storageKey()));
+            } catch (_error) {
+                data = null;
+            }
 
             if (!data) {
                 $scope.template = TEMPLATE_BASE + 'empty.html';
                 $scope.context = {};
                 $scope.states = [];
+                $scope.slideLabel = '';
+                $scope.frame = { id: $scope.screen, label: $scope.screen, color: '', video: '', feed: $scope.feed };
+                document.title = 'Ceremonies ' + ($scope.feed === 'preview' ? 'Preview ' : '') + $scope.screen;
                 return;
             }
 
             if (data.template != $scope.template) {
                 $scope.context = {};
             }
+
+            $scope.frame = {
+                id: $scope.screen,
+                label: data.frameLabel || $scope.screen,
+                color: data.accent || '',
+                video: data.video || '',
+                feed: $scope.feed
+            };
+            document.body.dataset.frame = $scope.frame.id;
+            document.body.dataset.frameLabel = $scope.frame.label;
+            document.title = 'Ceremonies ' + ($scope.feed === 'preview' ? 'Preview ' : '') + $scope.frame.label;
 
             if (data.accent) {
                 document.documentElement.style.setProperty('--frame-accent', data.accent);
@@ -82,6 +104,7 @@
 
             $scope.template = data.template;
             $scope.context = data.context;
+            $scope.slideLabel = data.label || '';
         };
 
         // $location.search() is unreliable for file:// URLs in AngularJS's hashbang mode — read query params directly.
@@ -89,12 +112,13 @@
             var params = new URLSearchParams(window.location.search);
             var screen = params.get('screen');
             var preview = params.get('preview');
+            var feed = params.get('feed'); // 'preview' | null (live)
             var container = params.get('container'); // 'kv' | 'state'
             if (container) {
                 document.body.classList.add('screen-container-' + container);
             }
             if (screen) {
-                $scope.setScreen(screen, preview);
+                $scope.setScreen(screen, preview, feed);
             }
         };
 

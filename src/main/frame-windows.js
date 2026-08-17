@@ -1,26 +1,52 @@
 const { BrowserWindow } = require('electron');
-const { isDev } = require('./dev-flags');
 const { baseWebPreferences } = require('./window-factory');
 const { clampToWorkArea, clampToDisplayWorkArea, resolveTargetDisplay, displayIndexForPoint } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
+const { markWindow } = require('./ipc/sender-role');
 const { notifyFrameStatus, sendControlNotice } = require('./control-channel');
 
 const frameWindows = new Map();
 // Keyed like frameWindows; a dev restart uses this to reopen exactly what was open.
 const frameWindowOpts = new Map();
 
-// Split KV/State mode keys windows as frameId:kv / frameId:state, not bare frameId.
+// Every open spawns a new window (any number of Live/Preview windows per frame), so the
+// key is a serial, not an identity — frameId/container are still embedded for readability.
+let winSeq = 0;
 function frameWindowKey(frameId, container) {
-    return frameId + (container ? ':' + container : '');
+    winSeq += 1;
+    return frameId + (container ? ':' + container : '') + '#' + winSeq;
 }
 
 function parseFrameWindowKey(key) {
-    const i = key.indexOf(':');
-    return i < 0 ? { frameId: key, container: '' } : { frameId: key.slice(0, i), container: key.slice(i + 1) };
+    const hashIdx = key.indexOf('#');
+    const withoutSeq = hashIdx < 0 ? key : key.slice(0, hashIdx);
+    const colonIdx = withoutSeq.indexOf(':');
+    return colonIdx < 0 ? { frameId: withoutSeq, container: '' } : { frameId: withoutSeq.slice(0, colonIdx), container: withoutSeq.slice(colonIdx + 1) };
 }
 
 function matchesFrameKey(key, frameId) {
-    return key === frameId || key.indexOf(frameId + ':') === 0;
+    return parseFrameWindowKey(key).frameId === frameId;
+}
+
+// Live/preview window counts for a frame, from the surviving frameWindowOpts entries (kept
+// in sync with frameWindows — both are deleted together on close). Drives the frame-card
+// "×N" badges and the closed→ready status downgrade when only one of several windows closes.
+function countFrameWindows(frameId) {
+    let live = 0, preview = 0;
+    frameWindowOpts.forEach((opts, key) => {
+        if (parseFrameWindowKey(key).frameId !== frameId) return;
+        if (opts && opts.preview) preview++; else live++;
+    });
+    return { live, preview, total: live + preview };
+}
+
+// Wraps notifyFrameStatus with the current window counts, and downgrades a 'closed' report to
+// 'ready' when other windows of the same frame are still open (e.g. one half of a Split pair,
+// or one of several duplicate Live windows).
+function emitFrameStatus(frameId, status, extra) {
+    const windows = countFrameWindows(frameId);
+    const effectiveStatus = (status === 'closed' && windows.total > 0) ? 'ready' : status;
+    notifyFrameStatus(frameId, effectiveStatus, Object.assign({}, extra, { windows: windows }));
 }
 
 function normalizeFrameRequest(frameId, opts) {
@@ -31,24 +57,11 @@ function normalizeFrameRequest(frameId, opts) {
         ? { width: 1280, height: 720 }
         : ((opts && opts.size) || { width: 1920, height: 1080 });
     const position = (opts && opts.position) || {};
-    const goFullscreenRequested = !isPreview && opts && opts.windowed !== true;
+    // position.fullscreen (project.json, per frame) decides whether Live opens fullscreen at all;
+    // opts.windowed forces windowed regardless (a dev restart always reopens windowed, see
+    // reopenFrameWindowFromSnapshot below).
+    const goFullscreenRequested = !isPreview && position.fullscreen === true && (!opts || opts.windowed !== true);
     return { container, key, isPreview, size, position, goFullscreenRequested };
-}
-
-// Re-applies config instead of a bare focus(), so a size/position/monitor/fullscreen change isn't silently dropped when the window is already open.
-function reapplyToExistingWindow(existing, req, opts, frameId) {
-    const { size, position, isPreview, goFullscreenRequested, key } = req;
-    if (position.x != null && position.y != null) {
-        const bounds = clampToWorkArea(position.x, position.y, size.width, size.height);
-        existing.setBounds(bounds);
-    } else {
-        existing.setSize(size.width, size.height);
-    }
-    if (typeof position.kiosk === 'boolean') existing.setKiosk(!isPreview && position.kiosk);
-    existing.setFullScreen(goFullscreenRequested);
-    existing.focus();
-    frameWindowOpts.set(key, Object.assign({ frameId: frameId }, opts || {}));
-    return existing;
 }
 
 // Returns the fallback notice text instead of emitting it, to keep this function side-effect-free.
@@ -66,11 +79,17 @@ function frameWindowBounds(req, frameId, opts) {
     if (goFullscreenRequested) {
         const b = targetDisplay.bounds;
         winBounds = { x: b.x, y: b.y, width: b.width, height: b.height };
-    } else if (position.x != null && position.y != null) {
-        // Coordinates already encode which display the user dragged it to; clampToWorkArea auto-detects that display.
-        winBounds = clampToWorkArea(position.x, position.y, size.width, size.height);
     } else {
-        winBounds = clampToDisplayWorkArea(targetDisplay, position.x, position.y, size.width, size.height);
+        // Cascade duplicate windows of the same frame by 40px per window already open, so
+        // spawning several Live/Preview windows doesn't stack them invisibly on top of each other.
+        const cascade = 40 * countFrameWindows(frameId).total;
+        if (position.x != null && position.y != null) {
+            // Coordinates already encode which display the user dragged it to; clampToWorkArea auto-detects that display.
+            winBounds = clampToWorkArea(position.x + cascade, position.y + cascade, size.width, size.height);
+        } else {
+            const base = clampToDisplayWorkArea(targetDisplay, position.x, position.y, size.width, size.height);
+            winBounds = clampToDisplayWorkArea(targetDisplay, base.x + cascade, base.y + cascade, size.width, size.height);
+        }
     }
 
     return { winBounds, fallbackNotice };
@@ -90,19 +109,21 @@ function createFrameBrowserWindow(winBounds, req) {
         frame: true,
         show: false,
         backgroundColor: '#000',
-        webPreferences: baseWebPreferences({ backgroundThrottling: false }),
+        webPreferences: baseWebPreferences({ backgroundThrottling: false, ceremonatorRole: 'output' }),
     });
-
-    if (isDev) win.webContents.openDevTools();
+    markWindow(win, 'output');
 
     return win;
 }
 
-// Always-on-top only while fullscreen — pinning a windowed live output (e.g. after Escape, or a dev-restart's windowed open) would leave it unreachable above every other window.
+// Always-on-top only while fullscreen — pinning a windowed live output (e.g. after Escape, or a
+// dev-restart's windowed open) would leave it unreachable above every other window. Plain
+// setAlwaysOnTop (not the 'screen-saver' level) so a fullscreen live window still floats above
+// ordinary windows during a show, but never above the OS/other apps/the control panel itself.
 function pinLiveWindowWhileFullscreen(win, req) {
     if (req.isPreview) return;
-    if (req.goFullscreenRequested) win.setAlwaysOnTop(true, 'screen-saver');
-    win.on('enter-full-screen', () => win.setAlwaysOnTop(true, 'screen-saver'));
+    if (req.goFullscreenRequested) win.setAlwaysOnTop(true);
+    win.on('enter-full-screen', () => win.setAlwaysOnTop(true));
     win.on('leave-full-screen', () => win.setAlwaysOnTop(false));
 }
 
@@ -117,24 +138,27 @@ function showWhenPainted(win, goFullscreen) {
 function frameWindowSearch(frameId, req, opts) {
     const labelParam = (opts && opts.label) ? '&label=' + encodeURIComponent(opts.label) : '';
     const containerParam = req.container ? '&container=' + encodeURIComponent(req.container) : '';
-    return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam;
+    // preview=true stays the window-chrome flag (size/fullscreen/kiosk/F11); feed=preview is the
+    // separate localStorage channel screen.js reads from (see frame-state.service.js).
+    const feedParam = req.isPreview ? '&feed=preview' : '';
+    return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam + feedParam;
 }
 
 function reportFrameStatus(win, frameId) {
     win.webContents.on('did-finish-load', () => {
-        notifyFrameStatus(frameId, 'ready');
+        emitFrameStatus(frameId, 'ready');
     });
 
     win.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
-        notifyFrameStatus(frameId, 'crashed', { reason: errorDescription });
+        emitFrameStatus(frameId, 'crashed', { reason: errorDescription });
     });
 
     win.webContents.on('render-process-gone', (_event, details) => {
-        notifyFrameStatus(frameId, 'crashed', { reason: details ? details.reason : 'render-process-gone' });
+        emitFrameStatus(frameId, 'crashed', { reason: details ? details.reason : 'render-process-gone' });
     });
 
     win.on('unresponsive', () => {
-        notifyFrameStatus(frameId, 'crashed', { reason: 'unresponsive' });
+        emitFrameStatus(frameId, 'crashed', { reason: 'unresponsive' });
     });
 }
 
@@ -164,32 +188,44 @@ function guardLiveClose(win, req, boundsState) {
     });
 }
 
-function cleanupOnClosed(win, key, frameId, boundsState) {
+// Preview windows require a Live window to exist (enforced in openFrameWindowPreview,
+// control/frames.part.js) — if the Live window that just closed was the last one for this
+// frame, any Preview window(s) would otherwise be orphaned, so close them too. Preview windows
+// never confirm-dialog on close (guardLiveClose skips them) and are never fullscreen, so a plain
+// win.close() is enough — this recurses into cleanupOnClosed for each one, but req.isPreview is
+// true there, so it never re-triggers this cascade.
+function closePreviewWindowsFor(frameId) {
+    frameWindows.forEach((win, key) => {
+        if (!matchesFrameKey(key, frameId)) return;
+        const opts = frameWindowOpts.get(key);
+        if (opts && opts.preview && !win.isDestroyed()) win.close();
+    });
+}
+
+function cleanupOnClosed(win, key, frameId, boundsState, req) {
     win.on('closed', () => {
         frameWindows.delete(key);
         frameWindowOpts.delete(key);
+        if (!req.isPreview && countFrameWindows(frameId).live === 0) {
+            closePreviewWindowsFor(frameId);
+        }
         if (boundsState.lastPos) {
             const w = boundsState.lastSize ? boundsState.lastSize[0] : null;
             const h = boundsState.lastSize ? boundsState.lastSize[1] : null;
             const monitor = displayIndexForPoint(boundsState.lastPos[0], boundsState.lastPos[1]);
-            notifyFrameStatus(frameId, 'closed', { x: boundsState.lastPos[0], y: boundsState.lastPos[1], width: w, height: h, monitor: monitor });
+            emitFrameStatus(frameId, 'closed', { x: boundsState.lastPos[0], y: boundsState.lastPos[1], width: w, height: h, monitor: monitor });
         } else {
-            notifyFrameStatus(frameId, 'closed');
+            emitFrameStatus(frameId, 'closed');
         }
     });
 }
 
+// Every call spawns a fresh window — as many Live/Preview windows per frame as the operator
+// wants. There is no reuse-the-existing-window path: that used to resize/reposition whatever
+// window happened to share the frameId (even a Preview window when Live was requested), which
+// silently ran live output under preview semantics.
 function openFrameWindow(frameId, opts) {
     const req = normalizeFrameRequest(frameId, opts);
-
-    if (frameWindows.has(req.key)) {
-        const existing = frameWindows.get(req.key);
-        if (!existing.isDestroyed()) {
-            return reapplyToExistingWindow(existing, req, opts, frameId);
-        }
-        frameWindows.delete(req.key);
-        frameWindowOpts.delete(req.key);
-    }
 
     const { winBounds, fallbackNotice } = frameWindowBounds(req, frameId, opts);
     if (fallbackNotice) sendControlNotice('warning', fallbackNotice);
@@ -202,17 +238,18 @@ function openFrameWindow(frameId, opts) {
     win.loadFile('src/views/screen.html', { search: frameWindowSearch(frameId, req, opts) });
     frameWindows.set(req.key, win);
     frameWindowOpts.set(req.key, Object.assign({ frameId: frameId }, opts || {}));
-    notifyFrameStatus(frameId, 'connecting');
+    emitFrameStatus(frameId, 'connecting');
 
     reportFrameStatus(win, frameId);
     const boundsState = trackWindowedBounds(win);
     guardLiveClose(win, req, boundsState);
-    cleanupOnClosed(win, req.key, frameId, boundsState);
+    cleanupOnClosed(win, req.key, frameId, boundsState, req);
 
     return win;
 }
 
-// Matches the bare id and its :kv/:state halves, so closing a frame closes all its live output, not just one half.
+// Matches every window open for this frame (any number of Live/Preview duplicates, plus its
+// :kv/:state halves), so closing a frame closes all of its live output, not just one window.
 function closeFrameWindow(frameId) {
     frameWindows.forEach((win, key) => {
         if (!matchesFrameKey(key, frameId)) return;
@@ -228,7 +265,7 @@ function closeFrameWindow(frameId) {
     });
 }
 
-// Matches the bare key and :kv/:state halves — Split frames are keyed 'a:kv'/'a:state', never bare 'a', so an exact match would silently no-op.
+// Matches every window open for this frame — Split frames are keyed 'a:kv'/'a:state', never bare 'a', so an exact match would silently no-op.
 function reloadFrameWindow(frameId) {
     let reloadedCount = 0;
     frameWindows.forEach((win, key) => {
@@ -236,20 +273,23 @@ function reloadFrameWindow(frameId) {
         win.webContents.reload();
         reloadedCount++;
     });
-    if (reloadedCount > 0) notifyFrameStatus(frameId, 'connecting');
+    if (reloadedCount > 0) emitFrameStatus(frameId, 'connecting');
     return { ok: reloadedCount > 0 };
 }
 
 function getFrameWindowPositions() {
     const result = {};
-    const bareFrameIds = new Set();
+    const bestScore = {};
     frameWindows.forEach((win, key) => {
         // Fullscreen geometry is the whole display, not a usable windowed position (same skip as serializeOpenFrameWindows).
         if (win.isDestroyed() || win.isFullScreen()) return;
         const parsed = parseFrameWindowKey(key);
-        // Prefer the bare key over a Split KV/State half when both are open — Save Project expects exactly one entry per frame.
-        if (parsed.container && bareFrameIds.has(parsed.frameId)) return;
-        if (!parsed.container) bareFrameIds.add(parsed.frameId);
+        const opts = frameWindowOpts.get(key) || {};
+        // Prefer a bare (non-Split), non-preview window when several are open for one frame —
+        // Save Project expects exactly one entry per frame. Lower score wins; ties keep the first seen.
+        const score = (opts.preview ? 10 : 0) + (parsed.container ? 1 : 0);
+        if (bestScore[parsed.frameId] !== undefined && score >= bestScore[parsed.frameId]) return;
+        bestScore[parsed.frameId] = score;
         const [x, y] = win.getPosition();
         // getContentSize, not getSize: windows use useContentSize: true, so getSize() would include the title bar and inflate frame.size.
         const [width, height] = win.getContentSize();
@@ -267,6 +307,15 @@ function getOpenFrameIds() {
         if (ids.indexOf(frameId) < 0) ids.push(frameId);
     });
     return ids;
+}
+
+// Same reconciliation path as getOpenFrameIds, plus the ×N window-count badges.
+function getOpenFrameCounts() {
+    const counts = {};
+    getOpenFrameIds().forEach((frameId) => {
+        counts[frameId] = countFrameWindows(frameId);
+    });
+    return counts;
 }
 
 // Split KV/State windows are keyed 'frameId:kv'/'frameId:state', never bare frameId, so this can't be a plain Map.has() lookup.
@@ -288,7 +337,7 @@ function serializeOpenFrameWindows() {
             // Fullscreen geometry is the whole display; bounds is null and callers fall back to the original opts.
             bounds: fullscreen ? null : { x, y, width, height },
             fullscreen: fullscreen,
-            opts: frameWindowOpts.get(key) || { frameId: key.split(':')[0] }
+            opts: frameWindowOpts.get(key) || { frameId: parseFrameWindowKey(key).frameId }
         });
     });
     return list;
@@ -336,6 +385,7 @@ module.exports = {
     reloadFrameWindow,
     getFrameWindowPositions,
     getOpenFrameIds,
+    getOpenFrameCounts,
     hasFrameWindowFor,
     serializeOpenFrameWindows,
     reopenFrameWindowFromSnapshot,

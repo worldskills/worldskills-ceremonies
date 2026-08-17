@@ -5,7 +5,17 @@
 
         $scope.uploaded = false;
         $scope.FrameService = FrameService;
+        $scope.workspaceCapabilities = { manageWindows: true, preview: true, copyScript: true };
         $scope.projectDirty = false;
+        $scope.workspaceMode = 'setup';
+
+        $scope.skills = [];
+        $scope.members = [];
+        $scope.results = [];
+
+        $scope.resultsBestOfNations = [];
+        // Loaded from project, 5 by default
+        $scope.bestOfNationGroupSize = 5;
 
         $scope.dev = {
             enabled: DevSession.enabled
@@ -26,32 +36,41 @@
         window.addEventListener('keydown', function (e) {
             var target = e.target || {};
             var tag = (target.tagName || '').toLowerCase();
+            if ($scope.workspaceMode !== 'run' || $scope.projectMenuOpen || $scope.importMenuOpen || $scope.feedMenuOpen || $scope.gridConfigDialogOpen || $scope.bestOfNationImportDialogOpen) return;
             if (tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable) return;
+
             if (e.key === 'ArrowRight') {
                 e.preventDefault();
                 $scope.$apply(function () {
-                    if ($scope.queueViewOpen) { $scope.queueListNext(); } else { $scope.nextSlide(); }
+                    if ($scope.queueViewOpen) {
+                        $scope.queueListNext();
+                    } else {
+                        $scope.nextSlide();
+                    }
                 });
             } else if (e.key === 'ArrowLeft') {
                 e.preventDefault();
                 $scope.$apply(function () {
-                    if ($scope.queueViewOpen) { $scope.queueListPrev(); } else { $scope.prevSlide(); }
+                    if ($scope.queueViewOpen) {
+                        $scope.queueListPrev();
+                    } else {
+                        $scope.prevSlide();
+                    }
+                });
+            } else if ((e.key === 'r' || e.key === 'R') && e.ctrlKey) {
+                e.preventDefault();
+                $scope.$apply(function () {
+                    $scope.resetPreview(FrameService.activeFrameId);
                 });
             }
         });
 
-        // projectDirty is set here, not inside FrameState.publish, because the
-        // writer also runs from paths (opening a window, opening the grid)
-        // that must NOT mark the project dirty.
         $scope.update = function (id) {
             FrameState.publish(id);
-            $scope.projectDirty = true;
         };
 
-        $scope.skills = [];
-        $scope.members = [];
+        $scope.syncRemote = FrameState.syncRemote;
 
-        // Re-run on project switch, since skills/members are per-project data.
         $scope.loadCatalogs = function () {
             var skillsLoaded = $http.get(DATA_BASE + 'skills.json').then(function (response) {
                 var skills = angular.isArray(response.data) ? response.data : [];
@@ -76,29 +95,29 @@
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.current) {
                 return $q.resolve();
             }
+
             // $q.when bridges the preload promise into the digest, so no $apply.
             return $q.when(window.ceremonator.project.current()).then(function (result) {
                 if (!result || !result.project) return;
                 if (result.orderingWarning) {
                     $scope.addNotice('warning', result.orderingWarning, 'ordering-corrupt');
                 }
+
                 var project = result.project;
                 $scope.projectName = project.name;
                 $scope.displayMode = project.displayMode;
+                $scope.bestOfNationGroupSize = project.bestOfNationGroupSize || $scope.bestOfNationGroupSize;
                 $scope.languages = (project.languages && project.languages.length) ? project.languages : [{ lang_code: 'en' }];
+
                 if (project.gridConfig) {
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
                 }
+
                 if (project.frames) {
                     FrameService.loadFromProject(project.frames);
                 }
             });
         }
-
-        $scope.results = [];
-
-        $scope.resultsBestOfNations = [];
-        $scope.bestOfNationGroupSize = 5;
 
         $scope.buildCatalog = function () {
             var result = Catalog.build({
@@ -108,7 +127,9 @@
                 bestOfNation: $scope.resultsBestOfNations,
                 bestOfNationGroupSize: $scope.bestOfNationGroupSize
             });
+
             $scope.lastImportSkipped = result.skippedRows;
+
             return result.slides;
         };
 
@@ -126,28 +147,35 @@
                 var skillNums = $scope.skills
                     .filter(function (s) { return !!$scope.catalog[s.number]; })
                     .map(function (s) { return s.number; });
+
                 skillNums.forEach(function (num, i) {
                     var targetId = frameIds[i % frameIds.length];
                     FrameService.frames[targetId].ordering.skillNumbers.push(num);
                 });
+
                 FrameService.frames[frameIds[0]].ordering.includeAlbertVidal = true;
             } else if (forceRedistribute && anyHasSkills && $scope.results.length > 0) {
                 var assignedNums = {};
+
                 frameIds.forEach(function (id) {
                     FrameService.frames[id].ordering.skillNumbers.forEach(function (n) {
                         assignedNums[n] = true;
                     });
                 });
+
                 var newSkillNums = $scope.skills
                     .filter(function (s) { return !!$scope.catalog[s.number] && !assignedNums[s.number]; })
                     .map(function (s) { return s.number; });
+
                 newSkillNums.forEach(function (num, i) {
                     var targetId = frameIds[i % frameIds.length];
                     FrameService.frames[targetId].ordering.skillNumbers.push(num);
                 });
+
                 var anyHasAV = frameIds.some(function (id) {
                     return FrameService.frames[id].ordering.includeAlbertVidal;
                 });
+
                 if (!anyHasAV) {
                     FrameService.frames[frameIds[0]].ordering.includeAlbertVidal = true;
                 }
@@ -155,9 +183,6 @@
 
             angular.forEach(FrameService.frames, function (frame, id) {
                 $scope.assembleFrame(frame, $scope.catalog);
-                if (!frame.slide && frame.slides.length > 0) {
-                    frame.slide = frame.slides[0];
-                }
                 $scope.update(id);
             });
 
@@ -185,8 +210,10 @@
             if ($scope.catalog) {
                 angular.forEach(FrameService.frames, function (frame, id) {
                     $scope.assembleFrame(frame, $scope.catalog);
-                    if (frame.slides && frame.slides.length && frame.slides.indexOf(frame.slide) < 0) {
-                        frame.slide = frame.slides[0];
+                    // The shown slide moved to another frame (or was dropped) — go blank
+                    // rather than jumping to whatever slide now sits first in the list.
+                    if (frame.slide && frame.slides.indexOf(frame.slide) < 0) {
+                        frame.slide = undefined;
                     }
                     // Unlike a plain catalog rebuild, a reassignment must reset
                     // slide.state — assembleFrame no longer does this itself.
@@ -203,6 +230,9 @@
             $scope.projectDirty = true;
         };
 
+        // Pure live-state read — used by slide/state advance logic (Next/Prev, skip-to-next-
+        // unrevealed-state) which is unambiguously about the live presentation, regardless of
+        // what's currently pinned to Preview. Row-level buttons use rowHasState() below instead.
         $scope.hasState = function (slide, state) {
             if (slide.state != undefined) {
                 return !(slide.state.indexOf(state) < 0);
@@ -210,33 +240,138 @@
             return false;
         };
 
+        // The array of currently-revealed states for a row's Toggle/Reset controls —
+        // frame.previewState when this exact slide is the one pinned to Preview (via
+        // previewSlide() below), else the slide's own (live) state. This is what makes it
+        // possible to rehearse an upcoming reveal on the Preview screen without it also going
+        // live, even when previewing the exact slide that's currently live: previewState is a
+        // frame-level array, completely independent of slide.state, so toggling it can never
+        // touch what the live audience sees.
+        function stateArrayFor(screen, slide) {
+            var frame = FrameService.frames[screen];
+            if (frame && frame.previewSlide === slide) {
+                if (!frame.previewState) frame.previewState = [];
+                return frame.previewState;
+            }
+            // A slide that's only ever been previewed (never shown live via showSlide, which is
+            // what normally initializes this) can still have no .state array yet.
+            if (!slide.state) slide.state = [];
+            return slide.state;
+        }
+
+        $scope.rowHasState = function (screen, slide, state) {
+            return stateArrayFor(screen, slide).indexOf(state) >= 0;
+        };
+
+        // Edit/state controls are enabled for whichever slide a frame is currently showing OR
+        // previewing — previewing lets the operator rehearse states without touching live.
+        $scope.canEditSlide = function (screen, slide) {
+            var frame = FrameService.frames[screen];
+            return !!frame && (frame.slide === slide || frame.previewSlide === slide);
+        };
+
+        $scope.isPreviewingSlide = function (screen, slide) {
+            var frame = FrameService.frames[screen];
+            return !!frame && frame.previewSlide === slide;
+        };
+
+        // Editing the slide pinned to Preview is rehearsal — publish preview only, no dirty
+        // flag (same precedent as previewSlide() below). Anything else (the live slide, or a
+        // slide that's neither) is a real show change and goes through the normal $scope.update.
+        function publishAfterEdit(screen, slide) {
+            var frame = FrameService.frames[screen];
+            if (frame && frame.previewSlide === slide) {
+                FrameState.publishPreview(screen);
+            } else {
+                $scope.update(screen);
+            }
+        }
+
         $scope.toggleState = function (screen, slide, state) {
             FrameService.setActiveFrame(screen);
-            if ($scope.hasState(slide, state)) {
-                slide.state.splice(slide.state.indexOf(state), 1);
+            var states = stateArrayFor(screen, slide);
+            var idx = states.indexOf(state);
+            if (idx >= 0) {
+                states.splice(idx, 1);
             } else {
-                slide.state.push(state);
+                states.push(state);
             }
-            $scope.update(screen);
+            publishAfterEdit(screen, slide);
         };
 
         $scope.resetStates = function (screen, slide) {
             FrameService.setActiveFrame(screen);
-            slide.state = [];
-            $scope.update(screen);
+            var frame = FrameService.frames[screen];
+            if (frame && frame.previewSlide === slide) {
+                frame.previewState = [];
+            } else {
+                slide.state = [];
+            }
+            publishAfterEdit(screen, slide);
         };
 
         $scope.updateContext = function (screen, slide) {
-            $scope.update(screen);
+            publishAfterEdit(screen, slide);
         };
 
+        // Clicking a slide row commits it to Live. If that slide is (or was) pinned to Preview,
+        // this is the "go live with what I rehearsed" gesture: the previewed state carries over
+        // instead of being wiped, and the pin clears — so Preview drops back to mirroring Live.
+        // This is the only path that un-pins a slide other than resetFrame()/re-previewing.
         $scope.showSlide = function (screen, slide) {
-            if (FrameService.frames[screen].slide != slide) {
+            var frame = FrameService.frames[screen];
+            var wasPreviewing = frame.previewSlide === slide;
+            var sameSlide = frame.slide === slide;
+            var wasBlanked = !!frame.blanked;
+
+            if (!sameSlide) {
                 slide.done = true;
+                frame.slide = slide;
+            }
+            frame.blanked = false;
+
+            if (wasPreviewing) {
+                slide.state = frame.previewState || [];
+                frame.previewSlide = undefined;
+                frame.previewState = undefined;
+            } else if (!sameSlide) {
                 slide.state = [];
-                FrameService.frames[screen].slide = slide;
+            }
+
+            // Same-slide guard, extended: a plain re-click of the already-live, not-blanked slide
+            // is still a no-op, but committing a preview pin or un-blanking always republishes
+            // even if that slide was already the frame's slide.
+            if (!sameSlide || wasPreviewing || wasBlanked) {
                 $scope.update(screen);
             }
+        };
+
+        // Pushes to the Preview channel only — Live windows (and the grid view) are untouched.
+        // Does not set slide.done: unlike showSlide, previewing isn't "shown".
+        $scope.previewSlide = function ($event, screen, slide) {
+            if ($event) $event.stopPropagation();
+            var frame = FrameService.frames[screen];
+            if (frame.previewSlide !== slide) {
+                // Snapshot the slide's current (live) state as Preview's starting point — from
+                // here, Preview's revealed states are independent (see stateArrayFor above). A
+                // second click on the same already-previewed slide leaves this snapshot alone,
+                // so it doesn't clobber any state a Preview-only toggle already set.
+                frame.previewState = angular.copy(slide.state || []);
+            }
+            frame.previewSlide = slide;
+            FrameState.publishPreview(screen);
+        };
+
+        // Un-pins Preview so it drops back to mirroring Live — covers all 3 states an operator
+        // can hit: nothing pinned (no-op, already mirroring), same slide pinned with a different
+        // rehearsed state (previewState is discarded, slide.state wins), or a different slide
+        // entirely pinned (Preview switches back to whatever's live). Button + 'R' shortcut.
+        $scope.resetPreview = function (screen) {
+            var frame = FrameService.frames[screen];
+            if (!frame || !frame.previewSlide) return;
+            frame.previewSlide = undefined;
+            frame.previewState = undefined;
+            FrameState.publishPreview(screen);
         };
 
         // Invariant 1: a part body may only define/initialize during attach —
@@ -328,9 +463,13 @@
         // reconciled here once after restoring.
         function syncFrameStatuses() {
             if (!window.ceremonator || !window.ceremonator.frames || !window.ceremonator.frames.openIds) return;
-            $q.when(window.ceremonator.frames.openIds()).then(function (ids) {
-                angular.forEach(ids || [], function (id) {
-                    if (FrameService.frames[id]) FrameService.frames[id].status = 'ready';
+            $q.when(window.ceremonator.frames.openIds()).then(function (result) {
+                var ids = (result && result.ids) || [];
+                var counts = (result && result.counts) || {};
+                angular.forEach(ids, function (id) {
+                    if (!FrameService.frames[id]) return;
+                    FrameService.frames[id].status = 'ready';
+                    if (counts[id]) FrameService.frames[id].windows = counts[id];
                 });
             });
         }
@@ -396,6 +535,7 @@
                 if (!frame) return;
                 var apply = function () {
                     frame.status = data.status;
+                    if (data.windows) frame.windows = data.windows;
                     if (data.x != null && data.y != null && frame.position) {
                         frame.position.x = data.x;
                         frame.position.y = data.y;
@@ -407,7 +547,64 @@
                         frame.size.width = data.width;
                         frame.size.height = data.height;
                     }
+                    FrameState.syncRemote();
                 };
+                if (!$scope.$$phase) $scope.$apply(apply); else apply();
+            });
+        }
+
+        $scope.remoteInfo = null;
+        if (window.ceremonator && window.ceremonator.remote && window.ceremonator.remote.info) {
+            $q.when(window.ceremonator.remote.info()).then(function (info) {
+                $scope.remoteInfo = info;
+            });
+        }
+
+        // Whitelist of actions a remote control panel may trigger — each just calls the same
+        // scope function the local operator UI uses. Anything not listed here (project save/
+        // load, frame add/remove, window/grid management, dev-session controls) is unreachable
+        // from remote by construction, not by a runtime permission check.
+        var REMOTE_ACTIONS = {
+            showSlide: function (frame, action) {
+                var slide = frame.slides[action.slideIndex];
+                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
+                if (slide) $scope.showSlide(action.frameId, slide);
+            },
+            previewSlide: function (frame, action) {
+                var slide = frame.slides[action.slideIndex];
+                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
+                if (slide) $scope.previewSlide(null, action.frameId, slide);
+            },
+            toggleState: function (frame, action) {
+                var slide = frame.slides[action.slideIndex];
+                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
+                if (slide) $scope.toggleState(action.frameId, slide, action.state);
+            },
+            resetStates: function (frame, action) {
+                var slide = frame.slides[action.slideIndex];
+                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
+                if (slide) $scope.resetStates(action.frameId, slide);
+            },
+            updateContext: function (frame, action) {
+                var slide = frame.slides[action.slideIndex];
+                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
+                if (slide) {
+                    slide.context = action.context;
+                    $scope.updateContext(action.frameId, slide);
+                }
+            },
+            resetPreview: function (frame, action) { $scope.resetPreview(action.frameId); },
+            resetFrame: function (frame, action) { $scope.resetFrame(action.frameId); },
+            prevSlideForFrame: function (frame, action) { $scope.prevSlideForFrame(action.frameId); },
+            nextSlideForFrame: function (frame, action) { $scope.nextSlideForFrame(action.frameId); }
+        };
+
+        if (window.ceremonator && window.ceremonator.remote && window.ceremonator.remote.onAction) {
+            window.ceremonator.remote.onAction(function (action) {
+                var handler = action && REMOTE_ACTIONS[action.name];
+                var frame = action && FrameService.frames[action.frameId];
+                if (!handler || !frame) return;
+                var apply = function () { handler(frame, action); };
                 if (!$scope.$$phase) $scope.$apply(apply); else apply();
             });
         }

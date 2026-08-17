@@ -36,7 +36,8 @@ npm install
 WorldSkills API. Regenerate them for a project with:
 
 ```
-bin/fetch.js [project-name]
+node bin/fetch-skills.js
+node bin/fetch-members.js
 ```
 
 `project-name` defaults to `bare-project`; pass another project's folder name (under `projects/`)
@@ -58,13 +59,3 @@ To build a distributable package:
 npm run package   # unpacked app
 npm run make       # platform installers/zips
 ```
-
-## Contributing
-
-The source code has been made available primarily for WorldSkills Members organizing their own
-skill competitions. We highly encourage them to share their own versions so knowledge can be
-shared — that's exactly what the `projects/` folder is for.
-
-Fork this repository to start developing your own version. To suggest changes to this repository
-create a new branch in your own fork based on this [master branch](https://github.com/worldskills/worldskills-ceremonies/tree/master)
-and submit a pull request.

@@ -1,10 +1,10 @@
 const { BrowserWindow, screen: electronScreen } = require('electron');
-const { isDev } = require('./dev-flags');
 const { baseWebPreferences } = require('./window-factory');
 const { clampToDisplayWorkArea, resolveTargetDisplay } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { notifyFrameStatus } = require('./control-channel');
 const { hasFrameWindowFor } = require('./frame-windows');
+const { markWindow } = require('./ipc/sender-role');
 
 let gridWindow = null;
 let gridFrameIds = [];
@@ -64,8 +64,9 @@ function openGridWindow(config) {
         show: false,
         backgroundColor: '#000',
         // Without nodeIntegrationInSubFrames, the preload's window.ceremonator only reaches frames.html itself, not its iframes — silently breaking screen.js's translation IPC in grid view.
-        webPreferences: baseWebPreferences({ nodeIntegrationInSubFrames: true, backgroundThrottling: false }),
+        webPreferences: baseWebPreferences({ nodeIntegrationInSubFrames: true, backgroundThrottling: false, ceremonatorRole: 'output' }),
     });
+    markWindow(win, 'output');
     // No always-on-top here (unlike live frame windows) — grid view never fullscreens, so pinning it would block reaching the control panel behind it.
 
     gridWindow = win;
@@ -80,6 +81,7 @@ function openGridWindow(config) {
             'frameH=' + frameSize.height,
             'gap=' + gap,
             'scale=' + scale,
+            'feed=' + (config.feed || 'live'),
         ].join('&')
     });
 
@@ -115,10 +117,6 @@ function openGridWindow(config) {
         gridFrameIds = [];
         lastGridConfig = null;
     });
-
-    if (isDev) {
-        win.webContents.openDevTools({ mode: 'detach' });
-    }
 
     return { ok: true };
 }

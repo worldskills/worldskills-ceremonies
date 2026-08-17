@@ -88,8 +88,8 @@
                 }
                 cur.slide.done = true;
                 var frame = FrameService.frames[cur.frameId];
-                if (frame && frame.slides && frame.slides.length > 0) {
-                    frame.slide = frame.slides[0];
+                if (frame) {
+                    frame.slide = undefined;
                     scope.update(cur.frameId);
                 }
                 scope.skillsSelectedSkill = null;
@@ -144,8 +144,8 @@
 
                 if (activeSlideLabel && oldFrameId && oldFrameId !== frameId) {
                     var oldFrame = FrameService.frames[oldFrameId];
-                    if (oldFrame && oldFrame.slides && oldFrame.slides.length > 0) {
-                        oldFrame.slide = oldFrame.slides[0];
+                    if (oldFrame) {
+                        oldFrame.slide = undefined;
                         scope.update(oldFrameId);
                     }
                 }

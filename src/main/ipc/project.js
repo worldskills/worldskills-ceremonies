@@ -130,7 +130,7 @@ function registerProjectIpc() {
 
         projectStore.setActive(dir, loaded.project, templateDir);
         addRecent(dir, loaded.project.name || path.basename(dir));
-        const orderingWarning = projectStore.peekOrderingWarning();
+        const orderingWarning = loaded.orderingWarning;
         return orderingWarning
             ? { ok: true, dir, project: loaded.project, orderingWarning }
             : { ok: true, dir, project: loaded.project };
@@ -156,7 +156,7 @@ function registerProjectIpc() {
 
         projectStore.setActive(dir, loaded.project, templateDir);
         addRecent(dir, loaded.project.name || path.basename(dir));
-        const orderingWarning = projectStore.peekOrderingWarning();
+        const orderingWarning = loaded.orderingWarning;
         return orderingWarning
             ? { ok: true, dir, project: loaded.project, orderingWarning }
             : { ok: true, dir, project: loaded.project };
@@ -166,8 +166,7 @@ function registerProjectIpc() {
         const dir = projectStore.getActiveProjectDir();
         const project = projectStore.getActiveProject();
         if (!dir || !project) return { dir: null, project: null };
-        const orderingWarning = projectStore.consumeOrderingWarning();
-        return orderingWarning ? { dir, project, orderingWarning } : { dir, project };
+        return { dir, project };
     });
 
     ipcMain.handle('project:saveCurrent', (_event, project) => {

@@ -22,6 +22,9 @@
                     scope.rebuildCatalogSkillList();
                 }
                 FrameService.setActiveFrame(nextId);
+                scope.buildQueueList();
+                scope.projectDirty = true;
+                if (scope.syncRemote) scope.syncRemote();
             };
 
             scope.removeFrame = function (id) {
@@ -35,6 +38,10 @@
                 if (confirm('Remove frame "' + frame.label + '"?')) {
                     FrameState.clear(id);
                     FrameService.removeFrame(id);
+                    scope.rebuildCatalogSkillList();
+                    scope.buildQueueList();
+                    scope.projectDirty = true;
+                    if (scope.syncRemote) scope.syncRemote();
                 }
             };
 
@@ -135,12 +142,28 @@
                 var frame = FrameService.frames[frameId];
                 if (!frame || !frame.slides.length) return '—';
                 var idx = frame.slides.indexOf(frame.slide);
-                return (idx < 0 ? 0 : idx + 1) + '/' + frame.slides.length;
+                return (idx < 0 ? '—' : idx + 1) + '/' + frame.slides.length;
+            };
+
+            // Blanks a frame's screens without losing its place in the slide list: frame.slide
+            // is left alone (getSlidePosition reads it directly for the N/M counter) — only the
+            // frame.blanked flag is set, which FrameState.publish/publishPreview treat as "no
+            // slide" (empty.html). showSlide() clears the flag when the operator goes live again.
+            scope.resetFrame = function (frameId) {
+                var frame = FrameService.frames[frameId];
+                if (!frame) return;
+                frame.blanked = true;
+                frame.previewSlide = undefined;
+                frame.previewState = undefined;
+                scope.update(frameId);
             };
 
             scope.allFramesViewOpen = false;
             scope.gridConfigDialogOpen = false;
-            scope.gridConfig = { cols: null, frameWidth: 1280, frameHeight: 720, splitContainers: false, monitor: null };
+            // feed: 'live' | 'preview' — the whole grid reads one channel, chosen in the config
+            // dialog. Grid iframes aren't tracked by frame-windows.js's registry, so this is
+            // exempt from the "one Preview window per frame" rule above: a grid can be all-Preview.
+            scope.gridConfig = { cols: null, frameWidth: 1280, frameHeight: 720, splitContainers: false, monitor: null, feed: 'live' };
 
             scope.openFrameWindow = function (frameId, isPreview) {
                 var frame = FrameService.frames[frameId];
@@ -150,7 +173,7 @@
                 FrameState.publish(frameId);
                 frame.status = 'connecting';
                 if (window.ceremonator && window.ceremonator.frames) {
-                    if (scope.gridConfig.splitContainers) {
+                    if (scope.gridConfig.splitContainers && !isPreview) {
                         // kv/state windows share the frame's position/size at
                         // open — the operator drags the second one into place.
                         ['kv', 'state'].forEach(function (container) {
@@ -161,6 +184,13 @@
                                 preview: !!isPreview,
                                 label: frame.label,
                                 container: container
+                            }).then(function (result) {
+                                if (!result || result.ok === false) throw new Error((result && result.error) || 'unknown error');
+                            }).catch(function (error) {
+                                scope.$apply(function () {
+                                    frame.status = 'closed';
+                                    scope.addNotice('error', 'Could not open output: ' + (error.message || error), 'open-output-' + frameId);
+                                });
                             });
                         });
                     } else {
@@ -170,10 +200,17 @@
                             position: frame.position,
                             preview: !!isPreview,
                             label: frame.label
+                        }).then(function (result) {
+                            if (!result || result.ok === false) throw new Error((result && result.error) || 'unknown error');
+                        }).catch(function (error) {
+                            scope.$apply(function () {
+                                frame.status = 'closed';
+                                scope.addNotice('error', 'Could not open output: ' + (error.message || error), 'open-output-' + frameId);
+                            });
                         });
                     }
                 } else {
-                    var url = 'screen.html?screen=' + frameId + (isPreview ? '&preview=true' : '') + '&label=' + encodeURIComponent(frame.label || frameId);
+                    var url = 'screen.html?screen=' + frameId + (isPreview ? '&preview=true&feed=preview' : '') + '&label=' + encodeURIComponent(frame.label || frameId);
                     window.open(url, '_blank');
                     frame.status = 'ready';
                 }
@@ -183,21 +220,49 @@
                 scope.openFrameWindow(frameId, false);
             };
 
+            // A standalone Preview window (unlike the grid view) requires a Live window to
+            // already be open for the frame, and only one may be open at a time — both enforced
+            // here rather than in main.js, since this is the only caller of frames:openWindow.
+            scope.canOpenFramePreview = function (frameId) {
+                var frame = FrameService.frames[frameId];
+                return !!frame && !!(frame.windows && frame.windows.live) && !(frame.windows && frame.windows.preview);
+            };
+
             scope.openFrameWindowPreview = function (frameId) {
+                var frame = FrameService.frames[frameId];
+                if (!frame) return;
+                if (!frame.windows || !frame.windows.live) {
+                    scope.addNotice('warning', 'Open a Live window for "' + (frame.label || frameId) + '" before opening Preview.', 'preview-needs-live');
+                    return;
+                }
+                if (frame.windows.preview) {
+                    scope.addNotice('warning', 'Preview is already open for "' + (frame.label || frameId) + '" — only one Preview window per frame is allowed.', 'preview-already-open');
+                    return;
+                }
                 scope.openFrameWindow(frameId, true);
             };
 
             scope.previewAllFrames = function () {
-                var count = FrameService.count();
-                if (!confirm('Open preview windows for all ' + count + ' frame(s)?')) return;
+                var eligible = [];
+                var skipped = [];
                 angular.forEach(FrameService.frames, function (frame, id) {
-                    scope.openFrameWindow(id, true);
+                    if (!scope.canOpenFramePreview(id)) { skipped.push(frame.label || id); return; }
+                    eligible.push(id);
                 });
+                if (!eligible.length) {
+                    scope.addNotice('warning', 'No frames are eligible for Preview — open Live windows first (and close any Preview already open).', 'preview-all-none');
+                    return;
+                }
+                if (!confirm('Open preview windows for ' + eligible.length + ' frame(s)?')) return;
+                eligible.forEach(function (id) { scope.openFrameWindow(id, true); });
+                if (skipped.length) {
+                    scope.addNotice('warning', 'Skipped (no Live window open, or Preview already open): ' + skipped.join(', '), 'preview-all-skipped');
+                }
             };
 
             scope.openAllFramesLive = function () {
                 angular.forEach(FrameService.frames, function (frame, id) {
-                    scope.openFrameWindow(id, false);
+                    if (!frame.windows || !frame.windows.live) scope.openFrameWindow(id, false);
                 });
             };
 
@@ -307,6 +372,7 @@
                         width: parseInt(scope.gridConfig.frameWidth, 10) || 1280,
                         height: parseInt(scope.gridConfig.frameHeight, 10) || 720
                     },
+                    feed: scope.gridConfig.feed,
                     position: monitorOverride != null ? { monitor: monitorOverride } : null
                 });
             };

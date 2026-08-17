@@ -1,4 +1,5 @@
 <div class="screen-content screen-content-albert-vidal-award">
+    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted></video>
     <div class="screen-albert-vidal-award-name screen-region-kv">
         <div class="screen-translation">
              <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"

@@ -74,6 +74,18 @@
                 });
             });
 
+            // Best of Nation slides are assigned to the same configured special-award frame.
+            if (albertVidalFrame && catalog[SLIDE_KEYS.BEST_OF_NATION]) {
+                var bonFrame = FrameService.frames[albertVidalFrame];
+                if (bonFrame && bonFrame.slides) {
+                    angular.forEach(bonFrame.slides, function (slide) {
+                        if (slide.template === 'best_of_nation.html') {
+                            list.push({ slide: slide, frameId: albertVidalFrame, frame: bonFrame });
+                        }
+                    });
+                }
+            }
+
             if (albertVidalFrame && catalog[SLIDE_KEYS.ALBERT_VIDAL]) {
                 var avaFrame = FrameService.frames[albertVidalFrame];
                 if (avaFrame && avaFrame.slides) {

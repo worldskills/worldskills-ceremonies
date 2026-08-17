@@ -13,7 +13,8 @@
   "frames": [
     {
       "id": "a",
-      "label": "Main Stage",
+      "label": "Podium Red",
+      "video": "red.mp4",
       "size": {
         "width": 589,
         "height": 553
@@ -45,7 +46,8 @@
     },
     {
       "id": "b",
-      "label": "Frame B",
+      "label": "Podium Blue",
+      "video": "blue.mp4",
       "size": {
         "width": 589,
         "height": 553
@@ -77,7 +79,8 @@
     },
     {
       "id": "c",
-      "label": "Frame C",
+      "label": "Yellow",
+      "video": "yellow.mp4",
       "size": {
         "width": 588,
         "height": 553
