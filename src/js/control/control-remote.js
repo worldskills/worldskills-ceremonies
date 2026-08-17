@@ -9,22 +9,30 @@
             showSlide: function (frame, action) {
                 var slide = frame.slides[action.slideIndex];
                 if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) $scope.showSlide(action.frameId, slide);
+                if (slide) {
+                    $scope.showSlide(action.frameId, slide);
+                }
             },
             previewSlide: function (frame, action) {
                 var slide = frame.slides[action.slideIndex];
                 if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) $scope.previewSlide(null, action.frameId, slide);
+                if (slide) {
+                    $scope.previewSlide(null, action.frameId, slide);
+                }
             },
             toggleState: function (frame, action) {
                 var slide = frame.slides[action.slideIndex];
                 if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) $scope.toggleState(action.frameId, slide, action.state);
+                if (slide) {
+                    $scope.toggleState(action.frameId, slide, action.state);
+                }
             },
             resetStates: function (frame, action) {
                 var slide = frame.slides[action.slideIndex];
                 if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) $scope.resetStates(action.frameId, slide);
+                if (slide) {
+                    $scope.resetStates(action.frameId, slide);
+                }
             },
             updateContext: function (frame, action) {
                 var slide = frame.slides[action.slideIndex];
@@ -34,10 +42,18 @@
                     $scope.updateContext(action.frameId, slide);
                 }
             },
-            resetPreview: function (frame, action) { $scope.resetPreview(action.frameId); },
-            resetFrame: function (frame, action) { $scope.resetFrame(action.frameId); },
-            prevSlideForFrame: function (frame, action) { $scope.prevSlideForFrame(action.frameId); },
-            nextSlideForFrame: function (frame, action) { $scope.nextSlideForFrame(action.frameId); }
+            resetPreview: function (frame, action) {
+                $scope.resetPreview(action.frameId);
+            },
+            resetFrame: function (frame, action) {
+                $scope.resetFrame(action.frameId);
+            },
+            prevSlideForFrame: function (frame, action) {
+                $scope.prevSlideForFrame(action.frameId);
+            },
+            nextSlideForFrame: function (frame, action) {
+                $scope.nextSlideForFrame(action.frameId);
+            }
         };
 
         $scope.remoteInfo = null;

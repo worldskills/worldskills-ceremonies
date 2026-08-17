@@ -1,7 +1,5 @@
 const { screen: electronScreen } = require('electron');
 
-// Centered default position for a window opening fresh on a given display (no saved/dragged
-// position to reuse) — pure placement, no fit-to-display resizing or on-screen clamping.
 function centerOnDisplay(display, width, height) {
     const wa = display.workArea;
     return {

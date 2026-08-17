@@ -16,8 +16,6 @@ const MIME = {
     '.eot': 'application/vnd.ms-fontobject', '.svg': 'image/svg+xml', '.png': 'image/png'
 };
 
-// Explicit allow-list — this server is reachable from the whole LAN, so only the exact static
-// assets the remote page needs are exposed, not the app root (unlike wstemplate://'s fallback).
 const STATIC_FILES = {
     '/': path.join(appRoot, 'src', 'views', 'remote.html'),
     '/partials/control-workspace.html': path.join(appRoot, 'src', 'views', 'partials', 'control-workspace.html'),
@@ -102,8 +100,6 @@ function validAction(action) {
     return true;
 }
 
-// Closes any running server/socket and forgets the last snapshot — used both when a project
-// disables the remote and right before restarting on a different port.
 function stopRemoteServer() {
     if (wss) {
         wss.clients.forEach((client) => client.terminate());
@@ -174,10 +170,6 @@ function startRemoteServer(port) {
     server.listen(currentPort);
 }
 
-// Applies a project's `remote: {enabled, port}` (project-contract.js fills in defaults for any
-// project missing the field), starting/stopping/restarting the server as needed. Called once at
-// app boot with whatever project devResume() may have already made active, and again every time
-// the active project changes (see ipc/project.js).
 function applyRemoteConfig(project) {
     const remote = (project && project.remote) || {};
     const wantEnabled = remote.enabled !== false;

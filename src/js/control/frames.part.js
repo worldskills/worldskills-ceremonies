@@ -22,7 +22,10 @@
             FrameService.setActiveFrame(nextId);
             $scope.buildQueueList();
             $scope.projectDirty = true;
-            if ($scope.syncRemote) $scope.syncRemote();
+
+            if ($scope.syncRemote) {
+                $scope.syncRemote();
+            }
         };
 
         $scope.removeFrame = function (id) {
@@ -41,11 +44,17 @@
                 $scope.rebuildCatalogSkillList();
                 $scope.buildQueueList();
                 $scope.projectDirty = true;
-                if ($scope.syncRemote) $scope.syncRemote();
+
+                if ($scope.syncRemote) {
+                    $scope.syncRemote();
+                }
             }
         };
 
-        $scope.rename = { id: null, label: '' };
+        $scope.rename = {
+            id: null,
+            label: ''
+        };
 
         $scope.startRenameFrame = function (id, currentLabel) {
             $scope.rename.id = id;
@@ -82,6 +91,7 @@
         $scope.prevSlideForFrame = function (frameId) {
             var frame = FrameService.frames[frameId];
             if (!frame || !frame.slides || !frame.slides.length) return;
+
             var slide = frame.slide;
             if (!slide) return;
             if (slide.state && slide.state.length > 0) {
@@ -89,6 +99,7 @@
                 $scope.update(frameId);
                 return;
             }
+
             var idx = frame.slides.indexOf(slide);
             if (idx > 0) {
                 $scope.showSlide(frameId, frame.slides[idx - 1]);
@@ -99,8 +110,10 @@
         $scope.nextSlideForFrame = function (frameId) {
             var frame = FrameService.frames[frameId];
             if (!frame || !frame.slides || !frame.slides.length) return;
+
             var slide = frame.slide;
             if (!slide) return;
+
             if (slide.states && slide.states.length > 0) {
                 for (var i = 0; i < slide.states.length; i++) {
                     if (!$scope.hasState(slide, slide.states[i])) {
@@ -111,7 +124,9 @@
                     }
                 }
             }
+
             var idx = frame.slides.indexOf(slide);
+
             if (idx >= 0 && idx < frame.slides.length - 1) {
                 $scope.showSlide(frameId, frame.slides[idx + 1]);
                 QueueScroll.scrollToActiveInFrame(frameId);
@@ -144,9 +159,11 @@
         $scope.resetFrame = function (frameId) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
+
             frame.blanked = true;
             frame.previewSlide = undefined;
             frame.previewState = undefined;
+
             $scope.update(frameId);
         };
 
@@ -266,19 +283,13 @@
             frame.status = FRAMES_WINDOW_STATUS.CLOSED;
         };
 
-        // Only a default for the project's grid.html — it may hardcode its own --grid-cols, and the
-        // row count is no longer knowable here since the template decides how many cells exist.
-        function autoCols() {
-            return Math.max(1, Math.ceil(Math.sqrt(FrameService.count())));
-        }
-
         $scope.getFrameCount = function () {
             return FrameService.count();
         };
 
         $scope.getGridCols = function () {
             var colsInput = parseInt($scope.gridConfig.cols, 10);
-            return colsInput > 0 ? colsInput : autoCols();
+            return colsInput > 0 ? colsInput : Math.max(1, Math.ceil(Math.sqrt(FrameService.count())));
         };
 
         $scope.openGridView = function () {
@@ -293,8 +304,6 @@
                 FrameState.publish(id);
             });
 
-            // Which cells exist, and in what arrangement, is the project's template/grid.html —
-            // this only supplies the frame roster it can draw from, plus sizing defaults.
             var frames = Object.keys(FrameService.frames).map(function (id) {
                 return {
                     frameId: id,

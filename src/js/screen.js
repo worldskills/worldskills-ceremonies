@@ -26,8 +26,6 @@
             }
         };
 
-        // Preview windows read a separate '-preview' channel (see frame-state.service.js) so
-        // Preview can show a different slide than what's live — the key this window listens on.
         $scope.storageKey = function () {
             return $scope.feed === FEED.PREVIEW ? StorageKeys.previewKey($scope.screen) : StorageKeys.screenKey($scope.screen);
         };
@@ -99,13 +97,12 @@
             $scope.slideLabel = data.label || '';
         };
 
-        // $location.search() is unreliable for file:// URLs in AngularJS's hashbang mode — read query params directly.
         $scope.loadScreen = function () {
             var params = new URLSearchParams(window.location.search);
             var screen = params.get('screen');
             var preview = params.get('preview');
-            var feed = params.get('feed'); // 'preview' | null (live)
-            var container = params.get('container'); // 'kv' | 'state'
+            var feed = params.get('feed');
+            var container = params.get('container');
             if (container) {
                 document.body.classList.add('screen-container-' + container);
             }
@@ -124,7 +121,6 @@
         $scope.loadScreen();
         $scope.calculateResolution();
 
-        // F11 only in preview — on a live window a stray keystroke must not desync DOM fullscreen from Electron's native fullscreen.
         window.addEventListener('keydown', function (e) {
             if (!$scope.preview) return;
             if (e.key === 'F11') {

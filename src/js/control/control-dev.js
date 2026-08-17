@@ -1,9 +1,6 @@
 (function () {
     'use strict';
 
-    // Dev-mode session persistence: restoring a snapshot across a hot reload/restart, collecting
-    // one for the next save, and the "clear cache" control. Inert whenever DevSession is disabled
-    // (packaged builds) — see dev-session.service.js.
     angular.module('ceremoniesApp').factory('DevPart', function ($q, FrameService, FrameState, DevSession, WORKSPACE_MODES) {
       return function ($scope) {
         $scope.dev = {
@@ -25,8 +22,6 @@
             $scope.allFramesViewOpen = !!ui.allFramesViewOpen;
             if (ui.queueLayout) $scope.queueLayout = ui.queueLayout;
             if (ui.selectedSkillNumber) {
-                // Reselect from catalogSkillList, not a fresh object — the
-                // skills navigator binds to that array's item identity.
                 angular.forEach($scope.catalogSkillList || [], function (skill) {
                     if (skill.number === ui.selectedSkillNumber) {
                         $scope.selectSkillForQueue(skill);
@@ -70,8 +65,6 @@
                 $scope.bestOfNationGroupSize = saved.bestOfNationGroupSize || 5;
                 $scope.uploaded = !!saved.uploaded;
 
-                // No forceRedistribute — keeps the restored skill→frame
-                // assignment; passing true here would redistribute on reload.
                 $scope.buildScreens();
                 DevSession.restoreRuntime(saved.runtime);
 
@@ -115,8 +108,6 @@
                 };
             });
 
-            // One $watch on a fingerprint instead of a save call at every
-            // mutation site — anything that changes show state changes it.
             $scope.$watch(function () {
                 return DevSession.fingerprint($scope);
             }, function () {

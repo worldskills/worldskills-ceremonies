@@ -186,9 +186,6 @@
             $scope.projectDirty = true;
         };
 
-        // Pure live-state read — used by slide/state advance logic (Next/Prev, skip-to-next-
-        // unrevealed-state) which is unambiguously about the live presentation, regardless of
-        // what's currently pinned to Preview. Row-level buttons use rowHasState() below instead.
         $scope.hasState = function (slide, state) {
             if (slide.state != undefined) {
                 return !(slide.state.indexOf(state) < 0);
@@ -201,8 +198,6 @@
             return stateArrayFor(screen, slide).indexOf(state) >= 0;
         };
 
-        // Edit/state controls are enabled for whichever slide a frame is currently showing OR
-        // previewing — previewing lets the operator rehearse states without touching live.
         $scope.canEditSlide = function (screen, slide) {
             var frame = FrameService.frames[screen];
             return !!frame && (frame.slide === slide || frame.previewSlide === slide);

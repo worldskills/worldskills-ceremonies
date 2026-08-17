@@ -162,9 +162,6 @@
                 }
             }
 
-            // Sets frame.slide directly instead of showSlide() — bypasses its
-            // same-slide guard so state always resets and localStorage always
-            // gets written.
             if (activeSlideLabel) {
                 var shown = false;
                 angular.forEach(newSlides, function (item) {
