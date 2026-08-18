@@ -39,6 +39,7 @@
                         el.removeAttribute('data-frame-each');
                         if (!el.hasAttribute('data-frame')) el.setAttribute('data-frame', frame.frameId);
                         if (!el.hasAttribute('data-label')) el.setAttribute('data-label', frame.label || frame.frameId);
+                        if (frame.container && !el.hasAttribute('data-container')) el.setAttribute('data-container', frame.container);
                         parent.insertBefore(el, proto);
                     });
                     parent.removeChild(proto);

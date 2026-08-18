@@ -45,7 +45,8 @@ function openGridWindow(config) {
     const framesPayload = frames.map(f => ({
         frameId: f.frameId,
         label: f.label || '',
-        accent: f.accent || ''
+        accent: f.accent || '',
+        container: f.container || ''
     }));
 
     const win = new BrowserWindow({

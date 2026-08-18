@@ -50,6 +50,8 @@
             $scope.render();
         };
 
+
+
         $scope.render = function () {
             var data = null;
             try {
@@ -111,15 +113,7 @@
             }
         };
 
-        $scope.calculateResolution = function () {
-            document.documentElement.style.setProperty('--screen-real-width', window.innerWidth);
-            document.documentElement.style.setProperty('--screen-real-height', window.innerHeight);
-        };
-
-        window.addEventListener('resize', $scope.calculateResolution);
-
         $scope.loadScreen();
-        $scope.calculateResolution();
 
         window.addEventListener('keydown', function (e) {
             if (!$scope.preview) return;

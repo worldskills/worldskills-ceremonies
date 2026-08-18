@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('Catalog', function ($filter, ResultFormat, TextFit, SLIDE_KEYS, EXCEL_COLUMNS, ALBERT_VIDAL_AWARD_LABEL) {
+    angular.module('ceremoniesApp').factory('Catalog', function ($filter, ResultFormat, SLIDE_KEYS, EXCEL_COLUMNS, ALBERT_VIDAL_AWARD_LABEL) {
 
         function groupByMember(filteredResults) {
             return Array.from(filteredResults.reduce(function (accumulator, result) {
@@ -56,23 +56,15 @@
                             states.unshift(result.medal);
                         }
                     });
-                    // Per-row sizing (2-line max): medal grid rows can spare a line; callup rows get 3 (see .screen-medal in screen.css).
-                    TextFit.annotateEach(skillMedalResults, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
-                    var memberSize = TextFit.measureLongest(skillMedalResults, function (result) { return result.member; }, 3);
-
                     var slideCallup = {
                         label: skill.name.text + ' - Callup',
                         template: 'skill_callup.html',
                         states: ['Countries'],
                         context: {
                             results: $filter('orderBy')(skillMedalResults, 'member'),
-                            skill: ResultFormat.simplifySkill(skill),
-                            // Longest member name (1-line / 3-line wrap) sizes the call-up row (see .screen-table-countries).
-                            maxMemberLen: memberSize.chars,
-                            maxMemberWrap: memberSize.wrapped
+                            skill: ResultFormat.simplifySkill(skill)
                         }
                     };
-
                     var slideMedals = {
                         label: skill.name.text + ' - Medals',
                         template: 'skill_medals.html',
@@ -124,8 +116,6 @@
 
                     total = total || 1;
 
-                    TextFit.annotateEach(resultsMedalForExcellence, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
-
                     var slideMfe = {
                         label: skill.name.text + ' - Medal for Excellence',
                         template: 'medal_for_excellence.html',
@@ -166,9 +156,6 @@
                     }, { memberCode: member.code, memberName: member.name.text, competitors: [] });
 
                 if (memberResult.competitors.length > 0) {
-                    var bonSize = TextFit.measureLongest([memberResult], function (result) { return result.competitors; }, 2);
-                    memberResult.nameChars = bonSize.chars;
-                    memberResult.nameWrapped = bonSize.wrapped;
                     resultsBestOfNationMembers.push(memberResult);
                 }
             });
@@ -177,14 +164,15 @@
                 var bestOfNationSlides = [];
                 for (var bon = 1; bon <= 99 && resultsBestOfNationMembers.length > 0; bon++) {
                     var bestOfNationSlice = resultsBestOfNationMembers.splice(0, bestOfNationGroupSize);
-                    bestOfNationSlides.push({
+                    var slideBon = {
                         label: 'Best of Nation ' + bon,
                         template: 'best_of_nation.html',
                         states: ['Name'],
                         context: {
                             results: bestOfNationSlice
                         }
-                    });
+                    };
+                    bestOfNationSlides.push(slideBon);
                 }
                 catalog[SLIDE_KEYS.BEST_OF_NATION] = bestOfNationSlides;
             }
@@ -203,16 +191,15 @@
                     return parseFloat(result[EXCEL_COLUMNS.SCALE_SCORE]) === maxResult;
                 }));
 
-            TextFit.annotateEach(resultsAlbertVidalAward, ResultFormat.competitorsOf, 2, 'nameChars', 'nameWrapped');
-
-            catalog[SLIDE_KEYS.ALBERT_VIDAL] = [{
+            var slideAlbertVidal = {
                 label: ALBERT_VIDAL_AWARD_LABEL,
                 template: 'albert_vidal_award.html',
                 states: ['Name'],
                 context: {
                     results: $filter('orderBy')(resultsAlbertVidalAward, 'member'),
                 }
-            }];
+            };
+            catalog[SLIDE_KEYS.ALBERT_VIDAL] = [slideAlbertVidal];
 
             return { slides: catalog, skippedRows: skippedRows };
         }

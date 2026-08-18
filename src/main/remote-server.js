@@ -19,6 +19,7 @@ const MIME = {
 const STATIC_FILES = {
     '/': path.join(appRoot, 'src', 'views', 'remote.html'),
     '/partials/control-workspace.html': path.join(appRoot, 'src', 'views', 'partials', 'control-workspace.html'),
+    '/partials/slide-row.html': path.join(appRoot, 'src', 'views', 'partials', 'slide-row.html'),
     '/js/control/control-workspace.js': path.join(appRoot, 'src', 'js', 'control', 'control-workspace.js'),
     '/js/remote.js': path.join(appRoot, 'src', 'js', 'remote.js'),
     '/css/control.css': path.join(appRoot, 'src', 'css', 'control.css'),
@@ -187,4 +188,4 @@ function getInfo() {
     return { pin: pin, port: currentPort, urls: localLanUrls() };
 }
 
-module.exports = { applyRemoteConfig, getInfo, broadcastState, DEFAULT_PORT };
+module.exports = { applyRemoteConfig, stopRemoteServer, getInfo, broadcastState, DEFAULT_PORT };

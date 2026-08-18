@@ -14,7 +14,7 @@ const { installAppMenu } = require('./src/main/app-menu');
 const { createStartupWindow, createControlWindow, hasControlWindow } = require('./src/main/app-windows');
 const { destroyAllFrameWindows } = require('./src/main/frame-windows');
 const { devResume } = require('./src/main/dev-resume');
-const { applyRemoteConfig } = require('./src/main/remote-server');
+const { applyRemoteConfig, stopRemoteServer } = require('./src/main/remote-server');
 const { getActiveProject } = require('./src/main/project-store');
 
 // Must be called before app.whenReady
@@ -40,14 +40,17 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
+    app.quit();
 });
 
 app.on('activate', () => {
     if (!hasControlWindow()) createControlWindow();
 });
 
-app.on('before-quit', destroyAllFrameWindows);
+app.on('before-quit', () => {
+    destroyAllFrameWindows();
+    stopRemoteServer();
+});
 
 try {
     require('electron-reloader')(module);

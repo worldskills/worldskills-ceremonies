@@ -1,14 +1,20 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('FrameService', function (SCREENS, FRAMES_WINDOW_STATUS) {
+    angular.module('ceremoniesApp').factory('FrameService', function (SCREENS, FRAMES_WINDOW_STATUS, ResultFormat) {
 
         var frameColors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
 
         var service = {
             frames: SCREENS,
-            activeFrameId: Object.keys(SCREENS)[0]
+            activeFrameId: Object.keys(SCREENS)[0],
+            skillOrder: []
         };
+
+        function skillNumberValue(number) {
+            var parsed = parseFloat(number);
+            return isNaN(parsed) ? null : parsed;
+        }
 
         function pickColor() {
             var used = {};
@@ -73,6 +79,33 @@
             if (service.activeFrameId === id) {
                 service.activeFrameId = Object.keys(service.frames)[0];
             }
+        };
+
+        service.compareSkillNumbers = function (a, b) {
+            var rankA = service.skillOrder.indexOf(ResultFormat.normalizeSkillNum(a));
+            var rankB = service.skillOrder.indexOf(ResultFormat.normalizeSkillNum(b));
+            if (rankA >= 0 && rankB >= 0) return rankA - rankB;
+            if (rankA >= 0) return -1;
+            if (rankB >= 0) return 1;
+
+            var valueA = skillNumberValue(a);
+            var valueB = skillNumberValue(b);
+            if (valueA !== null && valueB !== null && valueA !== valueB) return valueA - valueB;
+            return String(a).localeCompare(String(b));
+        };
+
+        service.sortSkillNumbers = function (numbers) {
+            return (numbers || []).slice().sort(service.compareSkillNumbers);
+        };
+
+        service.sortSkills = function (skills) {
+            return (skills || []).slice().sort(function (a, b) {
+                return service.compareSkillNumbers(a && a.number, b && b.number);
+            });
+        };
+
+        service.setSkillOrder = function (skillNumbers) {
+            service.skillOrder = (skillNumbers || []).map(ResultFormat.normalizeSkillNum);
         };
 
         service.getFrameColor = function (id) {
@@ -150,6 +183,7 @@
                 name: projectName || 'Ceremony Project',
                 displayMode: displayMode || 'windows',
                 frames: service.serializeForProject(),
+                skillOrder: service.skillOrder || [],
                 gridConfig: gridConfig || null,
                 languages: languages || [],
                 bestOfNationGroupSize: bestOfNationGroupSize || 5

@@ -31,6 +31,9 @@
                 <i class="fa fa-refresh fa-spin mr-1"></i> Reconnecting…
             </span>
         </nav>
+        <div class="remote-blank-alert" ng-repeat="(id, frame) in screens" ng-show="frame.blanked">
+            <i class="fa fa-exclamation-triangle"></i> "{{ frame.label }}" IS BLANK
+        </div>
         <div class="remote-frame-selector">
             <label for="frameSelect" class="mb-0 mr-2">Frame</label>
             <select id="frameSelect" class="form-control form-control-sm" ng-model="FrameService.activeFrameId" ng-change="frameChanged()" ng-options="frame.id as frame.label for frame in frameOptions">

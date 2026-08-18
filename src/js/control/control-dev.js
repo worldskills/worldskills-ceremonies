@@ -56,6 +56,8 @@
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, saved.gridConfig);
                 }
 
+                FrameService.setSkillOrder(saved.skillOrder);
+
                 if (saved.frames) {
                     FrameService.loadFromProject(saved.frames);
                 }
@@ -98,6 +100,7 @@
                     resultsBestOfNations: $scope.resultsBestOfNations || [],
                     bestOfNationGroupSize: $scope.bestOfNationGroupSize || 5,
                     frames: FrameService.serializeForProject(),
+                    skillOrder: FrameService.skillOrder || [],
                     runtime: DevSession.serializeRuntime(),
                     ui: {
                         queueViewOpen: !!$scope.queueViewOpen,

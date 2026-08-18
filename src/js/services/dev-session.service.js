@@ -55,7 +55,8 @@
                 angular.toJson(scope.results || []),
                 angular.toJson(scope.resultsBestOfNations || []),
                 scope.uploaded ? 1 : 0,
-                FrameService.activeFrameId
+                FrameService.activeFrameId,
+                (FrameService.skillOrder || []).join(',')
             ];
             angular.forEach(FrameService.frames, function (frame, id) {
                 var slides = frame.slides || [];

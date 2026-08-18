@@ -174,8 +174,27 @@
             frameWidth: 1280,
             frameHeight: 720,
             monitor: null,
-            feed: FEED.LIVE
+            feed: FEED.LIVE,
+            splitContainers: false
         };
+
+        function openFrameWindowContainer(frameId, frame, isPreview, container) {
+            window.ceremonator.frames.openWindow({
+                frameId: frameId,
+                size: frame.size,
+                position: frame.position,
+                preview: !!isPreview,
+                label: frame.label,
+                container: container
+            }).then(function (result) {
+                if (!result || result.ok === false) throw new Error((result && result.error) || 'unknown error');
+            }).catch(function (error) {
+                $scope.$apply(function () {
+                    frame.status = FRAMES_WINDOW_STATUS.CLOSED;
+                    $scope.addNotice('error', 'Could not open output: ' + (error.message || error), 'open-output-' + frameId);
+                });
+            });
+        }
 
         $scope.openFrameWindow = function (frameId, isPreview) {
             var frame = FrameService.frames[frameId];
@@ -184,20 +203,14 @@
             frame.status = FRAMES_WINDOW_STATUS.CONNECTING;
 
             if (window.ceremonator && window.ceremonator.frames) {
-                window.ceremonator.frames.openWindow({
-                    frameId: frameId,
-                    size: frame.size,
-                    position: frame.position,
-                    preview: !!isPreview,
-                    label: frame.label
-                }).then(function (result) {
-                    if (!result || result.ok === false) throw new Error((result && result.error) || 'unknown error');
-                }).catch(function (error) {
-                    $scope.$apply(function () {
-                        frame.status = FRAMES_WINDOW_STATUS.CLOSED;
-                        $scope.addNotice('error', 'Could not open output: ' + (error.message || error), 'open-output-' + frameId);
+                if ($scope.gridConfig.splitContainers && !isPreview) {
+                    // kv/state windows share the frame's position/size at open — the operator drags the second one into place.
+                    ['kv', 'state'].forEach(function (container) {
+                        openFrameWindowContainer(frameId, frame, isPreview, container);
                     });
-                });
+                } else {
+                    openFrameWindowContainer(frameId, frame, isPreview, undefined);
+                }
             } else {
                 var url = 'screen.html?screen=' + frameId + (isPreview ? '&preview=true&feed=' + FEED.PREVIEW : '') + '&label=' + encodeURIComponent(frame.label || frameId);
                 window.open(url, '_blank');
@@ -287,9 +300,19 @@
             return FrameService.count();
         };
 
+        $scope.blankedFrames = function () {
+            var list = [];
+            angular.forEach(FrameService.frames, function (frame) {
+                if (frame.blanked) list.push(frame);
+            });
+            return list;
+        };
+
         $scope.getGridCols = function () {
             var colsInput = parseInt($scope.gridConfig.cols, 10);
-            return colsInput > 0 ? colsInput : Math.max(1, Math.ceil(Math.sqrt(FrameService.count())));
+            if (colsInput > 0) return colsInput;
+            var frameCols = Math.max(1, Math.ceil(Math.sqrt(FrameService.count())));
+            return $scope.gridConfig.splitContainers ? frameCols * 2 : frameCols;
         };
 
         $scope.openGridView = function () {
@@ -304,12 +327,16 @@
                 FrameState.publish(id);
             });
 
-            var frames = Object.keys(FrameService.frames).map(function (id) {
-                return {
-                    frameId: id,
-                    label: FrameService.frames[id].label || id,
-                    accent: FrameService.getFrameColor(id)
-                };
+            var frames = [];
+            Object.keys(FrameService.frames).forEach(function (id) {
+                var label = FrameService.frames[id].label || id;
+                var accent = FrameService.getFrameColor(id);
+                if ($scope.gridConfig.splitContainers) {
+                    frames.push({ frameId: id, container: 'kv', label: label + ' — Key Info', accent: accent });
+                    frames.push({ frameId: id, container: 'state', label: label + ' — Results', accent: accent });
+                } else {
+                    frames.push({ frameId: id, label: label, accent: accent });
+                }
             });
 
             var monitor = $scope.gridConfig.monitor;

@@ -9,14 +9,8 @@
     --background: #000;
     --callup-color: #f1f1f1;
     --font-color: #fff;
-    --screen-real-width: 1100px;
-    --screen-real-height: 500px;
-    --screen-ratio: calc(var(--screen-real-width) / var(--screen-real-height));
-    --screen-height: min(calc(100vw / var(--screen-ratio)), 100vh);
-    --unit: calc(var(--screen-height) / 16);
-    /* One tile ratio for every flag, whatever the flag's own ratio is (3:2, 1:1,
-       11:28…): the tile is always this, the flag is letterboxed inside it with
-       object-fit: contain. Change it here and both flag sites follow. */
+    --unit: calc(100vh / 16);
+
     --flag-ratio: 8 / 5;
 }
 
@@ -51,11 +45,10 @@ body:not(.preview) {
 .screen-content {
     position: relative;
     z-index: 0;
-    height: var(--screen-height);
-    width: calc(var(--screen-height) * var(--screen-ratio));
-    object-fit: contain;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
-    font-size: calc(var(--unit) * 1);
+    font-size: 1rem;
     color: var(--font-color);
     background: var(--color-blue-dark);
     background-size: cover;
@@ -78,7 +71,32 @@ body.preview .screen-content {
     border: 1px solid #eee;
 }
 
-/* Empty logo styling */
+
+.screen-region-kv {
+    flex: 0 0 auto;
+    max-height: 32%;
+    overflow: hidden;
+    padding-top: calc(var(--unit) * 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.screen-region-kv > * {
+    padding-left: calc(var(--unit) * 1.3);
+    padding-right: calc(var(--unit) * 5);
+}
+
+.screen-region-state {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.screen-container-kv .screen-region-kv {
+    flex: 1 1 auto;
+    max-height: 100%;
+}
 
 .screen-empty-logo {
     background-color: var(--frame-accent, var(--primary-a));
@@ -92,6 +110,7 @@ body.preview .screen-content {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
 
 .screen-skill-medals-name,
 .screen-skill-callup-name {
@@ -108,57 +127,16 @@ body.preview .screen-content {
 .screen-best-of-nation-name,
 .screen-best-of-nation-name-host,
 .screen-albert-vidal-award-name {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: start !important;
-    padding-left: calc(var(--unit) * 1.3);
-    padding-right: calc(var(--unit) * 5);
     font-size: calc(var(--unit) * 1.2);
     line-height: 1.3;
-    gap: calc(var(--unit) * 0.5);
+    gap: 0.4em;
 }
 
-.screen-best-of-nation-nation,
-.screen-albert-vidal-award-award {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.screen-medal-for-excellence {
+.screen-medal-for-excellence, .screen-best-of-nation {
     font-weight: normal !important;
 }
 
-.screen-medal,
-.screen-best-of-nation,
-.screen-albert-vidal-award {
-    display: flex;
-    align-items: center;
-}
-
-.screen-medal-text {
-    display: flex;
-    min-width: 0;
-}
-
-.screen-medal-name {
-    padding-right: calc(var(--unit) * 0.3);
-}
-
-.screen-competitor span {
-    word-break: break-all;
-    white-space: pre-line;
-}
-
-.screen-best-of-nation-name {
-    font-size: calc(var(--unit) * 1.42);
-    font-weight: 900;
-}
-
+.screen-best-of-nation-name,
 .screen-best-of-nation-name-host {
     font-size: calc(var(--unit) * 1.42);
     font-weight: 900;
@@ -172,100 +150,42 @@ body.preview .screen-content {
 /* Grid layout */
 
 .screen-grid {
-    --grid-count: 8;
-    --grid-cols: 1;
-    --grid-lines: 1;
+    --grid-max-cols: 1;
+    --grid-col-min: 8em;
+    --grid-gap-x: calc(var(--unit) * 1.4);
 
-    /* The design size, and the ceiling --grid-em can never exceed. One --unit
-       is what these blocks have always rendered at, so a short list looks
-       exactly as it did before; only long lists shrink. */
-    --grid-em-max: calc(var(--unit) * 1);
-
-    /* Share of the screen height this block occupies: the band below the 25%
-       title area, or all of it in Split KV/State mode. */
-    --grid-band: 0.75;
-
-    /* Absolute, never em — the em is derived from these, so making them
-       relative to it would be a circular definition. */
-    --grid-pad-y: calc(var(--unit) * 1.5);
-    --grid-pad-x: calc(var(--unit) * 1.4);
-
-    --grid-line-h: 1.25;
-    /* Per-character advance of the name text, in em, at its own 0.8em size:
-       this font averages ~0.5em per glyph, so 0.5 × 0.8. */
-    --grid-char-w: 0.4;
-    /* Everything on a row that isn't the name: flag plus gaps, in em. */
-    --grid-row-fixed: 2.2;
-
-    --grid-height: calc(var(--screen-height) * var(--grid-band) - var(--grid-pad-y) * 2);
-    --grid-width: calc(var(--screen-height) * var(--screen-ratio) - var(--grid-pad-x) * 2);
-    /* Row height = band ÷ rows, where rows = ceil(count / cols). ceil() is not
-       available in Chromium 104, so the row count is expanded inline as
-       (count + cols - 1) / cols — an exact upper bound. Over-reserving by at
-       most one row costs nothing. */
-    --grid-row-height: calc(var(--grid-height) * var(--grid-cols) / (var(--grid-count) + var(--grid-cols) - 1));
-    --grid-col-width: calc((var(--grid-width) - var(--grid-pad-x) * (var(--grid-cols) - 1)) / var(--grid-cols));
-
-    box-sizing: border-box;
-    height: calc(var(--screen-height) * var(--grid-band));
-    padding: var(--grid-pad-y) var(--grid-pad-x);
-    line-height: var(--grid-line-h);
+    padding: calc(var(--unit) * 1.5) var(--grid-gap-x);
 
     display: grid;
-    grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr));
-    /* Equal slices of a definite height: N rows always fit, whatever N is. */
+    grid-template-columns: repeat(auto-fit, minmax(
+        min(100%, max(var(--grid-col-min),
+            calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols)))),
+        1fr));
     grid-auto-rows: minmax(0, 1fr);
     grid-auto-flow: row;
-    column-gap: var(--grid-pad-x);
-    row-gap: 0;
-    align-items: center;
+    column-gap: var(--grid-gap-x);
+    align-items: stretch;
+
+    font-size: 0.9rem;
+    line-height: 1.25;
 }
 
-.screen-container-state .screen-grid {
-    --grid-band: 1;
-}
-
-.screen-grid.screen-skill-medals-medals {
-    --grid-lines: 2.4;
-}
-
-.screen-grid.screen-skill-medal-for-excellence {
-    --grid-lines: 1;
-    --grid-pad-y: calc(var(--unit) * 1.3);
-    padding: calc(var(--grid-pad-y) / 2) var(--grid-pad-x) var(--grid-pad-y);
-    /*--grid-band: min(0.75, calc(var(--grid-count) / 8));*/
+.screen-grid.screen-skill-medal-for-excellence,
+.screen-grid.screen-skill-best-of-nation-nation {
+    padding: calc(var(--unit) * 0.65) calc(var(--unit) * 1.4) calc(var(--unit) * 1.3);
 }
 
 .screen-grid .screen-medal {
-    /* Per-row: this row's own char count (set inline from context.results[i]
-       .nameChars/.nameWrapped), falling back to the design default if a row
-       doesn't set one. Longest name once wrapped onto a second line
-       defaults to the one-line width, i.e. "assume wrapping buys nothing". */
-    --grid-chars: 40;
-    --grid-chars-wrap: var(--grid-chars);
-
-    /* Two candidates — this name on one line, or wrapped onto a second —
-       and the larger em wins. Wrapping is never forced: it is used only
-       when it keeps the text bigger. Sizing per row (not per slide) means
-       one long name only shrinks its own row, not every other name. */
-    --grid-em-flat: min(
-        var(--grid-em-max),
-        calc(var(--grid-row-height) / (var(--grid-lines) * var(--grid-line-h))),
-        calc(var(--grid-col-width) / (var(--grid-chars) * var(--grid-char-w) + var(--grid-row-fixed)))
-    );
-    --grid-em-wrap: min(
-        var(--grid-em-max),
-        calc(var(--grid-row-height) / ((var(--grid-lines) + 1) * var(--grid-line-h))),
-        calc(var(--grid-col-width) / (var(--grid-chars-wrap) * var(--grid-char-w) + var(--grid-row-fixed)))
-    );
-    --grid-em: max(var(--grid-em-flat), var(--grid-em-wrap));
-    font-size: var(--grid-em);
+    /* Definite slice from grid-auto-rows above; hidden overflow makes the last
+       resort a clip rather than a bleed into the neighbouring row. */
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
 
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 0.5em;
-    min-width: 0;
 }
 
 .screen-grid .screen-flag {
@@ -278,10 +198,8 @@ body.preview .screen-content {
 .screen-grid .screen-competitors {
     display: flex;
     flex-direction: row;
-    font-size: 0.8em;
     min-width: 0;
     overflow-wrap: break-word;
-    line-height: normal;
 }
 
 .screen-grid .screen-medal-row {
@@ -304,18 +222,28 @@ body.preview .screen-content {
     margin-left: -0.1em;
 }
 
+.screen-medal-text {
+    display: flex;
+    min-width: 0;
+}
+
+.screen-medal-name {
+    padding-right: 0.3em;
+}
+
+.screen-competitor span {
+    word-break: break-all;
+    white-space: pre-line;
+}
+
 /* Translation renderers */
 
 .screen-translation {
     display: flex;
     flex-direction: column;
     align-self: flex-start;
-    gap: 8px;
-}
-
-.screen-translation:not(.screen-translation-row) {
-    --translation-lines: 1;
-    font-size: min(1em, calc(2em / (var(--translation-lines) + 1)));
+    gap: 0.35em;
+    min-width: 0;
 }
 
 .screen-translation-line:not(.screen-translation-primary) {
@@ -324,56 +252,44 @@ body.preview .screen-content {
 
 .screen-translation-row {
     flex-direction: row;
-    align-items: center;
+    align-items: baseline;
     white-space: nowrap;
 }
 
-.screen-table-country .screen-translation {
-    align-self: center !important;
-    font-size: 1rem;
-}
-
-/* Flags */
 
 .screen-flag img {
     width: 100%;
     height: 100%;
     vertical-align: middle;
-    /* The box is fixed (1.4em × 0.9em); contain letterboxes any flag ratio into
-       it instead of stretching 1:1 flags (CH, NP) to the box's own ratio. */
     object-fit: contain;
 }
 
-
 .screen-table-countries {
-    --callup-cols: 4;
-    --callup-band: 0.75;
-    --callup-display: grid;
+    --grid-max-cols: 4;
+    --grid-col-min: 4em;
+    --grid-gap-x: calc(var(--unit) * 1.2);
 
-    box-sizing: border-box;
-    width: 100%;
-    height: calc(var(--screen-height) * var(--callup-band));
     padding: var(--unit);
 
-    display: var(--callup-display);
-    grid-template-columns: repeat(var(--callup-cols), minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(
+        min(100%, max(var(--grid-col-min),
+            calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols)))),
+        1fr));
     grid-auto-rows: minmax(0, 1fr);
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: stretch;
-    column-gap: calc(var(--unit) * 1.2);
+    grid-auto-flow: row;
+    column-gap: var(--grid-gap-x);
     row-gap: calc(var(--unit) * 0.6);
+    align-items: stretch;
 
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     line-height: 1.25;
 }
 
-.screen-container-state .screen-table-countries {
-    --callup-band: 1;
-}
-
 .screen-table-country {
-    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
 
     display: flex;
     flex-direction: column;
@@ -381,15 +297,20 @@ body.preview .screen-content {
     align-items: center;
     justify-content: center;
     text-align: center;
-    min-width: 0;
-    min-height: 0;
 }
 
 .screen-table-country img {
-    flex: 0 1 auto;
-    min-height: 0;
-    width: min(100%, calc(var(--unit) * 8));
+    flex: 0 0 auto;
+    width: 4em;
     aspect-ratio: var(--flag-ratio);
-    max-height: 100%;
     object-fit: contain;
+}
+
+.screen-table-country .screen-translation {
+    align-self: center;
+    min-width: 0;
+}
+
+.screen-table-country .screen-translation-line {
+    white-space: normal;
 }

@@ -87,7 +87,7 @@
 
             frame.slides = [];
 
-            var skillNumbers = frame.ordering.skillNumbers || [];
+            var skillNumbers = FrameService.sortSkillNumbers(frame.ordering.skillNumbers);
 
             angular.forEach(skillNumbers, function (num) {
                 var slides = catalog[num];

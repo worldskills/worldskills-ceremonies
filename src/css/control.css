@@ -80,6 +80,11 @@ control-workspace,
     box-shadow: inset 3px 0 0 #d97706;
 }
 
+/* Marks the row currently live on the frame's own screen output. */
+.list-group-item-primary {
+    box-shadow: inset 3px 0 0 #28a745;
+}
+
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak],
 .ng-cloak, .x-ng-cloak,
 .ng-hide {
@@ -115,6 +120,12 @@ control-workspace,
 .navbar-dev-badge-clickable:hover {
     background: rgba(99, 102, 241, 0.32);
     border-color: rgba(99, 102, 241, 0.85);
+}
+
+.navbar-blank-badge {
+    color: #fca5a5;
+    background: rgba(220, 38, 38, 0.18);
+    border-color: rgba(220, 38, 38, 0.5);
 }
 
 .frame-rail {

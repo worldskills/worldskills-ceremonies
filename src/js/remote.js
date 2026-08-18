@@ -282,6 +282,11 @@
             } else if (event.key === 'ArrowLeft') {
                 event.preventDefault();
                 $scope.$apply($scope.prevSlide);
+            } else if ((event.key === 'b' || event.key === 'B') && event.ctrlKey) {
+                event.preventDefault();
+                $scope.$apply(function () {
+                    $scope.resetFrame($scope.FrameService.activeFrameId);
+                });
             }
         }
 

@@ -69,6 +69,8 @@
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
                 }
 
+                FrameService.setSkillOrder(project.skillOrder);
+
                 if (project.frames) {
                     FrameService.loadFromProject(project.frames);
                 }
@@ -151,7 +153,7 @@
         };
 
         $scope.rebuildCatalogSkillList = function () {
-            $scope.catalogSkillList = $scope.skills.filter(function (skill) {
+            $scope.catalogSkillList = FrameService.sortSkills($scope.skills).filter(function (skill) {
                 return !!$scope.catalog[skill.number];
             }).map(function (skill) {
                 return {
@@ -199,8 +201,7 @@
         };
 
         $scope.canEditSlide = function (screen, slide) {
-            var frame = FrameService.frames[screen];
-            return !!frame && (frame.slide === slide || frame.previewSlide === slide);
+            return true;
         };
 
         $scope.isPreviewingSlide = function (screen, slide) {
@@ -298,6 +299,12 @@
             FrameState.publishPreview(screen);
         };
 
+        $scope.clearScreenStorage = function () {
+            angular.forEach(FrameService.frames, function(config, screen) {
+                FrameState.clear(screen);
+            });
+        };
+
         FramesPart($scope);
         QueuePart($scope);
         ProjectPart($scope);
@@ -305,12 +312,6 @@
         RemotePart($scope);
 
         $scope.screens = FrameService.frames;
-
-        $scope.clearScreenStorage = function () {
-            angular.forEach(FrameService.frames, function(config, screen) {
-                FrameState.clear(screen);
-            });
-        };
 
         // Catalog.build()'s Best of Nation grouping reads $scope.members, so
         // the first build must wait for both catalogs, not just skills.
@@ -414,6 +415,11 @@
                 e.preventDefault();
                 $scope.$apply(function () {
                     $scope.resetPreview(FrameService.activeFrameId);
+                });
+            } else if ((e.key === 'b' || e.key === 'B') && e.ctrlKey) {
+                e.preventDefault();
+                $scope.$apply(function () {
+                    $scope.resetFrame(FrameService.activeFrameId);
                 });
             }
         });

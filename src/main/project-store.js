@@ -37,6 +37,9 @@ function loadProjectFolder(dir) {
                         return Object.assign({}, f, { ordering: ordering.frames[f.id] || f.ordering });
                     });
                 }
+                if (ordering && Array.isArray(ordering.skillOrder)) {
+                    project.skillOrder = ordering.skillOrder.map(String);
+                }
             } catch (e) {
                 console.error('Failed to parse ordering.json at ' + orderingFile + ':', e.message);
                 orderingWarning = 'Corrupt ordering.json in this project — using the slide ordering saved in project.json instead. (' + e.message + ')';
@@ -89,7 +92,7 @@ function extractOrdering(project) {
             frames[f.id] = f.ordering || { mode: 'skills', skillNumbers: [], includeAlbertVidal: true };
         });
     }
-    return { version: 1, frames: frames };
+    return { version: 1, frames: frames, skillOrder: project.skillOrder || [] };
 }
 
 function copyDefaultTemplate(dest) {

@@ -33,7 +33,7 @@
             <button class="btn btn-sm btn-outline-info" ng-show="screens[FrameService.activeFrameId].previewSlide" ng-click="resetPreview(FrameService.activeFrameId)" title="Reset preview to match live">
                 <i class="fa fa-undo mr-1"></i> Reset Preview
             </button>
-            <button class="btn btn-sm btn-outline-warning" ng-click="resetFrame(FrameService.activeFrameId)" title="Reset this frame to blank">
+            <button class="btn btn-sm btn-outline-warning" ng-click="resetFrame(FrameService.activeFrameId)" title="Reset this frame to blank (Ctrl+B)">
                 <i class="fa fa-ban mr-1"></i> Blank
             </button>
             <button class="btn btn-sm btn-outline-secondary" ng-if="workspaceCapabilities.manageWindows" ng-show="screens[FrameService.activeFrameId].status !== 'closed'" ng-click="reloadFrameWindow(FrameService.activeFrameId)" title="Reload this screen">
@@ -63,36 +63,9 @@
                 <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
                     <div class="card mb-2" ng-show="frame.slides.length > 0">
                         <div class="list-group list-group-flush">
-                            <div class="list-group-item clearfix"
-                                 ng-class="{'list-group-item-secondary': slide.done, 'list-group-item-primary': screens[id].slide === slide, 'list-group-item-previewing': isPreviewingSlide(id, slide)}"
-                                 ng-repeat="slide in frame.slides track by $index">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <span>{{ slide.label }}</span>
-                                    <span ng-if="workspaceCapabilities.copyScript" ng-show="slide.script">
-                                        <span class="btn btn-sm btn-white py-0" ng-click="copyPaste($event, slide.script)">
-                                            <i class="fa fa-clipboard" aria-hidden="true"></i>
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="list-group-item-text">
-                                    <div class="btn-toolbar">
-                                        <button class="btn btn-sm btn-success mr-1" ng-class="{active: screens[id].slide === slide}" ng-click="showSlide(id, slide)" title="Show live"><i class="fa fa-play"></i> Live</button>
-                                        <button class="btn btn-sm btn-outline-info mr-1" ng-if="workspaceCapabilities.preview" ng-class="{active: isPreviewingSlide(id, slide)}" ng-click="previewSlide($event, id, slide)" title="Show on Preview windows only"><i class="fa fa-eye"></i> Preview</button>
-                                        <button class="btn btn-sm btn-success mr-1" ng-click="slide.edit = !slide.edit" ng-disabled="!canEditSlide(id, slide)"><i class="fa fa-pencil"></i> Edit</button>
-                                        <div class="btn-group mr-1" ng-show="slide.states && slide.states.length">
-                                            <button type="button" class="btn btn-sm btn-primary" ng-repeat="state in slide.states" ng-click="toggleState(id, slide, state)" ng-disabled="!canEditSlide(id, slide)">
-                                                <i ng-show="rowHasState(id, slide, state)" class="fa fa-ban fa-fw"></i>
-                                                <i ng-show="!rowHasState(id, slide, state)" class="fa fa-trophy fa-fw"></i>
-                                                {{ state }}
-                                            </button>
-                                        </div>
-                                        <button class="btn btn-sm btn-danger" ng-show="slide.states && slide.states.length" ng-click="resetStates(id, slide)" ng-disabled="!canEditSlide(id, slide)">Reset</button>
-                                    </div>
-                                </div>
-                                <div class="list-group-item-text mt-2" ng-show="slide.edit">
-                                    <textarea class="form-control" json-text rows="9" ng-model="slide.context" ng-change="updateContext(id, slide)"></textarea>
-                                </div>
-                            </div>
+                            <slide-row ng-repeat="slide in frame.slides track by $index"
+                                       frame-id="id" slide="slide"
+                                       on-live="showSlide(id, slide)"></slide-row>
                         </div>
                     </div>
 

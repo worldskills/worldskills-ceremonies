@@ -61,7 +61,7 @@
             if (!catalog) return { list: [], byFrame: {} };
             var list = [];
 
-            angular.forEach(skills, function (skill) {
+            angular.forEach(FrameService.sortSkills(skills), function (skill) {
                 var catalogSlides = catalog[skill.number];
                 if (!catalogSlides || !catalogSlides.length) return;
                 var frameId = getSkillFrame(skill.number);

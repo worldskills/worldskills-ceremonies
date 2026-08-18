@@ -22,6 +22,7 @@ function validateProject(project) {
         frame.ordering = Object.assign({ includeAlbertVidal: false }, ordering);
     }
     if (!Array.isArray(project.languages)) project.languages = [{ lang_code: 'en' }];
+    project.skillOrder = Array.isArray(project.skillOrder) ? project.skillOrder.map(String) : [];
 
     const remote = project.remote || {};
     const remotePort = Number.isInteger(remote.port) && remote.port > 0 && remote.port < 65536 ? remote.port : DEFAULT_REMOTE_PORT;

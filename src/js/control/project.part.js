@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('ProjectPart', function (Excel, FrameState, FrameService) {
+    angular.module('ceremoniesApp').factory('ProjectPart', function (Excel, FrameState, FrameService, ResultFormat) {
       return function ($scope) {
         $scope.projectMenuOpen = false;
         $scope.feedMenuOpen = false;
@@ -152,13 +152,14 @@
         };
 
         /**
-         * Excel format:
-         * Skill Number | Frame Name
-         * 01 | Podium Red
-         * 02 | Podium Yellow
+         * Excel format ("Order" optional — without it the row order is the order of appearance,
+         * and with no ordering imported at all skills run in skill-number order):
+         * Skill Number | Frame Name    | Order
+         * 01           | Podium Red    | 2
+         * 02           | Podium Yellow | 1
          * @param file
          */
-        $scope.importFrameOrdering = function (file) {
+        $scope.importOrdering = function (file) {
             if (!file) return;
             Excel.readRows(file).then(function (rows) {
                 if (!rows || !rows.length) {
@@ -177,23 +178,42 @@
                         labelToId[frame.label.toLowerCase()] = id;
                     });
 
-                    rows.forEach(function (row) {
+                    var entries = [];
+                    rows.forEach(function (row, index) {
                         var skillNum = row['Skill Number'] ? String(row['Skill Number']).trim() : null;
-                        var frameName = row['Frame Name'] ? String(row['Frame Name']).trim() : null;
                         if (!skillNum) return;
+                        var order = parseFloat(row['Order']);
+                        entries.push({
+                            skillNumber: skillNum,
+                            frameName: row['Frame Name'] ? String(row['Frame Name']).trim() : null,
+                            order: isNaN(order) ? null : order,
+                            index: index
+                        });
+                    });
 
+                    entries.sort(function (a, b) {
+                        if (a.order !== null && b.order !== null) return a.order - b.order;
+                        if (a.order !== null) return -1;
+                        if (b.order !== null) return 1;
+                        return a.index - b.index;
+                    });
+
+                    FrameService.setSkillOrder(entries.map(function (entry) { return entry.skillNumber; }));
+
+                    entries.forEach(function (entry) {
                         angular.forEach(FrameService.frames, function (frame) {
-                            var idx = frame.ordering.skillNumbers.indexOf(skillNum);
+                            var idx = frame.ordering.skillNumbers.indexOf(entry.skillNumber);
                             if (idx >= 0) frame.ordering.skillNumbers.splice(idx, 1);
                         });
 
-                        var frameId = frameName ? (labelToId[frameName.toLowerCase()] || null) : null;
+                        var frameId = entry.frameName ? (labelToId[entry.frameName.toLowerCase()] || null) : null;
                         if (frameId && FrameService.frames[frameId]) {
-                            FrameService.frames[frameId].ordering.skillNumbers.push(skillNum);
+                            FrameService.frames[frameId].ordering.skillNumbers.push(entry.skillNumber);
                         }
                     });
 
                     $scope.refreshFramesAfterOrderingChange();
+                    $scope.addNotice('info', 'Imported ordering for ' + entries.length + ' skill(s).', 'ordering-import');
                 });
             }).catch(function (error) {
                 $scope.$apply(function () {
