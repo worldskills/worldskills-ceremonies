@@ -80,7 +80,7 @@
             });
 
             // Best of Nation slides are assigned to the same configured special-award frame.
-            if (albertVidalFrame && catalog[SLIDE_KEYS.BEST_OF_NATION]) {
+            if (catalog[SLIDE_KEYS.BEST_OF_NATION]) {
                 var bonFrame = FrameService.frames[albertVidalFrame];
                 if (bonFrame && bonFrame.slides) {
                     angular.forEach(bonFrame.slides, function (slide) {
@@ -107,6 +107,8 @@
                 if (!byFrame[item.frameId]) byFrame[item.frameId] = [];
                 byFrame[item.frameId].push(item);
             });
+
+            console.log(list)
 
             return { list: list, byFrame: byFrame };
         }

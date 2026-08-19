@@ -42,10 +42,7 @@
         };
 
         $scope.toggleAlbertVidalForFrame = function (frameId) {
-            angular.forEach(FrameService.frames, function (frame, id) {
-                frame.ordering.includeAlbertVidal = (id === frameId);
-            });
-
+            FrameService.setAlbertVidalFrame(frameId);
             $scope.refreshFramesAfterOrderingChange();
         };
 

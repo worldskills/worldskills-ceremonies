@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $q, DATA_BASE, FrameService, FrameState, Catalog, Notices, DevSession, WORKSPACE_MODES, FramesPart, QueuePart, ProjectPart, DevPart, RemotePart) {
+    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $q, DATA_BASE, FrameService, FrameState, Catalog, Notices, SessionSnapshot, WORKSPACE_MODES, FramesPart, QueuePart, ProjectPart, SessionPart, RemotePart) {
         $scope.uploaded = false;
         $scope.FrameService = FrameService;
         $scope.workspaceCapabilities = { manageWindows: true, preview: true, copyScript: true };
@@ -93,35 +93,35 @@
 
         $scope.assembleFrame = FrameState.assembleFrame;
 
-        $scope.buildScreens = function (forceRedistribute) {
+        // The Albert Vidal frame always comes from the project's own ordering config (set via
+        // the UI toggle or hand-edited project.json) — buildScreens never auto-assigns it.
+        // Skill-to-frame assignment is mostly the same: only a skill with no frame at all yet
+        // gets round-robin distributed, so this never overrides what the ordering-import
+        // spreadsheet or drag-and-drop already assigned, it only fills the gaps (which is also
+        // what makes a brand-new project with nothing configured work out of the box).
+        $scope.buildScreens = function () {
             $scope.catalog = $scope.buildCatalog();
 
             var frameIds = Object.keys(FrameService.frames);
-            var anyHasSkills = frameIds.some(function (id) {
-                return FrameService.frames[id].ordering.skillNumbers.length > 0;
+
+            // Self-heal: at most one frame may ever carry includeAlbertVidal. If a stale
+            // project/session file has more than one flagged, collapse to the first.
+            var avFrameIds = frameIds.filter(function (id) {
+                return FrameService.frames[id].ordering.includeAlbertVidal;
             });
+            if (avFrameIds.length > 1) {
+                FrameService.setAlbertVidalFrame(avFrameIds[0]);
+            }
 
-            if (!anyHasSkills && $scope.results.length > 0) {
-                var skillNums = $scope.skills
-                    .filter(function (s) { return !!$scope.catalog[s.number]; })
-                    .map(function (s) { return s.number; });
-
-                skillNums.forEach(function (num, i) {
-                    var targetId = frameIds[i % frameIds.length];
-                    FrameService.frames[targetId].ordering.skillNumbers.push(num);
-                });
-
-                FrameService.frames[frameIds[0]].ordering.includeAlbertVidal = true;
-            } else if (forceRedistribute && anyHasSkills && $scope.results.length > 0) {
+            if ($scope.results.length > 0) {
                 var assignedNums = {};
-
                 frameIds.forEach(function (id) {
                     FrameService.frames[id].ordering.skillNumbers.forEach(function (n) {
                         assignedNums[n] = true;
                     });
                 });
 
-                var newSkillNums = $scope.skills
+                var newSkillNums = FrameService.sortSkills($scope.skills)
                     .filter(function (s) { return !!$scope.catalog[s.number] && !assignedNums[s.number]; })
                     .map(function (s) { return s.number; });
 
@@ -129,18 +129,10 @@
                     var targetId = frameIds[i % frameIds.length];
                     FrameService.frames[targetId].ordering.skillNumbers.push(num);
                 });
-
-                var anyHasAV = frameIds.some(function (id) {
-                    return FrameService.frames[id].ordering.includeAlbertVidal;
-                });
-
-                if (!anyHasAV) {
-                    FrameService.frames[frameIds[0]].ordering.includeAlbertVidal = true;
-                }
             }
 
             angular.forEach(FrameService.frames, function (frame, id) {
-                $scope.assembleFrame(frame, $scope.catalog);
+                FrameService.frames[id] = $scope.assembleFrame(frame, $scope.catalog);
                 $scope.update(id);
             });
 
@@ -167,14 +159,10 @@
         $scope.refreshFramesAfterOrderingChange = function () {
             if ($scope.catalog) {
                 angular.forEach(FrameService.frames, function (frame, id) {
-                    $scope.assembleFrame(frame, $scope.catalog);
-                    // The shown slide moved to another frame (or was dropped) — go blank
-                    // rather than jumping to whatever slide now sits first in the list.
+                    FrameService.frames[id] = $scope.assembleFrame(frame, $scope.catalog);
                     if (frame.slide && frame.slides.indexOf(frame.slide) < 0) {
                         frame.slide = undefined;
                     }
-                    // Unlike a plain catalog rebuild, a reassignment must reset
-                    // slide.state — assembleFrame no longer does this itself.
                     if (frame.slide) frame.slide.state = [];
                     $scope.update(id);
                 });
@@ -201,7 +189,8 @@
         };
 
         $scope.canEditSlide = function (screen, slide) {
-            return true;
+            var frame = FrameService.frames[screen];
+            return !!frame && (frame.slide === slide || frame.previewSlide === slide);
         };
 
         $scope.isPreviewingSlide = function (screen, slide) {
@@ -308,7 +297,7 @@
         FramesPart($scope);
         QueuePart($scope);
         ProjectPart($scope);
-        DevPart($scope);
+        SessionPart($scope);
         RemotePart($scope);
 
         $scope.screens = FrameService.frames;
@@ -327,6 +316,12 @@
                 if (!data || !data.text) return;
                 var apply = function () { $scope.addNotice(data.level || 'info', data.text); };
                 if (!$scope.$$phase) $scope.$apply(apply); else apply();
+            });
+        }
+
+        if (window.ceremonator && window.ceremonator.onClearAllDataRequested) {
+            window.ceremonator.onClearAllDataRequested(function () {
+                if (!$scope.$$phase) $scope.$apply($scope.clearAllData); else $scope.clearAllData();
             });
         }
 
@@ -386,6 +381,13 @@
                 }
             });
         }
+
+        // Mirrored eagerly since a window close handler is synchronous and can't await IPC.
+        $scope.$watch('projectDirty', function (dirty) {
+            if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.setDirty) {
+                window.ceremonator.project.setDirty(dirty);
+            }
+        });
 
         window.addEventListener('keydown', function (e) {
             var target = e.target || {};

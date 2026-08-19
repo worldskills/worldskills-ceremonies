@@ -1,20 +1,22 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('DevPart', function ($q, FrameService, FrameState, DevSession, WORKSPACE_MODES) {
+    angular.module('ceremoniesApp').factory('SessionPart', function ($q, FrameService, FrameState, SessionSnapshot, WORKSPACE_MODES) {
       return function ($scope) {
+        var dev = (window.ceremonator && window.ceremonator.dev) || {};
+
+        // dev.enabled here is the DEV badge's own flag (are we running an unpackaged build),
+        // independent of SessionSnapshot.enabled (which is now always on) — keep it that way so
+        // the badge stays dev-only even though clearAllData below is available in every build.
         $scope.dev = {
-            enabled: DevSession.enabled
+            enabled: !!dev.isDev
         };
 
-        if (!DevSession.enabled) {
+        $scope.clearAllData = function () {
+            if (!confirm('Clear all session data? This discards the current run\'s progress (imported results, frame assignments, live/preview state) so the app restarts fresh. Your project files, templates and skill/member data are not affected.')) return;
+            SessionSnapshot.clear();
             $scope.clearScreenStorage();
-        }
-
-        $scope.clearDevCache = function () {
-            if (!confirm('Clear the dev session cache? The next reload or restart will start fresh instead of resuming this run.')) return;
-            DevSession.clear();
-            $scope.addNotice('info', 'Dev cache cleared — next reload starts fresh.', 'dev-cache-cleared');
+            $scope.addNotice('info', 'Session data cleared — restart to begin a fresh run.', 'session-cleared');
         };
 
         function restoreDevSessionUi(ui) {
@@ -31,12 +33,12 @@
         }
 
         $scope.restoreDevSession = function () {
-            if (!DevSession.enabled) return $q.resolve(false);
+            if (!SessionSnapshot.enabled) return $q.resolve(false);
 
-            return $q.when(DevSession.load()).then(function (saved) {
+            return $q.when(SessionSnapshot.load()).then(function (saved) {
                 if (!saved) {
                     $scope.clearScreenStorage();
-                    DevSession.restoring = false;
+                    SessionSnapshot.restoring = false;
                     return false;
                 }
 
@@ -68,7 +70,7 @@
                 $scope.uploaded = !!saved.uploaded;
 
                 $scope.buildScreens();
-                DevSession.restoreRuntime(saved.runtime);
+                SessionSnapshot.restoreRuntime(saved.runtime);
 
                 angular.forEach(FrameService.frames, function (frame, id) {
                     FrameState.publish(id);
@@ -78,16 +80,16 @@
                 restoreDevSessionUi(saved.ui || {});
                 $scope.projectDirty = !!saved.projectDirty;
 
-                DevSession.restoring = false;
-                $scope.addNotice('info', 'Dev: restored session after hot reload — ' +
+                SessionSnapshot.restoring = false;
+                $scope.addNotice('info', 'Restored previous session — ' +
                     $scope.results.length + ' result row(s), ' +
                     Object.keys(FrameService.frames).length + ' frame(s).', 'dev-session');
                 return true;
             });
         };
 
-        if (DevSession.enabled) {
-            DevSession.registerCollector(function () {
+        if (SessionSnapshot.enabled) {
+            SessionSnapshot.registerCollector(function () {
                 return {
                     projectName: $scope.projectName || null,
                     displayMode: $scope.displayMode || null,
@@ -101,7 +103,7 @@
                     bestOfNationGroupSize: $scope.bestOfNationGroupSize || 5,
                     frames: FrameService.serializeForProject(),
                     skillOrder: FrameService.skillOrder || [],
-                    runtime: DevSession.serializeRuntime(),
+                    runtime: SessionSnapshot.serializeRuntime(),
                     ui: {
                         queueViewOpen: !!$scope.queueViewOpen,
                         allFramesViewOpen: !!$scope.allFramesViewOpen,
@@ -112,9 +114,9 @@
             });
 
             $scope.$watch(function () {
-                return DevSession.fingerprint($scope);
+                return SessionSnapshot.fingerprint($scope);
             }, function () {
-                DevSession.schedule();
+                SessionSnapshot.schedule();
             });
         }
       };

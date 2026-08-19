@@ -1,4 +1,5 @@
 const { app, Menu } = require('electron');
+const { requestClearAllData } = require('./control-channel');
 
 function installAppMenu() {
     const template = [];
@@ -21,6 +22,15 @@ function installAppMenu() {
     template.push(
         { role: 'editMenu' },
         { label: 'View', submenu: [{ role: 'toggleDevTools' }] },
+        {
+            label: 'Tools',
+            submenu: [
+                {
+                    label: 'Clear Session Data…',
+                    click: () => requestClearAllData()
+                }
+            ]
+        },
         { role: 'windowMenu' }
     );
 

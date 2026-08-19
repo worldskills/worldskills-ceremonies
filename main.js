@@ -10,6 +10,7 @@ const { registerProjectIpc } = require('./src/main/ipc/project');
 const { registerAppIpc } = require('./src/main/ipc/app');
 const { registerDevIpc } = require('./src/main/ipc/dev');
 const { registerRemoteIpc } = require('./src/main/ipc/remote');
+const { registerProjectDirtyIpc } = require('./src/main/ipc/project-dirty');
 const { installAppMenu } = require('./src/main/app-menu');
 const { createStartupWindow, createControlWindow, hasControlWindow } = require('./src/main/app-windows');
 const { destroyAllFrameWindows } = require('./src/main/frame-windows');
@@ -25,6 +26,7 @@ registerProjectIpc();
 registerAppIpc();
 registerDevIpc();
 registerRemoteIpc();
+registerProjectDirtyIpc();
 
 app.whenReady().then(() => {
     registerTemplateProtocol();

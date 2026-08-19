@@ -1,15 +1,13 @@
 const { ipcMain } = require('electron');
-const { isDev } = require('../dev-flags');
-const { DEV_SESSION_VERSION, readDevSession, writeDevSession, clearDevSession } = require('../dev-session-store');
+const { SESSION_VERSION, readSession, writeSession, clearSession } = require('../session-store');
 const { getActiveProjectDir } = require('../project-store');
 const frameWindows = require('../frame-windows');
 const gridWindow = require('../grid-window');
 
 function registerDevIpc() {
     ipcMain.handle('dev:saveSession', (_event, control) => {
-        if (!isDev) return { ok: false };
-        writeDevSession({
-            version: DEV_SESSION_VERSION,
+        writeSession({
+            version: SESSION_VERSION,
             savedAt: new Date().toISOString(),
             projectDir: getActiveProjectDir(),
             control: control || null,
@@ -20,8 +18,7 @@ function registerDevIpc() {
     });
 
     ipcMain.handle('dev:loadSession', () => {
-        if (!isDev) return null;
-        const snapshot = readDevSession();
+        const snapshot = readSession();
         if (!snapshot) return null;
         const activeProjectDir = getActiveProjectDir();
         if (!activeProjectDir || snapshot.projectDir !== activeProjectDir) return null;
@@ -29,7 +26,7 @@ function registerDevIpc() {
     });
 
     ipcMain.handle('dev:clearSession', () => {
-        clearDevSession();
+        clearSession();
         return { ok: true };
     });
 }

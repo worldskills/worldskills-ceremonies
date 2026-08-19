@@ -1,14 +1,13 @@
-const { isDev } = require('./dev-flags');
-const { readDevSession } = require('./dev-session-store');
+const { readSession } = require('./session-store');
 const { loadProjectFolder, setActive } = require('./project-store');
 const { createControlWindow, getControlWindow } = require('./app-windows');
 const { reopenFrameWindowFromSnapshot } = require('./frame-windows');
 const { openGridWindow } = require('./grid-window');
 
 function devResume() {
-    if (!isDev || process.env.CEREMONATOR_NO_RESUME === '1') return false;
+    if (process.env.CEREMONATOR_NO_RESUME === '1') return false;
 
-    const snapshot = readDevSession();
+    const snapshot = readSession();
     if (!snapshot || !snapshot.projectDir) return false;
 
     const loaded = loadProjectFolder(snapshot.projectDir);

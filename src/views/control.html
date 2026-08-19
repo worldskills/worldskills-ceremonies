@@ -17,9 +17,8 @@
                 <div class="d-flex flex-column">
                     <span class="navbar-project-name" ng-show="projectName">{{ projectName }}</span>
                     <div class="d-flex flex-row" style="gap: 8px; padding-left: 12px;">
-                        <span class="navbar-dev-badge navbar-dev-badge-clickable" ng-show="dev.enabled" ng-cloak
-                            ng-click="clearDevCache()"
-                            title="Development run — session state is restored across hot reloads. Click to clear the dev cache (dev-session.json) so the next reload/restart starts fresh.">DEV</span>
+                        <span class="navbar-dev-badge" ng-show="dev.enabled" ng-cloak
+                            title="Development run — session state is restored across reloads.">DEV</span>
                         <span class="navbar-dev-badge navbar-dev-badge-clickable" ng-show="remoteInfo && remoteInfo.urls.length" ng-cloak
                             ng-click="copyPaste($event, remoteInfo.urls[0])"
                             title="Copy the remote control URL; enter the PIN separately on the tablet">
@@ -219,7 +218,7 @@
             <div class="slide-list-area" ng-show="queueLayout === 'list'">
                 <div class="card mb-2" ng-show="queueList.length > 0">
                     <div class="list-group list-group-flush">
-                        <slide-row ng-repeat="item in queueList track by $index"
+                        <slide-row ng-repeat="item in queueList"
                                    frame-id="item.frameId" slide="item.slide"
                                    show-badge="true" frame-label="item.frame.label"
                                    queue-idx="$index"
@@ -373,7 +372,7 @@
                             </button>
                         </div>
                         <div class="list-group list-group-flush queue-frame-card-body">
-                            <slide-row ng-repeat="item in queueByFrame[id] track by $index"
+                            <slide-row ng-repeat="item in queueByFrame[id]"
                                        frame-id="id" slide="item.slide"
                                        on-live="showSlideFromQueue(item, null, $index, id)"></slide-row>
                         </div>
@@ -561,12 +560,12 @@
     <script src="../js/services/catalog.service.js"></script>
     <script src="../js/services/queue.service.js"></script>
     <script src="../js/services/queue-scroll.service.js"></script>
-    <script src="../js/services/dev-session.service.js"></script>
+    <script src="../js/services/session-snapshot.service.js"></script>
     <script src="../js/control/frames.part.js"></script>
     <script src="../js/control/queue.part.js"></script>
     <script src="../js/control/project.part.js"></script>
     <script src="../js/control/control-remote.js"></script>
-    <script src="../js/control/control-dev.js"></script>
+    <script src="../js/control/control-session.js"></script>
     <script src="../js/control.js"></script>
 </body>
 </html>

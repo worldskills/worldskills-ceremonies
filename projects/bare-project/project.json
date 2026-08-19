@@ -27,18 +27,7 @@
       },
       "ordering": {
         "mode": "skills",
-        "skillNumbers": [
-          "50",
-          "47",
-          "52",
-          "34",
-          "28",
-          "19",
-          "09",
-          "05",
-          "21",
-          "44"
-        ],
+        "skillNumbers": [],
         "includeAlbertVidal": true
       },
       "color": "#D51067"
@@ -59,18 +48,7 @@
       },
       "ordering": {
         "mode": "skills",
-        "skillNumbers": [
-          "57",
-          "30",
-          "53",
-          "54",
-          "40",
-          "59",
-          "27",
-          "04",
-          "15",
-          "12"
-        ],
+        "skillNumbers": [],
         "sourceFile": null
       },
       "color": "#0084AD"
@@ -91,18 +69,7 @@
       },
       "ordering": {
         "mode": "skills",
-        "skillNumbers": [
-          "14",
-          "20",
-          "07",
-          "58",
-          "29",
-          "01",
-          "25",
-          "08",
-          "38",
-          "55"
-        ],
+        "skillNumbers": [],
         "sourceFile": null
       },
       "color": "#FEE300"

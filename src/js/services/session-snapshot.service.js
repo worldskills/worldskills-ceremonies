@@ -1,18 +1,19 @@
 (function () {
     'use strict';
 
-    // Dev-only: electron-reloader wipes ControlCtrl's in-memory state (imported rows, catalog,
-    // frame pointers) on every reload/restart. This snapshots the raw inputs and per-frame
-    // runtime pointers to disk and replays them after — the catalog itself is rebuilt, not stored.
-    angular.module('ceremoniesApp').factory('DevSession', function ($timeout, FrameService) {
+    // Snapshots ControlCtrl's in-memory state (imported rows, catalog inputs, per-frame runtime
+    // pointers) to disk and replays it after a reload/restart — the catalog itself is rebuilt, not
+    // stored. Runs in both dev (surviving electron-reloader wiping scope state) and production
+    // (surviving a crash or unclean close).
+    angular.module('ceremoniesApp').factory('SessionSnapshot', function ($timeout, FrameService) {
 
         var SAVE_DEBOUNCE_MS = 600;
         var dev = (window.ceremonator && window.ceremonator.dev) || {};
 
         var service = {
-            enabled: !!dev.isDev,
+            enabled: true,
             // Starts true: blocks the first digest (which fires before restore resolves) from overwriting the snapshot with empty state. ControlCtrl clears it once restore settles.
-            restoring: !!dev.isDev
+            restoring: true
         };
 
         var collect = null;

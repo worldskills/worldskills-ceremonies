@@ -10,7 +10,7 @@ if (!app.isPackaged) {
 }
 const userDataPath = app.getPath('userData');
 const configFilePath = path.join(userDataPath, 'config.json');
-const devSessionFilePath = path.join(userDataPath, 'dev-session.json');
+const sessionFilePath = path.join(userDataPath, 'session.json');
 const projectsRootDir = path.join(appRoot, 'projects');
 const bareProjectDir = path.join(projectsRootDir, 'bare-project');
 const bundledTemplateDir = path.join(bareProjectDir, 'template');
@@ -28,7 +28,7 @@ module.exports = {
     preloadPath,
     userDataPath,
     configFilePath,
-    devSessionFilePath,
+    sessionFilePath,
     projectsRootDir,
     bareProjectDir,
     bundledTemplateDir,

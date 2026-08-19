@@ -108,6 +108,14 @@
             service.skillOrder = (skillNumbers || []).map(ResultFormat.normalizeSkillNum);
         };
 
+        // The only place ordering.includeAlbertVidal is ever written — guarantees at most
+        // one frame carries the flag. Pass a falsy frameId to clear it on every frame.
+        service.setAlbertVidalFrame = function (frameId) {
+            angular.forEach(service.frames, function (frame, id) {
+                frame.ordering.includeAlbertVidal = (id === frameId);
+            });
+        };
+
         service.getFrameColor = function (id) {
             var frame = service.frames[id];
             if (frame && frame.color) return frame.color;

@@ -1,6 +1,8 @@
 const { BrowserWindow, dialog } = require('electron');
 const { baseWebPreferences } = require('./window-factory');
 const { markWindow } = require('./ipc/sender-role');
+const { confirmClose } = require('./window-close-guard');
+const { isProjectDirty } = require('./ipc/project-dirty');
 
 let controlWindow = null;
 let startupWindow = null;
@@ -33,6 +35,12 @@ function createControlWindow() {
                 message: 'Close the audience outputs before closing Control.',
                 detail: liveCount + ' Live, ' + previewCount + ' Preview, grid ' + (gridWindow.isGridOpen() ? 'open' : 'closed') + '.'
             });
+        } else if (isProjectDirty()) {
+            const confirmed = confirmClose(controlWindow, {
+                title: 'Unsaved changes',
+                message: 'You have unsaved changes. Data could be lost if you close now.'
+            });
+            if (!confirmed) event.preventDefault();
         }
     });
     controlWindow.on('closed', () => {

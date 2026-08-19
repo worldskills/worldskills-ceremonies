@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('ProjectPart', function (Excel, FrameState, FrameService, ResultFormat) {
+    angular.module('ceremoniesApp').factory('ProjectPart', function (Excel, FrameState, FrameService, ResultFormat, SLIDE_KEYS) {
       return function ($scope) {
         $scope.projectMenuOpen = false;
         $scope.feedMenuOpen = false;
@@ -36,7 +36,7 @@
                         $scope.addNotice('error', 'Import failed: no result rows were found in that file. Please import a valid CIS results spreadsheet (.xlsx).', 'import');
                         return;
                     }
-                    $scope.buildScreens(true);
+                    $scope.buildScreens();
 
                     var total = ($scope.results && $scope.results.length) || 0;
                     var skipped = $scope.lastImportSkipped || 0;
@@ -182,6 +182,7 @@
                     rows.forEach(function (row, index) {
                         var skillNum = row['Skill Number'] ? String(row['Skill Number']).trim() : null;
                         if (!skillNum) return;
+                        if (skillNum === SLIDE_KEYS.ALBERT_VIDAL || skillNum === SLIDE_KEYS.BEST_OF_NATION) return;
                         var order = parseFloat(row['Order']);
                         entries.push({
                             skillNumber: skillNum,

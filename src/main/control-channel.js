@@ -47,4 +47,11 @@ function sendRemoteAction(action) {
     }
 }
 
-module.exports = { notifyFrameStatus, sendControlNotice, sendRemoteAction };
+function requestClearAllData() {
+    const win = getControlWindow();
+    if (win && !win.isDestroyed()) {
+        win.webContents.send('session:clearRequested');
+    }
+}
+
+module.exports = { notifyFrameStatus, sendControlNotice, sendRemoteAction, requestClearAllData };

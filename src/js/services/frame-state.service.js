@@ -80,7 +80,6 @@
         }
 
         function assembleFrame(frame, catalog) {
-            // angular.copy() below breaks object identity; ng-disabled="screens[id].slide !== slide" depends on it, so save the label to restore the reference.
             var prevLabel  = frame.slide ? frame.slide.label : null;
             var prevState  = frame.slide ? angular.copy(frame.slide.state || []) : [];
             var prevDone   = frame.slide ? (frame.slide.done || false) : false;
@@ -98,14 +97,14 @@
                 }
             });
 
-            if (frame.ordering.includeAlbertVidal) {
-                var bestOfNation = catalog[SLIDE_KEYS.BEST_OF_NATION];
-                if (bestOfNation && bestOfNation.length > 0) {
-                    angular.forEach(bestOfNation, function (slide) {
-                        frame.slides.push(angular.copy(slide));
-                    });
-                }
+            var bestOfNation = catalog[SLIDE_KEYS.BEST_OF_NATION];
+            if (bestOfNation && bestOfNation.length > 0) {
+                angular.forEach(bestOfNation, function (slide) {
+                    frame.slides.push(angular.copy(slide));
+                });
+            }
 
+            if (frame.ordering.includeAlbertVidal) {
                 var albertVidal = catalog[SLIDE_KEYS.ALBERT_VIDAL];
                 if (albertVidal && albertVidal.length > 0) {
                     frame.slides.push(angular.copy(albertVidal[0]));
@@ -113,7 +112,9 @@
             }
 
             angular.forEach(frame.slides, function (slide, index) {
-                if (!slide.slideId) slide.slideId = frame.id + ':' + encodeURIComponent((slide.template || '') + '|' + (slide.label || index));
+                if (!slide.slideId) {
+                    slide.slideId = frame.id + ':' + encodeURIComponent((slide.template || '') + '|' + (slide.label || index));
+                }
             });
 
             if (prevLabel) {
@@ -142,6 +143,8 @@
                 frame.previewSlide = restoredPreview || undefined;
                 if (!restoredPreview) frame.previewState = undefined;
             }
+
+            return frame;
         }
 
         return {

@@ -35,6 +35,7 @@ const fullApi = {
         saveAs: (project) => ipcRenderer.invoke('project:saveAs', project),
         readTranslations: () => ipcRenderer.invoke('project:readTranslations'),
         writeTranslations: (languages) => ipcRenderer.invoke('project:writeTranslations', languages),
+        setDirty: (dirty) => ipcRenderer.send('project:setDirty', !!dirty),
     },
     dev: {
         isDev: isDev,
@@ -64,6 +65,11 @@ const fullApi = {
         const listener = (_event, data) => callback(data);
         ipcRenderer.on('app:notice', listener);
         return () => ipcRenderer.removeListener('app:notice', listener);
+    },
+    onClearAllDataRequested: (callback) => {
+        const listener = () => callback();
+        ipcRenderer.on('session:clearRequested', listener);
+        return () => ipcRenderer.removeListener('session:clearRequested', listener);
     },
 };
 
