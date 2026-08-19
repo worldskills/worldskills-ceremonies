@@ -1,0 +1,20 @@
+<div class="screen-content screen-content-best-of-nation">
+    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted></video>
+    <div class="screen-best-of-nation-name screen-region-kv" ws-fit>
+        <div class="screen-translation">
+             <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                   translate="Best of Nation" translate-language="{{ l.lang_code }}"></span>
+        </div>
+    </div>
+    <div class="screen-skill-best-of-nation-nation screen-region-state screen-grid"
+         style="--grid-max-cols: {{ context.results.length >= 8 ? 2 : 1 }};">
+        <div class="screen-medal screen-best-of-nation" ng-repeat="result in context.results" ws-fit>
+            <div class="screen-flag">
+                <img ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='wstemplate://project/data/flags/_placeholder.svg'">
+            </div>
+            <div class="screen-competitors" style="text-transform: uppercase">
+                <span>{{ result.competitors.join(', ') }}</span>
+            </div>
+        </div>
+    </div>
+</div>

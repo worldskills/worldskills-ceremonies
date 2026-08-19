@@ -1,6 +1,6 @@
 {
   "name": "worldskills-ceremonies",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "main": "main.js",
   "description": "Ceremonies",
   "author": "WorldSkills International",
@@ -13,10 +13,12 @@
   "dependencies": {
     "@worldskills/bootstrap": "^4.3.3",
     "angular": "^1.5.11",
+    "angular-translate": "^2.19.1",
     "electron-squirrel-startup": "^1.0.0",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",
     "ng-file-upload": "^12.2.13",
+    "ws": "^8.21.3",
     "xlsx": "^0.14.3"
   },
   "devDependencies": {
@@ -31,5 +33,10 @@
   },
   "config": {
     "forge": "./forge.config.js"
+  },
+  "allowScripts": {
+    "electron@20.3.12": true,
+    "electron-winstaller@5.4.0": true,
+    "fsevents@2.3.3": true
   }
 }

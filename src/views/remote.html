@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" ng-app="ceremoniesRemoteApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceremonator Remote</title>
+    <link href="/node_modules/@worldskills/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/node_modules/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/control.css" rel="stylesheet">
+    <link href="/css/remote.css" rel="stylesheet">
+</head>
+<body ng-controller="RemoteCtrl" ng-cloak>
+    <div class="remote-pin-screen p-4" ng-show="!connected">
+        <form ng-submit="connect()">
+            <h5 class="mb-3">Ceremonator Remote Control Panel</h5>
+            <div class="form-group">
+                <label for="pinInput">PIN</label>
+                <input id="pinInput" class="form-control remote-pin-input" ng-model="auth.pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm" ng-disabled="auth.connecting || !auth.pin">
+                {{ auth.connecting ? 'Connecting…' : 'Connect' }}
+            </button>
+            <div class="text-danger mt-2" ng-show="auth.error">{{ auth.error }}</div>
+        </form>
+    </div>
+
+    <div class="remote-main-screen" ng-show="connected">
+        <nav class="navbar navbar-expand navbar-dark ws-navbar-stripe ws-navbar-main">
+            <span class="navbar-brand text-white">Ceremonator Remote</span>
+            <span class="remote-connection-state ml-auto" ng-show="reconnecting">
+                <i class="fa fa-refresh fa-spin mr-1"></i> Reconnecting…
+            </span>
+        </nav>
+        <div class="remote-blank-alert" ng-repeat="(id, frame) in screens" ng-show="frame.blanked">
+            <i class="fa fa-exclamation-triangle"></i> "{{ frame.label }}" IS BLANK
+        </div>
+        <div class="remote-frame-selector">
+            <label for="frameSelect" class="mb-0 mr-2">Frame</label>
+            <select id="frameSelect" class="form-control form-control-sm" ng-model="FrameService.activeFrameId" ng-change="frameChanged()" ng-options="frame.id as frame.label for frame in frameOptions">
+                <option value="">Select a frame…</option>
+            </select>
+        </div>
+        <control-workspace></control-workspace>
+    </div>
+
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/js/control/control-workspace.js"></script>
+    <script src="/js/remote.js"></script>
+</body>
+</html>

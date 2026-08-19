@@ -1,0 +1,24 @@
+<div class="screen-content screen-content-skill-medals screen-skill-medals screen-skill-medals-{{ context.skill.number }}">
+    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted></video>
+    <div class="screen-skill-medals-name screen-region-kv" ws-fit>
+        <div class="screen-translation screen-translation-row">
+             <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                   translate="{{ context.skill.name }}" translate-language="{{ l.lang_code }}"></span>
+        </div>
+        <div class="screen-skill-medals-name-mfe screen-translation screen-translation-row">
+            <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                 translate="Medal for Excellence" translate-language="{{ l.lang_code }}"></span>
+        </div>
+    </div>
+    <div class="screen-skill-medal-for-excellence screen-region-state screen-grid"
+         style="--grid-max-cols: {{ context.results.length >= 8 ? 2 : 1 }};">
+        <div class="screen-medal screen-medal-for-excellence" ng-repeat="result in context.results" ws-fit>
+            <div class="screen-flag">
+                <img ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='wstemplate://project/data/flags/_placeholder.svg'">
+            </div>
+            <div class="screen-competitors" style="text-transform: uppercase">
+                <span>{{ result.competitors.join(', ') }}</span>
+            </div>
+        </div>
+    </div>
+</div>

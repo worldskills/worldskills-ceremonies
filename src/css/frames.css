@@ -1,0 +1,69 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+.frames-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols, 2), var(--cell-w, 1100px));
+    grid-auto-rows: var(--cell-h, 500px);
+    gap: var(--grid-gap, 0px);
+    width: max-content;
+    height: max-content;
+}
+
+.frame-cell {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.frame-cell-screen {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+    overflow: hidden;
+}
+
+.frame-cell-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    background: var(--cell-accent, rgba(0, 0, 0, 0.72));
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+body.show-overlays .frame-cell-caption {
+    opacity: 1;
+}
+
+.frames-grid-error {
+    color: #fca5a5;
+    font: 14px/1.5 sans-serif;
+    padding: 24px;
+}

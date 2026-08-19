@@ -1,0 +1,642 @@
+[
+  {
+    "number": "50",
+    "name": {
+      "lang_code": "en",
+      "text": "3D Digital Game Art",
+      "translations": {
+        "zh_CN": "3D 数字游戏艺术"
+      }
+    }
+  },
+  {
+    "number": "57",
+    "name": {
+      "lang_code": "en",
+      "text": "Additive Manufacturing",
+      "translations": {
+        "zh_CN": "增材制造"
+      }
+    }
+  },
+  {
+    "number": "14",
+    "name": {
+      "lang_code": "en",
+      "text": "Aircraft Maintenance",
+      "translations": {
+        "zh_CN": "飞机维修"
+      }
+    }
+  },
+  {
+    "number": "13",
+    "name": {
+      "lang_code": "en",
+      "text": "Autobody Repair",
+      "translations": {
+        "zh_CN": "车身修理"
+      }
+    }
+  },
+  {
+    "number": "33",
+    "name": {
+      "lang_code": "en",
+      "text": "Automobile Technology",
+      "translations": {
+        "zh_CN": "汽车技术"
+      }
+    }
+  },
+  {
+    "number": "23",
+    "name": {
+      "lang_code": "en",
+      "text": "Autonomous Mobile Robotics",
+      "translations": {
+        "zh_CN": "移动机器人"
+      }
+    }
+  },
+  {
+    "number": "47",
+    "name": {
+      "lang_code": "en",
+      "text": "Bakery",
+      "translations": {
+        "zh_CN": "烘焙"
+      }
+    }
+  },
+  {
+    "number": "30",
+    "name": {
+      "lang_code": "en",
+      "text": "Beauty Therapy",
+      "translations": {
+        "zh_CN": "美容"
+      }
+    }
+  },
+  {
+    "number": "20",
+    "name": {
+      "lang_code": "en",
+      "text": "Bricklaying",
+      "translations": {
+        "zh_CN": "砌筑"
+      }
+    }
+  },
+  {
+    "number": "24",
+    "name": {
+      "lang_code": "en",
+      "text": "Cabinetmaking",
+      "translations": {
+        "zh_CN": "家具制作"
+      }
+    }
+  },
+  {
+    "number": "36",
+    "name": {
+      "lang_code": "en",
+      "text": "Car Painting",
+      "translations": {
+        "zh_CN": "汽车喷漆"
+      }
+    }
+  },
+  {
+    "number": "26",
+    "name": {
+      "lang_code": "en",
+      "text": "Carpentry",
+      "translations": {
+        "zh_CN": "木工"
+      }
+    }
+  },
+  {
+    "number": "52",
+    "name": {
+      "lang_code": "en",
+      "text": "Chemical Laboratory Technology",
+      "translations": {
+        "zh_CN": "化学实验室技术"
+      }
+    }
+  },
+  {
+    "number": "53",
+    "name": {
+      "lang_code": "en",
+      "text": "Cloud Computing",
+      "translations": {
+        "zh_CN": "云计算"
+      }
+    }
+  },
+  {
+    "number": "07",
+    "name": {
+      "lang_code": "en",
+      "text": "CNC Milling",
+      "translations": {
+        "zh_CN": "数控铣"
+      }
+    }
+  },
+  {
+    "number": "06",
+    "name": {
+      "lang_code": "en",
+      "text": "CNC Turning",
+      "translations": {
+        "zh_CN": "数控车"
+      }
+    }
+  },
+  {
+    "number": "46",
+    "name": {
+      "lang_code": "en",
+      "text": "Concrete Construction Work",
+      "translations": {
+        "zh_CN": "混凝土建筑"
+      }
+    }
+  },
+  {
+    "number": "34",
+    "name": {
+      "lang_code": "en",
+      "text": "Cooking",
+      "translations": {
+        "zh_CN": "烹饪"
+      }
+    }
+  },
+  {
+    "number": "54",
+    "name": {
+      "lang_code": "en",
+      "text": "Cyber Security",
+      "translations": {
+        "zh_CN": "网络安全"
+      }
+    }
+  },
+  {
+    "number": "42",
+    "name": {
+      "lang_code": "en",
+      "text": "Dental Prosthetics",
+      "translations": {
+        "zh_CN": "口腔修复工艺技术"
+      }
+    }
+  },
+  {
+    "number": "58",
+    "name": {
+      "lang_code": "en",
+      "text": "Digital Construction",
+      "translations": {
+        "zh_CN": "数字建造"
+      }
+    }
+  },
+  {
+    "number": "45",
+    "name": {
+      "lang_code": "en",
+      "text": "Digital Interactive Media Design",
+      "translations": {
+        "zh_CN": "数字交互媒体设计"
+      }
+    }
+  },
+  {
+    "number": "18",
+    "name": {
+      "lang_code": "en",
+      "text": "Electrical Installations",
+      "translations": {
+        "zh_CN": "电气装置"
+      }
+    }
+  },
+  {
+    "number": "16",
+    "name": {
+      "lang_code": "en",
+      "text": "Electronics",
+      "translations": {
+        "zh_CN": "电子技术"
+      }
+    }
+  },
+  {
+    "number": "31",
+    "name": {
+      "lang_code": "en",
+      "text": "Fashion Technology",
+      "translations": {
+        "zh_CN": "时装技术"
+      }
+    }
+  },
+  {
+    "number": "28",
+    "name": {
+      "lang_code": "en",
+      "text": "Floristry",
+      "translations": {
+        "zh_CN": "花艺"
+      }
+    }
+  },
+  {
+    "number": "40",
+    "name": {
+      "lang_code": "en",
+      "text": "Graphic Design Technology",
+      "translations": {
+        "zh_CN": "平面设计技术"
+      }
+    }
+  },
+  {
+    "number": "29",
+    "name": {
+      "lang_code": "en",
+      "text": "Hairdressing",
+      "translations": {
+        "zh_CN": "美发"
+      }
+    }
+  },
+  {
+    "number": "41",
+    "name": {
+      "lang_code": "en",
+      "text": "Health and Social Care",
+      "translations": {
+        "zh_CN": "健康和社会照护"
+      }
+    }
+  },
+  {
+    "number": "49",
+    "name": {
+      "lang_code": "en",
+      "text": "Heavy Vehicle Technology",
+      "translations": {
+        "zh_CN": "重型车辆维修"
+      }
+    }
+  },
+  {
+    "number": "56",
+    "name": {
+      "lang_code": "en",
+      "text": "Hotel Reception",
+      "translations": {
+        "zh_CN": "酒店接待"
+      }
+    }
+  },
+  {
+    "number": "02",
+    "name": {
+      "lang_code": "en",
+      "text": "ICT Network Infrastructure",
+      "translations": {
+        "zh_CN": "信息通信技术网络基础设施"
+      }
+    }
+  },
+  {
+    "number": "19",
+    "name": {
+      "lang_code": "en",
+      "text": "Industrial Control",
+      "translations": {
+        "zh_CN": "工业控制"
+      }
+    }
+  },
+  {
+    "number": "59",
+    "name": {
+      "lang_code": "en",
+      "text": "Industrial Design Technology",
+      "translations": {
+        "zh_CN": "工业设计技术"
+      }
+    }
+  },
+  {
+    "number": "01",
+    "name": {
+      "lang_code": "en",
+      "text": "Industrial Mechanics",
+      "translations": {
+        "zh_CN": "工业机械"
+      }
+    }
+  },
+  {
+    "number": "48",
+    "name": {
+      "lang_code": "en",
+      "text": "Industry 4.0",
+      "translations": {
+        "zh_CN": "工业 4.0"
+      }
+    }
+  },
+  {
+    "number": "03",
+    "name": {
+      "lang_code": "en",
+      "text": "Intelligent Security Technology",
+      "translations": {
+        "zh_CN": "智慧安防技术"
+      }
+    }
+  },
+  {
+    "number": "39",
+    "name": {
+      "lang_code": "en",
+      "text": "IT Network Systems Administration",
+      "translations": {
+        "zh_CN": "网络系统管理"
+      }
+    }
+  },
+  {
+    "number": "27",
+    "name": {
+      "lang_code": "en",
+      "text": "Jewellery",
+      "translations": {
+        "zh_CN": "珠宝加工"
+      }
+    }
+  },
+  {
+    "number": "25",
+    "name": {
+      "lang_code": "en",
+      "text": "Joinery",
+      "translations": {
+        "zh_CN": "精细木工"
+      }
+    }
+  },
+  {
+    "number": "37",
+    "name": {
+      "lang_code": "en",
+      "text": "Landscape Gardening",
+      "translations": {
+        "zh_CN": "园艺"
+      }
+    }
+  },
+  {
+    "number": "51",
+    "name": {
+      "lang_code": "en",
+      "text": "Logistics and Freight Forwarding",
+      "translations": {
+        "zh_CN": "货运代理"
+      }
+    }
+  },
+  {
+    "number": "05",
+    "name": {
+      "lang_code": "en",
+      "text": "Mechanical Engineering CAD",
+      "translations": {
+        "zh_CN": "CAD 机械设计"
+      }
+    }
+  },
+  {
+    "number": "04",
+    "name": {
+      "lang_code": "en",
+      "text": "Mechatronics",
+      "translations": {
+        "zh_CN": "机电一体化"
+      }
+    }
+  },
+  {
+    "number": "08",
+    "name": {
+      "lang_code": "en",
+      "text": "Mobile Applications Development",
+      "translations": {
+        "zh_CN": "移动应用开发"
+      }
+    }
+  },
+  {
+    "number": "60",
+    "name": {
+      "lang_code": "en",
+      "text": "Optoelectronic Technology",
+      "translations": {
+        "zh_CN": "光电技术"
+      }
+    }
+  },
+  {
+    "number": "22",
+    "name": {
+      "lang_code": "en",
+      "text": "Painting and Decorating",
+      "translations": {
+        "zh_CN": "油漆与装饰"
+      }
+    }
+  },
+  {
+    "number": "32",
+    "name": {
+      "lang_code": "en",
+      "text": "Pâtisserie and Confectionery",
+      "translations": {
+        "zh_CN": "糖艺/西点制作"
+      }
+    }
+  },
+  {
+    "number": "21",
+    "name": {
+      "lang_code": "en",
+      "text": "Plastering and Drywall Systems",
+      "translations": {
+        "zh_CN": "抹灰与隔墙系统"
+      }
+    }
+  },
+  {
+    "number": "15",
+    "name": {
+      "lang_code": "en",
+      "text": "Plumbing and Heating",
+      "translations": {
+        "zh_CN": "管道与制暖"
+      }
+    }
+  },
+  {
+    "number": "61",
+    "name": {
+      "lang_code": "en",
+      "text": "Rail Vehicle Technology",
+      "translations": {
+        "zh_CN": "轨道车辆技术"
+      }
+    }
+  },
+  {
+    "number": "38",
+    "name": {
+      "lang_code": "en",
+      "text": "Refrigeration and Air Conditioning",
+      "translations": {
+        "zh_CN": "制冷与空调"
+      }
+    }
+  },
+  {
+    "number": "62",
+    "name": {
+      "lang_code": "en",
+      "text": "Renewable Energy",
+      "translations": {
+        "zh_CN": "可再生能源"
+      }
+    }
+  },
+  {
+    "number": "35",
+    "name": {
+      "lang_code": "en",
+      "text": "Restaurant Service",
+      "translations": {
+        "zh_CN": "餐厅服务"
+      }
+    }
+  },
+  {
+    "number": "43",
+    "name": {
+      "lang_code": "en",
+      "text": "Retail Sales",
+      "translations": {
+        "zh_CN": "零售"
+      }
+    }
+  },
+  {
+    "number": "63",
+    "name": {
+      "lang_code": "en",
+      "text": "Robot Systems Integration",
+      "translations": {
+        "zh_CN": "机器人系统集成"
+      }
+    }
+  },
+  {
+    "number": "09",
+    "name": {
+      "lang_code": "en",
+      "text": "Software Applications Development",
+      "translations": {
+        "zh_CN": "软件应用开发"
+      }
+    }
+  },
+  {
+    "number": "11",
+    "name": {
+      "lang_code": "en",
+      "text": "Software Testing",
+      "translations": {
+        "zh_CN": "软件测试"
+      }
+    }
+  },
+  {
+    "number": "64",
+    "name": {
+      "lang_code": "en",
+      "text": "Unmanned Aerial Systems",
+      "translations": {
+        "zh_CN": "无人机系统"
+      }
+    }
+  },
+  {
+    "number": "44",
+    "name": {
+      "lang_code": "en",
+      "text": "Visual Merchandising",
+      "translations": {
+        "zh_CN": "商品展示技术"
+      }
+    }
+  },
+  {
+    "number": "12",
+    "name": {
+      "lang_code": "en",
+      "text": "Wall and Floor Tiling",
+      "translations": {
+        "zh_CN": "瓷砖贴面"
+      }
+    }
+  },
+  {
+    "number": "55",
+    "name": {
+      "lang_code": "en",
+      "text": "Water Technology",
+      "translations": {
+        "zh_CN": "水处理技术"
+      }
+    }
+  },
+  {
+    "number": "17",
+    "name": {
+      "lang_code": "en",
+      "text": "Web Technologies",
+      "translations": {
+        "zh_CN": "网站技术"
+      }
+    }
+  },
+  {
+    "number": "10",
+    "name": {
+      "lang_code": "en",
+      "text": "Welding",
+      "translations": {
+        "zh_CN": "焊接"
+      }
+    }
+  }
+]

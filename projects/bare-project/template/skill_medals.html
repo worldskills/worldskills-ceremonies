@@ -1,0 +1,33 @@
+<div class="screen-content screen-content-skill-medals screen-skill-medals screen-skill-medals-{{ context.skill.number }}">
+    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted></video>
+    <div class="screen-skill-medals-name screen-region-kv" ws-fit>
+        <div class="screen-translation screen-translation-row">
+            <div class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                 translate="{{ context.skill.name }}" translate-language="{{ l.lang_code }}"></div>
+        </div>
+    </div>
+    <div class="screen-skill-medals-medals screen-region-state screen-grid"
+         style="--grid-max-cols: {{ context.results.length >= 5 ? 2 : 1 }};">
+        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results" ws-fit>
+
+           <div class="screen-medal-row">
+               <div class="screen-medal-row-position">
+                   <div class="screen-translation screen-translation-row">
+                       <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                             translate="{{ result.medal }}" translate-language="{{ l.lang_code }}"></span>
+                   </div>
+               </div>
+               <div class="screen-medal-row-competitors">
+                   <div class="screen-flag">
+                       <img ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='wstemplate://project/data/flags/_placeholder.svg'">
+                   </div>
+                   <div class="screen-medal-text">
+                       <div class="screen-competitors" style="text-transform: uppercase">
+                           <span>{{ result.competitors.join(', ') }}</span>
+                       </div>
+                   </div>
+               </div>
+           </div>
+        </div>
+    </div>
+</div>

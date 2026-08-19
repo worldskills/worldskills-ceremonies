@@ -24,7 +24,7 @@ jobs:
 
       - name: Setup Code Signing
         if: startsWith(matrix.os, 'macos')
-        env: 
+        env:
           MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
         run: |
           echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12

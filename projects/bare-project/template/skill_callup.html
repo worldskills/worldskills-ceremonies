@@ -1,0 +1,19 @@
+<div class="screen-content screen-content-skill-callup screen-content-skill-callup-{{ context.skill.number }}">
+    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted></video>
+    <div class="screen-skill-callup-name screen-region-kv" ws-fit>
+        <div class="screen-translation screen-translation-row">
+            <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                  translate="{{ context.skill.name }}" translate-language="{{ l.lang_code }}"></span>
+        </div>
+    </div>
+    <div class="screen-skill-callup-countries screen-region-state screen-table-countries"
+         style="--grid-max-cols: {{ context.results.length < 4 ? context.results.length : 4 }};">
+        <div class="screen-table-country" ng-repeat="result in context.results" ws-fit>
+            <img ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png" onerror="this.onerror=null;this.src='wstemplate://project/data/flags/_placeholder.svg'" class="screen-img-flag">
+            <div class="screen-translation">
+                <span class="screen-translation-line" ng-repeat="l in languages" ng-class="{'screen-translation-primary': $index === 0}"
+                      translate="{{ result.member }}" translate-language="{{ l.lang_code }}"></span>
+            </div>
+        </div>
+    </div>
+</div>

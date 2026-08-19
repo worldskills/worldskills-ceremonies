@@ -1,0 +1,83 @@
+{
+  "version": 2,
+  "name": "WorldSkills Competition 2026",
+  "displayMode": "windows",
+  "languages": [
+    {
+      "lang_code": "en"
+    },
+    {
+      "lang_code": "zh_CN"
+    }
+  ],
+  "frames": [
+    {
+      "id": "a",
+      "label": "Podium Red",
+      "video": "red.mp4",
+      "size": {
+        "width": 589,
+        "height": 553
+      },
+      "position": {
+        "monitor": 0,
+        "x": 8,
+        "y": 47,
+        "fullscreen": false
+      },
+      "ordering": {
+        "mode": "skills",
+        "skillNumbers": [],
+        "includeAlbertVidal": true
+      },
+      "color": "#D51067"
+    },
+    {
+      "id": "b",
+      "label": "Podium Blue",
+      "video": "blue.mp4",
+      "size": {
+        "width": 589,
+        "height": 553
+      },
+      "position": {
+        "monitor": 0,
+        "x": 606,
+        "y": 47,
+        "fullscreen": false
+      },
+      "ordering": {
+        "mode": "skills",
+        "skillNumbers": [],
+        "sourceFile": null
+      },
+      "color": "#0084AD"
+    },
+    {
+      "id": "c",
+      "label": "Podium Yellow",
+      "video": "yellow.mp4",
+      "size": {
+        "width": 588,
+        "height": 553
+      },
+      "position": {
+        "monitor": 0,
+        "x": 1204,
+        "y": 47,
+        "fullscreen": false
+      },
+      "ordering": {
+        "mode": "skills",
+        "skillNumbers": [],
+        "sourceFile": null
+      },
+      "color": "#FEE300"
+    }
+  ],
+  "gridConfig": {
+    "cols": null,
+    "frameWidth": 500,
+    "frameHeight": 300
+  }
+}

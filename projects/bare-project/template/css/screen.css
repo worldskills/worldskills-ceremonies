@@ -1,0 +1,316 @@
+@import url('./fonts.css');
+@import url('./state.css');
+
+:root {
+    --primary-a: #62B5E5;
+    --secondary-a: #8AE2D1;
+    --primary-b: #DF4661;
+    --secondary-b: #72D0EB;
+    --background: #000;
+    --callup-color: #f1f1f1;
+    --font-color: #fff;
+    --unit: calc(100vh / 16);
+
+    --flag-ratio: 8 / 5;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: var(--unit);
+}
+
+body {
+    background-color: var(--background);
+    font-family: "FrutigerLTW04", Frutiger, Arial, sans-serif;
+    font-weight: bold;
+    overflow: hidden;
+    font-size: 1rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body:not(.preview) {
+    cursor: none;
+}
+
+.setup {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+}
+
+.screen-content {
+    position: relative;
+    z-index: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-size: 1rem;
+    color: var(--font-color);
+    background: var(--color-blue-dark);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen-bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+body.preview .screen-content {
+    border: 1px solid #eee;
+}
+
+
+.screen-region-kv {
+    flex: 0 0 auto;
+    max-height: 32%;
+    overflow: hidden;
+    padding-top: calc(var(--unit) * 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.screen-region-kv > * {
+    padding-left: calc(var(--unit) * 1.3);
+    padding-right: calc(var(--unit) * 5);
+}
+
+.screen-region-state {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.screen-container-kv .screen-region-kv {
+    flex: 1 1 auto;
+    max-height: 100%;
+}
+
+.screen-empty-logo {
+    background-color: var(--frame-accent, var(--primary-a));
+}
+
+.screen-empty-logo svg {
+    width: calc(var(--unit) * 6.4);
+    height: calc(var(--unit) * 3.79);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+.screen-skill-medals-name,
+.screen-skill-callup-name {
+    font-weight: 800;
+    color: var(--callup-color) !important;
+}
+
+.screen-skill-medals-name .screen-skill-medals-name-mfe {
+    color: #FFF !important;
+}
+
+.screen-skill-callup-name,
+.screen-skill-medals-name,
+.screen-best-of-nation-name,
+.screen-best-of-nation-name-host,
+.screen-albert-vidal-award-name {
+    font-size: calc(var(--unit) * 1.2);
+    line-height: 1.3;
+    gap: 0.4em;
+}
+
+.screen-medal-for-excellence, .screen-best-of-nation {
+    font-weight: normal !important;
+}
+
+.screen-best-of-nation-name,
+.screen-best-of-nation-name-host {
+    font-size: calc(var(--unit) * 1.42);
+    font-weight: 900;
+}
+
+.screen-albert-vidal-award-name {
+    font-size: calc(var(--unit) * 0.95);
+    font-weight: 900;
+}
+
+/* Grid layout */
+
+.screen-grid {
+    --grid-max-cols: 1;
+    --grid-col-min: 8em;
+    --grid-gap-x: calc(var(--unit) * 1.4);
+
+    padding: calc(var(--unit) * 1.5) var(--grid-gap-x);
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(
+        min(100%, max(var(--grid-col-min),
+            calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols)))),
+        1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    grid-auto-flow: row;
+    column-gap: var(--grid-gap-x);
+    align-items: stretch;
+
+    font-size: 0.9rem;
+    line-height: 1.25;
+}
+
+.screen-grid.screen-skill-medal-for-excellence,
+.screen-grid.screen-skill-best-of-nation-nation {
+    padding: calc(var(--unit) * 0.65) calc(var(--unit) * 1.4) calc(var(--unit) * 1.3);
+}
+
+.screen-grid .screen-medal {
+    /* Definite slice from grid-auto-rows above; hidden overflow makes the last
+       resort a clip rather than a bleed into the neighbouring row. */
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.screen-grid .screen-flag {
+    width: 1.4em;
+    aspect-ratio: var(--flag-ratio);
+    display: flex;
+    flex-shrink: 0;
+}
+
+.screen-grid .screen-competitors {
+    display: flex;
+    flex-direction: row;
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+.screen-grid .screen-medal-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    min-width: 0;
+    align-items: center;
+}
+
+.screen-grid .screen-medal-row-competitors {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+    min-width: 0;
+}
+
+.screen-grid .screen-medal-row-position {
+    margin-left: -0.1em;
+}
+
+.screen-medal-text {
+    display: flex;
+    min-width: 0;
+}
+
+.screen-medal-name {
+    padding-right: 0.3em;
+}
+
+.screen-competitor span {
+    word-break: break-all;
+    white-space: pre-line;
+}
+
+/* Translation renderers */
+
+.screen-translation {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    gap: 0.35em;
+    min-width: 0;
+}
+
+.screen-translation-line:not(.screen-translation-primary) {
+    font-size: 0.7em;
+}
+
+.screen-translation-row {
+    flex-direction: row;
+    align-items: baseline;
+    white-space: nowrap;
+}
+
+
+.screen-flag img {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    object-fit: contain;
+}
+
+.screen-table-countries {
+    --grid-max-cols: 4;
+    --grid-col-min: 4em;
+    --grid-gap-x: calc(var(--unit) * 1.2);
+
+    padding: var(--unit);
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(
+        min(100%, max(var(--grid-col-min),
+            calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols)))),
+        1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    grid-auto-flow: row;
+    column-gap: var(--grid-gap-x);
+    row-gap: calc(var(--unit) * 0.6);
+    align-items: stretch;
+
+    font-size: 0.8rem;
+    line-height: 1.25;
+}
+
+.screen-table-country {
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.screen-table-country img {
+    flex: 0 0 auto;
+    width: 4em;
+    aspect-ratio: var(--flag-ratio);
+    object-fit: contain;
+}
+
+.screen-table-country .screen-translation {
+    align-self: center;
+    min-width: 0;
+}
+
+.screen-table-country .screen-translation-line {
+    white-space: normal;
+}
