@@ -38,6 +38,18 @@
 
     ceremoniesApp.constant('DATA_BASE', 'wstemplate://project/data/');
 
+    // Primed into $templateCache when a screen window boots, so the first switch to a template
+    // never waits on a fetch (which would blank the slide for a frame). Same filenames
+    // Catalog.build emits; a project missing one just fails that one request silently.
+    ceremoniesApp.constant('SCREEN_TEMPLATES', [
+        'empty.html',
+        'skill_callup.html',
+        'skill_medals.html',
+        'medal_for_excellence.html',
+        'best_of_nation.html',
+        'albert_vidal_award.html'
+    ]);
+
     // Sentinel keys shared by Catalog/FrameState/Queue — not real skill
     // numbers, so they never collide with one.
     ceremoniesApp.constant('SLIDE_KEYS', {

@@ -346,7 +346,7 @@
 
             window.ceremonator.frames.openLargeWindow({
                 frames: frames,
-                grid: { cols: $scope.getGridCols(), gap: 2 },
+                grid: { cols: $scope.getGridCols(), gap: 0 },
                 frameSize: {
                     width: parseInt($scope.gridConfig.frameWidth, 10) || 1280,
                     height: parseInt($scope.gridConfig.frameHeight, 10) || 720

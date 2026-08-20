@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, TEMPLATE_BASE, FEED, StorageKeys) {
+    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
 
         $scope.FEED = FEED;
         $scope.languages = [];
@@ -64,6 +64,7 @@
                 $scope.template = TEMPLATE_BASE + 'empty.html';
                 $scope.context = {};
                 $scope.states = [];
+                $scope.state = [];
                 $scope.slideLabel = '';
                 $scope.frame = { id: $scope.screen, label: $scope.screen, color: '', video: '', feed: $scope.feed };
                 document.title = 'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.screen;
@@ -83,6 +84,9 @@
             };
             document.body.dataset.frame = $scope.frame.id;
             document.body.dataset.frameLabel = $scope.frame.label;
+            // Lets a template's own opaque background step aside for the persistent bg video,
+            // which now sits behind .screen-content instead of inside it.
+            document.body.classList.toggle('has-bg-video', !!$scope.frame.video);
             document.title = 'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.frame.label;
 
             if (data.accent) {
@@ -93,6 +97,8 @@
             angular.forEach(data.state, function (state) {
                 $scope.states.push('screen-state-' + state);
             });
+
+            $scope.state = data.state || [];
 
             $scope.template = data.template;
             $scope.context = data.context;
@@ -114,6 +120,10 @@
         };
 
         $scope.loadScreen();
+
+        angular.forEach(SCREEN_TEMPLATES, function (name) {
+            $templateRequest(TEMPLATE_BASE + name, true).catch(angular.noop);
+        });
 
         window.addEventListener('keydown', function (e) {
             if (!$scope.preview) return;

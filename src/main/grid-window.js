@@ -75,8 +75,6 @@ function openGridWindow(config) {
             'cellW=' + frameSize.width,
             'cellH=' + frameSize.height,
             'gap=' + gap,
-            'waW=' + wa.width,
-            'waH=' + wa.height,
             'feed=' + (config.feed || FEED.LIVE),
         ].join('&')
     });
