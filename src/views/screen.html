@@ -6,6 +6,8 @@
     <title>Ceremonies Screen</title>
     <link href="wstemplate://active/css/screen.css" rel="stylesheet">
     <style>
+        .screen-bg-video { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+        .screen-content .screen-bg-video { display: none; }
         .screen-preview-mark { position: fixed; inset: 0; z-index: 9999; pointer-events: none; overflow: hidden; }
         .screen-preview-badge {
             position: absolute; top: 12px; left: 12px;
@@ -22,6 +24,8 @@
     </style>
 </head>
 <body ng-class="{'preview': preview}" style="margin: 0;">
+
+    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted></video>
 
     <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
         <div ng-include="template"></div>

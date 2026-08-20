@@ -230,6 +230,9 @@
                     }
                 }
             }
+            if (!hasLaterQueueItemForFrame(idx, $scope.queueList[idx].frameId)) {
+                $scope.resetFrame($scope.queueList[idx].frameId);
+            }
             if (idx < $scope.queueList.length - 1) $scope.showFromQueueList(idx + 1);
         };
 
@@ -240,14 +243,28 @@
                 $scope.showFromQueueList($scope.queueList.length - 1);
                 return;
             }
-            var slide = $scope.queueList[idx].slide;
+            var item = $scope.queueList[idx];
+            var frame = FrameService.frames[item.frameId];
+            if (frame && frame.blanked) {
+                frame.blanked = false;
+                $scope.update(item.frameId);
+                return;
+            }
+            var slide = item.slide;
             if (slide.state && slide.state.length > 0) {
                 slide.state.splice(slide.state.length - 1, 1);
-                $scope.update($scope.queueList[idx].frameId);
+                $scope.update(item.frameId);
                 return;
             }
             if (idx > 0) $scope.showFromQueueList(idx - 1);
         };
+
+        function hasLaterQueueItemForFrame(idx, frameId) {
+            for (var i = idx + 1; i < $scope.queueList.length; i++) {
+                if ($scope.queueList[i].frameId === frameId) return true;
+            }
+            return false;
+        }
 
         function currentQueueListIndex() {
             for (var i = 0; i < $scope.queueList.length; i++) {

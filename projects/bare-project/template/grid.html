@@ -1,3 +1,8 @@
+<style data-when-cols="6">
+    .frames-grid { grid-template-columns: repeat(3, var(--cell-w, 1100px)); }
+</style>
 <div class="frames-grid">
-    <div class="frame-cell" data-frame-each></div>
+    <div class="frame-cell" data-frame-each data-when-cols="!6"></div>
+    <div class="frame-cell" data-frame-each data-when-cols="6" data-frame-repeat="2"></div>
+    <div class="frame-cell" data-frame-each data-when-cols="6" data-frame-repeat="2"></div>
 </div>

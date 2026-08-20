@@ -167,7 +167,8 @@
                     var slideBon = {
                         label: 'Best of Nation ' + bon,
                         template: 'best_of_nation.html',
-                        states: ['Name'],
+                        // One reveal step per member, in grid order — the code is the button label.
+                        states: bestOfNationSlice.map(function (r) { return r.memberCode; }),
                         context: {
                             results: bestOfNationSlice
                         }
