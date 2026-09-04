@@ -211,6 +211,25 @@ body.has-bg-video .screen-empty-logo {
     height: 70%;
 }
 
+.screen-grid.screen-skill-medals-medals-dense {
+    padding: calc(var(--unit) * 0.3) var(--grid-gap-x) var(--bottom-bar-inset);
+    row-gap: 16px;
+    --flag-h: calc(var(--unit) * 0.8);
+    --flag-gap: calc(var(--unit) * 0.28);
+}
+
+.screen-grid.screen-skill-medals-medals-dense .screen-medal {
+    height: 100%;
+}
+
+.screen-grid.screen-skill-medals-medals-dense .screen-medal-row {
+    gap: calc(var(--unit) * 0.4);
+}
+
+.screen-grid.screen-skill-medals-medals-dense .screen-medal-row-position {
+    flex-basis: 17%;
+}
+
 .screen-grid .screen-medal {
     min-width: 0;
     min-height: 0;
@@ -254,14 +273,14 @@ body.has-bg-video .screen-empty-logo {
     flex-direction: row;
     flex: 1 1 0;
     height: 100%;
-    gap: calc(var(--unit) * 0.9);
+    gap: calc(var(--unit) * 0.5);
     min-width: 0;
     align-items: center;
     overflow: hidden;
 }
 
 .screen-grid .screen-medal-row-position {
-    flex: 0 0 27%;
+    flex: 0 0 22%;
     min-width: 0;
     max-height: 100%;
     overflow: hidden;
@@ -317,7 +336,8 @@ body.has-bg-video .screen-empty-logo {
     width: 100%;
     height: 100%;
     vertical-align: middle;
-    object-fit: fill;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .screen-table-countries {
@@ -343,7 +363,7 @@ body.has-bg-video .screen-empty-logo {
     flex-direction: column;
     gap: 0.5em;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: center;
 }
 
@@ -359,18 +379,112 @@ body.has-bg-video .screen-empty-logo {
     flex-basis: calc(25% - var(--unit));
 }
 
-.screen-table-country img {
+.screen-table-country-flag {
     flex: 0 0 auto;
-    width: calc(var(--unit) * 5.2);
+    width: calc(var(--unit) * 6.5);
     height: calc(var(--unit) * 3.25);
     max-width: 100%;
-    object-fit: fill;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen-table-country-flag img {
+    display: block;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.screen-table-countries-cols-4 .screen-table-country-flag {
+    width: calc(var(--unit) * 5);
+    height: calc(var(--unit) * 2.5);
 }
 
 .screen-table-country .screen-translation {
     align-self: center;
+    width: 100%;
+    max-width: 100%;
+    gap: calc(var(--unit) * 0.15);
 }
 
 .screen-table-country .screen-translation-line {
+    display: flex;
+    flex: 0 0 calc(var(--unit) * 0.95);
+    height: calc(var(--unit) * 0.95);
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    line-height: 1;
     white-space: nowrap;
+}
+
+.screen-table-country .screen-translation-primary {
+    flex-basis: calc(var(--unit) * 1.3);
+    height: calc(var(--unit) * 1.3);
+}
+
+/* Multi-row call-ups use explicit geometry. Parent-level ws-fit cannot resize
+ * unit-sized flags/line slots and would otherwise collapse all text to 6px. */
+.screen-table-countries-dense {
+    padding-top: calc(var(--unit) * 0.45);
+    padding-bottom: calc(var(--unit) * 0.45);
+    row-gap: calc(var(--unit) * 0.3);
+    font-size: 1rem;
+}
+
+.screen-table-countries-dense .screen-table-country {
+    gap: 0.3em;
+}
+
+.screen-table-countries-dense .screen-table-country-flag {
+    width: calc(var(--unit) * 5.2);
+    height: calc(var(--unit) * 2.6);
+}
+
+.screen-table-countries-dense .screen-translation {
+    gap: calc(var(--unit) * 0.1);
+}
+
+.screen-table-countries-dense .screen-translation-line {
+    flex-basis: calc(var(--unit) * 0.8);
+    height: calc(var(--unit) * 0.8);
+}
+
+.screen-table-countries-dense .screen-translation-primary {
+    flex-basis: calc(var(--unit) * 1.15);
+    height: calc(var(--unit) * 1.15);
+}
+
+.screen-table-countries-very-dense {
+    padding-top: calc(var(--unit) * 0.25);
+    padding-bottom: calc(var(--unit) * 0.25);
+    row-gap: calc(var(--unit) * 0.35);
+    font-size: 0.75rem;
+}
+
+.screen-table-countries-very-dense .screen-table-country {
+    gap: 0.3em;
+}
+
+.screen-table-countries-very-dense .screen-table-country-flag {
+    width: calc(var(--unit) * 3.2);
+    height: calc(var(--unit) * 1.6);
+}
+
+.screen-table-countries-very-dense .screen-translation {
+    gap: calc(var(--unit) * 0.08);
+}
+
+.screen-table-countries-very-dense .screen-translation-line {
+    flex-basis: calc(var(--unit) * 0.55);
+    height: calc(var(--unit) * 0.55);
+}
+
+.screen-table-countries-very-dense .screen-translation-primary {
+    flex-basis: calc(var(--unit) * 0.8);
+    height: calc(var(--unit) * 0.8);
 }

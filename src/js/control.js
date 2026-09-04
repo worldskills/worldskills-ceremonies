@@ -10,7 +10,7 @@
         $scope.workspaceMode = WORKSPACE_MODES.SETUP;
 
         // ── Test Mode ──────────────────────────────────────────────────
-        $scope.testMode = false;
+        $scope.testMode = true;
         $scope.toggleTestMode = function () {
             $scope.testMode = !($scope.testMode);
             localStorage.setItem('ceremonator:testMode', $scope.testMode ? '1' : '0');
