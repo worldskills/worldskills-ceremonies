@@ -4,6 +4,7 @@ const path = require('path');
 const { readConfig, writeConfig, addRecent } = require('../config-store');
 const projectStore = require('../project-store');
 const { applyRemoteConfig } = require('../remote-server');
+const { DEFAULT_REMOTE_PIN, DEFAULT_REMOTE_PORT } = require('../project-contract');
 const { readJson, writeJson } = require('../json-store');
 const { projectFilePath, templateDirPath, translationsFilePath, projectDataDir, appRoot, projectsRootDir } = require('../paths');
 
@@ -77,6 +78,7 @@ function registerProjectIpc() {
                 name: path.basename(dir),
                 displayMode: 'windows',
                 languages: [{ lang_code: 'en' }],
+                remote: { enabled: true, pin: DEFAULT_REMOTE_PIN, port: DEFAULT_REMOTE_PORT },
                 frames: [{
                     id: 'a',
                     label: 'Main Stage',

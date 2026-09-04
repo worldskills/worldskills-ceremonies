@@ -6,6 +6,11 @@
         $scope.FEED = FEED;
         $scope.languages = [];
 
+        // ── Test Mode ──────────────────────────────────────────────────
+        $scope.testMode = false;
+        $scope.testIdx = 0;
+        $scope.gridCols = 0;
+
         if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
             window.ceremonator.project.current().then(function (result) {
                 var configured = result && result.project && result.project.languages;
@@ -66,7 +71,7 @@
                 $scope.states = [];
                 $scope.state = [];
                 $scope.slideLabel = '';
-                $scope.frame = { id: $scope.screen, label: $scope.screen, color: '', video: '', feed: $scope.feed };
+                $scope.frame = { id: $scope.screen, label: $scope.screen, color: '', video: '', feed: $scope.feed, testMode: $scope.testMode, testIdx: $scope.testIdx, gridCols: $scope.gridCols };
                 document.title = 'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.screen;
                 return;
             }
@@ -80,7 +85,10 @@
                 label: data.frameLabel || $scope.screen,
                 color: data.accent || '',
                 video: data.video || '',
-                feed: $scope.feed
+                feed: $scope.feed,
+                testMode: $scope.testMode,
+                testIdx: $scope.testIdx,
+                gridCols: $scope.gridCols
             };
             document.body.dataset.frame = $scope.frame.id;
             document.body.dataset.frameLabel = $scope.frame.label;
@@ -110,16 +118,36 @@
             var screen = params.get('screen');
             var preview = params.get('preview');
             var feed = params.get('feed');
+            var testMode = params.get('testMode') === '1' || localStorage.getItem('ceremonator:testMode') === '1';
+            var testIdx = parseInt(params.get('testIdx'), 10) || 0;
+            var gridCols = parseInt(params.get('gridCols'), 10) || 0;
             var container = params.get('container');
             if (container) {
                 document.body.classList.add('screen-container-' + container);
             }
             if (screen) {
+                $scope.testMode = testMode;
+                $scope.testIdx = testIdx;
+                $scope.gridCols = gridCols;
                 $scope.setScreen(screen, preview, feed);
             }
         };
 
         $scope.loadScreen();
+
+        // Listen for test mode changes from other windows (control panel toggle)
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'ceremonator:testMode') {
+                var enabled = e.newValue === '1';
+                if (!$scope.$$phase) {
+                    $scope.$apply(function () {
+                        $scope.testMode = enabled;
+                    });
+                } else {
+                    $scope.testMode = enabled;
+                }
+            }
+        });
 
         angular.forEach(SCREEN_TEMPLATES, function (name) {
             $templateRequest(TEMPLATE_BASE + name, true).catch(angular.noop);

@@ -122,6 +122,32 @@ control-workspace,
     border-color: rgba(99, 102, 241, 0.85);
 }
 
+.navbar-test-toggle {
+    flex-shrink: 0;
+    padding: 3px 6px;
+    border: 1px solid rgba(245, 158, 11, 0.6);
+    border-radius: 3px;
+    color: #fcd34d;
+    background: rgba(245, 158, 11, 0.12);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.navbar-test-toggle:hover,
+.navbar-test-toggle-active {
+    color: #1e1b4b;
+    background: #fbbf24;
+    border-color: #fbbf24;
+}
+
+.navbar-test-toggle:focus {
+    outline: 2px solid rgba(251, 191, 36, 0.5);
+    outline-offset: 1px;
+}
+
 .navbar-blank-badge {
     color: #fca5a5;
     background: rgba(220, 38, 38, 0.18);
@@ -724,6 +750,18 @@ control-workspace,
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 8px;
+}
+
+.dark-modal .modal-body label.grid-fullscreen-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: pointer;
 }
 
 /* ── Notification banner ────────────────────────────────────── */

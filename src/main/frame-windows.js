@@ -42,11 +42,17 @@ function countFrameWindows(frameId) {
 }
 
 // Wraps notifyFrameStatus with the current window counts, and downgrades a 'closed' report to
-// 'ready' when other windows of the same frame are still open (e.g. one half of a Split pair,
-// or one of several duplicate Live windows).
+// 'ready' when another regular window or Grid view still contains the frame.
 function emitFrameStatus(frameId, status, extra) {
     const windows = countFrameWindows(frameId);
-    const effectiveStatus = (status === FRAME_STATUS.CLOSED && windows.total > 0) ? FRAME_STATUS.READY : status;
+    // A frame remains live while any regular output or Grid view still contains
+    // it. Lazy loading avoids the frame-windows <-> grid-window module cycle.
+    const remainsInGrid = status === FRAME_STATUS.CLOSED && windows.total === 0
+        ? require('./grid-window').hasGridWindowFor(frameId)
+        : false;
+    const effectiveStatus = (status === FRAME_STATUS.CLOSED && (windows.total > 0 || remainsInGrid))
+        ? FRAME_STATUS.READY
+        : status;
     notifyFrameStatus(frameId, effectiveStatus, Object.assign({}, extra, { windows: windows }));
 }
 
@@ -144,7 +150,8 @@ function frameWindowSearch(frameId, req, opts) {
     // preview=true stays the window-chrome flag (size/fullscreen/F11); feed=preview is the
     // separate localStorage channel screen.js reads from (see frame-state.service.js).
     const feedParam = req.isPreview ? '&feed=' + FEED.PREVIEW : '';
-    return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam + feedParam;
+    const testParam = (opts && opts.testMode) ? '&testMode=1' : '';
+    return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam + feedParam + testParam;
 }
 
 function reportFrameStatus(win, frameId) {

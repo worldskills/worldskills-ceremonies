@@ -16,6 +16,7 @@
             <div class="form-group">
                 <label for="pinInput">PIN</label>
                 <input id="pinInput" class="form-control remote-pin-input" ng-model="auth.pin" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" autofocus>
+                <small class="form-text text-muted">A successfully connected PIN is remembered in this browser.</small>
             </div>
             <button type="submit" class="btn btn-primary btn-sm" ng-disabled="auth.connecting || !auth.pin">
                 {{ auth.connecting ? 'Connecting…' : 'Connect' }}

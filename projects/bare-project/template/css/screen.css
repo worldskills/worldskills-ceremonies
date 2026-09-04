@@ -11,7 +11,11 @@
     --font-color: #fff;
     --unit: calc(100vh / 16);
 
-    --flag-ratio: 8 / 5;
+    --stage-height: max(100vh, calc(100vw / 2.2));
+    --stage-offset-y: calc((100vh - var(--stage-height)) / 2);
+    --top-bar-bottom: calc(var(--stage-offset-y) + var(--stage-height) / 5.7142857);
+
+    --bottom-bar-inset: calc(var(--stage-offset-y) + var(--stage-height) / 11.4285714);
 }
 
 * {
@@ -63,10 +67,11 @@ body.preview .screen-content {
 
 
 .screen-region-kv {
-    flex: 0 0 auto;
-    max-height: 32%;
+    flex: 0 0 var(--top-bar-bottom);
+    height: var(--top-bar-bottom);
+    max-height: none;
     overflow: hidden;
-    padding-top: calc(var(--unit) * 0.9);
+    padding-top: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -85,6 +90,7 @@ body.preview .screen-content {
 
 .screen-container-kv .screen-region-kv {
     flex: 1 1 auto;
+    height: auto;
     max-height: 100%;
 }
 
@@ -114,6 +120,23 @@ body.has-bg-video .screen-empty-logo {
 
 .screen-skill-medals-name .screen-skill-medals-name-mfe {
     color: #FFF !important;
+}
+
+.screen-section-heading {
+    flex: 0 0 calc(var(--unit) * 1.3);
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.screen-section-heading.screen-skill-medals-name {
+    font-size: calc(var(--unit) * 0.9);
+}
+
+.screen-section-heading > * {
+    padding-left: calc(var(--unit) * 1.3);
+    padding-right: calc(var(--unit) * 5);
 }
 
 .screen-skill-callup-name,
@@ -146,7 +169,15 @@ body.has-bg-video .screen-empty-logo {
 .screen-grid {
     --grid-max-cols: 1;
     --grid-col-min: 8em;
-    --grid-gap-x: calc(var(--unit) * 1.4);
+    /* 1.3 = .screen-region-kv's padding-left, so rows align with the title. */
+    --grid-gap-x: calc(var(--unit) * 1.3);
+
+    /*
+     * Flag box in --unit, never em: ws-fit gives every row its own font size,
+     * so an em-sized flag would come out a different size on every row.
+     */
+    --flag-h: calc(var(--unit) * 0.62);
+    --flag-gap: calc(var(--unit) * 0.4);
 
     padding: calc(var(--unit) * 1.5) var(--grid-gap-x);
 
@@ -158,6 +189,7 @@ body.has-bg-video .screen-empty-logo {
     grid-auto-rows: minmax(0, 1fr);
     grid-auto-flow: row;
     column-gap: var(--grid-gap-x);
+    row-gap: calc(var(--unit) * 0.18);
     align-items: stretch;
 
     font-size: 0.9rem;
@@ -166,7 +198,17 @@ body.has-bg-video .screen-empty-logo {
 
 .screen-grid.screen-skill-medal-for-excellence,
 .screen-grid.screen-skill-best-of-nation-nation {
-    padding: calc(var(--unit) * 0.65) calc(var(--unit) * 1.4) calc(var(--unit) * 1.3);
+    padding: calc(var(--unit) * 0.15) var(--grid-gap-x) var(--bottom-bar-inset);
+}
+
+.screen-grid.screen-skill-medals-medals {
+    font-size: 1.3rem;
+    align-items: center;
+    --flag-h: calc(var(--unit) * 1.05);
+}
+
+.screen-grid.screen-skill-medals-medals .screen-medal {
+    height: 70%;
 }
 
 .screen-grid .screen-medal {
@@ -177,13 +219,16 @@ body.has-bg-video .screen-empty-logo {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.5em;
+    gap: var(--flag-gap);
 }
 
 .screen-grid .screen-flag {
-    width: 1.4em;
-    aspect-ratio: var(--flag-ratio);
+    width: calc(var(--flag-h) * 1.6);
+    height: var(--flag-h);
+    max-height: 100%;
     display: flex;
+    align-items: center;
+    justify-content: flex-start;
     flex-shrink: 0;
 }
 
@@ -194,28 +239,48 @@ body.has-bg-video .screen-empty-logo {
     overflow-wrap: break-word;
 }
 
+.screen-grid .screen-competitors-multiline {
+    flex-direction: column;
+    overflow-wrap: normal;
+}
+
+.screen-grid .screen-competitor-name {
+    display: block;
+    white-space: nowrap;
+}
+
 .screen-grid .screen-medal-row {
     display: flex;
     flex-direction: row;
-    gap: 1em;
+    flex: 1 1 0;
+    height: 100%;
+    gap: calc(var(--unit) * 0.9);
     min-width: 0;
     align-items: center;
+    overflow: hidden;
+}
+
+.screen-grid .screen-medal-row-position {
+    flex: 0 0 27%;
+    min-width: 0;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 .screen-grid .screen-medal-row-competitors {
     display: flex;
     flex-direction: row;
+    flex: 1 1 0;
+    height: 100%;
     align-items: center;
-    gap: 0.5em;
+    gap: var(--flag-gap);
     min-width: 0;
-}
-
-.screen-grid .screen-medal-row-position {
-    margin-left: -0.1em;
+    overflow: hidden;
 }
 
 .screen-medal-text {
     display: flex;
+    flex: 1 1 0;
     min-width: 0;
 }
 
@@ -229,7 +294,6 @@ body.has-bg-video .screen-empty-logo {
 }
 
 /* Translation renderers */
-
 .screen-translation {
     display: flex;
     flex-direction: column;
@@ -253,36 +317,28 @@ body.has-bg-video .screen-empty-logo {
     width: 100%;
     height: 100%;
     vertical-align: middle;
-    object-fit: contain;
+    object-fit: fill;
 }
 
 .screen-table-countries {
-    --grid-max-cols: 4;
-    --grid-col-min: 4em;
     --grid-gap-x: calc(var(--unit) * 1.2);
 
-    padding: var(--unit);
+    padding: var(--unit) calc(var(--unit) * 1.3);
 
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(
-        min(100%, max(var(--grid-col-min),
-            calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols)))),
-        1fr));
-    grid-auto-rows: minmax(0, 1fr);
-    grid-auto-flow: row;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
     column-gap: var(--grid-gap-x);
     row-gap: calc(var(--unit) * 0.6);
-    align-items: stretch;
+    align-content: center;
 
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     line-height: 1.25;
 }
 
 .screen-table-country {
+    flex: 0 0 100%;
     min-width: 0;
-    min-height: 0;
-    overflow: hidden;
-
     display: flex;
     flex-direction: column;
     gap: 0.5em;
@@ -291,18 +347,30 @@ body.has-bg-video .screen-empty-logo {
     text-align: center;
 }
 
+.screen-table-countries-cols-2 .screen-table-country {
+    flex-basis: calc(50% - var(--unit));
+}
+
+.screen-table-countries-cols-3 .screen-table-country {
+    flex-basis: calc(33.333% - var(--unit));
+}
+
+.screen-table-countries-cols-4 .screen-table-country {
+    flex-basis: calc(25% - var(--unit));
+}
+
 .screen-table-country img {
     flex: 0 0 auto;
-    width: 4em;
-    aspect-ratio: var(--flag-ratio);
-    object-fit: contain;
+    width: calc(var(--unit) * 5.2);
+    height: calc(var(--unit) * 3.25);
+    max-width: 100%;
+    object-fit: fill;
 }
 
 .screen-table-country .screen-translation {
     align-self: center;
-    min-width: 0;
 }
 
 .screen-table-country .screen-translation-line {
-    white-space: normal;
+    white-space: nowrap;
 }

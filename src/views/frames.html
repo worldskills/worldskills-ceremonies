@@ -18,6 +18,12 @@
             var cellH = parseInt(params.get('cellH'), 10) || 500;
             var gap = parseInt(params.get('gap'), 10) || 0;
             var feed = params.get('feed') || 'live';
+            var maxW = parseInt(params.get('maxW'), 10) || Number.MAX_SAFE_INTEGER;
+            var maxH = parseInt(params.get('maxH'), 10) || Number.MAX_SAFE_INTEGER;
+            var testMode = params.get('testMode') === '1' || localStorage.getItem('ceremonator:testMode') === '1';
+            var fullscreen = params.get('fullscreen') === '1';
+
+            if (fullscreen) document.body.classList.add('grid-fullscreen');
 
             var root = document.getElementById('grid');
 
@@ -58,7 +64,7 @@
                 });
             }
 
-            function fillCell(el) {
+            function fillCell(el, cellIndex) {
                 var frameId = el.getAttribute('data-frame');
                 var frame = byId[frameId] || {};
                 var container = el.getAttribute('data-container') || '';
@@ -71,6 +77,12 @@
                 if (feed === 'preview') src += '&feed=preview';
                 if (container) src += '&container=' + encodeURIComponent(container);
                 if (label) src += '&label=' + encodeURIComponent(label);
+                if (testMode) src += '&testMode=1';
+                // Every rendered cell gets its own DOM-order position. Keep this
+                // metadata present even while test mode is off so it can be
+                // enabled on an already-open grid via the localStorage event.
+                src += '&testIdx=' + (cellIndex + 1);
+                src += '&gridCols=' + cols;
                 iframe.src = src;
                 iframe.frameBorder = '0';
                 iframe.scrolling = 'no';
@@ -87,10 +99,30 @@
             }
 
             function fitAndShow(frameIds) {
+                var grid = root.querySelector('.frames-grid');
+                // Measure the authored grid, not #grid: that block initially fills
+                // the launch window's work-area width even when its cells do not.
+                var naturalWidth = grid ? grid.scrollWidth : root.scrollWidth;
+                var naturalHeight = grid ? grid.scrollHeight : root.scrollHeight;
+                var scale = Math.min(1, maxW / naturalWidth, maxH / naturalHeight);
+                var fittedWidth = Math.max(1, Math.floor(naturalWidth * scale));
+                var fittedHeight = Math.max(1, Math.floor(naturalHeight * scale));
+
+                // Keep every iframe's CSS viewport at its configured dimensions.
+                // Scaling the completed grid as one surface preserves cell aspect
+                // ratios, line wrapping and text fitting in constrained work areas.
+                if (grid && scale < 1) {
+                    grid.style.transformOrigin = 'top left';
+                    grid.style.transform = 'scale(' + scale + ')';
+                }
+                root.style.width = fittedWidth + 'px';
+                root.style.height = fittedHeight + 'px';
+                root.style.overflow = 'hidden';
+
                 if (window.ceremonator && window.ceremonator.grid) {
                     window.ceremonator.grid.fit({
-                        width: root.scrollWidth,
-                        height: root.scrollHeight,
+                        width: fittedWidth,
+                        height: fittedHeight,
                         frameIds: frameIds
                     });
                 }
@@ -102,8 +134,8 @@
                 applyConditions();
                 expandEach();
                 var frameIds = [];
-                Array.prototype.forEach.call(root.querySelectorAll('[data-frame]'), function (el) {
-                    var id = fillCell(el);
+                Array.prototype.forEach.call(root.querySelectorAll('[data-frame]'), function (el, cellIndex) {
+                    var id = fillCell(el, cellIndex);
                     if (id && frameIds.indexOf(id) < 0) frameIds.push(id);
                 });
                 fitAndShow(frameIds);

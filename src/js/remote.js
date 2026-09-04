@@ -2,6 +2,7 @@
     'use strict';
 
     var app = angular.module('ceremoniesRemoteApp', ['ceremoniesControlWorkspace']);
+    var REMOTE_PIN_STORAGE_KEY = 'ceremonator:remotePin';
 
     app.factory('RemoteTransport', function ($rootScope, $timeout) {
         var socket = null;
@@ -295,6 +296,9 @@
             $scope.auth.error = '';
             $scope.connected = true;
             $scope.reconnecting = false;
+            try {
+                window.localStorage.setItem(REMOTE_PIN_STORAGE_KEY, String($scope.auth.pin || ''));
+            } catch (_error) { /* Browser storage may be disabled. */ }
         });
         RemoteTransport.on('state', reconcileFrames);
         RemoteTransport.on('reconnecting', function () {
@@ -306,6 +310,9 @@
             $scope.auth.error = 'Could not connect — check the PIN.';
             $scope.connected = false;
             $scope.reconnecting = false;
+            try {
+                window.localStorage.removeItem(REMOTE_PIN_STORAGE_KEY);
+            } catch (_error) { /* Browser storage may be disabled. */ }
         });
         RemoteTransport.on('connection-failed', function () {
             $scope.auth.connecting = false;
@@ -316,8 +323,12 @@
         $scope.$on('$destroy', function () { $document.off('keydown', keydown); });
 
         var pinFromUrl = new URLSearchParams(window.location.search).get('pin');
-        if (pinFromUrl) {
-            $scope.auth.pin = pinFromUrl;
+        var savedPin = '';
+        try {
+            savedPin = window.localStorage.getItem(REMOTE_PIN_STORAGE_KEY) || '';
+        } catch (_error) { /* Browser storage may be disabled. */ }
+        if (pinFromUrl || savedPin) {
+            $scope.auth.pin = pinFromUrl || savedPin;
             $scope.connect();
         }
     });

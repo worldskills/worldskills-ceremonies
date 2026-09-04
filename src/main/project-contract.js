@@ -1,4 +1,15 @@
 const DEFAULT_REMOTE_PORT = 17321;
+const DEFAULT_REMOTE_PIN = '173210';
+
+function normalizeRemoteConfig(remote) {
+    const config = remote || {};
+    const port = Number.isInteger(config.port) && config.port > 0 && config.port < 65536
+        ? config.port
+        : DEFAULT_REMOTE_PORT;
+    const candidatePin = String(config.pin == null ? '' : config.pin).trim();
+    const pin = /^\d{6}$/.test(candidatePin) ? candidatePin : DEFAULT_REMOTE_PIN;
+    return { enabled: config.enabled !== false, port: port, pin: pin };
+}
 
 function validateProject(project) {
     if (!project || project.version !== 2 || !Array.isArray(project.frames) || !project.frames.length) {
@@ -24,11 +35,9 @@ function validateProject(project) {
     if (!Array.isArray(project.languages)) project.languages = [{ lang_code: 'en' }];
     project.skillOrder = Array.isArray(project.skillOrder) ? project.skillOrder.map(String) : [];
 
-    const remote = project.remote || {};
-    const remotePort = Number.isInteger(remote.port) && remote.port > 0 && remote.port < 65536 ? remote.port : DEFAULT_REMOTE_PORT;
-    project.remote = { enabled: remote.enabled !== false, port: remotePort };
+    project.remote = normalizeRemoteConfig(project.remote);
 
     return { ok: true, project };
 }
 
-module.exports = { validateProject, DEFAULT_REMOTE_PORT };
+module.exports = { validateProject, normalizeRemoteConfig, DEFAULT_REMOTE_PORT, DEFAULT_REMOTE_PIN };

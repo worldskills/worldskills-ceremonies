@@ -51,6 +51,6 @@ async function main() {
 }
 
 main().catch((e) => {
-    console.error('Failed to fetch skills:', e.message);
+    console.error('Failed to fetch skills:', e);
     process.exit(1);
 });

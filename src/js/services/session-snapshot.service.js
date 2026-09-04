@@ -57,6 +57,7 @@
                 angular.toJson(scope.resultsBestOfNations || []),
                 scope.uploaded ? 1 : 0,
                 FrameService.activeFrameId,
+                angular.toJson(scope.gridConfig || {}),
                 (FrameService.skillOrder || []).join(',')
             ];
             angular.forEach(FrameService.frames, function (frame, id) {

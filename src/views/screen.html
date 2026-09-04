@@ -21,6 +21,23 @@
             font: bold 8vw/1 sans-serif; letter-spacing: 0.1em;
             color: rgba(255, 255, 255, 0.14); white-space: nowrap;
         }
+        .screen-test-mark { position: fixed; inset: 0; z-index: 9998; pointer-events: none; overflow: hidden; }
+        .screen-test-diagonal {
+            position: absolute; top: 46%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font: bold 18vw/1 sans-serif; letter-spacing: 0.15em;
+            color: rgba(255, 140, 0, 0.5); white-space: nowrap;
+        }
+        .screen-test-id {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(255, 140, 0, 0.85);
+            color: #fff;
+            font: bold 20px/1 sans-serif;
+            padding: 6px 14px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body ng-class="{'preview': preview}" style="margin: 0;">
@@ -29,6 +46,15 @@
 
     <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
         <div ng-include="template"></div>
+    </div>
+
+    <!-- Test mode watermark — shown on all screens when test mode is active -->
+    <div class="screen-test-mark" ng-show="testMode" ng-cloak>
+        <div class="screen-test-id" ng-show="testIdx">
+            <span ng-show="gridCols === 6">W{{ testIdx }}</span>
+            <span ng-hide="gridCols === 6">TEST #{{ testIdx }}</span>
+        </div>
+        <div class="screen-test-diagonal">TEST</div>
     </div>
 
     <div class="screen-preview-mark" ng-show="feed === FEED.PREVIEW" ng-cloak>

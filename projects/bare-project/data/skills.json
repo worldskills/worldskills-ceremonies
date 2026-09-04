@@ -55,7 +55,7 @@
       "lang_code": "en",
       "text": "Autonomous Mobile Robotics",
       "translations": {
-        "zh_CN": "移动机器人"
+        "zh_CN": "自主移动机器人"
       }
     }
   },
@@ -415,7 +415,7 @@
       "lang_code": "en",
       "text": "Logistics and Freight Forwarding",
       "translations": {
-        "zh_CN": "货运代理"
+        "zh_CN": "物流与货运代理"
       }
     }
   },

@@ -37,7 +37,7 @@ function registerFrameIpc() {
 
     ipcMain.handle('frames:openLarge', (event, config) => {
         if(hasRole(event, ['control'])) {
-            gridWindow.openGridWindow(config)
+            return gridWindow.openGridWindow(config);
         } else {
             return { ok: false, error: 'Forbidden sender' };
         }

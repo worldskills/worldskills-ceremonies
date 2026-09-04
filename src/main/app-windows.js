@@ -27,13 +27,14 @@ function createControlWindow() {
         const counts = frameWindows.getOpenFrameCounts();
         const liveCount = Object.values(counts).reduce((sum, entry) => sum + entry.live, 0);
         const previewCount = Object.values(counts).reduce((sum, entry) => sum + entry.preview, 0);
-        if (liveCount || previewCount || gridWindow.isGridOpen()) {
+        const gridCount = gridWindow.getGridWindowCount();
+        if (liveCount || previewCount || gridCount) {
             event.preventDefault();
             dialog.showMessageBox(controlWindow, {
                 type: 'warning',
                 title: 'Outputs are still open',
                 message: 'Close the audience outputs before closing Control.',
-                detail: liveCount + ' Live, ' + previewCount + ' Preview, grid ' + (gridWindow.isGridOpen() ? 'open' : 'closed') + '.'
+                detail: liveCount + ' Live, ' + previewCount + ' Preview, ' + gridCount + ' Grid.'
             });
         } else if (isProjectDirty()) {
             const confirmed = confirmClose(controlWindow, {

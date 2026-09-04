@@ -227,7 +227,7 @@
             $scope.projectMenuOpen = false;
 
             var doSave = function () {
-                FrameService.saveProject($scope.projectName || 'Ceremony Project', $scope.displayMode || 'windows', $scope.gridConfig, $scope.languages, $scope.bestOfNationGroupSize).then(function (result) {
+                FrameService.saveProject($scope.projectName || 'Ceremony Project', $scope.displayMode || 'windows', $scope.gridConfig, $scope.languages, $scope.bestOfNationGroupSize, $scope.remoteConfig).then(function (result) {
                     if (result && result.ok) {
                         $scope.$apply(function () { $scope.projectDirty = false; });
                     } else if (result && !result.canceled) {

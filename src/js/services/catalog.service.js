@@ -111,7 +111,7 @@
                 if (resultsMedalForExcellence.length > 0) {
                     var total = 0;
                     angular.forEach(resultsMedalForExcellence, function (result, i) {
-                        total += ResultFormat.competitorsOf(result).length;
+                        total += result.competitors.length;
                     });
 
                     total = total || 1;

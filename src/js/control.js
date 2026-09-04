@@ -9,6 +9,18 @@
         $scope.WORKSPACE_MODES = WORKSPACE_MODES;
         $scope.workspaceMode = WORKSPACE_MODES.SETUP;
 
+        // ── Test Mode ──────────────────────────────────────────────────
+        $scope.testMode = false;
+        $scope.toggleTestMode = function () {
+            $scope.testMode = !($scope.testMode);
+            localStorage.setItem('ceremonator:testMode', $scope.testMode ? '1' : '0');
+        };
+
+        // Restore test mode from localStorage on startup
+        if (localStorage.getItem('ceremonator:testMode') === '1') {
+            $scope.testMode = true;
+        }
+
         $scope.skills = [];
         $scope.members = [];
         $scope.results = [];
@@ -64,6 +76,7 @@
                 $scope.displayMode = project.displayMode;
                 $scope.bestOfNationGroupSize = project.bestOfNationGroupSize || $scope.bestOfNationGroupSize;
                 $scope.languages = (project.languages && project.languages.length) ? project.languages : [{ lang_code: 'en' }];
+                $scope.remoteConfig = angular.extend({}, $scope.remoteConfig, project.remote || {});
 
                 if (project.gridConfig) {
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
@@ -392,7 +405,7 @@
         window.addEventListener('keydown', function (e) {
             var target = e.target || {};
             var tag = (target.tagName || '').toLowerCase();
-            if ($scope.workspaceMode !== WORKSPACE_MODES.RUN || $scope.projectMenuOpen || $scope.importMenuOpen || $scope.feedMenuOpen || $scope.gridConfigDialogOpen || $scope.bestOfNationImportDialogOpen) return;
+            if ($scope.workspaceMode !== WORKSPACE_MODES.RUN || $scope.projectMenuOpen || $scope.importMenuOpen || $scope.feedMenuOpen || $scope.gridConfigDialogOpen || $scope.remoteConfigDialogOpen || $scope.bestOfNationImportDialogOpen) return;
             if (tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable) return;
 
             if (e.key === 'ArrowRight') {

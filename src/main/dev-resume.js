@@ -17,12 +17,15 @@ function devResume() {
     createControlWindow();
 
     const windows = snapshot.windows || [];
-    if (windows.length || snapshot.grid) {
+    // `grid` keeps sessions written by the former single-grid implementation
+    // restorable; new snapshots store every independently open grid in `grids`.
+    const grids = Array.isArray(snapshot.grids)
+        ? snapshot.grids
+        : (snapshot.grid ? [snapshot.grid] : []);
+    if (windows.length || grids.length) {
         getControlWindow().webContents.once('did-finish-load', () => {
             windows.forEach(reopenFrameWindowFromSnapshot);
-            if (snapshot.grid) {
-                openGridWindow(snapshot.grid);
-            }
+            grids.forEach(openGridWindow);
         });
     }
     return true;

@@ -49,6 +49,7 @@ const fullApi = {
     },
     remote: {
         info: () => ipcRenderer.invoke('remote:info'),
+        configure: (config) => ipcRenderer.invoke('remote:configure', config),
         sync: (snapshot) => ipcRenderer.send('remote:sync', snapshot),
         onAction: (callback) => {
             const listener = (_event, data) => callback(data);

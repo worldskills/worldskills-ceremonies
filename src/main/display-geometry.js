@@ -33,13 +33,27 @@ function resolveTargetDisplay(position) {
 }
 
 function listDisplays() {
-    return electronScreen.getAllDisplays().map((d, i) => ({
-        id: d.id,
-        label: 'Display ' + (i + 1),
-        bounds: d.bounds,
-        workArea: d.workArea,
-        scaleFactor: d.scaleFactor,
-    }));
+    const displays = electronScreen.getAllDisplays();
+    const primaryId = electronScreen.getPrimaryDisplay().id;
+
+    return displays.map((d, i) => {
+        // Newer Electron releases expose the OS monitor name as Display.label.
+        // Keep a descriptive fallback for the Electron version bundled by this app.
+        const nativeName = typeof d.label === 'string' ? d.label.trim() : '';
+        const name = nativeName || (d.internal
+            ? 'Built-in display'
+            : d.bounds.width + '\u00d7' + d.bounds.height);
+        const primarySuffix = d.id === primaryId ? ' (Primary)' : '';
+
+        return {
+            id: d.id,
+            name: name,
+            label: 'Display ' + (i + 1) + ' \u2014 ' + name + primarySuffix,
+            bounds: d.bounds,
+            workArea: d.workArea,
+            scaleFactor: d.scaleFactor,
+        };
+    });
 }
 
 module.exports = {

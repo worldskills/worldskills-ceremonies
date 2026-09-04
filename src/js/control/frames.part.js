@@ -175,7 +175,8 @@
             frameHeight: 720,
             monitor: null,
             feed: FEED.LIVE,
-            splitContainers: false
+            splitContainers: false,
+            fullscreen: false
         };
 
         function openFrameWindowContainer(frameId, frame, isPreview, container) {
@@ -185,7 +186,8 @@
                 position: frame.position,
                 preview: !!isPreview,
                 label: frame.label,
-                container: container
+                container: container,
+                testMode: $scope.testMode
             }).then(function (result) {
                 if (!result || result.ok === false) throw new Error((result && result.error) || 'unknown error');
             }).catch(function (error) {
@@ -212,7 +214,7 @@
                     openFrameWindowContainer(frameId, frame, isPreview, undefined);
                 }
             } else {
-                var url = 'screen.html?screen=' + frameId + (isPreview ? '&preview=true&feed=' + FEED.PREVIEW : '') + '&label=' + encodeURIComponent(frame.label || frameId);
+                var url = 'screen.html?screen=' + frameId + (isPreview ? '&preview=true&feed=' + FEED.PREVIEW : '') + '&label=' + encodeURIComponent(frame.label || frameId) + ($scope.testMode ? '\&testMode=1' : '');
                 window.open(url, '_blank');
                 frame.status = FRAMES_WINDOW_STATUS.READY;
             }
@@ -352,7 +354,9 @@
                     height: parseInt($scope.gridConfig.frameHeight, 10) || 720
                 },
                 feed: $scope.gridConfig.feed,
-                position: monitorOverride != null ? { monitor: monitorOverride } : null
+                position: monitorOverride != null ? { monitor: monitorOverride } : null,
+                fullscreen: !!$scope.gridConfig.fullscreen,
+                testMode: $scope.testMode
             });
 
         };

@@ -19,10 +19,15 @@
                     <div class="d-flex flex-row" style="gap: 8px; padding-left: 12px;">
                         <span class="navbar-dev-badge" ng-show="dev.enabled" ng-cloak
                             title="Development run — session state is restored across reloads.">DEV</span>
-                        <span class="navbar-dev-badge navbar-dev-badge-clickable" ng-show="remoteInfo && remoteInfo.urls.length" ng-cloak
-                            ng-click="copyPaste($event, remoteInfo.urls[0])"
-                            title="Copy the remote control URL; enter the PIN separately on the tablet">
-                            <i class="fa fa-clipboard"></i> Remote. PIN: {{ remoteInfo.pin }}
+                        <button type="button" class="navbar-test-toggle" ng-class="{'navbar-test-toggle-active': testMode}"
+                            ng-click="toggleTestMode()" ng-cloak
+                            title="{{ testMode ? 'Disable test mode' : 'Enable test mode — adds TEST and wall-position markers to outputs' }}">
+                            <i class="fa fa-flask"></i> {{ testMode ? 'DISABLE TEST' : 'ENABLE TEST' }}
+                        </button>
+                        <span class="navbar-dev-badge navbar-dev-badge-clickable" ng-show="remoteInfo" ng-cloak
+                            ng-click="openRemoteConfig()"
+                            title="Configure the Remote PIN and port">
+                            <i class="fa fa-wifi"></i> Remote :{{ remoteInfo.port || remoteConfig.port }} · PIN: {{ remoteInfo.pin || remoteConfig.pin }}
                         </span>
                         <span class="navbar-dev-badge navbar-blank-badge" ng-show="blankedFrames().length" ng-cloak>
                             <i class="fa fa-exclamation-triangle"></i> Blank
@@ -462,8 +467,55 @@
     <div class="dropdown-backdrop" ng-show="projectMenuOpen || feedMenuOpen || importMenuOpen || jumpMenuOpen"
          ng-click="projectMenuOpen = feedMenuOpen = importMenuOpen = jumpMenuOpen = false"></div>
 
-    <div class="modal-backdrop" ng-show="gridConfigDialogOpen || bestOfNationImportDialogOpen"
-         ng-class="{show: gridConfigDialogOpen || bestOfNationImportDialogOpen}"></div>
+    <div class="modal-backdrop" ng-show="gridConfigDialogOpen || remoteConfigDialogOpen || bestOfNationImportDialogOpen"
+         ng-class="{show: gridConfigDialogOpen || remoteConfigDialogOpen || bestOfNationImportDialogOpen}"></div>
+
+    <!-- Remote configuration dialog -->
+    <div class="modal dark-modal" ng-show="remoteConfigDialogOpen" ng-class="{show: remoteConfigDialogOpen}" ng-click="cancelRemoteConfig()">
+        <div class="modal-dialog modal-dialog-centered" ng-click="$event.stopPropagation()">
+            <form class="modal-content" ng-submit="saveRemoteConfig()">
+                <div class="modal-header">
+                    <h6 class="modal-title"><i class="fa fa-wifi mr-2"></i>Remote Configuration</h6>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="remotePin">PIN</label>
+                        <input id="remotePin" class="form-control form-control-sm" type="text"
+                               ng-model="remoteConfigDraft.pin" inputmode="numeric" pattern="[0-9]{6}"
+                               minlength="6" maxlength="6" autocomplete="off" style="width:160px" required>
+                        <div class="mt-1" style="font-size:12px;color:#64748b">Exactly 6 digits. The PIN remains unchanged across restarts.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="remotePort">Port</label>
+                        <input id="remotePort" class="form-control form-control-sm" type="number"
+                               ng-model="remoteConfigDraft.port" min="1" max="65535" style="width:160px" required>
+                        <div class="mt-1" style="font-size:12px;color:#64748b">Changing the PIN or port reconnects the Remote server and disconnects current browsers.</div>
+                    </div>
+                    <div class="form-group" ng-show="remoteInfo && remoteInfo.urls.length">
+                        <label>Remote URL</label>
+                        <div class="input-group input-group-sm mb-2" ng-repeat="url in remoteInfo.urls track by url">
+                            <input class="form-control" type="text" value="{{ url }}" readonly>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" ng-click="copyPaste($event, url)" title="Copy URL">
+                                    <i class="fa fa-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-warning" ng-show="remoteInfo && !remoteInfo.urls.length" style="font-size:12px">
+                        No LAN address is currently available.
+                    </div>
+                    <div class="text-danger mt-2" ng-show="remoteConfigError">{{ remoteConfigError }}</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" ng-click="cancelRemoteConfig()" ng-disabled="remoteConfigSaving">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm" ng-disabled="remoteConfigSaving">
+                        {{ remoteConfigSaving ? 'Saving…' : 'Save Remote Settings' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Grid view configuration dialog -->
     <div class="modal dark-modal" ng-show="gridConfigDialogOpen" ng-class="{show: gridConfigDialogOpen}" ng-click="gridConfigDialogOpen = false">
@@ -507,10 +559,17 @@
                     </div>
                     <div class="form-group" ng-show="displays.length > 1">
                         <label>Display <span style="font-weight:400;text-transform:none;letter-spacing:0">(leave as Auto to use the primary display)</span></label>
-                        <select class="form-control form-control-sm" ng-model="gridConfig.monitor" style="width:200px"
+                        <select class="form-control form-control-sm" ng-model="gridConfig.monitor" style="width:320px;max-width:100%"
                                 ng-options="d.index as d.label for d in displays">
                             <option value="">Auto (primary display)</option>
                         </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="grid-fullscreen-toggle mb-0" ng-click="$event.stopPropagation()">
+                            <input type="checkbox" ng-model="gridConfig.fullscreen" ng-change="projectDirty = true"> Open in fullscreen
+                        </label>
+                        <div class="mt-1" style="font-size:12px;color:#64748b">Escape returns the grid to its fitted windowed size.</div>
+                        <div class="mt-1" style="font-size:12px;color:#64748b">Existing Grid views stay open, so Live and Preview can run on separate displays.</div>
                     </div>
                 </div>
                 <div class="modal-footer">

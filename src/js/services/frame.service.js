@@ -182,7 +182,7 @@
             service.activeFrameId = Object.keys(service.frames)[0];
         };
 
-        service.saveProject = function (projectName, displayMode, gridConfig, languages, bestOfNationGroupSize) {
+        service.saveProject = function (projectName, displayMode, gridConfig, languages, bestOfNationGroupSize, remoteConfig) {
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.saveCurrent) {
                 return Promise.resolve({ ok: false, error: 'Electron API unavailable' });
             }
@@ -194,7 +194,8 @@
                 skillOrder: service.skillOrder || [],
                 gridConfig: gridConfig || null,
                 languages: languages || [],
-                bestOfNationGroupSize: bestOfNationGroupSize || 5
+                bestOfNationGroupSize: bestOfNationGroupSize || 5,
+                remote: remoteConfig || null
             };
             return window.ceremonator.project.saveCurrent(project);
         };

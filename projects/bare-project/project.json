@@ -2,6 +2,11 @@
   "version": 2,
   "name": "WorldSkills Competition 2026",
   "displayMode": "windows",
+  "remote": {
+    "enabled": true,
+    "pin": "173210",
+    "port": 17321
+  },
   "languages": [
     {
       "lang_code": "en"

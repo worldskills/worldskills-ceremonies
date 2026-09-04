@@ -2,13 +2,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const crypto = require('crypto');
 const WebSocket = require('ws');
 const { appRoot } = require('./paths');
 const { resolveUnder } = require('./template-protocol');
 const { sendRemoteAction, sendControlNotice } = require('./control-channel');
-
-const DEFAULT_PORT = 17321;
+const { normalizeRemoteConfig, DEFAULT_REMOTE_PORT, DEFAULT_REMOTE_PIN } = require('./project-contract');
 
 const MIME = {
     '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
@@ -35,10 +33,6 @@ let wss = null;
 let server = null;
 let currentPort = null;
 let lastSnapshot = null;
-
-function generatePin() {
-    return String(crypto.randomInt(100000, 1000000));
-}
 
 function serveFile(res, filePath) {
     fs.readFile(filePath, (err, data) => {
@@ -113,11 +107,12 @@ function stopRemoteServer() {
     }
     lastSnapshot = null;
     currentPort = null;
+    pin = null;
 }
 
-function startRemoteServer(port) {
-    currentPort = Number.isInteger(port) && port > 0 ? port : DEFAULT_PORT;
-    pin = generatePin();
+function startRemoteServer(config) {
+    currentPort = config.port;
+    pin = config.pin;
 
     server = http.createServer(handleRequest);
     wss = new WebSocket.Server({ server: server, path: '/ws', maxPayload: 64 * 1024 });
@@ -172,15 +167,13 @@ function startRemoteServer(port) {
 }
 
 function applyRemoteConfig(project) {
-    const remote = (project && project.remote) || {};
-    const wantEnabled = remote.enabled !== false;
-    const port = Number.isInteger(remote.port) && remote.port > 0 ? remote.port : DEFAULT_PORT;
+    const remote = normalizeRemoteConfig(project && project.remote);
 
-    if (!wantEnabled) { stopRemoteServer(); return; }
-    if (server && currentPort === port) return;
+    if (!remote.enabled) { stopRemoteServer(); return; }
+    if (server && currentPort === remote.port && pin === remote.pin) return;
 
     stopRemoteServer();
-    startRemoteServer(port);
+    startRemoteServer(remote);
 }
 
 function getInfo() {
@@ -188,4 +181,11 @@ function getInfo() {
     return { pin: pin, port: currentPort, urls: localLanUrls() };
 }
 
-module.exports = { applyRemoteConfig, stopRemoteServer, getInfo, broadcastState, DEFAULT_PORT };
+module.exports = {
+    applyRemoteConfig,
+    stopRemoteServer,
+    getInfo,
+    broadcastState,
+    DEFAULT_PORT: DEFAULT_REMOTE_PORT,
+    DEFAULT_PIN: DEFAULT_REMOTE_PIN,
+};

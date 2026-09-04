@@ -1,8 +1,27 @@
+
 <style data-when-cols="6">
     .frames-grid { grid-template-columns: repeat(3, var(--cell-w, 1100px)); }
 </style>
 <div class="frames-grid">
+
+    <!-- Rehearsal multiview: one cell per selected frame, no duplication. -->
     <div class="frame-cell" data-frame-each data-when-cols="!6"></div>
-    <div class="frame-cell" data-frame-each data-when-cols="6" data-frame-repeat="2"></div>
-    <div class="frame-cell" data-frame-each data-when-cols="6" data-frame-repeat="2"></div>
+
+    <!-- Venue wall: 12 segments clockwise, mirrored left/right about the
+         centre line (W1-W12, W2-W11, W3-W10, W4-W9, W5-W8, W6-W7). -->
+    <div class="frame-cell" data-when-cols="6" data-frame="a"></div><!-- W1  Red    -->
+    <div class="frame-cell" data-when-cols="6" data-frame="a"></div><!-- W2  Red    -->
+    <div class="frame-cell" data-when-cols="6" data-frame="c"></div><!-- W3  Yellow -->
+
+    <div class="frame-cell" data-when-cols="6" data-frame="c"></div><!-- W4  Yellow -->
+    <div class="frame-cell" data-when-cols="6" data-frame="b"></div><!-- W5  Blue   -->
+    <div class="frame-cell" data-when-cols="6" data-frame="b"></div><!-- W6  Blue   -->
+
+    <div class="frame-cell" data-when-cols="6" data-frame="b"></div><!-- W7  Blue   -->
+    <div class="frame-cell" data-when-cols="6" data-frame="b"></div><!-- W8  Blue   -->
+    <div class="frame-cell" data-when-cols="6" data-frame="c"></div><!-- W9  Yellow -->
+
+    <div class="frame-cell" data-when-cols="6" data-frame="c"></div><!-- W10 Yellow -->
+    <div class="frame-cell" data-when-cols="6" data-frame="a"></div><!-- W11 Red    -->
+    <div class="frame-cell" data-when-cols="6" data-frame="a"></div><!-- W12 Red    -->
 </div>
