@@ -19,6 +19,7 @@
             size: { width: 1920, height: 1080 },
             position: { monitor: 0, x: null, y: null, fullscreen: false },
             ordering: { mode: 'skills', skillNumbers: [], sourceFile: null },
+            blankedFeeds: {},
             status: FRAMES_WINDOW_STATUS.CLOSED,
             windows: { live: 0, preview: 0 }
         }
@@ -36,6 +37,8 @@
         PREVIEW: 'preview'
     });
 
+    ceremoniesApp.constant('FEED_TYPE', { MAIN: 'main', SECONDARY: 'secondary' });
+
     ceremoniesApp.constant('DATA_BASE', 'wstemplate://project/data/');
 
     // Primed into $templateCache when a screen window boots, so the first switch to a template
@@ -43,11 +46,13 @@
     // Catalog.build emits; a project missing one just fails that one request silently.
     ceremoniesApp.constant('SCREEN_TEMPLATES', [
         'empty.html',
+        'blank.html',
         'skill_callup.html',
         'skill_medals.html',
         'medal_for_excellence.html',
         'best_of_nation.html',
-        'albert_vidal_award.html'
+        'albert_vidal_award.html',
+        'partners.html'
     ]);
 
     // Sentinel keys shared by Catalog/FrameState/Queue — not real skill

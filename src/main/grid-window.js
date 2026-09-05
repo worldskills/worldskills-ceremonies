@@ -11,6 +11,21 @@ const { FEED, FRAME_STATUS } = require('./constants');
 // per-window state that used to be global, allowing Live and Preview grids to
 // coexist on different displays.
 const gridWindows = new Map();
+const GRID_CASCADE_OFFSET = 40;
+
+function sameGridFrames(a, b) {
+    const left = (a.frames || []).map((frame) => frame.frameId + ':' + (frame.container || '')).sort();
+    const right = (b.frames || []).map((frame) => frame.frameId + ':' + (frame.container || '')).sort();
+    return left.length === right.length && left.every((id, index) => id === right[index]);
+}
+
+function hasMatchingLiveGrid(config) {
+    for (const [win, entry] of gridWindows) {
+        if (!win.isDestroyed() && entry.config.feed === FEED.LIVE &&
+            (entry.config.feedType || 'main') === (config.feedType || 'main') && sameGridFrames(entry.config, config)) return true;
+    }
+    return false;
+}
 
 function forceCloseGrid() {
     gridWindows.forEach((entry, win) => {
@@ -40,7 +55,36 @@ function notifyGridFramesReady(entry) {
     });
 }
 
+function countGridWindowsOnDisplay(display) {
+    let count = 0;
+    gridWindows.forEach((entry, win) => {
+        if (!win.isDestroyed() && entry.targetDisplay && entry.targetDisplay.id === display.id) count++;
+    });
+    return count;
+}
+
+function positionFittedGridWindow(win, entry) {
+    const target = entry.targetDisplay || electronScreen.getPrimaryDisplay();
+    const workArea = target.workArea;
+    const size = win.getSize();
+    const centered = centerOnDisplay(target, size[0], size[1]);
+    // Offset successive grids so they are discoverable, clamping the result to
+    // the usable display area when a grid fills most (or all) of the display.
+    const maxX = Math.max(workArea.x, workArea.x + workArea.width - size[0]);
+    const maxY = Math.max(workArea.y, workArea.y + workArea.height - size[1]);
+    const x = Math.max(workArea.x, Math.min(maxX, centered.x + entry.cascadeOffset));
+    const y = Math.max(workArea.y, Math.min(maxY, centered.y + entry.cascadeOffset));
+    win.setPosition(x, y);
+}
+
 function openGridWindow(config) {
+    config = config || {};
+    if ([FEED.LIVE, FEED.PREVIEW].indexOf(config.feed || FEED.LIVE) < 0 || ['main', 'secondary'].indexOf(config.feedType || 'main') < 0) {
+        return { ok: false, error: 'Invalid Grid feed or channel.' };
+    }
+    if (config.feed === FEED.PREVIEW && !hasMatchingLiveGrid(config)) {
+        return { ok: false, error: 'Open a matching Live grid for this output feed first.' };
+    }
     const frames = config.frames || [];
     const grid = config.grid || { cols: 2, gap: 0 };
     const frameSize = config.frameSize || { width: 1100, height: 500 };
@@ -55,6 +99,7 @@ function openGridWindow(config) {
     const availableWidth = goFullscreen ? target.bounds.width : wa.width;
     const availableHeight = goFullscreen ? target.bounds.height : wa.height;
     const centered = centerOnDisplay(target, wa.width, wa.height);
+    const cascadeOffset = GRID_CASCADE_OFFSET * countGridWindowsOnDisplay(target);
 
     // JSON blob, not delimiter-joined tokens, so a frame label can contain any character without colliding with the encoding.
     const framesPayload = frames.map(f => ({
@@ -69,18 +114,19 @@ function openGridWindow(config) {
         height: wa.height,
         x: centered.x,
         y: centered.y,
-        // Grid output is a clean capture surface; keyboard close handling remains
-        // available through attachCloseShortcuts below.
+        // A native title bar makes windowed Grid Views draggable. It is hidden
+        // by the operating system when the operator opens the grid fullscreen.
         useContentSize: true,
-        frame: false,
+        frame: true,
+        title: 'Grid View',
         show: false,
         backgroundColor: '#000',
         // Without nodeIntegrationInSubFrames, the preload's window.ceremonator only reaches frames.html itself, not its iframes — silently breaking screen.js's translation IPC in grid view.
         webPreferences: baseWebPreferences({ nodeIntegrationInSubFrames: true, backgroundThrottling: false, ceremonatorRole: 'output' }),
     });
     markWindow(win, 'output');
-    // Measure any platform-specific content inset and tell the renderer the real
-    // maximum canvas it may occupy (zero for the normal frameless grid window).
+    // Measure platform-specific title-bar insets and tell the renderer the real
+    // maximum canvas it may occupy.
     const outerSize = win.getSize();
     const contentSize = win.getContentSize();
     const maxContentWidth = Math.max(320, availableWidth - (outerSize[0] - contentSize[0]));
@@ -93,6 +139,7 @@ function openGridWindow(config) {
         frameIds: new Set(frames.map(f => f.frameId)),
         targetDisplay: target,
         goFullscreen: goFullscreen,
+        cascadeOffset: cascadeOffset,
     };
     gridWindows.set(win, entry);
 
@@ -104,6 +151,7 @@ function openGridWindow(config) {
             'cellH=' + frameSize.height,
             'gap=' + gap,
             'feed=' + (config.feed || FEED.LIVE),
+            'feedType=' + encodeURIComponent(config.feedType || 'main'),
             'maxW=' + maxContentWidth,
             'maxH=' + maxContentHeight,
             'testMode=' + (config.testMode ? '1' : '0'),
@@ -178,11 +226,7 @@ function fitGridWindow(sender, size) {
     notifyGridFramesReady(entry);
 
     gridWindow.setContentSize(width, height);
-    const target = entry.targetDisplay || electronScreen.getPrimaryDisplay();
-    // Center the complete native window, not only its content rectangle.
-    const fittedOuterSize = gridWindow.getSize();
-    const centered = centerOnDisplay(target, fittedOuterSize[0], fittedOuterSize[1]);
-    gridWindow.setPosition(centered.x, centered.y);
+    positionFittedGridWindow(gridWindow, entry);
     gridWindow.show();
     if (entry.goFullscreen) gridWindow.setFullScreen(true);
     return { ok: true };
@@ -229,6 +273,7 @@ module.exports = {
     getGridFrameIds,
     getGridConfigs,
     getLastGridConfig,
+    hasMatchingLiveGrid,
     hasGridWindowFor,
     forceCloseGrid,
 };

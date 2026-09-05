@@ -8,7 +8,8 @@
         var service = {
             frames: SCREENS,
             activeFrameId: Object.keys(SCREENS)[0],
-            skillOrder: []
+            skillOrder: [],
+            feedTypes: [{ id: 'main', gridSize: { width: 1280, height: 720 } }]
         };
 
         function skillNumberValue(number) {
@@ -47,6 +48,16 @@
             return Object.keys(service.frames).length;
         };
 
+        service.setFeedTypes = function (feeds) {
+            service.feedTypes = angular.copy((feeds && feeds.length) ? feeds : [{ id: 'main', gridSize: { width: 1280, height: 720 } }]);
+        };
+        service.hasFeedType = function (id) {
+            return service.feedTypes.some(function (feed) { return feed.id === id; });
+        };
+        service.getFeedType = function (id) {
+            return service.feedTypes.filter(function (feed) { return feed.id === id; })[0];
+        };
+
         service.nextFreeId = function () {
             var ids = Object.keys(service.frames);
             var letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -66,6 +77,7 @@
                 size: { width: 1920, height: 1080 },
                 position: { monitor: 0, x: null, y: null, fullscreen: false },
                 ordering: { mode: 'skills', skillNumbers: [], sourceFile: null },
+                blankedFeeds: {},
                 status: FRAMES_WINDOW_STATUS.CLOSED,
                 windows: { live: 0, preview: 0 },
                 color: pickColor()
@@ -171,13 +183,14 @@
                 } else {
                     service.frames[config.id] = angular.extend({
                         slides: [], slide: undefined, previewSlide: undefined, status: FRAMES_WINDOW_STATUS.CLOSED,
-                        windows: { live: 0, preview: 0 }
+                        windows: { live: 0, preview: 0 }, blankedFeeds: {}
                     }, config);
                 }
             });
             // Backfill colors for projects saved before the color field existed.
             angular.forEach(service.frames, function (frame) {
                 if (frame && !frame.color) frame.color = pickColor();
+                if (frame && !frame.blankedFeeds) frame.blankedFeeds = frame.blanked ? { main: true } : {};
             });
             service.activeFrameId = Object.keys(service.frames)[0];
         };
@@ -193,6 +206,7 @@
                 frames: service.serializeForProject(),
                 skillOrder: service.skillOrder || [],
                 gridConfig: gridConfig || null,
+                feedTypes: angular.copy(service.feedTypes),
                 languages: languages || [],
                 bestOfNationGroupSize: bestOfNationGroupSize || 5,
                 remote: remoteConfig || null

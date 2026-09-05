@@ -24,6 +24,7 @@
                     <i ng-show="rowHasState(rowFrameId, rowSlide, state)" class="fa fa-ban fa-fw"></i>
                     <i ng-show="!rowHasState(rowFrameId, rowSlide, state)" class="fa fa-trophy fa-fw"></i>
                     {{ state }}
+                    <small class="state-feed-badge ml-1">{{ stateFeedLabel(rowSlide, state) }}</small>
                 </button>
             </div>
             <button class="btn btn-sm btn-danger" ng-show="rowSlide.states && rowSlide.states.length" ng-click="resetStates(rowFrameId, rowSlide)" ng-disabled="!canEditSlide(rowFrameId, rowSlide)">Reset</button>

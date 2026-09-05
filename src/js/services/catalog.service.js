@@ -19,6 +19,21 @@
             }, new Map()).values());
         }
 
+        function sortedSponsors(skill) {
+            return (skill.sponsors || []).map(function (sponsor, index) {
+                return { sponsor: sponsor, index: index };
+            }).sort(function (a, b) {
+                var left = a.sponsor && a.sponsor.sort;
+                var right = b.sponsor && b.sponsor.sort;
+                if (left == null && right == null) return a.index - b.index;
+                if (left == null) return 1;
+                if (right == null) return -1;
+                if (left < right) return -1;
+                if (left > right) return 1;
+                return a.index - b.index;
+            }).map(function (entry) { return entry.sponsor; });
+        }
+
         function build(input) {
             var skills = input.skills || [];
             var members = input.members || [];
@@ -59,7 +74,10 @@
                     var slideCallup = {
                         label: skill.name.text + ' - Callup',
                         template: 'skill_callup.html',
-                        states: ['Countries'],
+                        states: ['Countries', 'Sponsors'],
+                        baseFeedTypes: ['main'],
+                        stateFeedTypes: { Countries: 'main', Sponsors: 'secondary' },
+                        feedContent: { secondary: { template: 'partners.html', context: { sponsors: sortedSponsors(skill) } } },
                         context: {
                             results: $filter('orderBy')(skillMedalResults, 'member'),
                             skill: ResultFormat.simplifySkill(skill)
@@ -69,6 +87,9 @@
                         label: skill.name.text + ' - Medals',
                         template: 'skill_medals.html',
                         states: states,
+                        baseFeedTypes: ['main', 'secondary'],
+                        stateFeedTypes: states.reduce(function (map, state) { map[state] = 'main'; return map; }, {}),
+                        feedContent: { secondary: { template: 'partners.html', context: { sponsors: sortedSponsors(skill) } } },
                         context: {
                             results: $filter('orderBy')(skillMedalResults, ['-score', 'member']),
                             skill: ResultFormat.simplifySkill(skill)
@@ -120,6 +141,9 @@
                         label: skill.name.text + ' - Medal for Excellence',
                         template: 'medal_for_excellence.html',
                         states: ['Name'],
+                        baseFeedTypes: ['main', 'secondary'],
+                        stateFeedTypes: { Name: 'main' },
+                        feedContent: { secondary: { template: 'partners.html', context: { sponsors: sortedSponsors(skill) } } },
                         context: {
                             results: $filter('orderBy')(resultsMedalForExcellence, ['-score', 'member']),
                             skill: ResultFormat.simplifySkill(skill),
@@ -169,6 +193,8 @@
                         template: 'best_of_nation.html',
                         // One reveal step per member, in grid order — the code is the button label.
                         states: bestOfNationSlice.map(function (r) { return r.memberCode; }),
+                        baseFeedTypes: ['secondary'],
+                        stateFeedTypes: bestOfNationSlice.reduce(function (map, result) { map[result.memberCode] = 'secondary'; return map; }, {}),
                         context: {
                             results: bestOfNationSlice
                         }
@@ -196,6 +222,8 @@
                 label: ALBERT_VIDAL_AWARD_LABEL,
                 template: 'albert_vidal_award.html',
                 states: ['Name'],
+                baseFeedTypes: ['main'],
+                stateFeedTypes: { Name: 'main' },
                 context: {
                     results: $filter('orderBy')(resultsAlbertVidalAward, 'member'),
                 }

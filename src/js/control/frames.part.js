@@ -156,13 +156,12 @@
             return (idx < 0 ? '—' : idx + 1) + '/' + frame.slides.length;
         };
 
-        $scope.resetFrame = function (frameId) {
+        $scope.resetFrame = function (frameId, feedType) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
 
-            frame.blanked = true;
-            frame.previewSlide = undefined;
-            frame.previewState = undefined;
+            if (!frame.blankedFeeds) frame.blankedFeeds = {};
+            frame.blankedFeeds[feedType || 'main'] = true;
 
             $scope.update(frameId);
         };
@@ -175,16 +174,51 @@
             frameHeight: 720,
             monitor: null,
             feed: FEED.LIVE,
+            feedType: 'main',
             splitContainers: false,
             fullscreen: false
         };
 
-        function openFrameWindowContainer(frameId, frame, isPreview, container) {
+        $scope.gridFeedChanged = function () {
+            var feed = FrameService.getFeedType($scope.gridConfig.feedType || 'main');
+            if (!feed) { $scope.gridConfig.feedType = 'main'; feed = FrameService.getFeedType('main'); }
+            if (feed && feed.gridSize) {
+                $scope.gridConfig.frameWidth = feed.gridSize.width;
+                $scope.gridConfig.frameHeight = feed.gridSize.height;
+            }
+            if ($scope.gridConfig.feedType === 'secondary') $scope.gridConfig.splitContainers = false;
+        };
+        $scope.saveGridFeedSize = function () {
+            var feed = FrameService.getFeedType($scope.gridConfig.feedType || 'main');
+            if (!feed) return;
+            feed.gridSize.width = parseInt($scope.gridConfig.frameWidth, 10) || feed.gridSize.width;
+            feed.gridSize.height = parseInt($scope.gridConfig.frameHeight, 10) || feed.gridSize.height;
+            $scope.projectDirty = true;
+        };
+        $scope.setGridFeedSize = function (width, height) {
+            $scope.gridConfig.frameWidth = width;
+            $scope.gridConfig.frameHeight = height;
+            $scope.saveGridFeedSize();
+        };
+
+        $scope.feedWindowCount = function (frame, feedType, channel) {
+            var counts = frame && frame.windows && frame.windows.feeds && frame.windows.feeds[feedType];
+            if (counts) return counts[channel] || 0;
+            // Old status notifications had only aggregate Main counts.
+            return feedType === 'main' && frame && frame.windows ? (frame.windows[channel] || 0) : 0;
+        };
+
+        $scope.isFeedBlanked = function (frame, feedType) {
+            return !!(frame && frame.blankedFeeds && frame.blankedFeeds[feedType]);
+        };
+
+        function openFrameWindowContainer(frameId, frame, isPreview, container, feedType) {
             window.ceremonator.frames.openWindow({
                 frameId: frameId,
                 size: frame.size,
                 position: frame.position,
                 preview: !!isPreview,
+                feedType: feedType || 'main',
                 label: frame.label,
                 container: container,
                 testMode: $scope.testMode
@@ -198,49 +232,51 @@
             });
         }
 
-        $scope.openFrameWindow = function (frameId, isPreview) {
+        $scope.openFrameWindow = function (frameId, isPreview, feedType) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
             FrameState.publish(frameId);
             frame.status = FRAMES_WINDOW_STATUS.CONNECTING;
 
             if (window.ceremonator && window.ceremonator.frames) {
-                if ($scope.gridConfig.splitContainers && !isPreview) {
+                if ($scope.gridConfig.splitContainers && !isPreview && (feedType || 'main') === 'main') {
                     // kv/state windows share the frame's position/size at open — the operator drags the second one into place.
                     ['kv', 'state'].forEach(function (container) {
-                        openFrameWindowContainer(frameId, frame, isPreview, container);
+                        openFrameWindowContainer(frameId, frame, isPreview, container, feedType);
                     });
                 } else {
-                    openFrameWindowContainer(frameId, frame, isPreview, undefined);
+                    openFrameWindowContainer(frameId, frame, isPreview, undefined, feedType);
                 }
             } else {
-                var url = 'screen.html?screen=' + frameId + (isPreview ? '&preview=true&feed=' + FEED.PREVIEW : '') + '&label=' + encodeURIComponent(frame.label || frameId) + ($scope.testMode ? '\&testMode=1' : '');
+                var url = 'screen.html?screen=' + frameId + '&feedType=' + (feedType || 'main') + (isPreview ? '&preview=true&feed=' + FEED.PREVIEW : '') + '&label=' + encodeURIComponent(frame.label || frameId) + ($scope.testMode ? '\&testMode=1' : '');
                 window.open(url, '_blank');
                 frame.status = FRAMES_WINDOW_STATUS.READY;
             }
         };
 
-        $scope.openFrameWindowLive = function (frameId) {
-            $scope.openFrameWindow(frameId, false);
+        $scope.openFrameWindowLive = function (frameId, feedType) {
+            $scope.openFrameWindow(frameId, false, feedType || 'main');
         };
 
-        $scope.canOpenFramePreview = function (frameId) {
+        $scope.canOpenFramePreview = function (frameId, feedType) {
             var frame = FrameService.frames[frameId];
-            return !!frame && !!(frame.windows && frame.windows.live) && !(frame.windows && frame.windows.preview);
+            var counts = frame && frame.windows && frame.windows.feeds && frame.windows.feeds[feedType || 'main'];
+            return !!frame && !!(counts ? counts.live : (frame.windows && frame.windows.live)) && !(counts ? counts.preview : (frame.windows && frame.windows.preview));
         };
 
-        $scope.openFrameWindowPreview = function (frameId) {
+        $scope.openFrameWindowPreview = function (frameId, feedType) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
-            if (!frame.windows || !frame.windows.live) {
+            var counts = frame.windows && frame.windows.feeds && frame.windows.feeds[feedType || 'main'];
+            if (!(counts ? counts.live : frame.windows && frame.windows.live)) {
                 $scope.addNotice('warning', 'Open a Live window for "' + (frame.label || frameId) + '" before opening Preview.', 'preview-needs-live');
                 return;
             }
-            if (frame.windows.preview) {
+            if (counts ? counts.preview : frame.windows && frame.windows.preview) {
                 $scope.addNotice('warning', 'Preview is already open for "' + (frame.label || frameId) + '" — only one Preview window per frame is allowed.', 'preview-already-open');
                 return;
             }
-            $scope.openFrameWindow(frameId, true);
+            $scope.openFrameWindow(frameId, true, feedType || 'main');
         };
 
         $scope.previewAllFrames = function () {
@@ -305,7 +341,7 @@
         $scope.blankedFrames = function () {
             var list = [];
             angular.forEach(FrameService.frames, function (frame) {
-                if (frame.blanked) list.push(frame);
+                if (frame.blankedFeeds && Object.keys(frame.blankedFeeds).length) list.push(frame);
             });
             return list;
         };
@@ -314,10 +350,11 @@
             var colsInput = parseInt($scope.gridConfig.cols, 10);
             if (colsInput > 0) return colsInput;
             var frameCols = Math.max(1, Math.ceil(Math.sqrt(FrameService.count())));
-            return $scope.gridConfig.splitContainers ? frameCols * 2 : frameCols;
+            return $scope.gridConfig.splitContainers && $scope.gridConfig.feedType === 'main' ? frameCols * 2 : frameCols;
         };
 
         $scope.openGridView = function () {
+            $scope.gridFeedChanged();
             $scope.gridConfigDialogOpen = true;
         };
 
@@ -333,7 +370,7 @@
             Object.keys(FrameService.frames).forEach(function (id) {
                 var label = FrameService.frames[id].label || id;
                 var accent = FrameService.getFrameColor(id);
-                if ($scope.gridConfig.splitContainers) {
+                if ($scope.gridConfig.splitContainers && $scope.gridConfig.feedType === 'main') {
                     frames.push({ frameId: id, container: 'kv', label: label + ' — Key Info', accent: accent });
                     frames.push({ frameId: id, container: 'state', label: label + ' — Results', accent: accent });
                 } else {
@@ -345,6 +382,7 @@
             var monitorOverride = (monitor === null || monitor === undefined || monitor === '') ? null : parseInt(monitor, 10);
 
             $scope.workspaceMode = WORKSPACE_MODES.RUN;
+            $scope.saveGridFeedSize();
 
             window.ceremonator.frames.openLargeWindow({
                 frames: frames,
@@ -354,9 +392,14 @@
                     height: parseInt($scope.gridConfig.frameHeight, 10) || 720
                 },
                 feed: $scope.gridConfig.feed,
+                feedType: $scope.gridConfig.feedType || 'main',
                 position: monitorOverride != null ? { monitor: monitorOverride } : null,
                 fullscreen: !!$scope.gridConfig.fullscreen,
                 testMode: $scope.testMode
+            }).then(function (result) {
+                if (!result || result.ok === false) $scope.$applyAsync(function () {
+                    $scope.addNotice('warning', (result && result.error) || 'Could not open Grid view.', 'grid-open');
+                });
             });
 
         };

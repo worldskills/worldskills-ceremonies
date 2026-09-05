@@ -106,10 +106,19 @@
         $scope.workspaceCapabilities = { manageWindows: false, preview: true, copyScript: false };
         $scope.FrameService = {
             activeFrameId: null,
+            feedTypes: [{ id: 'main' }],
+            hasFeedType: function (id) { return this.feedTypes.some(function (feed) { return feed.id === id; }); },
             getFrameColor: function (id) {
                 var frame = $scope.screens[id];
                 if (frame && frame.color) return frame.color;
             }
+        };
+        $scope.blankFeedNames = function (frame) { return Object.keys((frame && frame.blankedFeeds) || {}).join(', '); };
+        $scope.isFeedBlanked = function (frame, feedType) {
+            return !!(frame && frame.blankedFeeds && frame.blankedFeeds[feedType]);
+        };
+        $scope.stateFeedLabel = function (slide, state) {
+            return slide && slide.stateFeedTypes && slide.stateFeedTypes[state] === 'secondary' ? 'S' : 'M';
         };
 
         function currentFrame() {
@@ -123,6 +132,9 @@
             target.slideId = source.slideId;
             target.state = angular.copy(source.state || []);
             target.states = angular.copy(source.states || []);
+            target.baseFeedTypes = angular.copy(source.baseFeedTypes || ['main']);
+            target.stateFeedTypes = angular.copy(source.stateFeedTypes || {});
+            target.feedContent = angular.copy(source.feedContent || {});
             target.done = !!source.done;
             if (!editing) target.context = angular.copy(source.context || {});
             else target.context = draft;
@@ -130,6 +142,10 @@
         }
 
         function reconcileFrames(incoming) {
+            // Older controllers sent a raw frame array; current snapshots include feeds.
+            var snapshot = angular.isArray(incoming) ? { frames: incoming } : (incoming || {});
+            incoming = snapshot.frames || [];
+            $scope.FrameService.feedTypes = snapshot.feedTypes || [{ id: 'main' }];
             var present = {};
             var options = [];
 
@@ -147,7 +163,7 @@
                 frame.label = source.label;
                 frame.color = source.color;
                 frame.status = source.status;
-                frame.blanked = !!source.blanked;
+                frame.blankedFeeds = angular.copy(source.blankedFeeds || (source.blanked ? { main: true } : {}));
                 frame.previewState = angular.copy(source.previewState || []);
 
                 angular.forEach(frame.slides, function (slide) {
@@ -252,8 +268,8 @@
             RemoteTransport.send({ name: 'resetPreview', frameId: frameId });
         };
 
-        $scope.resetFrame = function (frameId) {
-            RemoteTransport.send({ name: 'resetFrame', frameId: frameId });
+        $scope.resetFrame = function (frameId, feedType) {
+            RemoteTransport.send({ name: 'resetFrame', frameId: frameId, feedType: feedType || 'main' });
         };
 
         $scope.prevSlide = function () {

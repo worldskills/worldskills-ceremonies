@@ -2,6 +2,10 @@
   "version": 2,
   "name": "WorldSkills Competition 2026",
   "displayMode": "windows",
+  "feedTypes": [
+    { "id": "main", "gridSize": { "width": 1100, "height": 500 } },
+    { "id": "secondary", "gridSize": { "width": 800, "height": 500 } }
+  ],
   "remote": {
     "enabled": true,
     "pin": "173210",

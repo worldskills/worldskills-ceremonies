@@ -32,7 +32,11 @@ function registerRemoteIpc() {
         }
     });
     ipcMain.on('remote:sync', (event, snapshot) => {
-        if (hasRole(event, ['control']) && Array.isArray(snapshot)) remoteServer.broadcastState(snapshot);
+        // Version 2 feed-aware snapshots are objects; retain the legacy array
+        // shape so an older control renderer can still drive the remote page.
+        if (hasRole(event, ['control']) && (Array.isArray(snapshot) || (snapshot && Array.isArray(snapshot.frames)))) {
+            remoteServer.broadcastState(snapshot);
+        }
     });
 }
 

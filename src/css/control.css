@@ -80,6 +80,17 @@ control-workspace,
     box-shadow: inset 3px 0 0 #d97706;
 }
 
+.state-feed-badge {
+    display: inline-block;
+    min-width: 1.35em;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    font-size: .7em;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+}
+
 /* Marks the row currently live on the frame's own screen output. */
 .list-group-item-primary {
     box-shadow: inset 3px 0 0 #28a745;

@@ -58,6 +58,7 @@
                 scope.uploaded ? 1 : 0,
                 FrameService.activeFrameId,
                 angular.toJson(scope.gridConfig || {}),
+                angular.toJson(FrameService.feedTypes || []),
                 (FrameService.skillOrder || []).join(',')
             ];
             angular.forEach(FrameService.frames, function (frame, id) {
@@ -71,7 +72,8 @@
                     slides.indexOf(slide),
                     state.join('+'),
                     (frame.ordering.skillNumbers || []).join(','),
-                    frame.ordering.includeAlbertVidal ? 1 : 0
+                    frame.ordering.includeAlbertVidal ? 1 : 0,
+                    angular.toJson(frame.blankedFeeds || {})
                 ].join(':'));
             });
             return parts.join('|');
@@ -86,6 +88,7 @@
                     slideIndex: index,
                     slideLabel: index >= 0 ? slides[index].label : null,
                     state: (frame.slide && frame.slide.state) ? angular.copy(frame.slide.state) : [],
+                    blankedFeeds: angular.copy(frame.blankedFeeds || {}),
                     done: slides.map(function (slide) { return !!slide.done; })
                 };
             });
@@ -97,7 +100,11 @@
             angular.forEach(FrameService.frames, function (frame, id) {
                 var saved = runtime && runtime[id];
                 var slides = frame.slides || [];
-                if (!saved || !slides.length) return;
+                if (!saved) return;
+                // A blank state is meaningful even if a catalog has no slides yet,
+                // or if its saved slide disappeared after a data refresh.
+                frame.blankedFeeds = angular.copy(saved.blankedFeeds || {});
+                if (!slides.length) return;
 
                 angular.forEach(saved.done || [], function (done, i) {
                     if (done && slides[i]) slides[i].done = true;

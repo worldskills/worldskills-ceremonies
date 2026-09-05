@@ -77,6 +77,7 @@
                 $scope.bestOfNationGroupSize = project.bestOfNationGroupSize || $scope.bestOfNationGroupSize;
                 $scope.languages = (project.languages && project.languages.length) ? project.languages : [{ lang_code: 'en' }];
                 $scope.remoteConfig = angular.extend({}, $scope.remoteConfig, project.remote || {});
+                FrameService.setFeedTypes(project.feedTypes);
 
                 if (project.gridConfig) {
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
@@ -260,15 +261,15 @@
 
         $scope.showSlide = function (screen, slide) {
             var frame = FrameService.frames[screen];
-            var wasPreviewing = frame.previewSlide === slide;
-            var sameSlide = frame.slide === slide;
-            var wasBlanked = !!frame.blanked;
+                var wasPreviewing = frame.previewSlide === slide;
+                var sameSlide = frame.slide === slide;
+            var wasBlanked = Object.keys(frame.blankedFeeds || {}).length > 0;
 
             if (!sameSlide) {
                 slide.done = true;
                 frame.slide = slide;
             }
-            frame.blanked = false;
+            frame.blankedFeeds = {};
 
             if (wasPreviewing) {
                 slide.state = frame.previewState || [];
@@ -305,6 +306,13 @@
             angular.forEach(FrameService.frames, function(config, screen) {
                 FrameState.clear(screen);
             });
+        };
+
+        // Used by the remote template too; keeping it here avoids relying on a browser global.
+        $scope.blankFeedNames = function (frame) { return Object.keys((frame && frame.blankedFeeds) || {}).join(', '); };
+        $scope.stateFeedLabel = function (slide, state) {
+            var type = slide && slide.stateFeedTypes && slide.stateFeedTypes[state];
+            return type === 'secondary' ? 'S' : 'M';
         };
 
         FramesPart($scope);

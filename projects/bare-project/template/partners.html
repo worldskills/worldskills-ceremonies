@@ -1,0 +1,13 @@
+<div class="screen-content screen-content-partners" ng-if="context.sponsors && context.sponsors.length">
+    <div class="screen-partners" ng-attr-style="--partner-cols: {{ partnerGridColumns(context.sponsors.length) }}">
+        <div class="screen-partner" ng-repeat="sponsor in context.sponsors track by $index">
+            <img ng-if="sponsor.logo && sponsor.logo.local"
+                 ng-src="wstemplate://project/data/{{ sponsor.logo.local }}"
+                 alt="{{ sponsorName(sponsor) || 'Sponsor' }}"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+            <span class="screen-partner-name" ng-if="!sponsor.logo || !sponsor.logo.local">{{ sponsorName(sponsor) }}</span>
+            <span class="screen-partner-name" style="display:none">{{ sponsorName(sponsor) }}</span>
+        </div>
+    </div>
+</div>
+<div ng-if="!context.sponsors || !context.sponsors.length" ng-include="'wstemplate://active/empty.html'"></div>

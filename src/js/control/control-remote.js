@@ -46,7 +46,7 @@
                 $scope.resetPreview(action.frameId);
             },
             resetFrame: function (frame, action) {
-                $scope.resetFrame(action.frameId);
+                $scope.resetFrame(action.frameId, action.feedType || 'main');
             },
             prevSlideForFrame: function (frame, action) {
                 $scope.prevSlideForFrame(action.frameId);

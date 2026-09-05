@@ -4,7 +4,7 @@ const { centerOnDisplay, resolveTargetDisplay, displayIndexForPoint } = require(
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { markWindow } = require('./ipc/sender-role');
 const { notifyFrameStatus, sendControlNotice } = require('./control-channel');
-const { FEED, FRAME_STATUS } = require('./constants');
+const { FEED, FEED_TYPE, FRAME_STATUS } = require('./constants');
 
 const frameWindows = new Map();
 // Keyed like frameWindows; a dev restart uses this to reopen exactly what was open.
@@ -34,11 +34,15 @@ function matchesFrameKey(key, frameId) {
 // "×N" badges and the closed→ready status downgrade when only one of several windows closes.
 function countFrameWindows(frameId) {
     let live = 0, preview = 0;
+    const feeds = {};
     frameWindowOpts.forEach((opts, key) => {
         if (parseFrameWindowKey(key).frameId !== frameId) return;
-        if (opts && opts.preview) preview++; else live++;
+        const feedType = (opts && opts.feedType) || FEED_TYPE.MAIN;
+        if (!feeds[feedType]) feeds[feedType] = { live: 0, preview: 0, total: 0 };
+        if (opts && opts.preview) { preview++; feeds[feedType].preview++; } else { live++; feeds[feedType].live++; }
+        feeds[feedType].total++;
     });
-    return { live, preview, total: live + preview };
+    return { live, preview, total: live + preview, feeds: feeds };
 }
 
 // Wraps notifyFrameStatus with the current window counts, and downgrades a 'closed' report to
@@ -60,13 +64,13 @@ function normalizeFrameRequest(frameId, opts) {
     const container = (opts && opts.container) || '';
     const key = frameWindowKey(frameId, container);
     const isPreview = !!(opts && opts.preview);
-    const size = isPreview
-        ? { width: 1280, height: 720 }
-        : ((opts && opts.size) || { width: 1920, height: 1080 });
+    // Main/Secondary windows use the frame's saved viewport on either channel.
+    // Preview remains windowed, but it no longer silently changes the configured size.
+    const size = (opts && opts.size) || { width: 1920, height: 1080 };
     const position = (opts && opts.position) || {};
 
     const goFullscreenRequested = !isPreview && position.fullscreen === true && (!opts || opts.windowed !== true);
-    return { container, key, isPreview, size, position, goFullscreenRequested };
+    return { container, key, isPreview, size, position, goFullscreenRequested, feedType: (opts && opts.feedType) || FEED_TYPE.MAIN };
 }
 
 // Returns the fallback notice text instead of emitting it, to keep this function side-effect-free.
@@ -150,8 +154,9 @@ function frameWindowSearch(frameId, req, opts) {
     // preview=true stays the window-chrome flag (size/fullscreen/F11); feed=preview is the
     // separate localStorage channel screen.js reads from (see frame-state.service.js).
     const feedParam = req.isPreview ? '&feed=' + FEED.PREVIEW : '';
+    const feedTypeParam = '&feedType=' + encodeURIComponent(req.feedType);
     const testParam = (opts && opts.testMode) ? '&testMode=1' : '';
-    return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam + feedParam + testParam;
+    return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam + feedParam + feedTypeParam + testParam;
 }
 
 function reportFrameStatus(win, frameId) {
@@ -204,11 +209,11 @@ function guardLiveClose(win, req, boundsState) {
 // never confirm-dialog on close (guardLiveClose skips them) and are never fullscreen, so a plain
 // win.close() is enough — this recurses into cleanupOnClosed for each one, but req.isPreview is
 // true there, so it never re-triggers this cascade.
-function closePreviewWindowsFor(frameId) {
+function closePreviewWindowsFor(frameId, feedType) {
     frameWindows.forEach((win, key) => {
         if (!matchesFrameKey(key, frameId)) return;
         const opts = frameWindowOpts.get(key);
-        if (opts && opts.preview && !win.isDestroyed()) win.close();
+        if (opts && opts.preview && ((opts.feedType || FEED_TYPE.MAIN) === feedType) && !win.isDestroyed()) win.close();
     });
 }
 
@@ -216,8 +221,8 @@ function cleanupOnClosed(win, key, frameId, boundsState, req) {
     win.on('closed', () => {
         frameWindows.delete(key);
         frameWindowOpts.delete(key);
-        if (!req.isPreview && countFrameWindows(frameId).live === 0) {
-            closePreviewWindowsFor(frameId);
+        if (!req.isPreview && (!countFrameWindows(frameId).feeds[req.feedType] || countFrameWindows(frameId).feeds[req.feedType].live === 0)) {
+            closePreviewWindowsFor(frameId, req.feedType);
         }
         if (boundsState.lastPos) {
             const w = boundsState.lastSize ? boundsState.lastSize[0] : null;
@@ -338,6 +343,15 @@ function hasFrameWindowFor(frameId) {
     return false;
 }
 
+function hasLiveFrameWindowFor(frameId, feedType) {
+    for (const [key, win] of frameWindows) {
+        if (win.isDestroyed() || !matchesFrameKey(key, frameId)) continue;
+        const opts = frameWindowOpts.get(key) || {};
+        if (!opts.preview && (opts.feedType || FEED_TYPE.MAIN) === (feedType || FEED_TYPE.MAIN)) return true;
+    }
+    return false;
+}
+
 function serializeOpenFrameWindows() {
     const list = [];
     frameWindows.forEach((win, key) => {
@@ -388,6 +402,7 @@ module.exports = {
     getOpenFrameIds,
     getOpenFrameCounts,
     hasFrameWindowFor,
+    hasLiveFrameWindowFor,
     serializeOpenFrameWindows,
     reopenFrameWindowFromSnapshot,
     destroyAllFrameWindows,

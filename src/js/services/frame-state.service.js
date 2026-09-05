@@ -1,16 +1,34 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys) {
+    angular.module('ceremoniesApp').factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys, FEED, FEED_TYPE) {
 
         var screenKey = StorageKeys.screenKey;
         var previewKey = StorageKeys.previewKey;
 
-        function createStoragePayload(frame, slide, frameId, stateOverride) {
+        function activeForFeed(slide, feedType, state) {
+            if (!slide) return false;
+            var base = slide.baseFeedTypes || [FEED_TYPE.MAIN];
+            if (base.indexOf(feedType) >= 0) return true;
+            return (state || []).some(function (name) { return slide.stateFeedTypes && slide.stateFeedTypes[name] === feedType; });
+        }
+
+        function createStoragePayload(frame, slide, frameId, stateOverride, feedType) {
+            var state = stateOverride || (slide && slide.state) || [];
+            var isBlanked = frame.blankedFeeds && frame.blankedFeeds[feedType];
+            var isActive = activeForFeed(slide, feedType, state);
+            var isRoutedAway = !!slide && !isActive;
+            if (!isActive) slide = undefined;
+            var content = slide && slide.feedContent && slide.feedContent[feedType];
+            var filteredState = slide ? state.filter(function (name) {
+                return !slide.stateFeedTypes || !slide.stateFeedTypes[name] || slide.stateFeedTypes[name] === feedType;
+            }) : [];
             return {
-                template: TEMPLATE_BASE + (slide ? slide.template : 'empty.html'),
-                context: (slide && slide.context) || {},
-                state: stateOverride || (slide && slide.state) || [],
+                // A deliberately blanked output is black. A feed routed away by
+                // the current state gets the branded empty screen instead.
+                template: TEMPLATE_BASE + (content ? content.template : (slide ? slide.template : (isRoutedAway && !isBlanked ? 'empty.html' : 'blank.html'))),
+                context: (content && content.context) || (slide && slide.context) || {},
+                state: filteredState,
                 label: (slide && slide.label) || '',
                 frameLabel: frame.label || frameId,
                 accent: FrameService.getFrameColor(frameId),
@@ -18,23 +36,32 @@
             };
         }
 
-        function liveSlideFor(frame) {
-            return frame.blanked ? undefined : frame.slide;
+        function liveSlideFor(frame, feedType) {
+            return frame.blankedFeeds && frame.blankedFeeds[feedType] ? undefined : frame.slide;
         }
 
         function publish(frameId) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
-            window.localStorage.setItem(screenKey(frameId), angular.toJson(createStoragePayload(frame, liveSlideFor(frame), frameId)));
+            angular.forEach(FrameService.feedTypes, function (feed) {
+                var type = feed.id;
+                window.localStorage.setItem(screenKey(frameId, type), angular.toJson(createStoragePayload(frame, liveSlideFor(frame, type), frameId, null, type)));
+            });
             publishPreview(frameId);
         }
 
         function publishPreview(frameId) {
             var frame = FrameService.frames[frameId];
             if (!frame) return;
-            var slide = frame.previewSlide || liveSlideFor(frame);
+            var slide = frame.previewSlide || frame.slide;
             var stateOverride = frame.previewSlide ? (frame.previewState || []) : null;
-            window.localStorage.setItem(previewKey(frameId), angular.toJson(createStoragePayload(frame, slide, frameId, stateOverride)));
+            angular.forEach(FrameService.feedTypes, function (feed) {
+                var type = feed.id;
+                // A feed blank wins over a pinned Preview slide, but does not alter
+                // the pin for the other feed.
+                var visible = frame.blankedFeeds && frame.blankedFeeds[type] ? undefined : (frame.previewSlide ? slide : frame.slide);
+                window.localStorage.setItem(previewKey(frameId, type), angular.toJson(createStoragePayload(frame, visible, frameId, stateOverride, type)));
+            });
             syncRemote();
         }
 
@@ -47,35 +74,37 @@
                     label: frame.label,
                     color: FrameService.getFrameColor(id),
                     status: frame.status,
-                    blanked: !!frame.blanked,
+                    blankedFeeds: angular.copy(frame.blankedFeeds || {}),
                     slideIndex: frame.slide ? frame.slides.indexOf(frame.slide) : -1,
                     previewSlideIndex: frame.previewSlide ? frame.slides.indexOf(frame.previewSlide) : -1,
                     previewState: frame.previewState || null,
                     slides: (frame.slides || []).map(function (slide) {
-                        return { slideId: slide.slideId, label: slide.label, context: slide.context, state: slide.state || [], states: slide.states || [], done: !!slide.done };
+                        return { slideId: slide.slideId, label: slide.label, context: slide.context, state: slide.state || [], states: slide.states || [], baseFeedTypes: slide.baseFeedTypes, stateFeedTypes: slide.stateFeedTypes, feedContent: slide.feedContent, done: !!slide.done };
                     })
                 });
             });
-            window.ceremonator.remote.sync(frames);
+            window.ceremonator.remote.sync({ feedTypes: angular.copy(FrameService.feedTypes), frames: frames });
         }
 
         function clear(frameId) {
-            window.localStorage.removeItem(screenKey(frameId));
-            window.localStorage.removeItem(previewKey(frameId));
+            angular.forEach(FrameService.feedTypes, function (feed) {
+                window.localStorage.removeItem(screenKey(frameId, feed.id));
+                window.localStorage.removeItem(previewKey(frameId, feed.id));
+            });
         }
 
         function reloadTemplates() {
             var t = Date.now();
             angular.forEach(FrameService.frames, function (frame, id) {
-                [screenKey(id), previewKey(id)].forEach(function (key) {
+                FrameService.feedTypes.forEach(function (feed) { [screenKey(id, feed.id), previewKey(id, feed.id)].forEach(function (key) {
                     var raw = window.localStorage.getItem(key);
                     if (!raw) return;
                     var entry = angular.fromJson(raw);
                     if (!entry) return;
-                    var base = entry.template ? entry.template.split('?')[0] : (TEMPLATE_BASE + 'empty.html');
+                    var base = entry.template ? entry.template.split('?')[0] : (TEMPLATE_BASE + 'blank.html');
                     entry.template = base + '?t=' + t;
                     window.localStorage.setItem(key, angular.toJson(entry));
-                });
+                }); });
             });
         }
 

@@ -25,7 +25,9 @@ function devResume() {
     if (windows.length || grids.length) {
         getControlWindow().webContents.once('did-finish-load', () => {
             windows.forEach(reopenFrameWindowFromSnapshot);
-            grids.forEach(openGridWindow);
+            // Preview Grids have a matching-Live invariant, so restore all Live
+            // grids first even if an older snapshot happened to serialize them out of order.
+            grids.slice().sort((a, b) => (a.feed === 'preview' ? 1 : 0) - (b.feed === 'preview' ? 1 : 0)).forEach(openGridWindow);
         });
     }
     return true;

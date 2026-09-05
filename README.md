@@ -11,7 +11,7 @@ Everything the app needs to run a ceremony lives in a **project folder**:
 my-ceremony/
   project.json          # frames, sizes, ordering
   translations.json
-  data/                  # skills.json, members.json, flags/*.png
+  data/                  # skills.json, members.json, flags/*.png, sponsors/*
   template/              # slide html, grid.html, css, fonts, images — fully self-contained
 ```
 
@@ -38,7 +38,48 @@ node bin/fetch-members.js
 ```
 
 `project-name` defaults to `bare-project`; pass another project's folder name (under `projects/`)
-to refresh its data instead.
+to refresh its data instead. The optional second and third arguments select the catalogue event and
+sponsor-source event respectively. For example, the starter project can retain event 611's skills
+while importing sponsor assignments from event 579:
+
+```
+node bin/fetch-skills.js bare-project 611 579
+```
+
+`fetch-skills` also preserves the API's `sponsors` array for every skill and downloads each
+unique `sponsor.logo.thumbnail` to `data/sponsors/`. It writes `sponsor.logo.local` as a relative
+path, so presentation playback needs no network connection. A failed logo download is reported
+and leaves the sponsor name as the on-screen fallback. The starter catalog deliberately uses
+`"sponsors": []`; a populated entry looks like:
+
+```json
+{ "name": "Example Partner", "sort": 10,
+  "logo": { "id": 42, "thumbnail": "https://…", "local": "sponsors/42.png" } }
+```
+
+## Output feeds
+
+Projects remain schema version 2 and may declare the fixed programme feeds below. Main is required;
+Secondary is optional. Projects without `feedTypes` are treated as Main-only, retaining their legacy
+`gridConfig.frameWidth` and `frameHeight`.
+
+```json
+"feedTypes": [
+  { "id": "main", "gridSize": { "width": 1100, "height": 500 } },
+  { "id": "secondary", "gridSize": { "width": 800, "height": 500 } }
+]
+```
+
+Feed type and channel are independent: each configured feed can have Live and Preview outputs.
+Main keeps `screen-<frame>` and `screen-<frame>-preview` storage keys; Secondary uses
+`screen-<frame>-secondary` and `screen-<frame>-secondary-preview`. Preview requires a matching
+Live window for the same feed. Blanking is per feed (Ctrl+B blanks Main); showing a Live slide
+releases all feed blanks.
+
+The stock routing sends Callup Countries and all medal/MFE presentation states to Main; Callup
+Sponsors and the full medal/MFE Secondary output show skill sponsor logos. Best of Nation is
+Secondary-only and Albert Vidal is Main-only. `partners.html` is intentionally logo-only, with a
+name fallback for unavailable/corrupt local images.
 
 ## Usage
 

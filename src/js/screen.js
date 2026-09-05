@@ -5,6 +5,30 @@
 
         $scope.FEED = FEED;
         $scope.languages = [];
+        $scope.sponsorName = function (sponsor) {
+            sponsor = sponsor || {};
+            var name = sponsor.name || sponsor.title || sponsor.partnerName || '';
+            return (name && name.text) || name || '';
+        };
+        $scope.partnerGridColumns = function (count) {
+            // Choose the most balanced full-ish grid for the current count. A
+            // 3-up row is a deliberate exception because it reads better than
+            // a 2-by-2 grid with an empty cell on a 16:9 output.
+            count = Math.max(1, parseInt(count, 10) || 1);
+            if (count === 3) return 3;
+            var bestColumns = 1;
+            var bestScore = Infinity;
+            for (var columns = 1; columns <= count; columns++) {
+                var rows = Math.ceil(count / columns);
+                var emptyCells = columns * rows - count;
+                var score = Math.abs((columns / rows) - 1.5) + emptyCells * 0.3;
+                if (score < bestScore) {
+                    bestColumns = columns;
+                    bestScore = score;
+                }
+            }
+            return bestColumns;
+        };
 
         // ── Test Mode ──────────────────────────────────────────────────
         $scope.testMode = false;
@@ -32,7 +56,7 @@
         };
 
         $scope.storageKey = function () {
-            return $scope.feed === FEED.PREVIEW ? StorageKeys.previewKey($scope.screen) : StorageKeys.screenKey($scope.screen);
+            return $scope.feed === FEED.PREVIEW ? StorageKeys.previewKey($scope.screen, $scope.feedType) : StorageKeys.screenKey($scope.screen, $scope.feedType);
         };
 
         window.addEventListener('storage', function (e) {
@@ -47,10 +71,11 @@
             }
         });
 
-        $scope.setScreen = function (screen, preview, feed) {
+        $scope.setScreen = function (screen, preview, feed, feedType) {
             $scope.screen = screen;
             $scope.preview = (preview === 'true' || preview === true);
-            $scope.feed = feed || FEED.LIVE;
+            $scope.feed = feed === FEED.PREVIEW ? FEED.PREVIEW : FEED.LIVE;
+            $scope.feedType = feedType === 'secondary' ? 'secondary' : 'main';
 
             $scope.render();
         };
@@ -71,7 +96,7 @@
                 $scope.states = [];
                 $scope.state = [];
                 $scope.slideLabel = '';
-                $scope.frame = { id: $scope.screen, label: $scope.screen, color: '', video: '', feed: $scope.feed, testMode: $scope.testMode, testIdx: $scope.testIdx, gridCols: $scope.gridCols };
+                $scope.frame = { id: $scope.screen, label: $scope.screen, color: '', video: '', feed: $scope.feed, feedType: $scope.feedType, testMode: $scope.testMode, testIdx: $scope.testIdx, gridCols: $scope.gridCols };
                 document.title = 'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.screen;
                 return;
             }
@@ -86,6 +111,7 @@
                 color: data.accent || '',
                 video: data.video || '',
                 feed: $scope.feed,
+                feedType: $scope.feedType,
                 testMode: $scope.testMode,
                 testIdx: $scope.testIdx,
                 gridCols: $scope.gridCols
@@ -118,6 +144,7 @@
             var screen = params.get('screen');
             var preview = params.get('preview');
             var feed = params.get('feed');
+            var feedType = params.get('feedType');
             var testMode = params.get('testMode') === '1' || localStorage.getItem('ceremonator:testMode') === '1';
             var testIdx = parseInt(params.get('testIdx'), 10) || 0;
             var gridCols = parseInt(params.get('gridCols'), 10) || 0;
@@ -129,7 +156,7 @@
                 $scope.testMode = testMode;
                 $scope.testIdx = testIdx;
                 $scope.gridCols = gridCols;
-                $scope.setScreen(screen, preview, feed);
+                $scope.setScreen(screen, preview, feed, feedType);
             }
         };
 

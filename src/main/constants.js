@@ -6,6 +6,9 @@ const FEED = {
     PREVIEW: 'preview'
 };
 
+// Physical/programme output, separate from the Live/Preview channel above.
+const FEED_TYPE = { MAIN: 'main', SECONDARY: 'secondary' };
+
 const FRAME_STATUS = {
     CLOSED: 'closed',
     CONNECTING: 'connecting',
@@ -13,4 +16,4 @@ const FRAME_STATUS = {
     CRASHED: 'crashed'
 };
 
-module.exports = { FEED, FRAME_STATUS };
+module.exports = { FEED, FEED_TYPE, FRAME_STATUS };

@@ -119,6 +119,11 @@ function copyDefaultData(dir) {
     if (!fs.existsSync(flagsDest) && fs.existsSync(flagsSrc)) {
         fs.cpSync(flagsSrc, flagsDest, { recursive: true });
     }
+    const sponsorsDest = path.join(dest, 'sponsors');
+    const sponsorsSrc = path.join(bundledDataDir, 'sponsors');
+    if (!fs.existsSync(sponsorsDest) && fs.existsSync(sponsorsSrc)) {
+        fs.cpSync(sponsorsSrc, sponsorsDest, { recursive: true });
+    }
 }
 
 function setActive(dir, project, templateDir) {

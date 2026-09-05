@@ -2,12 +2,12 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('StorageKeys', function () {
-        function screenKey(frameId) {
-            return 'screen-' + frameId;
+        function screenKey(frameId, feedType) {
+            return 'screen-' + frameId + (feedType && feedType !== 'main' ? '-' + feedType : '');
         }
 
-        function previewKey(frameId) {
-            return 'screen-' + frameId + '-preview';
+        function previewKey(frameId, feedType) {
+            return screenKey(frameId, feedType) + '-preview';
         }
 
         return {

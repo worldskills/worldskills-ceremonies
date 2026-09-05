@@ -245,8 +245,8 @@
             }
             var item = $scope.queueList[idx];
             var frame = FrameService.frames[item.frameId];
-            if (frame && frame.blanked) {
-                frame.blanked = false;
+            if (frame && frame.blankedFeeds && Object.keys(frame.blankedFeeds).length) {
+                frame.blankedFeeds = {};
                 $scope.update(item.frameId);
                 return;
             }

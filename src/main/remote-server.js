@@ -92,6 +92,7 @@ function validAction(action) {
     if (action.slideIndex != null && (!Number.isInteger(action.slideIndex) || action.slideIndex < 0 || action.slideIndex > 10000)) return false;
     if (action.slideId != null && (typeof action.slideId !== 'string' || action.slideId.length > 500)) return false;
     if (action.state != null && (typeof action.state !== 'string' || action.state.length > 200)) return false;
+    if (action.feedType != null && ['main', 'secondary'].indexOf(action.feedType) < 0) return false;
     return true;
 }
 
