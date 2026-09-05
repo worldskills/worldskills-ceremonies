@@ -48,6 +48,7 @@ const fullApi = {
         reloadScreen: (frameId) => ipcRenderer.invoke('app:reloadScreen', { frameId }),
     },
     remote: {
+        commandResult: (requestId, result) => ipcRenderer.send('remote:commandResult', requestId, result),
         info: () => ipcRenderer.invoke('remote:info'),
         configure: (config) => ipcRenderer.invoke('remote:configure', config),
         sync: (snapshot) => ipcRenderer.send('remote:sync', snapshot),

@@ -83,6 +83,10 @@ name fallback for unavailable/corrupt local images.
 
 ## Usage
 
+For physical control keys, see the [Ceremonator Stream Deck plugin](plugins/streamdeck/README.md).
+It supports slide navigation, configurable grids, live screens and per-frame/feed blanking
+against local or remote instances.
+
 ```
 npm start
 ```

@@ -44,7 +44,9 @@ function sendRemoteAction(action) {
     const win = getControlWindow();
     if (win && !win.isDestroyed()) {
         win.webContents.send('remote:action', action);
+        return true;
     }
+    return false;
 }
 
 function requestClearAllData() {

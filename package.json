@@ -5,6 +5,7 @@
   "description": "Ceremonies",
   "author": "WorldSkills International",
   "scripts": {
+    "streamdeck:build": "node plugins/streamdeck/build.js",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",

@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const WebSocket = require('ws');
+const { randomUUID } = require('crypto');
+const { validCommand } = require('./remote-commands');
 const { appRoot } = require('./paths');
 const { resolveUnder } = require('./template-protocol');
 const { sendRemoteAction, sendControlNotice } = require('./control-channel');
@@ -33,6 +35,31 @@ let wss = null;
 let server = null;
 let currentPort = null;
 let lastSnapshot = null;
+const pendingCommands = new Map();
+
+function completeCommand(requestId, result) {
+    const pending = pendingCommands.get(requestId);
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    pendingCommands.delete(requestId);
+    if (pending.ws.readyState === WebSocket.OPEN) {
+        pending.ws.send(JSON.stringify({ type: 'command-result', id: pending.id,
+            ok: !!(result && result.ok), error: result && result.error }));
+    }
+}
+
+function dispatchCommand(ws, msg) {
+    if (typeof msg.id !== 'string' || msg.id.length > 100) return;
+    const reject = (error) => ws.send(JSON.stringify({ type: 'command-result', id: msg.id, ok: false, error }));
+    if (!validCommand(msg.command)) return reject('Invalid command parameters.');
+    if (Array.from(pendingCommands.values()).filter((p) => p.ws === ws).length >= 32) return reject('Too many pending commands.');
+    const requestId = randomUUID();
+    const timer = setTimeout(() => completeCommand(requestId, { ok: false, error: 'Control window did not respond; outcome unknown.' }), 8000);
+    pendingCommands.set(requestId, { ws, id: msg.id, timer });
+    if (!sendRemoteAction({ name: 'streamDeckCommand', command: msg.command, requestId })) {
+        completeCommand(requestId, { ok: false, error: 'Open the Ceremonator control window first.' });
+    }
+}
 
 function serveFile(res, filePath) {
     fs.readFile(filePath, (err, data) => {
@@ -97,6 +124,8 @@ function validAction(action) {
 }
 
 function stopRemoteServer() {
+    pendingCommands.forEach((pending) => clearTimeout(pending.timer));
+    pendingCommands.clear();
     if (wss) {
         wss.clients.forEach((client) => client.terminate());
         wss.close();
@@ -139,13 +168,14 @@ function startRemoteServer(config) {
         ws.on('message', (raw) => {
             let msg;
             try { msg = JSON.parse(raw); } catch (e) { return; }
+            if (!msg || typeof msg !== 'object') return;
 
             if (!ws.authed) {
                 if (msg.type === 'auth' && msg.pin === pin) {
                     ws.authed = true;
                     clearTimeout(authTimer);
                     failedByIp.delete(ip);
-                    ws.send(JSON.stringify({ type: 'auth-ok' }));
+                    ws.send(JSON.stringify({ type: 'auth-ok', capabilities: ['stream-deck-v1'] }));
                     if (lastSnapshot) ws.send(JSON.stringify({ type: 'state', frames: lastSnapshot }));
                 } else {
                     const failures = ((prior && prior.failures) || 0) + 1;
@@ -156,8 +186,14 @@ function startRemoteServer(config) {
             }
 
             if (msg.type === 'action' && validAction(msg.action)) sendRemoteAction(msg.action);
+            if (msg.type === 'command') dispatchCommand(ws, msg);
         });
-        ws.on('close', () => clearTimeout(authTimer));
+        ws.on('close', () => {
+            clearTimeout(authTimer);
+            pendingCommands.forEach((pending, id) => {
+                if (pending.ws === ws) { clearTimeout(pending.timer); pendingCommands.delete(id); }
+            });
+        });
     });
 
     server.on('error', (err) => {
@@ -187,6 +223,7 @@ module.exports = {
     stopRemoteServer,
     getInfo,
     broadcastState,
+    completeCommand,
     DEFAULT_PORT: DEFAULT_REMOTE_PORT,
     DEFAULT_PIN: DEFAULT_REMOTE_PIN,
 };

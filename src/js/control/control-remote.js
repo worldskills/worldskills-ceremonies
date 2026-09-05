@@ -3,8 +3,53 @@
 
     // Whitelisted remote-control actions — each maps a RemoteCtrl-sent action name onto the exact
     // same local scope function the operator UI itself calls (see control.js's `remote:action` wiring).
-    angular.module('ceremoniesApp').factory('RemotePart', function ($q, FrameService) {
+    angular.module('ceremoniesApp').factory('RemotePart', function ($q, FrameService, FrameState) {
       return function ($scope) {
+        function runStreamDeckCommand(command) {
+            var ids = command.frameIds || (command.frameId ? [command.frameId] : Object.keys(FrameService.frames));
+            if (!ids.length || ids.some(function (id) { return !Object.prototype.hasOwnProperty.call(FrameService.frames, id); })) {
+                throw new Error('A selected frame no longer exists. Update this key.');
+            }
+            if (command.feedType && command.feedType !== 'all' && !FrameService.getFeedType(command.feedType)) {
+                throw new Error('This output feed is not enabled in the project.');
+            }
+            var frame = FrameService.frames[ids[0]];
+            if (command.name === 'continueLive') {
+                var slides = frame.slides || [];
+                var nextIndex = frame.slide ? slides.indexOf(frame.slide) + 1 : 0;
+                if (frame.slide && nextIndex === 0) throw new Error('The current slide is no longer in this frame.');
+                if (!slides[nextIndex]) throw new Error('No next slide in this frame.');
+                // A continuation takes the next slide, regardless of remaining reveals.
+                // showSlide clears both feed blanks and applies the normal preview commit rules.
+                $scope.showSlide(ids[0], slides[nextIndex]);
+            } else if (command.name === 'navigateFrame') {
+                if (!frame.slide) throw new Error('Show a Live slide first.');
+                $scope[command.direction === 'previous' ? 'prevSlideForFrame' : 'nextSlideForFrame'](ids[0]);
+            } else if (command.name === 'blankFrames') {
+                var feeds = command.feedType === 'all' ? FrameService.feedTypes : [{ id: command.feedType }];
+                ids.forEach(function (id) {
+                    feeds.forEach(function (feed) { $scope.resetFrame(id, feed.id); });
+                });
+            } else if (command.name === 'openLive') {
+                FrameState.publish(ids[0]);
+                return window.ceremonator.frames.openWindow({ frameId: ids[0], size: frame.size,
+                    position: frame.position, label: frame.label, preview: false,
+                    feedType: command.feedType, testMode: $scope.testMode });
+            } else if (command.name === 'openGrid') {
+                var frames = ids.map(function (id) {
+                    FrameState.publish(id);
+                    return { frameId: id, label: FrameService.frames[id].label, accent: FrameService.getFrameColor(id) };
+                });
+                return window.ceremonator.frames.openLargeWindow({ frames: frames,
+                    grid: { cols: command.columns, gap: 0 }, frameSize: { width: command.width, height: command.height },
+                    feed: command.channel, feedType: command.feedType, fullscreen: command.fullscreen,
+                    testMode: $scope.testMode });
+            } else {
+                throw new Error('Unsupported Stream Deck command.');
+            }
+            return { ok: true };
+        }
+
         var REMOTE_ACTIONS = {
             showSlide: function (frame, action) {
                 var slide = frame.slides[action.slideIndex];
@@ -125,6 +170,16 @@
 
         if (window.ceremonator && window.ceremonator.remote && window.ceremonator.remote.onAction) {
             window.ceremonator.remote.onAction(function (action) {
+                if (action && action.name === 'streamDeckCommand') {
+                    $scope.$evalAsync(function () {
+                        $q.when().then(function () { return runStreamDeckCommand(action.command); }).then(function (result) {
+                            window.ceremonator.remote.commandResult(action.requestId, result);
+                        }).catch(function (error) {
+                            window.ceremonator.remote.commandResult(action.requestId, { ok: false, error: error.message || 'Command failed.' });
+                        });
+                    });
+                    return;
+                }
                 var handler = action && REMOTE_ACTIONS[action.name];
                 var frame = action && FrameService.frames[action.frameId];
                 if (!handler || !frame) return;

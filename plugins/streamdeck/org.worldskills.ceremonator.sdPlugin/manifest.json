@@ -1,0 +1,127 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "org.worldskills.ceremonator",
+  "Name": "Ceremonator",
+  "Version": "1.1.1.0",
+  "Author": "WorldSkills International",
+  "Description": "Control Ceremonator slides, grids, live screens and output blanks over WebSocket.",
+  "Category": "Ceremonator",
+  "CategoryIcon": "images/category",
+  "Icon": "images/plugin",
+  "CodePath": "plugin.js",
+  "PropertyInspectorPath": "inspector.html",
+  "Nodejs": {
+    "Version": "20"
+  },
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "6.6"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Profiles": [
+    {
+      "Name": "profiles/ceremonator-plus",
+      "DeviceType": 7,
+      "DontAutoSwitchWhenInstalled": true
+    }
+  ],
+  "Actions": [
+    {
+      "UUID": "org.worldskills.ceremonator.continue",
+      "Name": "Continue Live — Next Slide",
+      "Icon": "images/live-list",
+      "Tooltip": "Show the next slide and clear the frame's feed blanks. Does not open a window.",
+      "Controllers": ["Keypad"],
+      "States": [{ "Image": "images/live", "TitleAlignment": "bottom", "FontSize": 11 }]
+    },
+    {
+      "UUID": "org.worldskills.ceremonator.previous",
+      "Name": "Previous Slide",
+      "Icon": "images/previous-list",
+      "Tooltip": "Step back through reveals and slides in a frame.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "images/previous",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
+    },
+    {
+      "UUID": "org.worldskills.ceremonator.next",
+      "Name": "Next Slide",
+      "Icon": "images/next-list",
+      "Tooltip": "Advance through reveals and slides in a frame.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "images/next",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
+    },
+    {
+      "UUID": "org.worldskills.ceremonator.grid",
+      "Name": "Open Grid",
+      "Icon": "images/grid-list",
+      "Tooltip": "Open a grid on the connected Ceremonator computer.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "images/grid",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
+    },
+    {
+      "UUID": "org.worldskills.ceremonator.live",
+      "Name": "Open Live Screen",
+      "Icon": "images/live-list",
+      "Tooltip": "Open a frame's live output on the connected computer.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "images/live",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
+    },
+    {
+      "UUID": "org.worldskills.ceremonator.blank",
+      "Name": "Blank Frames / Feed",
+      "Icon": "images/blank-list",
+      "Tooltip": "Blank selected frames and feeds, including their Preview channels.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "images/blank",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
+    }
+  ]
+}

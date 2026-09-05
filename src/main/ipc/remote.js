@@ -4,6 +4,9 @@ const projectStore = require('../project-store');
 const { hasRole } = require('./sender-role');
 
 function registerRemoteIpc() {
+    ipcMain.on('remote:commandResult', (event, requestId, result) => {
+        if (hasRole(event, ['control']) && typeof requestId === 'string') remoteServer.completeCommand(requestId, result);
+    });
     ipcMain.handle('remote:info', (event) => hasRole(event, ['control']) ? remoteServer.getInfo() : { pin: null, urls: [] });
     ipcMain.handle('remote:configure', (event, config) => {
         if (!hasRole(event, ['control'])) return { ok: false, error: 'Forbidden sender' };

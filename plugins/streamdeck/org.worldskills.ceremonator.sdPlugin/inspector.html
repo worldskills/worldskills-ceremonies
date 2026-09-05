@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ceremonator settings</title>
+  <link rel="stylesheet" href="inspector.css">
+</head>
+<body>
+  <form id="settings">
+    <label>Key label<textarea id="keyTitle" rows="2" placeholder="Automatic"></textarea></label>
+    <label>Instance URL<input id="url" type="url" placeholder="http://127.0.0.1:17321" required></label>
+    <label>Remote PIN<input id="pin" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="off"></label>
+    <p>Use the URL and PIN from the target Ceremonator instance’s Remote settings.</p>
+    <label data-kinds="previous next live continue">Frame<select id="frameId"><option value="">Select a frame…</option></select></label>
+    <label data-kinds="grid blank">Frame IDs<input id="frameIds" placeholder="a, b, c" pattern="[a-zA-Z0-9_, -]*"></label>
+    <p data-kinds="grid">Leave Frame IDs empty for all frames.</p>
+    <p data-kinds="blank">Enter explicit frame IDs, separated by commas.</p>
+    <p id="available"></p>
+    <label data-kinds="grid live blank">Output feed<select id="feedType"><option value="main">Main</option><option value="secondary">Secondary</option><option value="all" id="allFeeds">All enabled feeds</option></select></label>
+    <label data-kinds="grid">Channel<select id="channel"><option value="live">Live</option><option value="preview">Preview</option></select></label>
+    <label data-kinds="grid">Columns<input id="columns" type="number" min="1" max="100" step="1" required></label>
+    <label data-kinds="grid">Frame width (px)<input id="width" type="number" min="320" max="7680" step="1" required></label>
+    <label data-kinds="grid">Frame height (px)<input id="height" type="number" min="240" max="4320" step="1" required></label>
+    <label data-kinds="grid" class="check"><input id="fullscreen" type="checkbox">Fullscreen</label>
+    <p data-kinds="previous next">Uses Ceremonator’s Previous/Next behavior, including slide reveals. A Live slide must already be selected.</p>
+    <p data-kinds="grid live">Windows open on the connected computer. Each press opens a new window. Preview grids require a matching Live grid.</p>
+    <p data-kinds="blank">Blank affects Live and Preview for the selected feeds. Showing a Live slide clears that frame’s blanks.</p>
+    <p data-kinds="continue">Shows the next slide and clears both feed blanks. Skips remaining reveals on the current slide. Starts at the first slide if none is selected; does not wrap at the end.</p>
+    <button type="submit">Apply settings</button>
+  </form>
+  <p id="status" role="status">Connecting to Stream Deck…</p>
+  <script src="inspector.js"></script>
+</body>
+</html>
