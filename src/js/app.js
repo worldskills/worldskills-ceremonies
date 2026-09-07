@@ -37,8 +37,6 @@
         PREVIEW: 'preview'
     });
 
-    ceremoniesApp.constant('FEED_TYPE', { MAIN: 'main', SECONDARY: 'secondary' });
-
     ceremoniesApp.constant('DATA_BASE', 'wstemplate://project/data/');
 
     // Primed into $templateCache when a screen window boots, so the first switch to a template

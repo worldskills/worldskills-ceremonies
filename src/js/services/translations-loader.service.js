@@ -22,9 +22,13 @@
         }
 
         function addToTable(table, name, key) {
-            if (!name || !name.text || !name.translations || !key) return;
+            if (!name || !name.text || !name.translations || !key) {
+                return;
+            }
             angular.forEach(name.translations, function (text, lang) {
-                if (!table[lang]) table[lang] = {};
+                if (!table[lang]) {
+                    table[lang] = {};
+                }
                 table[lang][key] = text;
             });
         }
@@ -57,8 +61,12 @@
         }
 
         return function (options) {
-            if (!filePromise) filePromise = readFile();
-            if (!dataPromise) dataPromise = readDataTranslations();
+            if (!filePromise) {
+                filePromise = readFile();
+            }
+            if (!dataPromise) {
+                dataPromise = readDataTranslations();
+            }
             return $q.all([dataPromise, filePromise]).then(function (results) {
                 // results[1] (project translations.json) wins over results[0] (skill/member defaults) — argument order matters here.
                 return angular.extend({}, results[0][options.key], results[1][options.key]);

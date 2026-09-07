@@ -4,7 +4,8 @@ const { centerOnDisplay, resolveTargetDisplay, displayIndexForPoint } = require(
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { markWindow } = require('./ipc/sender-role');
 const { notifyFrameStatus, sendControlNotice } = require('./control-channel');
-const { FEED, FEED_TYPE, FRAME_STATUS } = require('./constants');
+const { FEED, FRAME_STATUS } = require('./constants');
+const { primaryFeedId } = require('./project-store');
 
 const frameWindows = new Map();
 // Keyed like frameWindows; a dev restart uses this to reopen exactly what was open.
@@ -37,7 +38,7 @@ function countFrameWindows(frameId) {
     const feeds = {};
     frameWindowOpts.forEach((opts, key) => {
         if (parseFrameWindowKey(key).frameId !== frameId) return;
-        const feedType = (opts && opts.feedType) || FEED_TYPE.MAIN;
+        const feedType = (opts && opts.feedType) || primaryFeedId();
         if (!feeds[feedType]) feeds[feedType] = { live: 0, preview: 0, total: 0 };
         if (opts && opts.preview) { preview++; feeds[feedType].preview++; } else { live++; feeds[feedType].live++; }
         feeds[feedType].total++;
@@ -70,7 +71,7 @@ function normalizeFrameRequest(frameId, opts) {
     const position = (opts && opts.position) || {};
 
     const goFullscreenRequested = !isPreview && position.fullscreen === true && (!opts || opts.windowed !== true);
-    return { container, key, isPreview, size, position, goFullscreenRequested, feedType: (opts && opts.feedType) || FEED_TYPE.MAIN };
+    return { container, key, isPreview, size, position, goFullscreenRequested, feedType: (opts && opts.feedType) || primaryFeedId() };
 }
 
 // Returns the fallback notice text instead of emitting it, to keep this function side-effect-free.
@@ -213,7 +214,7 @@ function closePreviewWindowsFor(frameId, feedType) {
     frameWindows.forEach((win, key) => {
         if (!matchesFrameKey(key, frameId)) return;
         const opts = frameWindowOpts.get(key);
-        if (opts && opts.preview && ((opts.feedType || FEED_TYPE.MAIN) === feedType) && !win.isDestroyed()) win.close();
+        if (opts && opts.preview && ((opts.feedType || primaryFeedId()) === feedType) && !win.isDestroyed()) win.close();
     });
 }
 
@@ -347,7 +348,7 @@ function hasLiveFrameWindowFor(frameId, feedType) {
     for (const [key, win] of frameWindows) {
         if (win.isDestroyed() || !matchesFrameKey(key, frameId)) continue;
         const opts = frameWindowOpts.get(key) || {};
-        if (!opts.preview && (opts.feedType || FEED_TYPE.MAIN) === (feedType || FEED_TYPE.MAIN)) return true;
+        if (!opts.preview && (opts.feedType || primaryFeedId()) === (feedType || primaryFeedId())) return true;
     }
     return false;
 }

@@ -2,6 +2,104 @@
     'use strict';
 
     angular.module('ceremoniesControlWorkspace', [])
+        // Everything slide-row.html and its siblings call on the host scope. Control, Remote
+        // and Operator all keep their frames in scope.screens, so one installer serves all
+        // three — Control's is FrameService.frames itself, the other two hold a snapshot.
+        .factory('SlideRowScope', function () {
+            return function (scope) {
+                function frameFor(frameId) {
+                    return scope.screens && scope.screens[frameId];
+                }
+
+                // Control holds the real FrameService; Remote and Operator hold a facade over
+                // the last snapshot. Both expose the project's feeds the same way.
+                function feeds() {
+                    return (scope.FrameService && scope.FrameService.feedTypes) || [];
+                }
+
+                function primaryFeedId() {
+                    return (feeds()[0] || {}).id || '';
+                }
+
+                function feedBadge(feedId) {
+                    var match = feeds().filter(function (feed) { return feed.id === feedId; })[0];
+                    return String((match && match.label) || feedId).charAt(0).toUpperCase();
+                }
+
+                scope.isPreviewingSlide = function (frameId, slide) {
+                    var frame = frameFor(frameId);
+                    return !!frame && frame.previewSlide === slide;
+                };
+
+                scope.canEditSlide = function (frameId, slide) {
+                    var frame = frameFor(frameId);
+                    return !!frame && (frame.slide === slide || frame.previewSlide === slide);
+                };
+
+                // A pinned Preview slide reveals out of the frame's previewState, not the slide's own.
+                scope.rowHasState = function (frameId, slide, state) {
+                    var frame = frameFor(frameId);
+                    var states;
+                    if (frame && frame.previewSlide === slide) {
+                        states = frame.previewState;
+                    } else {
+                        states = slide && slide.state;
+                    }
+                    return (states || []).indexOf(state) >= 0;
+                };
+
+                // Which feed a reveal lands on, as a one-letter badge taken from that feed's
+                // own label — the project names its feeds, so nothing here assumes M or S.
+                scope.stateFeedLabel = function (slide, state) {
+                    var routed = slide && slide.stateFeedTypes && slide.stateFeedTypes[state];
+                    return feedBadge(routed || primaryFeedId());
+                };
+
+                scope.isFeedBlanked = function (frame, feedType) {
+                    return !!(frame && frame.blankedFeeds && frame.blankedFeeds[feedType]);
+                };
+
+                scope.blankFeedNames = function (frame) {
+                    return Object.keys((frame && frame.blankedFeeds) || {}).join(', ');
+                };
+            };
+        })
+        .factory('SlideSnapshot', function () {
+            // Merges a control snapshot's slides onto the ones already on screen, keyed by
+            // slideId so row scopes, open editors and unsent context drafts survive a sync.
+            function mergeSlides(existing, incoming, primaryFeedId) {
+                var byId = {};
+
+                angular.forEach(existing || [], function (slide) {
+                    if (slide.slideId) {
+                        byId[slide.slideId] = slide;
+                    }
+                });
+
+                return (incoming || []).map(function (source) {
+                    var slide = byId[source.slideId] || {};
+                    var editing = !!slide.edit;
+                    var draft = slide.context;
+
+                    angular.extend(slide, source);
+                    slide.state = source.state || [];
+                    slide.states = source.states || [];
+                    slide.baseFeedTypes = source.baseFeedTypes || (primaryFeedId ? [primaryFeedId] : []);
+                    slide.stateFeedTypes = source.stateFeedTypes || {};
+                    slide.feedContent = source.feedContent || {};
+                    slide.done = !!source.done;
+
+                    slide.edit = editing;
+                    if (editing) {
+                        slide.context = draft;
+                    }
+
+                    return slide;
+                });
+            }
+
+            return { mergeSlides: mergeSlides };
+        })
         .directive('controlWorkspace', function () {
             return {
                 restrict: 'E',

@@ -3,25 +3,6 @@
 
     angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $rootScope, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
 
-        function reportDebug(type, message) {
-            if (window.ceremonator && window.ceremonator.app && window.ceremonator.app.reportDebug) {
-                window.ceremonator.app.reportDebug(type, message);
-            }
-        }
-
-        window.addEventListener('error', function (event) {
-            var target = event.target;
-            if (!target || !/^(IMG|VIDEO|SCRIPT|LINK)$/.test(target.tagName)) return;
-            var source = target.currentSrc || target.src || target.href || 'unknown asset';
-            var type = target.tagName === 'VIDEO' ? 'video-failure' : 'load-failure';
-            var reason = target.error && target.error.message ? ' (' + target.error.message + ')' : '';
-            reportDebug(type, 'Output “' + ($scope.screen || 'unknown') + '” could not load the ' + target.tagName.toLowerCase() + ' “' + source + '”' + reason + '.');
-        }, true);
-
-        $rootScope.$on('$includeContentError', function (_event, source) {
-            reportDebug('load-failure', 'Output “' + ($scope.screen || 'unknown') + '” could not load the slide template “' + source + '”.');
-        });
-
         $scope.FEED = FEED;
         $scope.languages = [];
         $scope.sponsorName = function (sponsor) {
@@ -34,7 +15,9 @@
             // 3-up row is a deliberate exception because it reads better than
             // a 2-by-2 grid with an empty cell on a 16:9 output.
             count = Math.max(1, parseInt(count, 10) || 1);
-            if (count === 3) return 3;
+            if (count === 3) {
+                return 3;
+            }
             var bestColumns = 1;
             var bestScore = Infinity;
             for (var columns = 1; columns <= count; columns++) {
@@ -54,18 +37,6 @@
         $scope.testIdx = 0;
         $scope.gridCols = 0;
 
-        if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
-            window.ceremonator.project.current().then(function (result) {
-                var configured = result && result.project && result.project.languages;
-                var languages = (configured && configured.length) ? configured : [{ lang_code: 'en' }];
-                if (!$scope.$$phase) {
-                    $scope.$apply(function () { $scope.languages = languages; });
-                } else {
-                    $scope.languages = languages;
-                }
-            });
-        }
-
         $scope.enableFullscreen = function () {
             if (document.fullscreenElement || document.webkitFullscreenElement) {
                 (document.exitFullscreen || document.webkitExitFullscreen).call(document);
@@ -78,23 +49,12 @@
             return $scope.feed === FEED.PREVIEW ? StorageKeys.previewKey($scope.screen, $scope.feedType) : StorageKeys.screenKey($scope.screen, $scope.feedType);
         };
 
-        window.addEventListener('storage', function (e) {
-            if (e.key == $scope.storageKey()) {
-                if (!$scope.$$phase) {
-                    $scope.$apply(function () {
-                        $scope.render();
-                    });
-                } else {
-                    $scope.render();
-                }
-            }
-        });
-
         $scope.setScreen = function (screen, preview, feed, feedType) {
             $scope.screen = screen;
             $scope.preview = (preview === 'true' || preview === true);
             $scope.feed = feed === FEED.PREVIEW ? FEED.PREVIEW : FEED.LIVE;
-            $scope.feedType = feedType === 'secondary' ? 'secondary' : 'main';
+            // The window is told its feed by URL; the control panel owns which feeds exist.
+            $scope.feedType = /^[a-z][a-z0-9_-]*$/i.test(feedType || '') ? feedType : '';
 
             $scope.render();
         };
@@ -165,7 +125,7 @@
             var preview = params.get('preview');
             var feed = params.get('feed');
             var feedType = params.get('feedType');
-            var testMode = params.get('testMode') === '1' || localStorage.getItem('ceremonator:testMode') === '1';
+            var testMode = params.get('testMode') === '1' || StorageKeys.testMode();
             var testIdx = parseInt(params.get('testIdx'), 10) || 0;
             var gridCols = parseInt(params.get('gridCols'), 10) || 0;
             var container = params.get('container');
@@ -180,7 +140,22 @@
             }
         };
 
+        function reportDebug(type, message) {
+            if (window.ceremonator && window.ceremonator.app && window.ceremonator.app.reportDebug) {
+                window.ceremonator.app.reportDebug(type, message);
+            }
+        }
+
         $scope.loadScreen();
+
+        if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
+            window.ceremonator.project.current().then(function (result) {
+                var configured = result && result.project && result.project.languages;
+                $scope.$evalAsync(function () {
+                    $scope.languages = (configured && configured.length) ? configured : [{ lang_code: 'en' }];
+                });
+            });
+        }
 
         if (window.operatorFeed) {
             window.operatorFeed.receive = function (data, languages, testMode) {
@@ -194,30 +169,43 @@
             window.parent.postMessage({ type: 'operator-feed-ready' }, window.location.origin);
         }
 
-        // Listen for test mode changes from other windows (control panel toggle)
         window.addEventListener('storage', function (e) {
-            if (e.key === 'ceremonator:testMode') {
+            if (e.key === $scope.storageKey()) {
+                $scope.$evalAsync($scope.render);
+            } else if (e.key === StorageKeys.TEST_MODE_KEY) {
+                // Test mode is toggled in the control panel while outputs stay open.
                 var enabled = e.newValue === '1';
-                if (!$scope.$$phase) {
-                    $scope.$apply(function () {
-                        $scope.testMode = enabled;
-                    });
-                } else {
-                    $scope.testMode = enabled;
-                }
+                $scope.$evalAsync(function () { $scope.testMode = enabled; });
             }
         });
 
-        angular.forEach(SCREEN_TEMPLATES, function (name) {
-            $templateRequest(TEMPLATE_BASE + name, true).catch(angular.noop);
-        });
+        window.addEventListener('error', function (event) {
+            var target = event.target;
+            if (!target || !/^(IMG|VIDEO|SCRIPT|LINK)$/.test(target.tagName)) {
+                return;
+            }
+            var source = target.currentSrc || target.src || target.href || 'unknown asset';
+            var type = target.tagName === 'VIDEO' ? 'video-failure' : 'load-failure';
+            var reason = target.error && target.error.message ? ' (' + target.error.message + ')' : '';
+            reportDebug(type, 'Output “' + ($scope.screen || 'unknown') + '” could not load the ' + target.tagName.toLowerCase() + ' “' + source + '”' + reason + '.');
+        }, true);
 
         window.addEventListener('keydown', function (e) {
-            if (!$scope.preview) return;
+            if (!$scope.preview) {
+                return;
+            }
             if (e.key === 'F11') {
                 e.preventDefault();
                 $scope.enableFullscreen();
             }
+        });
+
+        $rootScope.$on('$includeContentError', function (_event, source) {
+            reportDebug('load-failure', 'Output “' + ($scope.screen || 'unknown') + '” could not load the slide template “' + source + '”.');
+        });
+
+        angular.forEach(SCREEN_TEMPLATES, function (name) {
+            $templateRequest(TEMPLATE_BASE + name, true).catch(angular.noop);
         });
     });
 

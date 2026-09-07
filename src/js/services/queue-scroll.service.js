@@ -6,11 +6,17 @@
         function scrollToActiveInFrame(frameId) {
             $timeout(function () {
                 var card = document.querySelector('[data-frame-id="' + frameId + '"]');
-                if (!card) return;
+                if (!card) {
+                    return;
+                }
                 var cardBody = card.querySelector('.queue-frame-card-body');
-                if (!cardBody) return;
+                if (!cardBody) {
+                    return;
+                }
                 var activeItem = cardBody.querySelector('.list-group-item-primary');
-                if (!activeItem) return;
+                if (!activeItem) {
+                    return;
+                }
                 var bodyRect = cardBody.getBoundingClientRect();
                 var itemRect = activeItem.getBoundingClientRect();
                 if (itemRect.bottom > bodyRect.bottom) {
@@ -63,8 +69,11 @@
                 if (target && container) {
                     var cRect = container.getBoundingClientRect();
                     var tRect = target.getBoundingClientRect();
-                    if (tRect.bottom > cRect.bottom) container.scrollTop += (tRect.bottom - cRect.bottom) + 8;
-                    else if (tRect.top < cRect.top) container.scrollTop -= (cRect.top - tRect.top) + 8;
+                    if (tRect.bottom > cRect.bottom) {
+                        container.scrollTop += (tRect.bottom - cRect.bottom) + 8;
+                    } else if (tRect.top < cRect.top) {
+                        container.scrollTop -= (cRect.top - tRect.top) + 8;
+                    }
                 }
             }, 30);
         }

@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('ProjectPart', function (Excel, FrameState, FrameService, ResultFormat, SLIDE_KEYS) {
+    angular.module('ceremoniesApp').factory('ProjectPart', function (Excel, FrameState, FrameService, ResultFormat, Routing, SLIDE_KEYS) {
       return function ($scope) {
         $scope.projectMenuOpen = false;
         $scope.feedMenuOpen = false;
@@ -18,20 +18,23 @@
         if (window.ceremonator && window.ceremonator.displays) {
             var refreshDisplays = function () {
                 window.ceremonator.displays.list().then(function (list) {
-                    var apply = function () {
+                    $scope.$evalAsync(function () {
                         $scope.displays = (list || []).map(function (d, i) {
                             return { index: i, label: d.label || ('Display ' + (i + 1)) };
                         });
-                    };
-                    if (!$scope.$$phase) $scope.$apply(apply); else apply();
+                    });
                 });
             };
             refreshDisplays();
-            if (window.ceremonator.displays.onChanged) window.ceremonator.displays.onChanged(refreshDisplays);
+            if (window.ceremonator.displays.onChanged) {
+                window.ceremonator.displays.onChanged(refreshDisplays);
+            }
         }
 
         $scope.upload = function (file) {
-            if (!file) return;
+            if (!file) {
+                return;
+            }
             $scope.uploaded = true;
             Excel.readRows(file).then(function (rows) {
                 $scope.results = rows;
@@ -60,7 +63,9 @@
         };
 
         $scope.uploadBestOfNation = function (file) {
-            if (!file) return;
+            if (!file) {
+                return;
+            }
             $scope.pendingBestOfNationFile = file;
             $scope.bestOfNationGroupSize = $scope.bestOfNationGroupSize || 5;
             $scope.bestOfNationImportDialogOpen = true;
@@ -75,8 +80,12 @@
             var file = $scope.pendingBestOfNationFile;
             $scope.bestOfNationImportDialogOpen = false;
             $scope.pendingBestOfNationFile = null;
-            if (!file) return;
-            if (!($scope.bestOfNationGroupSize > 0)) $scope.bestOfNationGroupSize = 5;
+            if (!file) {
+                return;
+            }
+            if (!($scope.bestOfNationGroupSize > 0)) {
+                $scope.bestOfNationGroupSize = 5;
+            }
 
             Excel.readRows(file).then(function (rows) {
                 $scope.$apply(function () {
@@ -96,7 +105,9 @@
         };
 
         $scope.importTranslations = function (file) {
-            if (!file) return;
+            if (!file) {
+                return;
+            }
 
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.writeTranslations) {
                 $scope.addNotice('error', 'Import failed: translations are unavailable outside the desktop app.', 'import-translations');
@@ -116,12 +127,18 @@
 
                     rows.forEach(function (row) {
                         var key = row['Key'] ? String(row['Key']).trim() : null;
-                        if (!key) return;
+                        if (!key) {
+                            return;
+                        }
                         keyCount++;
                         langCodes.forEach(function (code) {
                             var val = row[code];
-                            if (val === undefined || val === null || String(val).trim() === '') return;
-                            if (!languages[code]) languages[code] = {};
+                            if (val === undefined || val === null || String(val).trim() === '') {
+                                return;
+                            }
+                            if (!languages[code]) {
+                                languages[code] = {};
+                            }
                             languages[code][key] = String(val).trim();
                         });
                     });
@@ -165,7 +182,9 @@
          * @param file
          */
         $scope.importOrdering = function (file) {
-            if (!file) return;
+            if (!file) {
+                return;
+            }
             Excel.readRows(file).then(function (rows) {
                 if (!rows || !rows.length) {
                     alert('Import failed: file is empty or has no data rows.');
@@ -186,8 +205,12 @@
                     var entries = [];
                     rows.forEach(function (row, index) {
                         var skillNum = row['Skill Number'] ? String(row['Skill Number']).trim() : null;
-                        if (!skillNum) return;
-                        if (skillNum === SLIDE_KEYS.ALBERT_VIDAL || skillNum === SLIDE_KEYS.BEST_OF_NATION) return;
+                        if (!skillNum) {
+                            return;
+                        }
+                        if (skillNum === SLIDE_KEYS.ALBERT_VIDAL || skillNum === SLIDE_KEYS.BEST_OF_NATION) {
+                            return;
+                        }
                         var order = parseFloat(row['Order']);
                         entries.push({
                             skillNumber: skillNum,
@@ -198,9 +221,15 @@
                     });
 
                     entries.sort(function (a, b) {
-                        if (a.order !== null && b.order !== null) return a.order - b.order;
-                        if (a.order !== null) return -1;
-                        if (b.order !== null) return 1;
+                        if (a.order !== null && b.order !== null) {
+                            return a.order - b.order;
+                        }
+                        if (a.order !== null) {
+                            return -1;
+                        }
+                        if (b.order !== null) {
+                            return 1;
+                        }
                         return a.index - b.index;
                     });
 
@@ -209,7 +238,9 @@
                     entries.forEach(function (entry) {
                         angular.forEach(FrameService.frames, function (frame) {
                             var idx = frame.ordering.skillNumbers.indexOf(entry.skillNumber);
-                            if (idx >= 0) frame.ordering.skillNumbers.splice(idx, 1);
+                            if (idx >= 0) {
+                                frame.ordering.skillNumbers.splice(idx, 1);
+                            }
                         });
 
                         var frameId = entry.frameName ? (labelToId[entry.frameName.toLowerCase()] || null) : null;
@@ -232,7 +263,7 @@
             $scope.projectMenuOpen = false;
 
             var doSave = function () {
-                FrameService.saveProject($scope.projectName || 'Ceremony Project', $scope.displayMode || 'windows', $scope.gridConfig, $scope.languages, $scope.bestOfNationGroupSize, $scope.remoteConfig).then(function (result) {
+                FrameService.saveProject($scope.projectName || 'Ceremony Project', $scope.displayMode || 'windows', $scope.gridConfig, $scope.languages, $scope.bestOfNationGroupSize, $scope.remoteConfig, Routing.all()).then(function (result) {
                     if (result && result.ok) {
                         $scope.$apply(function () { $scope.projectDirty = false; });
                     } else if (result && !result.canceled) {

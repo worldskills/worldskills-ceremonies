@@ -34,14 +34,20 @@
         };
 
         service.clear = function () {
-            if (!service.enabled || !dev.clearSession) return;
+            if (!service.enabled || !dev.clearSession) {
+                return;
+            }
             dev.clearSession();
         };
 
         // Debounced: walking a slide list must not cost one file write per keypress.
         service.schedule = function () {
-            if (!service.enabled || !collect || service.restoring) return;
-            if (pendingSave) $timeout.cancel(pendingSave);
+            if (!service.enabled || !collect || service.restoring) {
+                return;
+            }
+            if (pendingSave) {
+                $timeout.cancel(pendingSave);
+            }
             pendingSave = $timeout(function () {
                 pendingSave = null;
                 if (dev.saveSession) {
@@ -100,14 +106,20 @@
             angular.forEach(FrameService.frames, function (frame, id) {
                 var saved = runtime && runtime[id];
                 var slides = frame.slides || [];
-                if (!saved) return;
+                if (!saved) {
+                    return;
+                }
                 // A blank state is meaningful even if a catalog has no slides yet,
                 // or if its saved slide disappeared after a data refresh.
                 frame.blankedFeeds = angular.copy(saved.blankedFeeds || {});
-                if (!slides.length) return;
+                if (!slides.length) {
+                    return;
+                }
 
                 angular.forEach(saved.done || [], function (done, i) {
-                    if (done && slides[i]) slides[i].done = true;
+                    if (done && slides[i]) {
+                        slides[i].done = true;
+                    }
                 });
 
                 var slide = null;
@@ -116,11 +128,15 @@
                     slide = atIndex;
                 } else if (saved.slideLabel) {
                     angular.forEach(slides, function (candidate) {
-                        if (!slide && candidate.label === saved.slideLabel) slide = candidate;
+                        if (!slide && candidate.label === saved.slideLabel) {
+                            slide = candidate;
+                        }
                     });
                 }
 
-                if (!slide) return;
+                if (!slide) {
+                    return;
+                }
 
                 slide.state = angular.copy(saved.state || []);
                 frame.slide = slide;

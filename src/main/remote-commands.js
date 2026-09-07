@@ -1,10 +1,12 @@
 // Stream Deck commands have a separate, strictly bounded contract from the tablet actions.
 const FRAME_ID = /^[a-z][a-z0-9_-]*$/i;
-function validCommand(command) {
+
+// feedIds are the output feeds the open project configures — there are no fixed feed names.
+function validCommand(command, feedIds) {
     if (!command || typeof command !== 'object') return false;
     const frame = (id) => typeof id === 'string' && id.length <= 100 && FRAME_ID.test(id);
     const frames = (ids) => Array.isArray(ids) && ids.length > 0 && ids.length <= 100 && ids.every(frame);
-    const feed = ['main', 'secondary'].includes(command.feedType);
+    const feed = Array.isArray(feedIds) && feedIds.indexOf(command.feedType) >= 0;
     const integer = (n, min, max) => Number.isInteger(n) && n >= min && n <= max;
     switch (command.name) {
         case 'operator':

@@ -18,7 +18,7 @@
             var cellH = parseInt(params.get('cellH'), 10) || 500;
             var gap = parseInt(params.get('gap'), 10) || 0;
             var feed = params.get('feed') || 'live';
-            var feedType = params.get('feedType') || 'main';
+            var feedType = params.get('feedType') || '';
             var maxW = parseInt(params.get('maxW'), 10) || Number.MAX_SAFE_INTEGER;
             var maxH = parseInt(params.get('maxH'), 10) || Number.MAX_SAFE_INTEGER;
             var testMode = params.get('testMode') === '1' || localStorage.getItem('ceremonator:testMode') === '1';

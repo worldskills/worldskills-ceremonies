@@ -1,15 +1,19 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys, FEED, FEED_TYPE) {
+    angular.module('ceremoniesApp').factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys, FEED) {
 
         var screenKey = StorageKeys.screenKey;
         var previewKey = StorageKeys.previewKey;
 
         function activeForFeed(slide, feedType, state) {
-            if (!slide) return false;
-            var base = slide.baseFeedTypes || [FEED_TYPE.MAIN];
-            if (base.indexOf(feedType) >= 0) return true;
+            if (!slide) {
+                return false;
+            }
+            var base = slide.baseFeedTypes || [FrameService.primaryFeedId()];
+            if (base.indexOf(feedType) >= 0) {
+                return true;
+            }
             return (state || []).some(function (name) { return slide.stateFeedTypes && slide.stateFeedTypes[name] === feedType; });
         }
 
@@ -18,7 +22,9 @@
             var isBlanked = frame.blankedFeeds && frame.blankedFeeds[feedType];
             var isActive = activeForFeed(slide, feedType, state);
             var isRoutedAway = !!slide && !isActive;
-            if (!isActive) slide = undefined;
+            if (!isActive) {
+                slide = undefined;
+            }
             var content = slide && slide.feedContent && slide.feedContent[feedType];
             var filteredState = slide ? state.filter(function (name) {
                 return !slide.stateFeedTypes || !slide.stateFeedTypes[name] || slide.stateFeedTypes[name] === feedType;
@@ -33,7 +39,7 @@
                 frameLabel: frame.label || frameId,
                 accent: FrameService.getFrameColor(frameId),
                 video: frame.video ? TEMPLATE_BASE + 'videos/' + frame.video : '',
-                testMode: window.localStorage.getItem('ceremonator:testMode') === '1'
+                testMode: StorageKeys.testMode()
             };
         }
 
@@ -43,7 +49,9 @@
 
         function publish(frameId) {
             var frame = FrameService.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
             angular.forEach(FrameService.feedTypes, function (feed) {
                 var type = feed.id;
                 window.localStorage.setItem(screenKey(frameId, type), angular.toJson(createStoragePayload(frame, liveSlideFor(frame, type), frameId, null, type)));
@@ -53,7 +61,9 @@
 
         function publishPreview(frameId) {
             var frame = FrameService.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
             var slide = frame.previewSlide || frame.slide;
             var stateOverride = frame.previewSlide ? (frame.previewState || []) : null;
             angular.forEach(FrameService.feedTypes, function (feed) {
@@ -67,7 +77,9 @@
         }
 
         function syncRemote() {
-            if (!window.ceremonator || !window.ceremonator.remote) return;
+            if (!window.ceremonator || !window.ceremonator.remote) {
+                return;
+            }
             var frames = [];
             angular.forEach(FrameService.frames, function (frame, id) {
                 frames.push({
@@ -92,8 +104,12 @@
                     })
                 });
             });
-            window.ceremonator.remote.sync({ feedTypes: angular.copy(FrameService.feedTypes), frames: frames,
-                testMode: window.localStorage.getItem('ceremonator:testMode') === '1' });
+
+            window.ceremonator.remote.sync({
+                feedTypes: angular.copy(FrameService.feedTypes),
+                frames: frames,
+                testMode: StorageKeys.testMode()
+            });
         }
 
         function clear(frameId) {
@@ -108,9 +124,13 @@
             angular.forEach(FrameService.frames, function (frame, id) {
                 FrameService.feedTypes.forEach(function (feed) { [screenKey(id, feed.id), previewKey(id, feed.id)].forEach(function (key) {
                     var raw = window.localStorage.getItem(key);
-                    if (!raw) return;
+                    if (!raw) {
+                        return;
+                    }
                     var entry = angular.fromJson(raw);
-                    if (!entry) return;
+                    if (!entry) {
+                        return;
+                    }
                     var base = entry.template ? entry.template.split('?')[0] : (TEMPLATE_BASE + 'blank.html');
                     entry.template = base + '?t=' + t;
                     window.localStorage.setItem(key, angular.toJson(entry));
@@ -159,7 +179,9 @@
             if (prevLabel) {
                 var restored = null;
                 angular.forEach(frame.slides, function (s) {
-                    if (!restored && s.label === prevLabel) { restored = s; }
+                    if (!restored && s.label === prevLabel) {
+                        restored = s;
+                    }
                 });
                 if (restored) {
                     restored.state = prevState;
@@ -177,10 +199,14 @@
                 var prevPreviewLabel = frame.previewSlide.label;
                 var restoredPreview = null;
                 angular.forEach(frame.slides, function (s) {
-                    if (!restoredPreview && s.label === prevPreviewLabel) { restoredPreview = s; }
+                    if (!restoredPreview && s.label === prevPreviewLabel) {
+                        restoredPreview = s;
+                    }
                 });
                 frame.previewSlide = restoredPreview || undefined;
-                if (!restoredPreview) frame.previewState = undefined;
+                if (!restoredPreview) {
+                    frame.previewState = undefined;
+                }
             }
 
             return frame;

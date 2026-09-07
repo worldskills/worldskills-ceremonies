@@ -140,7 +140,27 @@ function getActiveProjectDir() { return activeProjectDir; }
 function getActiveProject() { return activeProject; }
 function getActiveTemplateDir() { return activeTemplateDir; }
 
+// The project's own output feeds, and the one anything unlabelled belongs to.
+function feedIds() {
+    const project = getActiveProject();
+    const feeds = (project && project.feedTypes) || [];
+    return feeds.map((feed) => feed.id);
+}
+
+function primaryFeedId() {
+    return feedIds()[0] || null;
+}
+
+function isFeedId(feedType) {
+    const ids = feedIds();
+    // With no project open nothing is enabled yet; the caller decides what that means.
+    return ids.length ? ids.indexOf(feedType) >= 0 : false;
+}
+
 module.exports = {
+    feedIds,
+    primaryFeedId,
+    isFeedId,
     loadProjectFolder,
     resolveTemplateDir,
     ensureTemplates,

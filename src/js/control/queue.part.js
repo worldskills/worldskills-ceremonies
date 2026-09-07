@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('QueuePart', function (FrameService, Queue, QueueScroll, SLIDE_KEYS, QUEUE_LAYOUTS) {
+    angular.module('ceremoniesApp').factory('QueuePart', function (FrameService, Queue, QueueScroll, SlideStep, SLIDE_KEYS, QUEUE_LAYOUTS) {
       return function ($scope) {
         $scope.queueViewOpen = false;
         $scope.queueLayout = QUEUE_LAYOUTS.LIST;
@@ -31,7 +31,9 @@
         $scope.moveSkillToFrame = function (skillNumber, toFrameId) {
             angular.forEach(FrameService.frames, function (frame) {
                 var idx = frame.ordering.skillNumbers.indexOf(skillNumber);
-                if (idx >= 0) frame.ordering.skillNumbers.splice(idx, 1);
+                if (idx >= 0) {
+                    frame.ordering.skillNumbers.splice(idx, 1);
+                }
             });
 
             if (toFrameId && FrameService.frames[toFrameId]) {
@@ -57,7 +59,9 @@
         };
 
         $scope.skillNext = function () {
-            if (!$scope.skillsSelectedSlides.length) return;
+            if (!$scope.skillsSelectedSlides.length) {
+                return;
+            }
             var activeIdx = -1;
 
             angular.forEach($scope.skillsSelectedSlides, function (item, i) {
@@ -72,13 +76,10 @@
             }
 
             var cur = $scope.skillsSelectedSlides[activeIdx];
-            if (cur.slide.states && cur.slide.states.length > 0) {
-                for (var i = 0; i < cur.slide.states.length; i++) {
-                    if (!$scope.hasState(cur.slide, cur.slide.states[i])) {
-                        $scope.toggleState(cur.frameId, cur.slide, cur.slide.states[i]);
-                        return;
-                    }
-                }
+            var reveal = SlideStep.nextState(cur.slide);
+            if (reveal) {
+                $scope.toggleState(cur.frameId, cur.slide, reveal);
+                return;
             }
 
             if (activeIdx < $scope.skillsSelectedSlides.length - 1) {
@@ -99,7 +100,9 @@
         };
 
         $scope.skillPrev = function () {
-            if (!$scope.skillsSelectedSlides.length) return;
+            if (!$scope.skillsSelectedSlides.length) {
+                return;
+            }
 
             var activeIdx = -1;
             angular.forEach($scope.skillsSelectedSlides, function (item, i) {
@@ -115,13 +118,15 @@
             }
 
             var cur = $scope.skillsSelectedSlides[activeIdx];
-            if (cur.slide.state && cur.slide.state.length > 0) {
-                $scope.toggleState(cur.frameId, cur.slide, cur.slide.state[cur.slide.state.length - 1]);
+            var revealed = SlideStep.lastState(cur.slide);
+            if (revealed) {
+                $scope.toggleState(cur.frameId, cur.slide, revealed);
                 return;
             }
 
             if (activeIdx > 0) {
                 var previous = $scope.skillsSelectedSlides[activeIdx - 1];
+                // Stepping backwards onto a slide enters it fully revealed.
                 $scope.showSlideFromSkillsView(previous, previous.slide.states || []);
             }
         };
@@ -185,7 +190,9 @@
 
         $scope.isSkillFullyDisplayed = function (skillNumber) {
             var slides = $scope.getSkillQueueSlides(skillNumber);
-            if (!slides || !slides.length) return false;
+            if (!slides || !slides.length) {
+                return false;
+            }
             return slides.every(function (item) {
                 return item.slide.done;
             });
@@ -205,36 +212,41 @@
 
         $scope.showFromQueueList = function (idx, initialState) {
             var item = $scope.queueList[idx];
-            if (!item) return;
+            if (!item) {
+                return;
+            }
             $scope.setActiveFrame(item.frameId);
             $scope.showSlide(item.frameId, item.slide, initialState);
             QueueScroll.scrollQueueListToIndex(idx);
         };
 
         $scope.queueListNext = function () {
-            if (!$scope.queueList.length) return;
+            if (!$scope.queueList.length) {
+                return;
+            }
             var idx = currentQueueListIndex();
             if (idx < 0) {
                 $scope.showFromQueueList(0);
                 return;
             }
             var slide = $scope.queueList[idx].slide;
-            if (slide.states && slide.states.length > 0) {
-                for (var i = 0; i < slide.states.length; i++) {
-                    if (!$scope.hasState(slide, slide.states[i])) {
-                        $scope.toggleState($scope.queueList[idx].frameId, slide, slide.states[i]);
-                        return;
-                    }
-                }
+            var reveal = SlideStep.nextState(slide);
+            if (reveal) {
+                $scope.toggleState($scope.queueList[idx].frameId, slide, reveal);
+                return;
             }
             if (!hasLaterQueueItemForFrame(idx, $scope.queueList[idx].frameId)) {
                 $scope.resetFrame($scope.queueList[idx].frameId);
             }
-            if (idx < $scope.queueList.length - 1) $scope.showFromQueueList(idx + 1);
+            if (idx < $scope.queueList.length - 1) {
+                $scope.showFromQueueList(idx + 1);
+            }
         };
 
         $scope.queueListPrev = function () {
-            if (!$scope.queueList.length) return;
+            if (!$scope.queueList.length) {
+                return;
+            }
             var idx = currentQueueListIndex();
             if (idx < 0) {
                 var last = $scope.queueList[$scope.queueList.length - 1];
@@ -248,9 +260,9 @@
                 $scope.update(item.frameId);
                 return;
             }
-            var slide = item.slide;
-            if (slide.state && slide.state.length > 0) {
-                $scope.toggleState(item.frameId, slide, slide.state[slide.state.length - 1]);
+            var revealed = SlideStep.lastState(item.slide);
+            if (revealed) {
+                $scope.toggleState(item.frameId, item.slide, revealed);
                 return;
             }
             if (idx > 0) {
@@ -261,7 +273,9 @@
 
         function hasLaterQueueItemForFrame(idx, frameId) {
             for (var i = idx + 1; i < $scope.queueList.length; i++) {
-                if ($scope.queueList[i].frameId === frameId) return true;
+                if ($scope.queueList[i].frameId === frameId) {
+                    return true;
+                }
             }
             return false;
         }

@@ -3,13 +3,16 @@
 
     angular.module('ceremoniesApp').factory('FrameService', function (SCREENS, FRAMES_WINDOW_STATUS, ResultFormat) {
 
+        // Stands in until a project is loaded; project-contract.js is the real source.
+        var FALLBACK_FEED = { id: 'main', label: 'Main', gridSize: { width: 1280, height: 720 } };
+
         var frameColors = ['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'];
 
         var service = {
             frames: SCREENS,
             activeFrameId: Object.keys(SCREENS)[0],
             skillOrder: [],
-            feedTypes: [{ id: 'main', gridSize: { width: 1280, height: 720 } }]
+            feedTypes: [angular.copy(FALLBACK_FEED)]
         };
 
         function skillNumberValue(number) {
@@ -21,13 +24,17 @@
             var used = {};
             angular.forEach(service.frames, function (f) { if (f && f.color) used[f.color] = true; });
             for (var i = 0; i < frameColors.length; i++) {
-                if (!used[frameColors[i]]) return frameColors[i];
+                if (!used[frameColors[i]]) {
+                    return frameColors[i];
+                }
             }
             return frameColors[Object.keys(service.frames).length % frameColors.length];
         }
 
         angular.forEach(service.frames, function (frame) {
-            if (frame && !frame.color) frame.color = pickColor();
+            if (frame && !frame.color) {
+                frame.color = pickColor();
+            }
         });
 
         service.getActiveFrame = function () {
@@ -49,11 +56,26 @@
         };
 
         service.setFeedTypes = function (feeds) {
-            service.feedTypes = angular.copy((feeds && feeds.length) ? feeds : [{ id: 'main', gridSize: { width: 1280, height: 720 } }]);
+            service.feedTypes = angular.copy((feeds && feeds.length) ? feeds : [FALLBACK_FEED]);
         };
         service.hasFeedType = function (id) {
             return service.feedTypes.some(function (feed) { return feed.id === id; });
         };
+        // The feed a frame falls back to when nothing names one — the project's first.
+        service.primaryFeedId = function () {
+            return (service.feedTypes[0] || FALLBACK_FEED).id;
+        };
+
+        service.feedLabel = function (id) {
+            var feed = service.getFeedType(id);
+            return (feed && feed.label) || id;
+        };
+
+        // Short badge for a reveal's destination feed, from the feed's own label.
+        service.feedBadge = function (id) {
+            return String(service.feedLabel(id)).charAt(0).toUpperCase();
+        };
+
         service.getFeedType = function (id) {
             return service.feedTypes.filter(function (feed) { return feed.id === id; })[0];
         };
@@ -62,7 +84,9 @@
             var ids = Object.keys(service.frames);
             var letters = 'abcdefghijklmnopqrstuvwxyz';
             for (var i = 0; i < letters.length; i++) {
-                if (ids.indexOf(letters[i]) < 0) return letters[i];
+                if (ids.indexOf(letters[i]) < 0) {
+                    return letters[i];
+                }
             }
             return null;
         };
@@ -86,7 +110,10 @@
         };
 
         service.removeFrame = function (id) {
-            if (id === 'a') return; // never remove the default frame
+            // Never remove the default frame.
+            if (id === 'a') {
+                return;
+            }
             delete service.frames[id];
             if (service.activeFrameId === id) {
                 service.activeFrameId = Object.keys(service.frames)[0];
@@ -96,13 +123,21 @@
         service.compareSkillNumbers = function (a, b) {
             var rankA = service.skillOrder.indexOf(ResultFormat.normalizeSkillNum(a));
             var rankB = service.skillOrder.indexOf(ResultFormat.normalizeSkillNum(b));
-            if (rankA >= 0 && rankB >= 0) return rankA - rankB;
-            if (rankA >= 0) return -1;
-            if (rankB >= 0) return 1;
+            if (rankA >= 0 && rankB >= 0) {
+                return rankA - rankB;
+            }
+            if (rankA >= 0) {
+                return -1;
+            }
+            if (rankB >= 0) {
+                return 1;
+            }
 
             var valueA = skillNumberValue(a);
             var valueB = skillNumberValue(b);
-            if (valueA !== null && valueB !== null && valueA !== valueB) return valueA - valueB;
+            if (valueA !== null && valueB !== null && valueA !== valueB) {
+                return valueA - valueB;
+            }
             return String(a).localeCompare(String(b));
         };
 
@@ -130,7 +165,9 @@
 
         service.getFrameColor = function (id) {
             var frame = service.frames[id];
-            if (frame && frame.color) return frame.color;
+            if (frame && frame.color) {
+                return frame.color;
+            }
             var ids = Object.keys(service.frames);
             var index = ids.indexOf(id);
             return frameColors[index % frameColors.length];
@@ -138,14 +175,18 @@
 
         service.applyOrdering = function (frameId, importedSlides) {
             var frame = service.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
             frame.slides = importedSlides;
             frame.ordering.mode = 'imported';
         };
 
         service.resetOrdering = function (frameId) {
             var frame = service.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
             frame.ordering.mode = 'skills';
             frame.slides = [];
         };
@@ -168,7 +209,9 @@
 
         service.loadFromProject = function (frameConfigs) {
             angular.forEach(Object.keys(service.frames), function (id) {
-                if (id !== 'a') delete service.frames[id];
+                if (id !== 'a') {
+                    delete service.frames[id];
+                }
             });
             angular.forEach(frameConfigs, function (config) {
                 if (service.frames[config.id]) {
@@ -189,13 +232,17 @@
             });
             // Backfill colors for projects saved before the color field existed.
             angular.forEach(service.frames, function (frame) {
-                if (frame && !frame.color) frame.color = pickColor();
-                if (frame && !frame.blankedFeeds) frame.blankedFeeds = frame.blanked ? { main: true } : {};
+                if (frame && !frame.color) {
+                    frame.color = pickColor();
+                }
+                if (frame && !frame.blankedFeeds) {
+                    frame.blankedFeeds = frame.blanked ? { main: true } : {};
+                }
             });
             service.activeFrameId = Object.keys(service.frames)[0];
         };
 
-        service.saveProject = function (projectName, displayMode, gridConfig, languages, bestOfNationGroupSize, remoteConfig) {
+        service.saveProject = function (projectName, displayMode, gridConfig, languages, bestOfNationGroupSize, remoteConfig, routing) {
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.saveCurrent) {
                 return Promise.resolve({ ok: false, error: 'Electron API unavailable' });
             }
@@ -207,6 +254,7 @@
                 skillOrder: service.skillOrder || [],
                 gridConfig: gridConfig || null,
                 feedTypes: angular.copy(service.feedTypes),
+                routing: routing ? angular.copy(routing) : null,
                 languages: languages || [],
                 bestOfNationGroupSize: bestOfNationGroupSize || 5,
                 remote: remoteConfig || null

@@ -77,7 +77,7 @@ function registerProjectIpc() {
                 version: 2,
                 name: path.basename(dir),
                 displayMode: 'windows',
-                feedTypes: [{ id: 'main', gridSize: { width: 1280, height: 720 } }],
+                feedTypes: [{ id: 'main', label: 'Main', gridSize: { width: 1280, height: 720 } }],
                 languages: [{ lang_code: 'en' }],
                 remote: { enabled: true, pin: DEFAULT_REMOTE_PIN, port: DEFAULT_REMOTE_PORT },
                 frames: [{

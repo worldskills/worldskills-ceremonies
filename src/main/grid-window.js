@@ -4,6 +4,7 @@ const { centerOnDisplay, resolveTargetDisplay } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { notifyFrameStatus } = require('./control-channel');
 const { hasFrameWindowFor } = require('./frame-windows');
+const projectStore = require('./project-store');
 const { markWindow } = require('./ipc/sender-role');
 const { FEED, FRAME_STATUS } = require('./constants');
 
@@ -22,7 +23,7 @@ function sameGridFrames(a, b) {
 function hasMatchingLiveGrid(config) {
     for (const [win, entry] of gridWindows) {
         if (!win.isDestroyed() && entry.config.feed === FEED.LIVE &&
-            (entry.config.feedType || 'main') === (config.feedType || 'main') && sameGridFrames(entry.config, config)) return true;
+            (entry.config.feedType || projectStore.primaryFeedId()) === (config.feedType || projectStore.primaryFeedId()) && sameGridFrames(entry.config, config)) return true;
     }
     return false;
 }
@@ -79,7 +80,7 @@ function positionFittedGridWindow(win, entry) {
 
 function openGridWindow(config) {
     config = config || {};
-    if ([FEED.LIVE, FEED.PREVIEW].indexOf(config.feed || FEED.LIVE) < 0 || ['main', 'secondary'].indexOf(config.feedType || 'main') < 0) {
+    if ([FEED.LIVE, FEED.PREVIEW].indexOf(config.feed || FEED.LIVE) < 0 || !projectStore.isFeedId(config.feedType || projectStore.primaryFeedId())) {
         return { ok: false, error: 'Invalid Grid feed or channel.' };
     }
     if (config.feed === FEED.PREVIEW && !hasMatchingLiveGrid(config)) {
@@ -151,7 +152,7 @@ function openGridWindow(config) {
             'cellH=' + frameSize.height,
             'gap=' + gap,
             'feed=' + (config.feed || FEED.LIVE),
-            'feedType=' + encodeURIComponent(config.feedType || 'main'),
+            'feedType=' + encodeURIComponent(config.feedType || projectStore.primaryFeedId()),
             'maxW=' + maxContentWidth,
             'maxH=' + maxContentHeight,
             'testMode=' + (config.testMode ? '1' : '0'),

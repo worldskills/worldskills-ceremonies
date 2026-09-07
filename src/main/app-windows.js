@@ -41,7 +41,9 @@ function createControlWindow() {
                 title: 'Unsaved changes',
                 message: 'You have unsaved changes. Data could be lost if you close now.'
             });
-            if (!confirmed) event.preventDefault();
+            if (!confirmed) {
+                event.preventDefault();
+            }
         }
     });
     controlWindow.on('closed', () => {
@@ -64,6 +66,25 @@ function createStartupWindow() {
     });
 }
 
+// Operator is served over HTTP and reachable from the LAN, so it gets no preload and no
+// role mark: it drives the show through the same PIN-authenticated socket a tablet uses.
+async function createOperatorWindow(url) {
+    const win = new BrowserWindow({
+        width: 1440,
+        height: 900,
+        backgroundColor: '#101419',
+        webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true },
+    });
+    win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    try {
+        await win.loadURL(url);
+    } catch (error) {
+        win.close();
+        throw error;
+    }
+    return win;
+}
+
 function getControlWindow() {
     return controlWindow;
 }
@@ -73,12 +94,15 @@ function hasControlWindow() {
 }
 
 function closeStartupWindow() {
-    if (startupWindow && !startupWindow.isDestroyed()) startupWindow.close();
+    if (startupWindow && !startupWindow.isDestroyed()) {
+        startupWindow.close();
+    }
 }
 
 module.exports = {
     createControlWindow,
     createStartupWindow,
+    createOperatorWindow,
     getControlWindow,
     hasControlWindow,
     closeStartupWindow,

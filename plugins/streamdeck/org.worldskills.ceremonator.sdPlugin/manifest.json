@@ -40,8 +40,16 @@
       "Name": "Continue Live — Next Slide",
       "Icon": "images/live-list",
       "Tooltip": "Show the next slide and clear the frame's feed blanks. Does not open a window.",
-      "Controllers": ["Keypad"],
-      "States": [{ "Image": "images/live", "TitleAlignment": "bottom", "FontSize": 11 }]
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "images/live",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
     },
     {
       "UUID": "org.worldskills.ceremonator.previous",

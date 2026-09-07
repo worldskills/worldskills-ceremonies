@@ -1,32 +1,8 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $q, DATA_BASE, FrameService, FrameState, Catalog, Notices, SessionSnapshot, WORKSPACE_MODES, FramesPart, QueuePart, ProjectPart, SessionPart, RemotePart) {
-        var DEBUG_COLORS = {
-            'slide-changed': '#16a34a',
-            'state-changed': '#0891b2',
-            'video-failure': '#dc2626',
-            'load-failure': '#ea580c',
-            'remote-disconnected': '#ca8a04',
-            'electron-failure': '#b91c1c',
-            'remote-connected': '#7c3aed',
-            'operator-feed-error': '#db2777',
-            'streaming-display-unavailable': '#475569'
-        };
-
-        function debug(type, message, frameId) {
-            var label = String(type || 'debug').replace(/-/g, ' ').toUpperCase();
-            var line = String(message || '').replace(/\s+/g, ' ').trim();
-            var frame = frameId && FrameService.frames[frameId];
-            var frameLabel = frame && frame.label ? frame.label : frameId;
-            var styles = ['background:' + (DEBUG_COLORS[type] || '#334155') + ';color:#fff;font-weight:bold;padding:2px 5px;border-radius:3px', 'color:inherit'];
-            var format = '%c CEREMONATOR · ' + label + ' %c ';
-            if (frameLabel) {
-                format += '%c ' + frameLabel + ' %c ';
-                styles.push('background:' + FrameService.getFrameColor(frameId) + ';color:#fff;font-weight:bold;padding:2px 5px;border-radius:3px', 'color:inherit');
-            }
-            console.log.apply(console, [format + line].concat(styles));
-        }
+    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $q, DATA_BASE, FrameService, FrameState, Catalog, DebugLog, Notices, Routing, SessionSnapshot, SlideRowScope, StorageKeys, WORKSPACE_MODES, FramesPart, QueuePart, ProjectPart, SessionPart, RemotePart) {
+        var debug = DebugLog.log;
 
         $scope.uploaded = false;
         $scope.FrameService = FrameService;
@@ -36,10 +12,10 @@
         $scope.workspaceMode = WORKSPACE_MODES.SETUP;
 
         // ── Test Mode ──────────────────────────────────────────────────
-        $scope.testMode = localStorage.getItem('ceremonator:testMode') === '1';
+        $scope.testMode = StorageKeys.testMode();
         $scope.toggleTestMode = function () {
             $scope.testMode = !($scope.testMode);
-            localStorage.setItem('ceremonator:testMode', $scope.testMode ? '1' : '0');
+            StorageKeys.setTestMode($scope.testMode);
             angular.forEach(FrameService.frames, function (_frame, id) { FrameState.publish(id); });
         };
         $scope.skills = [];
@@ -87,7 +63,9 @@
 
             // $q.when bridges the preload promise into the digest, so no $apply.
             return $q.when(window.ceremonator.project.current()).then(function (result) {
-                if (!result || !result.project) return;
+                if (!result || !result.project) {
+                    return;
+                }
                 if (result.orderingWarning) {
                     $scope.addNotice('warning', result.orderingWarning, 'ordering-corrupt');
                 }
@@ -99,6 +77,7 @@
                 $scope.languages = (project.languages && project.languages.length) ? project.languages : [{ lang_code: 'en' }];
                 $scope.remoteConfig = angular.extend({}, $scope.remoteConfig, project.remote || {});
                 FrameService.setFeedTypes(project.feedTypes);
+                Routing.set(project.routing);
 
                 if (project.gridConfig) {
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
@@ -198,7 +177,9 @@
                     if (frame.slide && frame.slides.indexOf(frame.slide) < 0) {
                         frame.slide = undefined;
                     }
-                    if (frame.slide) frame.slide.state = [];
+                    if (frame.slide) {
+                        frame.slide.state = [];
+                    }
                     $scope.update(id);
                 });
             }
@@ -211,36 +192,18 @@
             $scope.projectDirty = true;
         };
 
-        $scope.hasState = function (slide, state) {
-            if (slide.state != undefined) {
-                return !(slide.state.indexOf(state) < 0);
-            }
-            return false;
-        };
-
-
-        $scope.rowHasState = function (screen, slide, state) {
-            return stateArrayFor(screen, slide).indexOf(state) >= 0;
-        };
-
-        $scope.canEditSlide = function (screen, slide) {
-            var frame = FrameService.frames[screen];
-            return !!frame && (frame.slide === slide || frame.previewSlide === slide);
-        };
-
-        $scope.isPreviewingSlide = function (screen, slide) {
-            var frame = FrameService.frames[screen];
-            return !!frame && frame.previewSlide === slide;
-        };
-
         function stateArrayFor(screen, slide) {
             var frame = FrameService.frames[screen];
             if (frame && frame.previewSlide === slide) {
-                if (!frame.previewState) frame.previewState = [];
+                if (!frame.previewState) {
+                    frame.previewState = [];
+                }
                 return frame.previewState;
             }
 
-            if (!slide.state) slide.state = [];
+            if (!slide.state) {
+                slide.state = [];
+            }
             return slide.state;
         }
 
@@ -275,7 +238,9 @@
             } else {
                 slide.state = [];
             }
-            if (hadStates) debug('state-changed', 'Reset all states for slide “' + (slide.label || 'Untitled') + '”.', screen);
+            if (hadStates) {
+                debug('state-changed', 'Reset all states for slide “' + (slide.label || 'Untitled') + '”.', screen);
+            }
             publishAfterEdit(screen, slide);
         };
 
@@ -313,7 +278,9 @@
         };
 
         $scope.previewSlide = function ($event, screen, slide) {
-            if ($event) $event.stopPropagation();
+            if ($event) {
+                $event.stopPropagation();
+            }
             var frame = FrameService.frames[screen];
             if (frame.previewSlide !== slide) {
                 frame.previewState = angular.copy(slide.state || []);
@@ -324,7 +291,9 @@
 
         $scope.resetPreview = function (screen) {
             var frame = FrameService.frames[screen];
-            if (!frame || !frame.previewSlide) return;
+            if (!frame || !frame.previewSlide) {
+                return;
+            }
             frame.previewSlide = undefined;
             frame.previewState = undefined;
             FrameState.publishPreview(screen);
@@ -336,13 +305,7 @@
             });
         };
 
-        // Used by the remote template too; keeping it here avoids relying on a browser global.
-        $scope.blankFeedNames = function (frame) { return Object.keys((frame && frame.blankedFeeds) || {}).join(', '); };
-        $scope.stateFeedLabel = function (slide, state) {
-            var type = slide && slide.stateFeedTypes && slide.stateFeedTypes[state];
-            return type === 'secondary' ? 'S' : 'M';
-        };
-
+        SlideRowScope($scope);
         FramesPart($scope);
         QueuePart($scope);
         ProjectPart($scope);
@@ -357,50 +320,59 @@
             .then(loadProjectConfig)
             .then($scope.restoreDevSession)
             .then(function (restored) {
-                if (!restored) $scope.buildScreens();
+                if (!restored) {
+                    $scope.buildScreens();
+                }
             });
 
         if (window.ceremonator && window.ceremonator.onNotice) {
             window.ceremonator.onNotice(function (data) {
-                if (!data || !data.text) return;
-                var apply = function () { $scope.addNotice(data.level || 'info', data.text); };
-                if (!$scope.$$phase) $scope.$apply(apply); else apply();
+                if (!data || !data.text) {
+                    return;
+                }
+                $scope.$evalAsync(function () { $scope.addNotice(data.level || 'info', data.text); });
             });
         }
 
         if (window.ceremonator && window.ceremonator.onDebug) {
             window.ceremonator.onDebug(function (data) {
-                if (data) debug(data.type, data.message);
+                if (data) {
+                    debug(data.type, data.message);
+                }
             });
         }
 
         if (window.ceremonator && window.ceremonator.onClearAllDataRequested) {
             window.ceremonator.onClearAllDataRequested(function () {
-                if (!$scope.$$phase) $scope.$apply($scope.clearAllData); else $scope.clearAllData();
+                $scope.$evalAsync($scope.clearAllData);
             });
         }
 
         $scope.copyPaste = function ($event, text) {
+            var target = $event.target;
             $event.stopPropagation();
 
-            navigator.permissions.query({name: 'clipboard-write'}).then((result) => {
-                if (result.state === 'granted' || result.state === 'prompt') {
-                    navigator.clipboard.writeText(text).then(() => {
-                        $event.target.style.color = '#379d44';
-                    }, () => {
-                        alert('Failed to paste to clipboard.')
-                    });
+            navigator.permissions.query({ name: 'clipboard-write' }).then(function (result) {
+                if (result.state !== 'granted' && result.state !== 'prompt') {
+                    return;
                 }
+                navigator.clipboard.writeText(text).then(function () {
+                    target.style.color = '#379d44';
+                }, function () {
+                    alert('Failed to paste to clipboard.');
+                });
             });
-        }
+        };
 
         // Handle moving/resizing windows and save their position to project
 
         if (window.ceremonator && window.ceremonator.onFrameStatus) {
             window.ceremonator.onFrameStatus(function (data) {
                 var frame = FrameService.frames[data.frameId];
-                if (!frame) return;
-                var apply = function () {
+                if (!frame) {
+                    return;
+                }
+                $scope.$evalAsync(function () {
                     var hadLive = !!(frame.windows && frame.windows.live);
                     frame.status = data.status;
 
@@ -428,12 +400,7 @@
                     }
 
                     FrameState.syncRemote();
-                };
-                if (!$scope.$$phase) {
-                    $scope.$apply(apply);
-                } else {
-                    apply();
-                }
+                });
             });
         }
 
@@ -447,8 +414,12 @@
         window.addEventListener('keydown', function (e) {
             var target = e.target || {};
             var tag = (target.tagName || '').toLowerCase();
-            if ($scope.workspaceMode !== WORKSPACE_MODES.RUN || $scope.projectMenuOpen || $scope.importMenuOpen || $scope.feedMenuOpen || $scope.gridConfigDialogOpen || $scope.remoteConfigDialogOpen || $scope.bestOfNationImportDialogOpen) return;
-            if (tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable) return;
+            if ($scope.workspaceMode !== WORKSPACE_MODES.RUN || $scope.projectMenuOpen || $scope.importMenuOpen || $scope.feedMenuOpen || $scope.gridConfigDialogOpen || $scope.remoteConfigDialogOpen || $scope.bestOfNationImportDialogOpen) {
+                return;
+            }
+            if (tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable) {
+                return;
+            }
 
             if (e.key === 'ArrowRight') {
                 e.preventDefault();

@@ -56,7 +56,11 @@
                         for (var i = 0; i < STEPS; i++) {
                             var mid = (lo + hi) / 2;
                             el.style.fontSize = mid + 'px';
-                            if (overflows()) { hi = mid; } else { lo = mid; }
+                            if (overflows()) {
+                                hi = mid;
+                            } else {
+                                lo = mid;
+                            }
                         }
                         size = lo;
                     }
@@ -73,7 +77,9 @@
                 }
 
                 function schedule() {
-                    if (queued) return;
+                    if (queued) {
+                        return;
+                    }
                     queued = true;
                     window.requestAnimationFrame(function () {
                         queued = false;
@@ -82,7 +88,9 @@
                             burst = 0;
                             burstAt = now;
                         }
-                        if (++burst > BURST_LIMIT) return;
+                        if (++burst > BURST_LIMIT) {
+                            return;
+                        }
                         fit();
                     });
                 }

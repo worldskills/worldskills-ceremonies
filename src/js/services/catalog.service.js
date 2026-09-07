@@ -1,7 +1,17 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('Catalog', function ($filter, ResultFormat, SLIDE_KEYS, EXCEL_COLUMNS, ALBERT_VIDAL_AWARD_LABEL) {
+    angular.module('ceremoniesApp').factory('Catalog', function ($filter, ResultFormat, Routing, SLIDE_KEYS, EXCEL_COLUMNS, ALBERT_VIDAL_AWARD_LABEL) {
+
+        // Reveal names the templates hardcode; the data-driven ones are built per slide.
+        var CALLUP_STATES = ['Countries', 'Sponsors'];
+        var NAME_STATES = ['Name'];
+
+        // The Sponsors reveal is only worth offering when some feed is routed to show
+        // partners — otherwise the operator gets a button that changes nothing.
+        function callupStates(content) {
+            return Object.keys(content).length ? CALLUP_STATES.slice() : ['Countries'];
+        }
 
         function groupByMember(filteredResults) {
             return Array.from(filteredResults.reduce(function (accumulator, result) {
@@ -71,13 +81,15 @@
                             states.unshift(result.medal);
                         }
                     });
+                    var callupContent = Routing.content('callup', { sponsors: sortedSponsors(skill) });
+                    var callupReveals = callupStates(callupContent);
                     var slideCallup = {
                         label: skill.name.text + ' - Callup',
                         template: 'skill_callup.html',
-                        states: ['Countries', 'Sponsors'],
-                        baseFeedTypes: ['main'],
-                        stateFeedTypes: { Countries: 'main', Sponsors: 'secondary' },
-                        feedContent: { secondary: { template: 'partners.html', context: { sponsors: sortedSponsors(skill) } } },
+                        states: callupReveals,
+                        baseFeedTypes: Routing.base('callup'),
+                        stateFeedTypes: Routing.stateMap('callup', callupReveals),
+                        feedContent: callupContent,
                         context: {
                             results: $filter('orderBy')(skillMedalResults, 'member'),
                             skill: ResultFormat.simplifySkill(skill)
@@ -87,9 +99,9 @@
                         label: skill.name.text + ' - Medals',
                         template: 'skill_medals.html',
                         states: states,
-                        baseFeedTypes: ['main', 'secondary'],
-                        stateFeedTypes: states.reduce(function (map, state) { map[state] = 'main'; return map; }, {}),
-                        feedContent: { secondary: { template: 'partners.html', context: { sponsors: sortedSponsors(skill) } } },
+                        baseFeedTypes: Routing.base('medals'),
+                        stateFeedTypes: Routing.stateMap('medals', states),
+                        feedContent: Routing.content('medals', { sponsors: sortedSponsors(skill) }),
                         context: {
                             results: $filter('orderBy')(skillMedalResults, ['-score', 'member']),
                             skill: ResultFormat.simplifySkill(skill)
@@ -117,7 +129,9 @@
                     scriptMedals += 'Congratulations to all of you!';
                     slideMedals.script = scriptMedals;
 
-                    if (!catalog[skill.number]) catalog[skill.number] = [];
+                    if (!catalog[skill.number]) {
+                        catalog[skill.number] = [];
+                    }
                     catalog[skill.number].push(slideCallup);
                     catalog[skill.number].push(slideMedals);
                 }
@@ -140,10 +154,10 @@
                     var slideMfe = {
                         label: skill.name.text + ' - Medal for Excellence',
                         template: 'medal_for_excellence.html',
-                        states: ['Name'],
-                        baseFeedTypes: ['main', 'secondary'],
-                        stateFeedTypes: { Name: 'main' },
-                        feedContent: { secondary: { template: 'partners.html', context: { sponsors: sortedSponsors(skill) } } },
+                        states: NAME_STATES.slice(),
+                        baseFeedTypes: Routing.base('mfe'),
+                        stateFeedTypes: Routing.stateMap('mfe', NAME_STATES),
+                        feedContent: Routing.content('mfe', { sponsors: sortedSponsors(skill) }),
                         context: {
                             results: $filter('orderBy')(resultsMedalForExcellence, ['-score', 'member']),
                             skill: ResultFormat.simplifySkill(skill),
@@ -161,7 +175,9 @@
                     script += '\nCongratulations!';
                     slideMfe.script = script;
 
-                    if (!catalog[skill.number]) catalog[skill.number] = [];
+                    if (!catalog[skill.number]) {
+                        catalog[skill.number] = [];
+                    }
                     catalog[skill.number].push(slideMfe);
                 }
             });
@@ -188,13 +204,14 @@
                 var bestOfNationSlides = [];
                 for (var bon = 1; bon <= 99 && resultsBestOfNationMembers.length > 0; bon++) {
                     var bestOfNationSlice = resultsBestOfNationMembers.splice(0, bestOfNationGroupSize);
+                    var bestOfNationStates = bestOfNationSlice.map(function (r) { return r.memberCode; });
                     var slideBon = {
                         label: 'Best of Nation ' + bon,
                         template: 'best_of_nation.html',
                         // One reveal step per member, in grid order — the code is the button label.
-                        states: bestOfNationSlice.map(function (r) { return r.memberCode; }),
-                        baseFeedTypes: ['secondary'],
-                        stateFeedTypes: bestOfNationSlice.reduce(function (map, result) { map[result.memberCode] = 'secondary'; return map; }, {}),
+                        states: bestOfNationStates,
+                        baseFeedTypes: Routing.base('bestOfNation'),
+                        stateFeedTypes: Routing.stateMap('bestOfNation', bestOfNationStates),
                         context: {
                             results: bestOfNationSlice
                         }
@@ -221,9 +238,9 @@
             var slideAlbertVidal = {
                 label: ALBERT_VIDAL_AWARD_LABEL,
                 template: 'albert_vidal_award.html',
-                states: ['Name'],
-                baseFeedTypes: ['main'],
-                stateFeedTypes: { Name: 'main' },
+                states: NAME_STATES.slice(),
+                baseFeedTypes: Routing.base('albertVidal'),
+                stateFeedTypes: Routing.stateMap('albertVidal', NAME_STATES),
                 context: {
                     results: $filter('orderBy')(resultsAlbertVidalAward, 'member'),
                 }

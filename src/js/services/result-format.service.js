@@ -8,7 +8,9 @@
         }
 
         function capitalize(input) {
-            if (input == null) return '';
+            if (input == null) {
+                return '';
+            }
             input = String(input).toLowerCase();
 
             var inputPieces = input.split(' ');
@@ -27,7 +29,9 @@
         }
 
         function normalizeSkillName(text) {
-            if (text == null) return '';
+            if (text == null) {
+                return '';
+            }
             return String(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
 

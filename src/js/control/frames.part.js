@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('FramesPart', function (FrameService, FrameState, QueueScroll, FRAMES_WINDOW_STATUS, FEED, WORKSPACE_MODES) {
+    angular.module('ceremoniesApp').factory('FramesPart', function (FrameService, FrameState, QueueScroll, SlideStep, FRAMES_WINDOW_STATUS, FEED, WORKSPACE_MODES) {
       return function ($scope) {
         $scope.FEED = FEED;
 
@@ -11,7 +11,9 @@
 
         $scope.addFrame = function () {
             var nextId = FrameService.nextFreeId();
-            if (!nextId) return;
+            if (!nextId) {
+                return;
+            }
             FrameService.addFrame(nextId);
             if ($scope.catalog) {
                 FrameState.assembleFrame(FrameService.frames[nextId], $scope.catalog);
@@ -29,9 +31,13 @@
         };
 
         $scope.removeFrame = function (id) {
-            if (id === 'a') return;
+            if (id === 'a') {
+                return;
+            }
             var frame = FrameService.frames[id];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
 
             if (frame.status && frame.status !== FRAMES_WINDOW_STATUS.CLOSED) {
                 $scope.addNotice('warning', 'Close the live window for "' + (frame.label || id) + '" before removing this frame.', 'remove-live');
@@ -62,7 +68,9 @@
         };
 
         $scope.finishRenameFrame = function (id) {
-            if ($scope.rename.id !== id) return;
+            if ($scope.rename.id !== id) {
+                return;
+            }
             var label = ($scope.rename.label || '').trim();
             if (label && FrameService.frames[id]) {
                 FrameService.frames[id].label = label;
@@ -90,18 +98,24 @@
 
         $scope.prevSlideForFrame = function (frameId) {
             var frame = FrameService.frames[frameId];
-            if (!frame || !frame.slides || !frame.slides.length) return;
+            if (!frame || !frame.slides || !frame.slides.length) {
+                return;
+            }
 
             var slide = frame.slide;
-            if (!slide) return;
-            if (slide.state && slide.state.length > 0) {
-                $scope.toggleState(frameId, slide, slide.state[slide.state.length - 1]);
+            if (!slide) {
+                return;
+            }
+            var revealed = SlideStep.lastState(slide);
+            if (revealed) {
+                $scope.toggleState(frameId, slide, revealed);
                 return;
             }
 
             var idx = frame.slides.indexOf(slide);
             if (idx > 0) {
                 var previous = frame.slides[idx - 1];
+                // Stepping backwards onto a slide enters it fully revealed.
                 $scope.showSlide(frameId, previous, previous.states || []);
                 QueueScroll.scrollToActiveInFrame(frameId);
             }
@@ -109,18 +123,19 @@
 
         $scope.nextSlideForFrame = function (frameId) {
             var frame = FrameService.frames[frameId];
-            if (!frame || !frame.slides || !frame.slides.length) return;
+            if (!frame || !frame.slides || !frame.slides.length) {
+                return;
+            }
 
             var slide = frame.slide;
-            if (!slide) return;
+            if (!slide) {
+                return;
+            }
 
-            if (slide.states && slide.states.length > 0) {
-                for (var i = 0; i < slide.states.length; i++) {
-                    if (!$scope.hasState(slide, slide.states[i])) {
-                        $scope.toggleState(frameId, slide, slide.states[i]);
-                        return;
-                    }
-                }
+            var reveal = SlideStep.nextState(slide);
+            if (reveal) {
+                $scope.toggleState(frameId, slide, reveal);
+                return;
             }
 
             var idx = frame.slides.indexOf(slide);
@@ -133,13 +148,17 @@
 
         $scope.prevSlide = function () {
             var frame = FrameService.getActiveFrame();
-            if (!frame || !frame.slides.length) return;
+            if (!frame || !frame.slides.length) {
+                return;
+            }
             $scope.prevSlideForFrame(FrameService.activeFrameId);
         };
 
         $scope.nextSlide = function () {
             var frame = FrameService.getActiveFrame();
-            if (!frame || !frame.slides.length) return;
+            if (!frame || !frame.slides.length) {
+                return;
+            }
             $scope.nextSlideForFrame(FrameService.activeFrameId);
         };
 
@@ -149,17 +168,23 @@
 
         $scope.getSlidePosition = function (frameId) {
             var frame = FrameService.frames[frameId];
-            if (!frame || !frame.slides.length) return '—';
+            if (!frame || !frame.slides.length) {
+                return '—';
+            }
             var idx = frame.slides.indexOf(frame.slide);
             return (idx < 0 ? '—' : idx + 1) + '/' + frame.slides.length;
         };
 
         $scope.resetFrame = function (frameId, feedType) {
             var frame = FrameService.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
 
-            if (!frame.blankedFeeds) frame.blankedFeeds = {};
-            frame.blankedFeeds[feedType || 'main'] = true;
+            if (!frame.blankedFeeds) {
+                frame.blankedFeeds = {};
+            }
+            frame.blankedFeeds[feedType || FrameService.primaryFeedId()] = true;
 
             $scope.update(frameId);
         };
@@ -170,25 +195,42 @@
             cols: null,
             frameWidth: 1280,
             frameHeight: 720,
-            monitors: { main: null, secondary: null },
+            monitors: {},
             feed: FEED.LIVE,
-            feedType: 'main',
+            feedType: null,
             splitContainers: false,
             fullscreen: false
         };
 
         $scope.gridFeedChanged = function () {
-            var feed = FrameService.getFeedType($scope.gridConfig.feedType || 'main');
-            if (!feed) { $scope.gridConfig.feedType = 'main'; feed = FrameService.getFeedType('main'); }
+            var feed = FrameService.getFeedType($scope.gridConfig.feedType || FrameService.primaryFeedId());
+            if (!feed) {
+                $scope.gridConfig.feedType = FrameService.primaryFeedId();
+                feed = FrameService.getFeedType($scope.gridConfig.feedType);
+            }
             if (feed && feed.gridSize) {
                 $scope.gridConfig.frameWidth = feed.gridSize.width;
                 $scope.gridConfig.frameHeight = feed.gridSize.height;
             }
-            if ($scope.gridConfig.feedType === 'secondary') $scope.gridConfig.splitContainers = false;
+            // Split KV/State only makes sense for the feed carrying the show itself.
+            if (!$scope.isPrimaryGridFeed()) {
+                $scope.gridConfig.splitContainers = false;
+            }
         };
+        // Feed naming for the templates: labels and one-letter badges come from the project.
+        $scope.feedBadge = function (id) {
+            return FrameService.feedBadge(id);
+        };
+
+        $scope.isPrimaryGridFeed = function () {
+            return ($scope.gridConfig.feedType || FrameService.primaryFeedId()) === FrameService.primaryFeedId();
+        };
+
         $scope.saveGridFeedSize = function () {
-            var feed = FrameService.getFeedType($scope.gridConfig.feedType || 'main');
-            if (!feed) return;
+            var feed = FrameService.getFeedType($scope.gridConfig.feedType || FrameService.primaryFeedId());
+            if (!feed) {
+                return;
+            }
             feed.gridSize.width = parseInt($scope.gridConfig.frameWidth, 10) || feed.gridSize.width;
             feed.gridSize.height = parseInt($scope.gridConfig.frameHeight, 10) || feed.gridSize.height;
             $scope.projectDirty = true;
@@ -201,13 +243,11 @@
 
         $scope.feedWindowCount = function (frame, feedType, channel) {
             var counts = frame && frame.windows && frame.windows.feeds && frame.windows.feeds[feedType];
-            if (counts) return counts[channel] || 0;
+            if (counts) {
+                return counts[channel] || 0;
+            }
             // Old status notifications had only aggregate Main counts.
-            return feedType === 'main' && frame && frame.windows ? (frame.windows[channel] || 0) : 0;
-        };
-
-        $scope.isFeedBlanked = function (frame, feedType) {
-            return !!(frame && frame.blankedFeeds && frame.blankedFeeds[feedType]);
+            return feedType === FrameService.primaryFeedId() && frame && frame.windows ? (frame.windows[channel] || 0) : 0;
         };
 
         function openFrameWindowContainer(frameId, frame, isPreview, container, feedType) {
@@ -216,12 +256,14 @@
                 size: frame.size,
                 position: frame.position,
                 preview: !!isPreview,
-                feedType: feedType || 'main',
+                feedType: feedType || FrameService.primaryFeedId(),
                 label: frame.label,
                 container: container,
                 testMode: $scope.testMode
             }).then(function (result) {
-                if (!result || result.ok === false) throw new Error((result && result.error) || 'unknown error');
+                if (!result || result.ok === false) {
+                    throw new Error((result && result.error) || 'unknown error');
+                }
             }).catch(function (error) {
                 $scope.$apply(function () {
                     frame.status = FRAMES_WINDOW_STATUS.CLOSED;
@@ -232,12 +274,14 @@
 
         $scope.openFrameWindow = function (frameId, isPreview, feedType) {
             var frame = FrameService.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
             FrameState.publish(frameId);
             frame.status = FRAMES_WINDOW_STATUS.CONNECTING;
 
             if (window.ceremonator && window.ceremonator.frames) {
-                if ($scope.gridConfig.splitContainers && !isPreview && (feedType || 'main') === 'main') {
+                if ($scope.gridConfig.splitContainers && !isPreview && (feedType || FrameService.primaryFeedId()) === FrameService.primaryFeedId()) {
                     // kv/state windows share the frame's position/size at open — the operator drags the second one into place.
                     ['kv', 'state'].forEach(function (container) {
                         openFrameWindowContainer(frameId, frame, isPreview, container, feedType);
@@ -246,26 +290,28 @@
                     openFrameWindowContainer(frameId, frame, isPreview, undefined, feedType);
                 }
             } else {
-                var url = 'screen.html?screen=' + frameId + '&feedType=' + (feedType || 'main') + (isPreview ? '&preview=true&feed=' + FEED.PREVIEW : '') + '&label=' + encodeURIComponent(frame.label || frameId) + ($scope.testMode ? '\&testMode=1' : '');
+                var url = 'screen.html?screen=' + frameId + '&feedType=' + (feedType || FrameService.primaryFeedId()) + (isPreview ? '&preview=true&feed=' + FEED.PREVIEW : '') + '&label=' + encodeURIComponent(frame.label || frameId) + ($scope.testMode ? '\&testMode=1' : '');
                 window.open(url, '_blank');
                 frame.status = FRAMES_WINDOW_STATUS.READY;
             }
         };
 
         $scope.openFrameWindowLive = function (frameId, feedType) {
-            $scope.openFrameWindow(frameId, false, feedType || 'main');
+            $scope.openFrameWindow(frameId, false, feedType || FrameService.primaryFeedId());
         };
 
         $scope.canOpenFramePreview = function (frameId, feedType) {
             var frame = FrameService.frames[frameId];
-            var counts = frame && frame.windows && frame.windows.feeds && frame.windows.feeds[feedType || 'main'];
+            var counts = frame && frame.windows && frame.windows.feeds && frame.windows.feeds[feedType || FrameService.primaryFeedId()];
             return !!frame && !!(counts ? counts.live : (frame.windows && frame.windows.live)) && !(counts ? counts.preview : (frame.windows && frame.windows.preview));
         };
 
         $scope.openFrameWindowPreview = function (frameId, feedType) {
             var frame = FrameService.frames[frameId];
-            if (!frame) return;
-            var counts = frame.windows && frame.windows.feeds && frame.windows.feeds[feedType || 'main'];
+            if (!frame) {
+                return;
+            }
+            var counts = frame.windows && frame.windows.feeds && frame.windows.feeds[feedType || FrameService.primaryFeedId()];
             if (!(counts ? counts.live : frame.windows && frame.windows.live)) {
                 $scope.addNotice('warning', 'Open a Live window for "' + (frame.label || frameId) + '" before opening Preview.', 'preview-needs-live');
                 return;
@@ -274,7 +320,7 @@
                 $scope.addNotice('warning', 'Preview is already open for "' + (frame.label || frameId) + '" — only one Preview window per frame is allowed.', 'preview-already-open');
                 return;
             }
-            $scope.openFrameWindow(frameId, true, feedType || 'main');
+            $scope.openFrameWindow(frameId, true, feedType || FrameService.primaryFeedId());
         };
 
         $scope.previewAllFrames = function () {
@@ -282,7 +328,10 @@
             var skipped = [];
 
             angular.forEach(FrameService.frames, function (frame, id) {
-                if (!$scope.canOpenFramePreview(id)) { skipped.push(frame.label || id); return; }
+                if (!$scope.canOpenFramePreview(id)) {
+                    skipped.push(frame.label || id);
+                    return;
+                }
                 eligible.push(id);
             });
 
@@ -291,7 +340,9 @@
                 return;
             }
 
-            if (!confirm('Open preview windows for ' + eligible.length + ' frame(s)?')) return;
+            if (!confirm('Open preview windows for ' + eligible.length + ' frame(s)?')) {
+                return;
+            }
 
             eligible.forEach(function (id) { $scope.openFrameWindow(id, true); });
             if (skipped.length) {
@@ -301,13 +352,17 @@
 
         $scope.openAllFramesLive = function () {
             angular.forEach(FrameService.frames, function (frame, id) {
-                if (!frame.windows || !frame.windows.live) $scope.openFrameWindow(id, false);
+                if (!frame.windows || !frame.windows.live) {
+                    $scope.openFrameWindow(id, false);
+                }
             });
         };
 
         $scope.reloadFrameWindow = function (frameId) {
             var frame = FrameService.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
 
             if (window.ceremonator && window.ceremonator.app && window.ceremonator.app.reloadScreen) {
                 frame.status = FRAMES_WINDOW_STATUS.CONNECTING;
@@ -317,7 +372,9 @@
 
         $scope.closeFrameWindow = function (frameId) {
             var frame = FrameService.frames[frameId];
-            if (!frame) return;
+            if (!frame) {
+                return;
+            }
 
             if (frame.status && frame.status !== FRAMES_WINDOW_STATUS.CLOSED) {
                 if (!confirm('Close the live screen "' + (frame.label || frameId) + '"? The audience display for this frame will go blank.')) {
@@ -339,16 +396,20 @@
         $scope.blankedFrames = function () {
             var list = [];
             angular.forEach(FrameService.frames, function (frame) {
-                if (frame.blankedFeeds && Object.keys(frame.blankedFeeds).length) list.push(frame);
+                if (frame.blankedFeeds && Object.keys(frame.blankedFeeds).length) {
+                    list.push(frame);
+                }
             });
             return list;
         };
 
         $scope.getGridCols = function () {
             var colsInput = parseInt($scope.gridConfig.cols, 10);
-            if (colsInput > 0) return colsInput;
+            if (colsInput > 0) {
+                return colsInput;
+            }
             var frameCols = Math.max(1, Math.ceil(Math.sqrt(FrameService.count())));
-            return $scope.gridConfig.splitContainers && $scope.gridConfig.feedType === 'main' ? frameCols * 2 : frameCols;
+            return $scope.gridConfig.splitContainers && $scope.isPrimaryGridFeed() ? frameCols * 2 : frameCols;
         };
 
         $scope.openGridView = function () {
@@ -358,7 +419,9 @@
 
         $scope.confirmOpenGridView = function () {
             $scope.gridConfigDialogOpen = false;
-            if (!window.ceremonator || !window.ceremonator.frames) return;
+            if (!window.ceremonator || !window.ceremonator.frames) {
+                return;
+            }
 
             angular.forEach(FrameService.frames, function (frame, id) {
                 FrameState.publish(id);
@@ -368,7 +431,7 @@
             Object.keys(FrameService.frames).forEach(function (id) {
                 var label = FrameService.frames[id].label || id;
                 var accent = FrameService.getFrameColor(id);
-                if ($scope.gridConfig.splitContainers && $scope.gridConfig.feedType === 'main') {
+                if ($scope.gridConfig.splitContainers && $scope.isPrimaryGridFeed()) {
                     frames.push({ frameId: id, container: 'kv', label: label + ' — Key Info', accent: accent });
                     frames.push({ frameId: id, container: 'state', label: label + ' — Results', accent: accent });
                 } else {
@@ -376,7 +439,7 @@
                 }
             });
 
-            var monitor = $scope.gridConfig.monitors[$scope.gridConfig.feedType || 'main'];
+            var monitor = $scope.gridConfig.monitors[$scope.gridConfig.feedType || FrameService.primaryFeedId()];
             var monitorOverride = (monitor === null || monitor === undefined || monitor === '') ? null : parseInt(monitor, 10);
 
             $scope.workspaceMode = WORKSPACE_MODES.RUN;
@@ -390,7 +453,7 @@
                     height: parseInt($scope.gridConfig.frameHeight, 10) || 720
                 },
                 feed: $scope.gridConfig.feed,
-                feedType: $scope.gridConfig.feedType || 'main',
+                feedType: $scope.gridConfig.feedType || FrameService.primaryFeedId(),
                 position: monitorOverride != null ? { monitor: monitorOverride } : null,
                 fullscreen: !!$scope.gridConfig.fullscreen,
                 testMode: $scope.testMode

@@ -2,19 +2,14 @@ const { ipcMain } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { flagsDir, bundledTemplateDir } = require('../paths');
-const { getActiveTemplateDir, getActiveProject } = require('../project-store');
+const projectStore = require('../project-store');
+const { getActiveTemplateDir } = projectStore;
 const frameWindows = require('../frame-windows');
 const gridWindow = require('../grid-window');
 const { listDisplays } = require('../display-geometry');
 const { hasRole } = require('./sender-role');
 
 const CONTAINER_RE = /^[a-z][a-z0-9_-]*$/i;
-const FEED_TYPES = ['main', 'secondary'];
-
-function enabledFeed(feedType) {
-    const project = getActiveProject();
-    return !project || !project.feedTypes || project.feedTypes.some((feed) => feed.id === feedType);
-}
 
 function registerFrameIpc() {
     ipcMain.handle('frames:openWindow', (event, opts) => {
@@ -26,8 +21,8 @@ function registerFrameIpc() {
             return { ok: false, error: 'Invalid output dimensions' };
         }
         if (opts.container && !CONTAINER_RE.test(opts.container)) return { ok: false, error: 'Invalid output container' };
-        const feedType = opts.feedType || 'main';
-        if (FEED_TYPES.indexOf(feedType) < 0 || !enabledFeed(feedType)) return { ok: false, error: 'Output feed is not enabled by this project' };
+        const feedType = opts.feedType || projectStore.primaryFeedId();
+        if (!projectStore.isFeedId(feedType)) return { ok: false, error: 'Output feed is not enabled by this project' };
         if (opts.preview && !frameWindows.hasLiveFrameWindowFor(frameId, feedType)) {
             return { ok: false, error: 'Open a matching Live output before Preview.' };
         }
@@ -48,8 +43,8 @@ function registerFrameIpc() {
 
     ipcMain.handle('frames:openLarge', (event, config) => {
         if(hasRole(event, ['control'])) {
-            const feedType = (config && config.feedType) || 'main';
-            if (FEED_TYPES.indexOf(feedType) < 0 || !enabledFeed(feedType)) return { ok: false, error: 'Output feed is not enabled by this project' };
+            const feedType = (config && config.feedType) || projectStore.primaryFeedId();
+            if (!projectStore.isFeedId(feedType)) return { ok: false, error: 'Output feed is not enabled by this project' };
             return gridWindow.openGridWindow(config);
         } else {
             return { ok: false, error: 'Forbidden sender' };

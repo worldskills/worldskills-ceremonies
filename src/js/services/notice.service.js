@@ -8,13 +8,17 @@
 
         function dismiss(notice) {
             var idx = notices.indexOf(notice);
-            if (idx >= 0) notices.splice(idx, 1);
+            if (idx >= 0) {
+                notices.splice(idx, 1);
+            }
         }
 
         function add(level, text, key) {
             if (key) {
                 for (var i = notices.length - 1; i >= 0; i--) {
-                    if (notices[i].key === key) notices.splice(i, 1);
+                    if (notices[i].key === key) {
+                        notices.splice(i, 1);
+                    }
                 }
             }
             var notice = { level: level, text: text, key: key || null };

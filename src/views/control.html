@@ -81,7 +81,7 @@
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-section-label">Config</div>
                         <label class="dropdown-checkbox-item" ng-click="$event.stopPropagation()">
-                            <input type="checkbox" ng-model="gridConfig.splitContainers" ng-disabled="gridConfig.feedType === 'secondary'"> Split KV / State (Main only)
+                            <input type="checkbox" ng-model="gridConfig.splitContainers" ng-disabled="!isPrimaryGridFeed()"> Split KV / State ({{ FrameService.feedLabel(FrameService.primaryFeedId()) }} only)
                         </label>
                     </div>
                 </div>
@@ -206,8 +206,11 @@
                         </button>
                     </div>
                 </div>
-                <button class="btn btn-sm" ng-class="{active: isFeedBlanked(screens[FrameService.activeFrameId], 'main')}" ng-show="FrameService.activeFrameId" ng-click="resetFrame(FrameService.activeFrameId, 'main')" title="Blank Main — Ctrl+B"><i class="fa fa-ban mr-1"></i> Blank Main</button>
-                <button class="btn btn-sm" ng-class="{active: isFeedBlanked(screens[FrameService.activeFrameId], 'secondary')}" ng-show="FrameService.activeFrameId && FrameService.hasFeedType('secondary')" ng-click="resetFrame(FrameService.activeFrameId, 'secondary')" title="Blank Secondary"><i class="fa fa-ban mr-1"></i> Blank Secondary</button>
+                <button class="btn btn-sm" ng-repeat="outputFeed in FrameService.feedTypes track by outputFeed.id"
+                        ng-class="{active: isFeedBlanked(screens[FrameService.activeFrameId], outputFeed.id)}"
+                        ng-show="FrameService.activeFrameId"
+                        ng-click="resetFrame(FrameService.activeFrameId, outputFeed.id)"
+                        title="Blank {{ outputFeed.label || outputFeed.id }}{{ $first ? ' — Ctrl+B' : '' }}"><i class="fa fa-ban mr-1"></i> Blank {{ outputFeed.label || outputFeed.id }}</button>
                 <div class="btn-group btn-group-sm ">
                     <button class="btn btn-sm btn-outline-secondary" ng-class="{'active': queueLayout === 'list'}" ng-click="queueLayout = 'list'" title="Flat list">
                         <i class="fa fa-list"></i>
@@ -374,8 +377,9 @@
                                     <i class="fa fa-chevron-right"></i>
                                 </button>
                             </div>
-                            <button class="btn btn-sm btn-outline-warning ml-1" ng-class="{active: isFeedBlanked(frame, 'main')}" ng-click="resetFrame(id, 'main')" title="Blank Main"><i class="fa fa-ban"></i> M</button>
-                            <button class="btn btn-sm btn-outline-warning ml-1" ng-show="FrameService.hasFeedType('secondary')" ng-class="{active: isFeedBlanked(frame, 'secondary')}" ng-click="resetFrame(id, 'secondary')" title="Blank Secondary"><i class="fa fa-ban"></i> S</button>
+                            <button class="btn btn-sm btn-outline-warning ml-1" ng-repeat="outputFeed in FrameService.feedTypes track by outputFeed.id"
+                                    ng-class="{active: isFeedBlanked(frame, outputFeed.id)}" ng-click="resetFrame(id, outputFeed.id)"
+                                    title="Blank {{ outputFeed.label || outputFeed.id }}"><i class="fa fa-ban"></i> {{ feedBadge(outputFeed.id) }}</button>
                         </div>
                         <div class="list-group list-group-flush queue-frame-card-body">
                             <slide-row ng-repeat="item in queueByFrame[id]"
@@ -432,14 +436,15 @@
                 </div>
                 <div class="frame-card-actions" ng-click="$event.stopPropagation()">
                     <span class="btn-group btn-group-sm" ng-repeat="outputFeed in FrameService.feedTypes track by outputFeed.id">
-                        <button class="btn btn-success btn-sm" ng-click="openFrameWindowLive(id, outputFeed.id)" title="Open {{ outputFeed.id }} Live">{{ outputFeed.id | uppercase }} Live <span ng-show="feedWindowCount(frame, outputFeed.id, 'live')">×{{ feedWindowCount(frame, outputFeed.id, 'live') }}</span></button>
+                        <button class="btn btn-success btn-sm" ng-click="openFrameWindowLive(id, outputFeed.id)" title="Open {{ outputFeed.label || outputFeed.id }} Live">{{ outputFeed.label || outputFeed.id }} Live <span ng-show="feedWindowCount(frame, outputFeed.id, 'live')">×{{ feedWindowCount(frame, outputFeed.id, 'live') }}</span></button>
                         <button class="btn btn-secondary btn-sm" ng-click="openFrameWindowPreview(id, outputFeed.id)" ng-disabled="!canOpenFramePreview(id, outputFeed.id)" title="Open matching Preview">Preview <span ng-show="feedWindowCount(frame, outputFeed.id, 'preview')">×{{ feedWindowCount(frame, outputFeed.id, 'preview') }}</span></button>
                     </span>
                     <button class="btn btn-outline-info btn-sm" ng-show="frame.previewSlide" ng-click="resetPreview(id)" title="Reset preview to match live (Ctrl+R)">
                         <i class="fa fa-undo"></i>
                     </button>
-                    <button class="btn btn-outline-warning btn-sm" ng-class="{active: isFeedBlanked(frame, 'main')}" ng-click="resetFrame(id, 'main')" title="Blank Main (Ctrl+B)">Blank M</button>
-                    <button class="btn btn-outline-warning btn-sm" ng-show="FrameService.hasFeedType('secondary')" ng-class="{active: isFeedBlanked(frame, 'secondary')}" ng-click="resetFrame(id, 'secondary')" title="Blank Secondary">Blank S</button>
+                    <button class="btn btn-outline-warning btn-sm" ng-repeat="outputFeed in FrameService.feedTypes track by outputFeed.id"
+                            ng-class="{active: isFeedBlanked(frame, outputFeed.id)}" ng-click="resetFrame(id, outputFeed.id)"
+                            title="Blank {{ outputFeed.label || outputFeed.id }}{{ $first ? ' (Ctrl+B)' : '' }}">Blank {{ feedBadge(outputFeed.id) }}</button>
                     <!-- Reload + Close buttons when open -->
                     <button class="btn btn-outline-secondary btn-sm" ng-show="frame.status !== 'closed'" ng-click="reloadFrameWindow(id)" title="Reload screen (recover a crashed/frozen projector)">
                         <i class="fa fa-refresh"></i>
@@ -531,7 +536,7 @@
                     <div class="form-group">
                         <label>Output feed</label>
                         <select class="form-control form-control-sm" style="width:180px" ng-model="gridConfig.feedType" ng-change="gridFeedChanged()"
-                                ng-options="feed.id as (feed.id | uppercase) for feed in FrameService.feedTypes"></select>
+                                ng-options="feed.id as (feed.label || feed.id) for feed in FrameService.feedTypes"></select>
                     </div>
                     <div class="form-group">
                         <label>Columns <span style="font-weight:400;text-transform:none;letter-spacing:0">(leave blank for auto)</span></label>
@@ -626,6 +631,9 @@
     <script src="../js/services/catalog.service.js"></script>
     <script src="../js/services/queue.service.js"></script>
     <script src="../js/services/queue-scroll.service.js"></script>
+    <script src="../js/services/slide-step.service.js"></script>
+    <script src="../js/services/debug-log.service.js"></script>
+    <script src="../js/services/routing.service.js"></script>
     <script src="../js/services/session-snapshot.service.js"></script>
     <script src="../js/control/frames.part.js"></script>
     <script src="../js/control/queue.part.js"></script>

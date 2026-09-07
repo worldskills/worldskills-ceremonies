@@ -13,7 +13,9 @@
         };
 
         $scope.clearAllData = function () {
-            if (!confirm('Clear all session data? This discards the current run\'s progress (imported results, frame assignments, live/preview state) so the app restarts fresh. Your project files, templates and skill/member data are not affected.')) return;
+            if (!confirm('Clear all session data? This discards the current run\'s progress (imported results, frame assignments, live/preview state) so the app restarts fresh. Your project files, templates and skill/member data are not affected.')) {
+                return;
+            }
             SessionSnapshot.clear();
             $scope.clearScreenStorage();
             $scope.addNotice('info', 'Session data cleared — restart to begin a fresh run.', 'session-cleared');
@@ -22,7 +24,9 @@
         function restoreDevSessionUi(ui) {
             $scope.queueViewOpen = !!ui.queueViewOpen;
             $scope.allFramesViewOpen = !!ui.allFramesViewOpen;
-            if (ui.queueLayout) $scope.queueLayout = ui.queueLayout;
+            if (ui.queueLayout) {
+                $scope.queueLayout = ui.queueLayout;
+            }
             if (ui.selectedSkillNumber) {
                 angular.forEach($scope.catalogSkillList || [], function (skill) {
                     if (skill.number === ui.selectedSkillNumber) {
@@ -33,7 +37,9 @@
         }
 
         $scope.restoreDevSession = function () {
-            if (!SessionSnapshot.enabled) return $q.resolve(false);
+            if (!SessionSnapshot.enabled) {
+                return $q.resolve(false);
+            }
 
             return $q.when(SessionSnapshot.load()).then(function (saved) {
                 if (!saved) {
@@ -75,7 +81,9 @@
                     FrameState.publish(id);
                 });
 
-                if (saved.activeFrameId) FrameService.setActiveFrame(saved.activeFrameId);
+                if (saved.activeFrameId) {
+                    FrameService.setActiveFrame(saved.activeFrameId);
+                }
                 restoreDevSessionUi(saved.ui || {});
                 $scope.projectDirty = !!saved.projectDirty;
 
