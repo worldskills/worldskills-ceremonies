@@ -44,7 +44,6 @@
     // Catalog.build emits; a project missing one just fails that one request silently.
     ceremoniesApp.constant('SCREEN_TEMPLATES', [
         'empty.html',
-        'blank.html',
         'skill_callup.html',
         'skill_medals.html',
         'medal_for_excellence.html',

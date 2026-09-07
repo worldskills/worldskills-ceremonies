@@ -573,7 +573,7 @@
                 var output = frame && frame.outputs && frame.outputs[scope.feed.id];
                 var payload = output && output[scope.channel];
                 if (!payload) {
-                    payload = { template: 'wstemplate://active/blank.html', context: {}, state: [] };
+                    payload = { template: 'wstemplate://active/empty.html', context: {}, state: [] };
                 }
 
                 // The monitor is a browser page: rewrite the desktop's wstemplate:// URLs

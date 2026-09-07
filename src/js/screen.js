@@ -101,6 +101,7 @@
             // Lets a template's own opaque background step aside for the persistent bg video,
             // which now sits behind .screen-content instead of inside it.
             document.body.classList.toggle('has-bg-video', !!$scope.frame.video);
+            document.body.classList.remove('screen-bg-video-failed');
             document.title = 'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.frame.label;
 
             if (data.accent) {
@@ -187,6 +188,9 @@
             var source = target.currentSrc || target.src || target.href || 'unknown asset';
             var type = target.tagName === 'VIDEO' ? 'video-failure' : 'load-failure';
             var reason = target.error && target.error.message ? ' (' + target.error.message + ')' : '';
+            if (target.classList.contains('screen-bg-video')) {
+                document.body.classList.add('screen-bg-video-failed');
+            }
             reportDebug(type, 'Output “' + ($scope.screen || 'unknown') + '” could not load the ' + target.tagName.toLowerCase() + ' “' + source + '”' + reason + '.');
         }, true);
 

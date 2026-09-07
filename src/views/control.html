@@ -615,23 +615,7 @@
                         style="--frame-color: {{ FrameService.getFrameColor(id) }}"
                     >
                         <div class="frame-card-label" ng-click="$event.stopPropagation()">
-                            <span ng-hide="rename.id === id">{{ frame.label }}</span>
-                            <input
-                                class="frame-rename-input"
-                                ng-show="rename.id === id"
-                                ng-model="rename.label"
-                                ng-blur="finishRenameFrame(id)"
-                                ng-keydown="handleRenameKey($event, id)"
-                                auto-focus="rename.id === id"
-                            />
-                            <button
-                                class="frame-rename-btn"
-                                ng-hide="rename.id === id"
-                                ng-click="startRenameFrame(id, frame.label)"
-                                title="Rename frame"
-                            >
-                                <i class="fa fa-pencil"></i>
-                            </button>
+                            <span>{{ frame.label }}</span>
                         </div>
                         <div class="frame-card-meta">
                             <span class="status-dot {{ frame.status }}"></span>
@@ -704,22 +688,8 @@
                             >
                                 <i class="fa fa-refresh"></i>
                             </button>
-                            <!-- Remove frame (not for 'a', not while live) -->
-                            <button
-                                class="btn btn-outline-danger btn-sm"
-                                ng-show="id !== 'a'"
-                                ng-disabled="frame.status !== 'closed'"
-                                ng-click="removeFrame(id)"
-                                title="{{ frame.status !== 'closed' ? 'Close the window before removing' : 'Remove frame' }}"
-                            >
-                                <i class="fa fa-times"></i>
-                            </button>
                         </div>
                     </div>
-
-                    <button class="btn btn-outline-light btn-sm frame-add-btn" ng-click="addFrame()">
-                        <i class="fa fa-plus mr-1"></i> Add frame
-                    </button>
                 </div>
             </control-workspace>
         </div>

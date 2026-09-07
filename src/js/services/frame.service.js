@@ -80,46 +80,6 @@
             return service.feedTypes.filter(function (feed) { return feed.id === id; })[0];
         };
 
-        service.nextFreeId = function () {
-            var ids = Object.keys(service.frames);
-            var letters = 'abcdefghijklmnopqrstuvwxyz';
-            for (var i = 0; i < letters.length; i++) {
-                if (ids.indexOf(letters[i]) < 0) {
-                    return letters[i];
-                }
-            }
-            return null;
-        };
-
-        service.addFrame = function (id, label) {
-            service.frames[id] = {
-                id: id,
-                label: label || ('Frame ' + id.toUpperCase()),
-                slides: [],
-                slide: undefined,
-                previewSlide: undefined,
-                size: { width: 1920, height: 1080 },
-                position: { monitor: 0, x: null, y: null, fullscreen: false },
-                ordering: { mode: 'skills', skillNumbers: [], sourceFile: null },
-                blankedFeeds: {},
-                status: FRAMES_WINDOW_STATUS.CLOSED,
-                windows: { live: 0, preview: 0 },
-                color: pickColor()
-            };
-            return service.frames[id];
-        };
-
-        service.removeFrame = function (id) {
-            // Never remove the default frame.
-            if (id === 'a') {
-                return;
-            }
-            delete service.frames[id];
-            if (service.activeFrameId === id) {
-                service.activeFrameId = Object.keys(service.frames)[0];
-            }
-        };
-
         service.compareSkillNumbers = function (a, b) {
             var rankA = service.skillOrder.indexOf(ResultFormat.normalizeSkillNum(a));
             var rankB = service.skillOrder.indexOf(ResultFormat.normalizeSkillNum(b));

@@ -6,6 +6,13 @@
         <title>Ceremonies Screen</title>
         <link href="wstemplate://active/css/screen.css" rel="stylesheet" />
         <style>
+            /* Base layer behind everything: the frame's own color. A working bg video
+               (z-index -1, still painted above this) fully covers it; when there's no
+               video for this feed, or it fails to load, the color shows through instead
+               of the browser's default black canvas. */
+            body {
+                background-color: var(--frame-accent, #000);
+            }
             .screen-bg-video {
                 position: fixed;
                 inset: 0;
@@ -15,6 +22,9 @@
                 z-index: -1;
             }
             .screen-content .screen-bg-video {
+                display: none;
+            }
+            body.screen-bg-video-failed .screen-bg-video {
                 display: none;
             }
             .screen-preview-mark {

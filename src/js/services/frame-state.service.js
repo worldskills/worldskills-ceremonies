@@ -17,11 +17,22 @@
             return (state || []).some(function (name) { return slide.stateFeedTypes && slide.stateFeedTypes[name] === feedType; });
         }
 
+        function videoFor(frame, feedType) {
+            var v = frame.video;
+            if (v && typeof v === 'object') {
+                // A missing key inherits the primary feed's video; an explicit
+                // empty string means "no video for this feed" and must not fall back.
+                if (Object.prototype.hasOwnProperty.call(v, feedType)) {
+                    return v[feedType] || '';
+                }
+                return v[FrameService.primaryFeedId()] || '';
+            }
+            return v || '';
+        }
+
         function createStoragePayload(frame, slide, frameId, stateOverride, feedType) {
             var state = stateOverride || (slide && slide.state) || [];
-            var isBlanked = frame.blankedFeeds && frame.blankedFeeds[feedType];
             var isActive = activeForFeed(slide, feedType, state);
-            var isRoutedAway = !!slide && !isActive;
             if (!isActive) {
                 slide = undefined;
             }
@@ -30,15 +41,16 @@
                 return !slide.stateFeedTypes || !slide.stateFeedTypes[name] || slide.stateFeedTypes[name] === feedType;
             }) : [];
             return {
-                // Blank shows the project's logo template while retaining the
-                // frame background/video. The live slide and reveals stay parked.
-                template: TEMPLATE_BASE + (content ? content.template : (slide ? slide.template : (isBlanked || isRoutedAway ? 'empty.html' : 'blank.html'))),
+                // No slide (blanked, routed away, or never assigned yet — e.g. right after
+                // a restart or a fresh import) always shows the project's logo template,
+                // never a plain black screen, while retaining the frame background/video.
+                template: TEMPLATE_BASE + (content ? content.template : (slide ? slide.template : 'empty.html')),
                 context: (content && content.context) || (slide && slide.context) || {},
                 state: filteredState,
                 label: (slide && slide.label) || '',
                 frameLabel: frame.label || frameId,
                 accent: FrameService.getFrameColor(frameId),
-                video: frame.video ? TEMPLATE_BASE + 'videos/' + frame.video : '',
+                video: videoFor(frame, feedType) ? TEMPLATE_BASE + 'videos/' + videoFor(frame, feedType) : '',
                 testMode: StorageKeys.testMode()
             };
         }
