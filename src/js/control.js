@@ -1,11 +1,12 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $q, DATA_BASE, FrameService, FrameState, Catalog, DebugLog, Notices, Routing, SessionSnapshot, SlideRowScope, StorageKeys, WORKSPACE_MODES, FramesPart, QueuePart, ProjectPart, SessionPart, RemotePart) {
+    angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $q, DATA_BASE, Displays, FrameService, FrameState, Catalog, DebugLog, Notices, Routing, SessionSnapshot, SlideRowScope, StorageKeys, WORKSPACE_MODES, FramesPart, QueuePart, ProjectPart, SessionPart, RemotePart) {
         var debug = DebugLog.log;
 
         $scope.uploaded = false;
         $scope.FrameService = FrameService;
+        $scope.displays = Displays.list;
         $scope.workspaceCapabilities = { manageWindows: true, preview: true, copyScript: true };
         $scope.projectDirty = false;
         $scope.WORKSPACE_MODES = WORKSPACE_MODES;
@@ -76,6 +77,7 @@
                 $scope.bestOfNationGroupSize = project.bestOfNationGroupSize || $scope.bestOfNationGroupSize;
                 $scope.languages = (project.languages && project.languages.length) ? project.languages : [{ lang_code: 'en' }];
                 $scope.remoteConfig = angular.extend({}, $scope.remoteConfig, project.remote || {});
+
                 FrameService.setFeedTypes(project.feedTypes);
                 Routing.set(project.routing);
 
@@ -107,22 +109,15 @@
 
         $scope.assembleFrame = FrameState.assembleFrame;
 
-        // The Albert Vidal frame always comes from the project's own ordering config (set via
-        // the UI toggle or hand-edited project.json) — buildScreens never auto-assigns it.
-        // Skill-to-frame assignment is mostly the same: only a skill with no frame at all yet
-        // gets round-robin distributed, so this never overrides what the ordering-import
-        // spreadsheet or drag-and-drop already assigned, it only fills the gaps (which is also
-        // what makes a brand-new project with nothing configured work out of the box).
         $scope.buildScreens = function () {
             $scope.catalog = $scope.buildCatalog();
 
             var frameIds = Object.keys(FrameService.frames);
 
-            // Self-heal: at most one frame may ever carry includeAlbertVidal. If a stale
-            // project/session file has more than one flagged, collapse to the first.
             var avFrameIds = frameIds.filter(function (id) {
                 return FrameService.frames[id].ordering.includeAlbertVidal;
             });
+
             if (avFrameIds.length > 1) {
                 FrameService.setAlbertVidalFrame(avFrameIds[0]);
             }
@@ -216,9 +211,11 @@
             }
         }
 
-        $scope.toggleState = function (screen, slide, state) {
+        $scope.toggleState = function (screen, slide, state, live) {
             FrameService.setActiveFrame(screen);
-            var states = stateArrayFor(screen, slide);
+            var frame = FrameService.frames[screen];
+            // Navigation changes Live; explicit row edits follow the Preview pin.
+            var states = live ? (slide.state || (slide.state = [])) : stateArrayFor(screen, slide);
             var idx = states.indexOf(state);
             if (idx >= 0) {
                 states.splice(idx, 1);
@@ -226,7 +223,12 @@
                 states.push(state);
             }
             debug('state-changed', 'Turned state “' + state + '” ' + (idx >= 0 ? 'off' : 'on') + ' for slide “' + (slide.label || 'Untitled') + '”.', screen);
-            publishAfterEdit(screen, slide);
+            if (live) {
+                frame.blankedFeeds = {};
+                $scope.update(screen);
+            } else {
+                publishAfterEdit(screen, slide);
+            }
         };
 
         $scope.resetStates = function (screen, slide) {
@@ -250,8 +252,8 @@
 
         $scope.showSlide = function (screen, slide, initialState) {
             var frame = FrameService.frames[screen];
-                var wasPreviewing = frame.previewSlide === slide;
-                var sameSlide = frame.slide === slide;
+            var wasPreviewing = frame.previewSlide === slide;
+            var sameSlide = frame.slide === slide;
             var wasBlanked = Object.keys(frame.blankedFeeds || {}).length > 0;
 
             if (!sameSlide) {
@@ -270,9 +272,11 @@
 
             if (!sameSlide || wasPreviewing || wasBlanked) {
                 debug('slide-changed', 'Changed the live slide to “' + (slide.label || 'Untitled') + '”.', screen);
+
                 if (!sameSlide && initialState && initialState.length) {
                     debug('state-changed', 'Entered the slide with ' + initialState.map(function (state) { return '“' + state + '”'; }).join(', ') + ' active.', screen);
                 }
+
                 $scope.update(screen);
             }
         };
@@ -305,6 +309,22 @@
             });
         };
 
+        $scope.copyPaste = function ($event, text) {
+            var target = $event.target;
+            $event.stopPropagation();
+
+            navigator.permissions.query({ name: 'clipboard-write' }).then(function (result) {
+                if (result.state !== 'granted' && result.state !== 'prompt') {
+                    return;
+                }
+                navigator.clipboard.writeText(text).then(function () {
+                    target.style.color = '#379d44';
+                }, function () {
+                    alert('Failed to paste to clipboard.');
+                });
+            });
+        };
+
         SlideRowScope($scope);
         FramesPart($scope);
         QueuePart($scope);
@@ -325,84 +345,71 @@
                 }
             });
 
-        if (window.ceremonator && window.ceremonator.onNotice) {
-            window.ceremonator.onNotice(function (data) {
-                if (!data || !data.text) {
-                    return;
-                }
-                $scope.$evalAsync(function () { $scope.addNotice(data.level || 'info', data.text); });
-            });
-        }
-
-        if (window.ceremonator && window.ceremonator.onDebug) {
-            window.ceremonator.onDebug(function (data) {
-                if (data) {
-                    debug(data.type, data.message);
-                }
-            });
-        }
-
-        if (window.ceremonator && window.ceremonator.onClearAllDataRequested) {
-            window.ceremonator.onClearAllDataRequested(function () {
-                $scope.$evalAsync($scope.clearAllData);
-            });
-        }
-
-        $scope.copyPaste = function ($event, text) {
-            var target = $event.target;
-            $event.stopPropagation();
-
-            navigator.permissions.query({ name: 'clipboard-write' }).then(function (result) {
-                if (result.state !== 'granted' && result.state !== 'prompt') {
-                    return;
-                }
-                navigator.clipboard.writeText(text).then(function () {
-                    target.style.color = '#379d44';
-                }, function () {
-                    alert('Failed to paste to clipboard.');
+        if(window.ceremonator) {
+            if (window.ceremonator.onNotice) {
+                window.ceremonator.onNotice(function (data) {
+                    if (!data || !data.text) {
+                        return;
+                    }
+                    $scope.$evalAsync(function () { $scope.addNotice(data.level || 'info', data.text); });
                 });
-            });
-        };
+            }
 
-        // Handle moving/resizing windows and save their position to project
-
-        if (window.ceremonator && window.ceremonator.onFrameStatus) {
-            window.ceremonator.onFrameStatus(function (data) {
-                var frame = FrameService.frames[data.frameId];
-                if (!frame) {
-                    return;
-                }
-                $scope.$evalAsync(function () {
-                    var hadLive = !!(frame.windows && frame.windows.live);
-                    frame.status = data.status;
-
-                    if (data.windows) {
-                        frame.windows = data.windows;
+            if (window.ceremonator.onDebug) {
+                window.ceremonator.onDebug(function (data) {
+                    if (data) {
+                        debug(data.type, data.message);
                     }
-
-                    if (!hadLive && frame.windows && frame.windows.live) {
-                        $scope.workspaceMode = WORKSPACE_MODES.RUN;
-                        $scope.queueViewOpen = true;
-                    }
-
-                    if (data.x != null && data.y != null && frame.position) {
-                        frame.position.x = data.x;
-                        frame.position.y = data.y;
-                    }
-
-                    if (data.monitor != null && frame.position) {
-                        frame.position.monitor = data.monitor;
-                    }
-
-                    if (data.width != null && data.height != null && frame.size) {
-                        frame.size.width = data.width;
-                        frame.size.height = data.height;
-                    }
-
-                    FrameState.syncRemote();
                 });
-            });
+            }
+
+            if (window.ceremonator.onClearAllDataRequested) {
+                window.ceremonator.onClearAllDataRequested(function () {
+                    $scope.$evalAsync($scope.clearAllData);
+                });
+            }
+
+            if (window.ceremonator.onFrameStatus) {
+                // Handle moving/resizing windows and save their position to project
+
+                window.ceremonator.onFrameStatus(function (data) {
+                    var frame = FrameService.frames[data.frameId];
+                    if (!frame) {
+                        return;
+                    }
+                    $scope.$evalAsync(function () {
+                        var hadLive = !!(frame.windows && frame.windows.live);
+                        frame.status = data.status;
+
+                        if (data.windows) {
+                            frame.windows = data.windows;
+                        }
+
+                        if (!hadLive && frame.windows && frame.windows.live) {
+                            $scope.workspaceMode = WORKSPACE_MODES.RUN;
+                            $scope.queueViewOpen = true;
+                        }
+
+                        if (data.x != null && data.y != null && frame.position) {
+                            frame.position.x = data.x;
+                            frame.position.y = data.y;
+                        }
+
+                        if (data.monitor != null && frame.position) {
+                            frame.position.monitor = data.monitor;
+                        }
+
+                        if (data.width != null && data.height != null && frame.size) {
+                            frame.size.width = data.width;
+                            frame.size.height = data.height;
+                        }
+
+                        FrameState.syncRemote();
+                    });
+                });
+            }
         }
+
 
         // Mirrored eagerly since a window close handler is synchronous and can't await IPC.
         $scope.$watch('projectDirty', function (dirty) {

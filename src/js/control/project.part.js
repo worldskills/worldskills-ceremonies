@@ -13,24 +13,6 @@
             $scope.projectDirty = true;
         };
 
-        $scope.displays = [];
-
-        if (window.ceremonator && window.ceremonator.displays) {
-            var refreshDisplays = function () {
-                window.ceremonator.displays.list().then(function (list) {
-                    $scope.$evalAsync(function () {
-                        $scope.displays = (list || []).map(function (d, i) {
-                            return { index: i, label: d.label || ('Display ' + (i + 1)) };
-                        });
-                    });
-                });
-            };
-            refreshDisplays();
-            if (window.ceremonator.displays.onChanged) {
-                window.ceremonator.displays.onChanged(refreshDisplays);
-            }
-        }
-
         $scope.upload = function (file) {
             if (!file) {
                 return;

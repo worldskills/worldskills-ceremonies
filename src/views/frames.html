@@ -1,179 +1,191 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Ceremonies Frames</title>
-    <link href="../css/frames.css" rel="stylesheet">
-</head>
-<body>
-    <div id="grid"></div>
-    <script>
-        (function () {
-            var params = new URLSearchParams(window.location.search);
-            var frames = [];
-            try { frames = JSON.parse(params.get('frames') || '[]'); } catch (e) { frames = []; }
+    <head>
+        <meta charset="utf-8" />
+        <title>Ceremonies Frames</title>
+        <link href="../css/frames.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="grid"></div>
+        <script>
+            (function () {
+                var params = new URLSearchParams(window.location.search);
+                var frames = [];
+                try {
+                    frames = JSON.parse(params.get("frames") || "[]");
+                } catch (e) {
+                    frames = [];
+                }
 
-            var cols = parseInt(params.get('cols'), 10) || 2;
-            var cellW = parseInt(params.get('cellW'), 10) || 1100;
-            var cellH = parseInt(params.get('cellH'), 10) || 500;
-            var gap = parseInt(params.get('gap'), 10) || 0;
-            var feed = params.get('feed') || 'live';
-            var feedType = params.get('feedType') || '';
-            var maxW = parseInt(params.get('maxW'), 10) || Number.MAX_SAFE_INTEGER;
-            var maxH = parseInt(params.get('maxH'), 10) || Number.MAX_SAFE_INTEGER;
-            var testMode = params.get('testMode') === '1' || localStorage.getItem('ceremonator:testMode') === '1';
-            var fullscreen = params.get('fullscreen') === '1';
+                var cols = parseInt(params.get("cols"), 10) || 2;
+                var cellW = parseInt(params.get("cellW"), 10) || 1100;
+                var cellH = parseInt(params.get("cellH"), 10) || 500;
+                var gap = parseInt(params.get("gap"), 10) || 0;
+                var feed = params.get("feed") || "live";
+                var feedType = params.get("feedType") || "";
+                var maxW = parseInt(params.get("maxW"), 10) || Number.MAX_SAFE_INTEGER;
+                var maxH = parseInt(params.get("maxH"), 10) || Number.MAX_SAFE_INTEGER;
+                var testMode = params.get("testMode") === "1" || localStorage.getItem("ceremonator:testMode") === "1";
+                var fullscreen = params.get("fullscreen") === "1";
 
-            if (fullscreen) document.body.classList.add('grid-fullscreen');
+                if (fullscreen) document.body.classList.add("grid-fullscreen");
 
-            var root = document.getElementById('grid');
+                var root = document.getElementById("grid");
 
-            var rootStyle = document.documentElement.style;
-            rootStyle.setProperty('--grid-cols', cols);
-            rootStyle.setProperty('--cell-w', cellW + 'px');
-            rootStyle.setProperty('--cell-h', cellH + 'px');
-            rootStyle.setProperty('--grid-gap', gap + 'px');
+                var rootStyle = document.documentElement.style;
+                rootStyle.setProperty("--grid-cols", cols);
+                rootStyle.setProperty("--cell-w", cellW + "px");
+                rootStyle.setProperty("--cell-h", cellH + "px");
+                rootStyle.setProperty("--grid-gap", gap + "px");
 
-            var byId = {};
-            frames.forEach(function (f) { byId[f.frameId] = f; });
-
-            function applyConditions() {
-                Array.prototype.forEach.call(root.querySelectorAll('[data-when-cols]'), function (el) {
-                    var spec = el.getAttribute('data-when-cols') || '';
-                    var negate = spec.charAt(0) === '!';
-                    var match = parseInt(negate ? spec.slice(1) : spec, 10) === cols;
-                    if (negate === match) el.parentNode.removeChild(el);
+                var byId = {};
+                frames.forEach(function (f) {
+                    byId[f.frameId] = f;
                 });
-            }
 
-            function expandEach() {
-                Array.prototype.forEach.call(root.querySelectorAll('[data-frame-each]'), function (proto) {
-                    var parent = proto.parentNode;
-                    var repeat = parseInt(proto.getAttribute('data-frame-repeat'), 10) || 1;
-                    frames.forEach(function (frame) {
-                        for (var i = 0; i < repeat; i++) {
-                            var el = proto.cloneNode(true);
-                            el.removeAttribute('data-frame-each');
-                            el.removeAttribute('data-frame-repeat');
-                            if (!el.hasAttribute('data-frame')) el.setAttribute('data-frame', frame.frameId);
-                            if (!el.hasAttribute('data-label')) el.setAttribute('data-label', frame.label || frame.frameId);
-                            if (frame.container && !el.hasAttribute('data-container')) el.setAttribute('data-container', frame.container);
-                            parent.insertBefore(el, proto);
-                        }
+                function applyConditions() {
+                    Array.prototype.forEach.call(root.querySelectorAll("[data-when-cols]"), function (el) {
+                        var spec = el.getAttribute("data-when-cols") || "";
+                        var negate = spec.charAt(0) === "!";
+                        var match = parseInt(negate ? spec.slice(1) : spec, 10) === cols;
+                        if (negate === match) el.parentNode.removeChild(el);
                     });
-                    parent.removeChild(proto);
-                });
-            }
-
-            function fillCell(el, cellIndex) {
-                var frameId = el.getAttribute('data-frame');
-                var frame = byId[frameId] || {};
-                var container = el.getAttribute('data-container') || '';
-                var label = el.hasAttribute('data-label') ? el.getAttribute('data-label') : (frame.label || '');
-                var accent = el.getAttribute('data-accent') || frame.accent || '';
-                if (accent) el.style.setProperty('--cell-accent', accent);
-
-                var iframe = document.createElement('iframe');
-                var src = 'screen.html?screen=' + encodeURIComponent(frameId);
-                if (feed === 'preview') src += '&feed=preview';
-                src += '&feedType=' + encodeURIComponent(feedType);
-                if (container) src += '&container=' + encodeURIComponent(container);
-                if (label) src += '&label=' + encodeURIComponent(label);
-                if (testMode) src += '&testMode=1';
-                // Every rendered cell gets its own DOM-order position. Keep this
-                // metadata present even while test mode is off so it can be
-                // enabled on an already-open grid via the localStorage event.
-                src += '&testIdx=' + (cellIndex + 1);
-                src += '&gridCols=' + cols;
-                iframe.src = src;
-                iframe.frameBorder = '0';
-                iframe.scrolling = 'no';
-                iframe.className = 'frame-cell-screen';
-                el.appendChild(iframe);
-
-                if (label) {
-                    var caption = document.createElement('div');
-                    caption.className = 'frame-cell-caption';
-                    caption.textContent = label;
-                    el.appendChild(caption);
                 }
-                return frameId;
-            }
 
-            function fitAndShow(frameIds) {
-                var grid = root.querySelector('.frames-grid');
-                // Measure the authored grid, not #grid: that block initially fills
-                // the launch window's work-area width even when its cells do not.
-                var naturalWidth = grid ? grid.scrollWidth : root.scrollWidth;
-                var naturalHeight = grid ? grid.scrollHeight : root.scrollHeight;
-                var scale = Math.min(1, maxW / naturalWidth, maxH / naturalHeight);
-                var fittedWidth = Math.max(1, Math.floor(naturalWidth * scale));
-                var fittedHeight = Math.max(1, Math.floor(naturalHeight * scale));
-
-                // Keep every iframe's CSS viewport at its configured dimensions.
-                // Scaling the completed grid as one surface preserves cell aspect
-                // ratios, line wrapping and text fitting in constrained work areas.
-                if (grid && scale < 1) {
-                    grid.style.transformOrigin = 'top left';
-                    grid.style.transform = 'scale(' + scale + ')';
+                function expandEach() {
+                    Array.prototype.forEach.call(root.querySelectorAll("[data-frame-each]"), function (proto) {
+                        var parent = proto.parentNode;
+                        var repeat = parseInt(proto.getAttribute("data-frame-repeat"), 10) || 1;
+                        frames.forEach(function (frame) {
+                            for (var i = 0; i < repeat; i++) {
+                                var el = proto.cloneNode(true);
+                                el.removeAttribute("data-frame-each");
+                                el.removeAttribute("data-frame-repeat");
+                                if (!el.hasAttribute("data-frame")) el.setAttribute("data-frame", frame.frameId);
+                                if (!el.hasAttribute("data-label"))
+                                    el.setAttribute("data-label", frame.label || frame.frameId);
+                                if (frame.container && !el.hasAttribute("data-container"))
+                                    el.setAttribute("data-container", frame.container);
+                                parent.insertBefore(el, proto);
+                            }
+                        });
+                        parent.removeChild(proto);
+                    });
                 }
-                root.style.width = fittedWidth + 'px';
-                root.style.height = fittedHeight + 'px';
-                root.style.overflow = 'hidden';
+
+                function fillCell(el, cellIndex) {
+                    var frameId = el.getAttribute("data-frame");
+                    var frame = byId[frameId] || {};
+                    var container = el.getAttribute("data-container") || "";
+                    var label = el.hasAttribute("data-label") ? el.getAttribute("data-label") : frame.label || "";
+                    var accent = el.getAttribute("data-accent") || frame.accent || "";
+                    if (accent) el.style.setProperty("--cell-accent", accent);
+
+                    var iframe = document.createElement("iframe");
+                    var src = "screen.html?screen=" + encodeURIComponent(frameId);
+                    if (feed === "preview") src += "&feed=preview";
+                    src += "&feedType=" + encodeURIComponent(feedType);
+                    if (container) src += "&container=" + encodeURIComponent(container);
+                    if (label) src += "&label=" + encodeURIComponent(label);
+                    if (testMode) src += "&testMode=1";
+                    // Every rendered cell gets its own DOM-order position. Keep this
+                    // metadata present even while test mode is off so it can be
+                    // enabled on an already-open grid via the localStorage event.
+                    src += "&testIdx=" + (cellIndex + 1);
+                    src += "&gridCols=" + cols;
+                    iframe.src = src;
+                    iframe.frameBorder = "0";
+                    iframe.scrolling = "no";
+                    iframe.className = "frame-cell-screen";
+                    el.appendChild(iframe);
+
+                    if (label) {
+                        var caption = document.createElement("div");
+                        caption.className = "frame-cell-caption";
+                        caption.textContent = label;
+                        el.appendChild(caption);
+                    }
+                    return frameId;
+                }
+
+                function fitAndShow(frameIds) {
+                    var grid = root.querySelector(".frames-grid");
+                    // Measure the authored grid, not #grid: that block initially fills
+                    // the launch window's work-area width even when its cells do not.
+                    var naturalWidth = grid ? grid.scrollWidth : root.scrollWidth;
+                    var naturalHeight = grid ? grid.scrollHeight : root.scrollHeight;
+                    var scale = Math.min(1, maxW / naturalWidth, maxH / naturalHeight);
+                    var fittedWidth = Math.max(1, Math.floor(naturalWidth * scale));
+                    var fittedHeight = Math.max(1, Math.floor(naturalHeight * scale));
+
+                    // Keep every iframe's CSS viewport at its configured dimensions.
+                    // Scaling the completed grid as one surface preserves cell aspect
+                    // ratios, line wrapping and text fitting in constrained work areas.
+                    if (grid && scale < 1) {
+                        grid.style.transformOrigin = "top left";
+                        grid.style.transform = "scale(" + scale + ")";
+                    }
+                    root.style.width = fittedWidth + "px";
+                    root.style.height = fittedHeight + "px";
+                    root.style.overflow = "hidden";
+
+                    if (window.ceremonator && window.ceremonator.grid) {
+                        window.ceremonator.grid.fit({
+                            width: fittedWidth,
+                            height: fittedHeight,
+                            frameIds: frameIds,
+                        });
+                    }
+                }
+
+                function build(html) {
+                    // innerHTML does not execute <script>, deliberately — grid templates are declarative.
+                    root.innerHTML = html;
+                    applyConditions();
+                    expandEach();
+                    var frameIds = [];
+                    Array.prototype.forEach.call(root.querySelectorAll("[data-frame]"), function (el, cellIndex) {
+                        var id = fillCell(el, cellIndex);
+                        if (id && frameIds.indexOf(id) < 0) frameIds.push(id);
+                    });
+                    fitAndShow(frameIds);
+                }
+
+                // A black window with no explanation is the worst outcome on show day.
+                function fail(message) {
+                    root.innerHTML = "";
+                    var p = document.createElement("div");
+                    p.className = "frames-grid-error";
+                    p.textContent = "Grid view could not load this project’s template/grid.html: " + message;
+                    root.appendChild(p);
+                    fitAndShow([]);
+                }
 
                 if (window.ceremonator && window.ceremonator.grid) {
-                    window.ceremonator.grid.fit({
-                        width: fittedWidth,
-                        height: fittedHeight,
-                        frameIds: frameIds
-                    });
+                    window.ceremonator.grid
+                        .template()
+                        .then(function (html) {
+                            if (html) build(html);
+                            else fail("file not found");
+                        })
+                        .catch(function (error) {
+                            fail(error.message || String(error));
+                        });
+                } else {
+                    fail("grid API unavailable");
                 }
-            }
 
-            function build(html) {
-                // innerHTML does not execute <script>, deliberately — grid templates are declarative.
-                root.innerHTML = html;
-                applyConditions();
-                expandEach();
-                var frameIds = [];
-                Array.prototype.forEach.call(root.querySelectorAll('[data-frame]'), function (el, cellIndex) {
-                    var id = fillCell(el, cellIndex);
-                    if (id && frameIds.indexOf(id) < 0) frameIds.push(id);
+                window.addEventListener("keydown", function (e) {
+                    if (e.key === "Control") document.body.classList.add("show-overlays");
                 });
-                fitAndShow(frameIds);
-            }
-
-            // A black window with no explanation is the worst outcome on show day.
-            function fail(message) {
-                root.innerHTML = '';
-                var p = document.createElement('div');
-                p.className = 'frames-grid-error';
-                p.textContent = 'Grid view could not load this project’s template/grid.html: ' + message;
-                root.appendChild(p);
-                fitAndShow([]);
-            }
-
-            if (window.ceremonator && window.ceremonator.grid) {
-                window.ceremonator.grid.template().then(function (html) {
-                    if (html) build(html); else fail('file not found');
-                }).catch(function (error) {
-                    fail(error.message || String(error));
+                window.addEventListener("keyup", function (e) {
+                    if (e.key === "Control") document.body.classList.remove("show-overlays");
                 });
-            } else {
-                fail('grid API unavailable');
-            }
 
-            window.addEventListener('keydown', function (e) {
-                if (e.key === 'Control') document.body.classList.add('show-overlays');
-            });
-            window.addEventListener('keyup', function (e) {
-                if (e.key === 'Control') document.body.classList.remove('show-overlays');
-            });
-
-            window.addEventListener('blur', function () {
-                document.body.classList.remove('show-overlays');
-            });
-        })();
-    </script>
-</body>
+                window.addEventListener("blur", function () {
+                    document.body.classList.remove("show-overlays");
+                });
+            })();
+        </script>
+    </body>
 </html>

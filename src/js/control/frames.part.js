@@ -96,83 +96,41 @@
             }
         };
 
-        $scope.prevSlideForFrame = function (frameId) {
+        function stepFrame(frameId, direction) {
             var frame = FrameService.frames[frameId];
-            if (!frame || !frame.slides || !frame.slides.length) {
+            if (!frame || !frame.slide || !frame.slides || !frame.slides.length) {
                 return;
             }
-
-            var slide = frame.slide;
-            if (!slide) {
+            var step = SlideStep.resolve(frame.slides, frame.slides.indexOf(frame.slide), direction);
+            if (!step) {
                 return;
             }
-            var revealed = SlideStep.lastState(slide);
-            if (revealed) {
-                $scope.toggleState(frameId, slide, revealed);
-                return;
-            }
-
-            var idx = frame.slides.indexOf(slide);
-            if (idx > 0) {
-                var previous = frame.slides[idx - 1];
-                // Stepping backwards onto a slide enters it fully revealed.
-                $scope.showSlide(frameId, previous, previous.states || []);
+            if (step.state) {
+                $scope.toggleState(frameId, frame.slide, step.state, true);
+            } else if (step.index < frame.slides.length) {
+                $scope.showSlide(frameId, frame.slides[step.index], step.initialState);
                 QueueScroll.scrollToActiveInFrame(frameId);
             }
+        }
+
+        $scope.prevSlideForFrame = function (frameId) {
+            stepFrame(frameId, -1);
         };
 
         $scope.nextSlideForFrame = function (frameId) {
-            var frame = FrameService.frames[frameId];
-            if (!frame || !frame.slides || !frame.slides.length) {
-                return;
-            }
-
-            var slide = frame.slide;
-            if (!slide) {
-                return;
-            }
-
-            var reveal = SlideStep.nextState(slide);
-            if (reveal) {
-                $scope.toggleState(frameId, slide, reveal);
-                return;
-            }
-
-            var idx = frame.slides.indexOf(slide);
-
-            if (idx >= 0 && idx < frame.slides.length - 1) {
-                $scope.showSlide(frameId, frame.slides[idx + 1]);
-                QueueScroll.scrollToActiveInFrame(frameId);
-            }
+            stepFrame(frameId, 1);
         };
 
         $scope.prevSlide = function () {
-            var frame = FrameService.getActiveFrame();
-            if (!frame || !frame.slides.length) {
-                return;
-            }
             $scope.prevSlideForFrame(FrameService.activeFrameId);
         };
 
         $scope.nextSlide = function () {
-            var frame = FrameService.getActiveFrame();
-            if (!frame || !frame.slides.length) {
-                return;
-            }
             $scope.nextSlideForFrame(FrameService.activeFrameId);
         };
 
         $scope.jumpToSlide = function (slide) {
             $scope.showSlide(FrameService.activeFrameId, slide);
-        };
-
-        $scope.getSlidePosition = function (frameId) {
-            var frame = FrameService.frames[frameId];
-            if (!frame || !frame.slides.length) {
-                return '—';
-            }
-            var idx = frame.slides.indexOf(frame.slide);
-            return (idx < 0 ? '—' : idx + 1) + '/' + frame.slides.length;
         };
 
         $scope.resetFrame = function (frameId, feedType) {
@@ -368,25 +326,6 @@
                 frame.status = FRAMES_WINDOW_STATUS.CONNECTING;
                 window.ceremonator.app.reloadScreen(frameId);
             }
-        };
-
-        $scope.closeFrameWindow = function (frameId) {
-            var frame = FrameService.frames[frameId];
-            if (!frame) {
-                return;
-            }
-
-            if (frame.status && frame.status !== FRAMES_WINDOW_STATUS.CLOSED) {
-                if (!confirm('Close the live screen "' + (frame.label || frameId) + '"? The audience display for this frame will go blank.')) {
-                    return;
-                }
-            }
-
-            if (window.ceremonator && window.ceremonator.frames) {
-                window.ceremonator.frames.closeWindow({ frameId: frameId });
-            }
-
-            frame.status = FRAMES_WINDOW_STATUS.CLOSED;
         };
 
         $scope.getFrameCount = function () {

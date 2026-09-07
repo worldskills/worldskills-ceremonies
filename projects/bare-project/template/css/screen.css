@@ -1,11 +1,11 @@
-@import url('./fonts.css');
-@import url('./state.css');
+@import url("./fonts.css");
+@import url("./state.css");
 
 :root {
-    --primary-a: #62B5E5;
-    --secondary-a: #8AE2D1;
-    --primary-b: #DF4661;
-    --secondary-b: #72D0EB;
+    --primary-a: #62b5e5;
+    --secondary-a: #8ae2d1;
+    --primary-b: #df4661;
+    --secondary-b: #72d0eb;
     --background: #000;
     --callup-color: #f1f1f1;
     --font-color: #fff;
@@ -13,9 +13,13 @@
 
     --stage-height: max(100vh, calc(100vw / 2.2));
     --stage-offset-y: calc((100vh - var(--stage-height)) / 2);
-    --top-bar-bottom: calc(var(--stage-offset-y) + var(--stage-height) / 5.7142857);
+    --top-bar-bottom: calc(
+        var(--stage-offset-y) + var(--stage-height) / 5.7142857
+    );
 
-    --bottom-bar-inset: calc(var(--stage-offset-y) + var(--stage-height) / 11.4285714);
+    --bottom-bar-inset: calc(
+        var(--stage-offset-y) + var(--stage-height) / 11.4285714
+    );
 }
 
 * {
@@ -65,8 +69,13 @@ body.preview .screen-content {
     border: 1px solid #eee;
 }
 
-.screen-content-partners { align-items: center; justify-content: center; }
-.screen-blank { background: #000; }
+.screen-content-partners {
+    align-items: center;
+    justify-content: center;
+}
+.screen-blank {
+    background: #000;
+}
 .screen-partners {
     width: 90vw;
     height: 82vh;
@@ -77,10 +86,30 @@ body.preview .screen-content {
     padding: clamp(8px, 1.5vw, 24px);
     overflow: hidden;
 }
-.screen-partner { min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: clamp(4px, 0.8vw, 14px); text-align: center; }
-.screen-partner img { display: block; width: 86%; height: 72%; max-width: 100%; max-height: 100%; object-fit: contain; margin: auto; }
-.screen-partner-name { max-width: 100%; font-size: clamp(12px, calc(var(--unit) * .75), 28px); color: var(--font-color); overflow-wrap: anywhere; }
-
+.screen-partner {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(4px, 0.8vw, 14px);
+    text-align: center;
+}
+.screen-partner img {
+    display: block;
+    width: 86%;
+    height: 72%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    margin: auto;
+}
+.screen-partner-name {
+    max-width: 100%;
+    font-size: clamp(12px, calc(var(--unit) * 0.75), 28px);
+    color: var(--font-color);
+    overflow-wrap: anywhere;
+}
 
 .screen-region-kv {
     flex: 0 0 var(--top-bar-bottom);
@@ -127,7 +156,6 @@ body.has-bg-video .screen-empty-logo {
     transform: translate(-50%, -50%);
 }
 
-
 .screen-skill-medals-name,
 .screen-skill-callup-name {
     font-weight: 800;
@@ -135,7 +163,7 @@ body.has-bg-video .screen-empty-logo {
 }
 
 .screen-skill-medals-name .screen-skill-medals-name-mfe {
-    color: #FFF !important;
+    color: #fff !important;
 }
 
 .screen-section-heading {
@@ -165,7 +193,8 @@ body.has-bg-video .screen-empty-logo {
     gap: 0.4em;
 }
 
-.screen-medal-for-excellence, .screen-best-of-nation {
+.screen-medal-for-excellence,
+.screen-best-of-nation {
     font-weight: normal !important;
 }
 
@@ -198,10 +227,25 @@ body.has-bg-video .screen-empty-logo {
     padding: calc(var(--unit) * 1.5) var(--grid-gap-x);
 
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(
-        min(100%, max(var(--grid-col-min),
-            calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols)))),
-        1fr));
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(
+            min(
+                100%,
+                max(
+                    var(--grid-col-min),
+                    calc(
+                        (
+                                100% - (var(--grid-max-cols) - 1) *
+                                    var(--grid-gap-x)
+                            ) /
+                            var(--grid-max-cols)
+                    )
+                )
+            ),
+            1fr
+        )
+    );
     grid-auto-rows: minmax(0, 1fr);
     grid-auto-flow: row;
     column-gap: var(--grid-gap-x);
@@ -346,7 +390,6 @@ body.has-bg-video .screen-empty-logo {
     align-items: baseline;
     white-space: nowrap;
 }
-
 
 .screen-flag img {
     width: 100%;

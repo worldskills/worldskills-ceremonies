@@ -98,9 +98,11 @@
                 fail('Command was not sent: connection is not ready.');
                 return;
             }
+
             if (!$scope.frame) {
                 return;
             }
+
             if (Object.keys(pending).length >= 32) {
                 fail('Command not sent: too many commands are awaiting confirmation.');
                 return;
@@ -112,16 +114,19 @@
                 action: action,
                 feedType: feed || 'all'
             };
+
             if (index != null) {
                 command.slideIndex = index;
                 command.slideId = $scope.frame.slides[index].slideId;
                 command.state = state;
             }
+
             if (action === 'context') {
                 command.context = context;
             }
 
             var id = 'operator-' + (++serial);
+
             pending[id] = {
                 timer: $timeout(function () {
                     settle(id, 'Command timed out; outcome unknown. Check the current output before trying again.');
@@ -133,6 +138,7 @@
                 settle(id, 'The edit exceeds the remote command size limit. Apply it in Control.');
                 return;
             }
+
             if (!RemoteTransport.sendRaw(payload)) {
                 settle(id, 'Command could not be sent. Check the connection before trying again.');
             }
@@ -144,6 +150,7 @@
             $scope.connecting = true;
             $scope.ready = false;
             $scope.status = 'Connecting…';
+
             clearPending('Reconnected before confirmation; command outcome unknown. Check the current output.');
             RemoteTransport.connect($scope.auth.pin, 'operator');
         };
@@ -153,7 +160,11 @@
         }
 
         function reportDebug(type, message) {
-            RemoteTransport.sendRaw({ type: 'debug', debugType: type, message: message });
+            RemoteTransport.sendRaw({
+                type: 'debug',
+                debugType: type,
+                message: message
+            });
         }
 
         function selectedFrame() {

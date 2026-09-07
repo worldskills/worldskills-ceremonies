@@ -42,16 +42,6 @@
             $scope.jumpMenuOpen = false;
         };
 
-        $scope.getSlidePosition = function (frameId) {
-            var frame = $scope.screens[frameId];
-            var index;
-            if (!frame || !frame.slides.length) {
-                return '—';
-            }
-            index = frame.slides.indexOf(frame.slide);
-            return (index < 0 ? '—' : index + 1) + '/' + frame.slides.length;
-        };
-
         $scope.showSlide = function (frameId, slide) {
             sendSlideAction('showSlide', frameId, slide);
         };

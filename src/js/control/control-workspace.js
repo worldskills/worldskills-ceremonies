@@ -26,6 +26,15 @@
                     return String((match && match.label) || feedId).charAt(0).toUpperCase();
                 }
 
+                scope.getSlidePosition = function (frameId) {
+                    var frame = frameFor(frameId);
+                    if (!frame || !frame.slides.length) {
+                        return '—';
+                    }
+                    var index = frame.slides.indexOf(frame.slide);
+                    return (index < 0 ? '—' : index + 1) + '/' + frame.slides.length;
+                };
+
                 scope.isPreviewingSlide = function (frameId, slide) {
                     var frame = frameFor(frameId);
                     return !!frame && frame.previewSlide === slide;
@@ -121,6 +130,10 @@
                     // since canEditSlide etc. compare against the frozen object). Watch instead.
                     scope.$watch(attrs.frameId, function (v) { scope.rowFrameId = v; });
                     scope.$watch(attrs.slide, function (v) { scope.rowSlide = v; });
+                    if (attrs.label) {
+                        scope.$watch(attrs.label, function (v) { scope.rowLabel = v; });
+                    }
+                    scope.rowEditContext = attrs.editContext !== 'false';
                     scope.rowShowBadge = attrs.showBadge ? !!scope.$eval(attrs.showBadge) : false;
                     if (attrs.frameLabel) {
                         scope.$watch(attrs.frameLabel, function (v) { scope.rowFrameLabel = v; });

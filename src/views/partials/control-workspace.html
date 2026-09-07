@@ -1,9 +1,20 @@
 <div class="control-workspace-shell">
-    <div class="control-toolbar" ng-show="screens[FrameService.activeFrameId] && screens[FrameService.activeFrameId].slides && screens[FrameService.activeFrameId].slides.length > 0">
-        <button class="btn btn-sm btn-outline-secondary" ng-click="prevSlide()" ng-disabled="!screens[FrameService.activeFrameId].slide || (screens[FrameService.activeFrameId].slides.indexOf(screens[FrameService.activeFrameId].slide) <= 0 && !(screens[FrameService.activeFrameId].slide.state || []).length)">
+    <div
+        class="control-toolbar"
+        ng-show="screens[FrameService.activeFrameId] && screens[FrameService.activeFrameId].slides && screens[FrameService.activeFrameId].slides.length > 0"
+    >
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            ng-click="prevSlide()"
+            ng-disabled="!screens[FrameService.activeFrameId].slide || (screens[FrameService.activeFrameId].slides.indexOf(screens[FrameService.activeFrameId].slide) <= 0 && !(screens[FrameService.activeFrameId].slide.state || []).length)"
+        >
             <i class="fa fa-chevron-left"></i> Prev
         </button>
-        <button class="btn btn-sm btn-outline-secondary" ng-click="nextSlide()" ng-disabled="!screens[FrameService.activeFrameId].slide">
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            ng-click="nextSlide()"
+            ng-disabled="!screens[FrameService.activeFrameId].slide"
+        >
             Next <i class="fa fa-chevron-right"></i>
         </button>
         <div class="btn-group ml-2 position-relative">
@@ -11,31 +22,69 @@
                 Jump to… <i class="fa fa-caret-down ml-1"></i>
             </button>
             <div class="dropdown-menu jump-dropdown-menu" ng-class="{show: jumpMenuOpen}">
-                <button class="dropdown-item" ng-repeat="slide in screens[FrameService.activeFrameId].slides track by $index" ng-click="jumpToSlide(slide); jumpMenuOpen=false">
+                <button
+                    class="dropdown-item"
+                    ng-repeat="slide in screens[FrameService.activeFrameId].slides track by $index"
+                    ng-click="jumpToSlide(slide); jumpMenuOpen=false"
+                >
                     {{ slide.label }}
                 </button>
             </div>
         </div>
         <div class="control-toolbar-sep"></div>
         <span class="workspace-frame-status d-flex align-items-center">
-            <span class="frame-color-chip" style="background: {{ FrameService.getFrameColor(FrameService.activeFrameId) }}"></span>
+            <span
+                class="frame-color-chip"
+                style="background: {{ FrameService.getFrameColor(FrameService.activeFrameId) }}"
+            ></span>
             {{ screens[FrameService.activeFrameId].label }}
             <span class="status-dot {{ screens[FrameService.activeFrameId].status }}"></span>
             <span class="workspace-slide-position">{{ getSlidePosition(FrameService.activeFrameId) }}</span>
         </span>
         <span class="workspace-toolbar-actions ml-auto d-flex">
-            <span class="btn-group mr-1" ng-repeat="outputFeed in FrameService.feedTypes track by outputFeed.id" ng-if="workspaceCapabilities.manageWindows">
-                <button class="btn btn-sm btn-success" ng-click="openFrameWindowLive(FrameService.activeFrameId, outputFeed.id)" title="Open a new live window"><i class="fa fa-play mr-1"></i>{{ outputFeed.id | uppercase }} Live <span ng-show="feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'live')">×{{ feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'live') }}</span></button>
-                <button class="btn btn-sm btn-outline-secondary" ng-click="openFrameWindowPreview(FrameService.activeFrameId, outputFeed.id)" ng-disabled="!canOpenFramePreview(FrameService.activeFrameId, outputFeed.id)" title="Open matching Live first"><i class="fa fa-eye mr-1"></i>Preview <span ng-show="feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'preview')">×{{ feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'preview') }}</span></button>
+            <span
+                class="btn-group mr-1"
+                ng-repeat="outputFeed in FrameService.feedTypes track by outputFeed.id"
+                ng-if="workspaceCapabilities.manageWindows"
+            >
+                <button
+                    class="btn btn-sm btn-success"
+                    ng-click="openFrameWindowLive(FrameService.activeFrameId, outputFeed.id)"
+                    title="Open a new live window"
+                >
+                    <i class="fa fa-play mr-1"></i>{{ outputFeed.id | uppercase }} Live
+                    <span ng-show="feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'live')"
+                        >×{{ feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'live') }}</span
+                    >
+                </button>
+                <button
+                    class="btn btn-sm btn-outline-secondary"
+                    ng-click="openFrameWindowPreview(FrameService.activeFrameId, outputFeed.id)"
+                    ng-disabled="!canOpenFramePreview(FrameService.activeFrameId, outputFeed.id)"
+                    title="Open matching Live first"
+                >
+                    <i class="fa fa-eye mr-1"></i>Preview
+                    <span ng-show="feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'preview')"
+                        >×{{ feedWindowCount(screens[FrameService.activeFrameId], outputFeed.id, 'preview') }}</span
+                    >
+                </button>
             </span>
-            <button class="btn btn-sm btn-outline-info" ng-show="screens[FrameService.activeFrameId].previewSlide" ng-click="resetPreview(FrameService.activeFrameId)" title="Reset preview to match live">
+            <button
+                class="btn btn-sm btn-outline-info"
+                ng-show="screens[FrameService.activeFrameId].previewSlide"
+                ng-click="resetPreview(FrameService.activeFrameId)"
+                title="Reset preview to match live"
+            >
                 <i class="fa fa-undo mr-1"></i> Reset Preview
             </button>
-            <button class="btn btn-sm btn-outline-secondary" ng-if="workspaceCapabilities.manageWindows" ng-show="screens[FrameService.activeFrameId].status !== 'closed'" ng-click="reloadFrameWindow(FrameService.activeFrameId)" title="Reload this screen">
+            <button
+                class="btn btn-sm btn-outline-secondary"
+                ng-if="workspaceCapabilities.manageWindows"
+                ng-show="screens[FrameService.activeFrameId].status !== 'closed'"
+                ng-click="reloadFrameWindow(FrameService.activeFrameId)"
+                title="Reload this screen"
+            >
                 <i class="fa fa-refresh mr-1"></i> Reload
-            </button>
-            <button class="btn btn-sm btn-danger" ng-if="workspaceCapabilities.manageWindows" ng-show="screens[FrameService.activeFrameId].status !== 'closed'" ng-click="closeFrameWindow(FrameService.activeFrameId)" title="Close all windows for this frame">
-                <i class="fa fa-stop mr-1"></i> Close window
             </button>
         </span>
     </div>
@@ -46,7 +95,10 @@
         <div class="main-panel">
             <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
                 <div class="active-frame-banner" style="--frame-color: {{ FrameService.getFrameColor(id) }}">
-                    <span class="frame-color-chip" style="background: {{ FrameService.getFrameColor(id) }}; border:1px solid rgba(255,255,255,0.3)"></span>
+                    <span
+                        class="frame-color-chip"
+                        style="background: {{ FrameService.getFrameColor(id) }}; border:1px solid rgba(255,255,255,0.3)"
+                    ></span>
                     <span>CONTROLLING: "{{ frame.label }}" ({{ id }})</span>
                     <span class="status-dot {{ frame.status }}"></span>
                     <span>{{ frame.status }}</span>
@@ -58,9 +110,12 @@
                 <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
                     <div class="card mb-2" ng-show="frame.slides.length > 0">
                         <div class="list-group list-group-flush">
-                            <slide-row ng-repeat="slide in frame.slides track by $index"
-                                       frame-id="id" slide="slide"
-                                       on-live="showSlide(id, slide)"></slide-row>
+                            <slide-row
+                                ng-repeat="slide in frame.slides track by $index"
+                                frame-id="id"
+                                slide="slide"
+                                on-live="showSlide(id, slide)"
+                            ></slide-row>
                         </div>
                     </div>
 

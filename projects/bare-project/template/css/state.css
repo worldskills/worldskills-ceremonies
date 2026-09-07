@@ -27,5 +27,9 @@
     visibility: visible;
 }
 
-.screen-container-kv    .screen-region-state { display: none; }
-.screen-container-state .screen-region-kv    { display: none; }
+.screen-container-kv .screen-region-state {
+    display: none;
+}
+.screen-container-state .screen-region-kv {
+    display: none;
+}
