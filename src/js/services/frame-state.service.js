@@ -24,15 +24,16 @@
                 return !slide.stateFeedTypes || !slide.stateFeedTypes[name] || slide.stateFeedTypes[name] === feedType;
             }) : [];
             return {
-                // A deliberately blanked output is black. A feed routed away by
-                // the current state gets the branded empty screen instead.
-                template: TEMPLATE_BASE + (content ? content.template : (slide ? slide.template : (isRoutedAway && !isBlanked ? 'empty.html' : 'blank.html'))),
+                // Blank shows the project's logo template while retaining the
+                // frame background/video. The live slide and reveals stay parked.
+                template: TEMPLATE_BASE + (content ? content.template : (slide ? slide.template : (isBlanked || isRoutedAway ? 'empty.html' : 'blank.html'))),
                 context: (content && content.context) || (slide && slide.context) || {},
                 state: filteredState,
                 label: (slide && slide.label) || '',
                 frameLabel: frame.label || frameId,
                 accent: FrameService.getFrameColor(frameId),
-                video: frame.video ? TEMPLATE_BASE + 'videos/' + frame.video : ''
+                video: frame.video ? TEMPLATE_BASE + 'videos/' + frame.video : '',
+                testMode: window.localStorage.getItem('ceremonator:testMode') === '1'
             };
         }
 
@@ -74,6 +75,14 @@
                     label: frame.label,
                     color: FrameService.getFrameColor(id),
                     status: frame.status,
+                    size: frame.size,
+                    outputs: FrameService.feedTypes.reduce(function (outputs, feed) {
+                        outputs[feed.id] = {
+                            live: createStoragePayload(frame, liveSlideFor(frame, feed.id), id, null, feed.id),
+                            preview: createStoragePayload(frame, frame.blankedFeeds && frame.blankedFeeds[feed.id] ? undefined : (frame.previewSlide || frame.slide), id, frame.previewSlide ? (frame.previewState || []) : null, feed.id)
+                        };
+                        return outputs;
+                    }, {}),
                     blankedFeeds: angular.copy(frame.blankedFeeds || {}),
                     slideIndex: frame.slide ? frame.slides.indexOf(frame.slide) : -1,
                     previewSlideIndex: frame.previewSlide ? frame.slides.indexOf(frame.previewSlide) : -1,
@@ -83,7 +92,8 @@
                     })
                 });
             });
-            window.ceremonator.remote.sync({ feedTypes: angular.copy(FrameService.feedTypes), frames: frames });
+            window.ceremonator.remote.sync({ feedTypes: angular.copy(FrameService.feedTypes), frames: frames,
+                testMode: window.localStorage.getItem('ceremonator:testMode') === '1' });
         }
 
         function clear(frameId) {

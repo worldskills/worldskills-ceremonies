@@ -4,6 +4,19 @@ const projectStore = require('../project-store');
 const { hasRole } = require('./sender-role');
 
 function registerRemoteIpc() {
+    ipcMain.handle('remote:openOperator', async (event, frameId) => {
+        if (!hasRole(event, ['control'])) return { ok: false, error: 'Forbidden sender' };
+        const info = remoteServer.getInfo();
+        if (!info.port) return { ok: false, error: 'Enable the remote server before opening Operator.' };
+        const { BrowserWindow } = require('electron');
+        const win = new BrowserWindow({ width: 1440, height: 900, backgroundColor: '#101419',
+            webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true } });
+        win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+        try {
+            await win.loadURL('http://127.0.0.1:' + info.port + '/operator?frame=' + encodeURIComponent(frameId || '') + '#pin=' + info.pin);
+            return { ok: true };
+        } catch (error) { win.close(); return { ok: false, error: error.message }; }
+    });
     ipcMain.on('remote:commandResult', (event, requestId, result) => {
         if (hasRole(event, ['control']) && typeof requestId === 'string') remoteServer.completeCommand(requestId, result);
     });

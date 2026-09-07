@@ -2,6 +2,32 @@
     'use strict';
 
     angular.module('ceremoniesApp').controller('ControlCtrl', function ($scope, $http, $q, DATA_BASE, FrameService, FrameState, Catalog, Notices, SessionSnapshot, WORKSPACE_MODES, FramesPart, QueuePart, ProjectPart, SessionPart, RemotePart) {
+        var DEBUG_COLORS = {
+            'slide-changed': '#16a34a',
+            'state-changed': '#0891b2',
+            'video-failure': '#dc2626',
+            'load-failure': '#ea580c',
+            'remote-disconnected': '#ca8a04',
+            'electron-failure': '#b91c1c',
+            'remote-connected': '#7c3aed',
+            'operator-feed-error': '#db2777',
+            'streaming-display-unavailable': '#475569'
+        };
+
+        function debug(type, message, frameId) {
+            var label = String(type || 'debug').replace(/-/g, ' ').toUpperCase();
+            var line = String(message || '').replace(/\s+/g, ' ').trim();
+            var frame = frameId && FrameService.frames[frameId];
+            var frameLabel = frame && frame.label ? frame.label : frameId;
+            var styles = ['background:' + (DEBUG_COLORS[type] || '#334155') + ';color:#fff;font-weight:bold;padding:2px 5px;border-radius:3px', 'color:inherit'];
+            var format = '%c CEREMONATOR · ' + label + ' %c ';
+            if (frameLabel) {
+                format += '%c ' + frameLabel + ' %c ';
+                styles.push('background:' + FrameService.getFrameColor(frameId) + ';color:#fff;font-weight:bold;padding:2px 5px;border-radius:3px', 'color:inherit');
+            }
+            console.log.apply(console, [format + line].concat(styles));
+        }
+
         $scope.uploaded = false;
         $scope.FrameService = FrameService;
         $scope.workspaceCapabilities = { manageWindows: true, preview: true, copyScript: true };
@@ -10,17 +36,12 @@
         $scope.workspaceMode = WORKSPACE_MODES.SETUP;
 
         // ── Test Mode ──────────────────────────────────────────────────
-        $scope.testMode = true;
+        $scope.testMode = localStorage.getItem('ceremonator:testMode') === '1';
         $scope.toggleTestMode = function () {
             $scope.testMode = !($scope.testMode);
             localStorage.setItem('ceremonator:testMode', $scope.testMode ? '1' : '0');
+            angular.forEach(FrameService.frames, function (_frame, id) { FrameState.publish(id); });
         };
-
-        // Restore test mode from localStorage on startup
-        if (localStorage.getItem('ceremonator:testMode') === '1') {
-            $scope.testMode = true;
-        }
-
         $scope.skills = [];
         $scope.members = [];
         $scope.results = [];
@@ -241,17 +262,20 @@
             } else {
                 states.push(state);
             }
+            debug('state-changed', 'Turned state “' + state + '” ' + (idx >= 0 ? 'off' : 'on') + ' for slide “' + (slide.label || 'Untitled') + '”.', screen);
             publishAfterEdit(screen, slide);
         };
 
         $scope.resetStates = function (screen, slide) {
             FrameService.setActiveFrame(screen);
             var frame = FrameService.frames[screen];
+            var hadStates = stateArrayFor(screen, slide).length > 0;
             if (frame && frame.previewSlide === slide) {
                 frame.previewState = [];
             } else {
                 slide.state = [];
             }
+            if (hadStates) debug('state-changed', 'Reset all states for slide “' + (slide.label || 'Untitled') + '”.', screen);
             publishAfterEdit(screen, slide);
         };
 
@@ -259,7 +283,7 @@
             publishAfterEdit(screen, slide);
         };
 
-        $scope.showSlide = function (screen, slide) {
+        $scope.showSlide = function (screen, slide, initialState) {
             var frame = FrameService.frames[screen];
                 var wasPreviewing = frame.previewSlide === slide;
                 var sameSlide = frame.slide === slide;
@@ -276,10 +300,14 @@
                 frame.previewSlide = undefined;
                 frame.previewState = undefined;
             } else if (!sameSlide) {
-                slide.state = [];
+                slide.state = angular.copy(initialState || []);
             }
 
             if (!sameSlide || wasPreviewing || wasBlanked) {
+                debug('slide-changed', 'Changed the live slide to “' + (slide.label || 'Untitled') + '”.', screen);
+                if (!sameSlide && initialState && initialState.length) {
+                    debug('state-changed', 'Entered the slide with ' + initialState.map(function (state) { return '“' + state + '”'; }).join(', ') + ' active.', screen);
+                }
                 $scope.update(screen);
             }
         };
@@ -337,6 +365,12 @@
                 if (!data || !data.text) return;
                 var apply = function () { $scope.addNotice(data.level || 'info', data.text); };
                 if (!$scope.$$phase) $scope.$apply(apply); else apply();
+            });
+        }
+
+        if (window.ceremonator && window.ceremonator.onDebug) {
+            window.ceremonator.onDebug(function (data) {
+                if (data) debug(data.type, data.message);
             });
         }
 

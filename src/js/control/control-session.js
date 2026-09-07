@@ -57,8 +57,6 @@
                 if (saved.gridConfig) {
                     $scope.gridConfig = angular.extend({}, $scope.gridConfig, saved.gridConfig);
                 }
-                FrameService.setFeedTypes(saved.feedTypes || FrameService.feedTypes);
-
                 FrameService.setSkillOrder(saved.skillOrder);
 
                 if (saved.frames) {
@@ -103,7 +101,6 @@
                     resultsBestOfNations: $scope.resultsBestOfNations || [],
                     bestOfNationGroupSize: $scope.bestOfNationGroupSize || 5,
                     frames: FrameService.serializeForProject(),
-                    feedTypes: angular.copy(FrameService.feedTypes),
                     skillOrder: FrameService.skillOrder || [],
                     runtime: SessionSnapshot.serializeRuntime(),
                     ui: {

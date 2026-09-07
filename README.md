@@ -75,13 +75,15 @@ Main keeps `screen-<frame>` and `screen-<frame>-preview` storage keys; Secondary
 `screen-<frame>-secondary` and `screen-<frame>-secondary-preview`. Preview requires a matching
 Live window for the same feed. Blanking is per feed (Ctrl+B blanks Main); showing a Live slide
 releases all feed blanks.
+Blank displays the project's logo screen over the current frame background/video,
+preserving the selected slide and reveal states for Live to resume.
 
 The stock routing sends Callup Countries and all medal/MFE presentation states to Main; Callup
 Sponsors and the full medal/MFE Secondary output show skill sponsor logos. Best of Nation is
 Secondary-only and Albert Vidal is Main-only. `partners.html` is intentionally logo-only, with a
 name fallback for unavailable/corrupt local images.
 
-## Usage
+---
 
 For physical control keys, see the [Ceremonator Stream Deck plugin](plugins/streamdeck/README.md).
 It supports slide navigation, configurable grids, live screens and per-frame/feed blanking

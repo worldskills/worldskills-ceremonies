@@ -42,7 +42,7 @@
 </head>
 <body ng-class="{'preview': preview}" style="margin: 0;">
 
-    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted></video>
+    <video class="screen-bg-video" ng-if="frame.video" ng-src="{{ frame.video }}" autoplay loop muted playsinline></video>
 
     <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
         <div ng-include="template"></div>
@@ -67,7 +67,6 @@
     </div>
 
 
-    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../../node_modules/angular/angular.min.js"></script>
     <script src="../../node_modules/angular-translate/dist/angular-translate.min.js"></script>
     <script src="../../node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>

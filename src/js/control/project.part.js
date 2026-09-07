@@ -16,13 +16,18 @@
         $scope.displays = [];
 
         if (window.ceremonator && window.ceremonator.displays) {
-            window.ceremonator.displays.list().then(function (list) {
-                $scope.$apply(function () {
-                    $scope.displays = (list || []).map(function (d, i) {
-                        return { index: i, label: d.label || ('Display ' + (i + 1)) };
-                    });
+            var refreshDisplays = function () {
+                window.ceremonator.displays.list().then(function (list) {
+                    var apply = function () {
+                        $scope.displays = (list || []).map(function (d, i) {
+                            return { index: i, label: d.label || ('Display ' + (i + 1)) };
+                        });
+                    };
+                    if (!$scope.$$phase) $scope.$apply(apply); else apply();
                 });
-            });
+            };
+            refreshDisplays();
+            if (window.ceremonator.displays.onChanged) window.ceremonator.displays.onChanged(refreshDisplays);
         }
 
         $scope.upload = function (file) {

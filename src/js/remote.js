@@ -35,7 +35,7 @@
 
             connection.onopen = function () {
                 if (socket !== connection) return;
-                connection.send(JSON.stringify({ type: 'auth', pin: pin }));
+                connection.send(JSON.stringify({ type: 'auth', pin: pin, client: 'remote' }));
             };
 
             connection.onmessage = function (event) {

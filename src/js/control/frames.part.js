@@ -95,14 +95,14 @@
             var slide = frame.slide;
             if (!slide) return;
             if (slide.state && slide.state.length > 0) {
-                slide.state.splice(slide.state.length - 1, 1);
-                $scope.update(frameId);
+                $scope.toggleState(frameId, slide, slide.state[slide.state.length - 1]);
                 return;
             }
 
             var idx = frame.slides.indexOf(slide);
             if (idx > 0) {
-                $scope.showSlide(frameId, frame.slides[idx - 1]);
+                var previous = frame.slides[idx - 1];
+                $scope.showSlide(frameId, previous, previous.states || []);
                 QueueScroll.scrollToActiveInFrame(frameId);
             }
         };
@@ -117,9 +117,7 @@
             if (slide.states && slide.states.length > 0) {
                 for (var i = 0; i < slide.states.length; i++) {
                     if (!$scope.hasState(slide, slide.states[i])) {
-                        if (!slide.state) slide.state = [];
-                        slide.state.push(slide.states[i]);
-                        $scope.update(frameId);
+                        $scope.toggleState(frameId, slide, slide.states[i]);
                         return;
                     }
                 }
@@ -172,7 +170,7 @@
             cols: null,
             frameWidth: 1280,
             frameHeight: 720,
-            monitor: null,
+            monitors: { main: null, secondary: null },
             feed: FEED.LIVE,
             feedType: 'main',
             splitContainers: false,
@@ -378,7 +376,7 @@
                 }
             });
 
-            var monitor = $scope.gridConfig.monitor;
+            var monitor = $scope.gridConfig.monitors[$scope.gridConfig.feedType || 'main'];
             var monitorOverride = (monitor === null || monitor === undefined || monitor === '') ? null : parseInt(monitor, 10);
 
             $scope.workspaceMode = WORKSPACE_MODES.RUN;

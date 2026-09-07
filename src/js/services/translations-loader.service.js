@@ -6,6 +6,11 @@
         var dataPromise = null; // one HTTP read (skills.json + members.json) shared by every language
 
         function readFile() {
+            if (window.operatorFeed) {
+                return $http.get(window.operatorFeed.projectBase + 'translations.json').then(function (response) {
+                    return response.data.languages || {};
+                }, function () { return {}; });
+            }
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.readTranslations) {
                 return $q.resolve({});
             }

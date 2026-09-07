@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" ng-app="operatorApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+    <title>Ceremonator · Operator</title>
+    <link rel="stylesheet" href="/node_modules/@worldskills/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/operator.css">
+</head>
+<body class="operator-page" ng-controller="OperatorCtrl" ng-cloak>
+    <header><strong>CEREMONATOR <span> / Operator</span></strong><span class="connection" ng-class="{ready: ready}">{{ status }}</span></header>
+    <div class="operator-alerts" aria-live="polite">
+        <div class="alert" role="alert" ng-if="error">{{ error }} <button ng-click="dismissError()" aria-label="Dismiss alert">×</button></div>
+        <div class="alert" role="alert" ng-repeat="(key, message) in feedErrors">{{ message }} <button ng-click="dismissFeedError(key)" aria-label="Dismiss feed alert">×</button></div>
+    </div>
+    <form class="login" ng-if="!authenticated" ng-submit="connect()">
+        <h1>Operator connection</h1><p>Enter the Remote PIN shown in the control panel.</p>
+        <label>PIN <input ng-model="auth.pin" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="off"></label>
+        <button type="submit">{{ connecting ? 'Reconnect' : 'Connect' }}</button>
+    </form>
+    <main ng-show="authenticated">
+        <div class="toolbar">
+            <label>Frame <select ng-model="frameId" ng-options="f.id as f.label for f in frames" ng-change="selectFrame()" ng-disabled="!ready"></select></label>
+            <div class="channels" role="group" aria-label="Monitor channel"><button ng-class="{selected: channel === 'live'}" ng-click="setChannel('live')">Live</button><button ng-class="{selected: channel === 'preview'}" ng-click="setChannel('preview')">Preview</button></div>
+            <label class="layout-control">Feed panel width <input aria-label="Feed panel width as percentage of window" type="range" min="25" max="85" step="1" ng-model="layout.width" ng-change="saveLayout()"> {{ layout.width }}%</label>
+            <button ng-click="resetLayout()">Reset layout</button>
+            <button ng-click="openFullscreen()" title="Open fullscreen" aria-label="Open fullscreen"><i class="fa fa-expand" aria-hidden="true"></i></button>
+        </div>
+        <div class="workspace" ng-style="{'--operator-feed-width': layout.width + 'vw', 'grid-template-columns': 'minmax(0, ' + layout.width + 'vw) minmax(0, 1fr)'}">
+            <section class="feeds" aria-label="Feed monitors">
+                <article class="feed-card" ng-repeat="feed in feeds track by feed.id" operator-panel="{{ feed.id }}">
+                    <div class="feed-heading"><strong>{{ feed.label || feed.id }} feed</strong><span ng-class="{'blank-label': frame.blankedFeeds[feed.id]}">{{ frame.blankedFeeds[feed.id] ? 'BLANK' : (channel | uppercase) }}</span></div>
+                    <div class="monitor" operator-monitor="feed.id"></div>
+                    <div class="feed-actions"><button ng-click="command('blank', feed.id)" ng-disabled="!ready || !frame" ng-class="{selected: frame.blankedFeeds[feed.id]}">Blank</button><button class="live" ng-click="command('live', feed.id)" ng-disabled="!ready || !frame || frame.slideIndex < 0">Live</button></div>
+                </article>
+                <p class="hint">Drag a feed’s lower-right corner to resize. Layout is saved in this browser.</p>
+            </section>
+            <section class="queue-panel" aria-label="Slide queue">
+                <div class="queue-heading"><h1>{{ frame.label || 'Select a frame' }}</h1><span>{{ frame.slideIndex >= 0 ? frame.slideIndex + 1 : '—' }} / {{ frame.slides.length || 0 }}</span></div>
+                <div class="queue" id="operator-queue" operator-queue>
+                    <p class="empty" ng-if="!frame.slides.length">No slides assigned. Import and assign slides in the control panel.</p>
+                    <fieldset class="operator-queue-rows" ng-disabled="!ready">
+                        <div class="card mb-2" ng-if="frame.slides.length">
+                            <div class="list-group list-group-flush">
+                                <div ng-repeat="slide in frame.slides track by $index" data-operator-row="{{ $index }}">
+                                    <slide-row frame-id="frameId" slide="slide"
+                                               on-live="showSlide(frameId, slide)"></slide-row>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="transport"><button ng-click="command('previous')" ng-disabled="!ready || !frame || frame.slideIndex < 0">← Prev</button><button class="next" ng-click="command('next')" ng-disabled="!ready || !frame.slides.length">Next →</button></div>
+                <div class="all-controls"><button ng-click="command('blank')" ng-disabled="!ready || !frame">Blank all <kbd>Ctrl B</kbd></button><button class="live" ng-click="command('live')" ng-disabled="!ready || !frame || frame.slideIndex < 0">Live all <kbd>Ctrl L</kbd></button></div>
+                <p class="hint">Prev / Next follows slide reveal states. Queue follows Live and Preview changes.</p>
+            </section>
+        </div>
+    </main>
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/js/control/control-workspace.js"></script>
+    <script src="/js/operator.js"></script>
+</body>
+</html>

@@ -1,7 +1,26 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $sce, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
+    angular.module('ceremoniesApp').controller('ScreenCtrl', function ($scope, $rootScope, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
+
+        function reportDebug(type, message) {
+            if (window.ceremonator && window.ceremonator.app && window.ceremonator.app.reportDebug) {
+                window.ceremonator.app.reportDebug(type, message);
+            }
+        }
+
+        window.addEventListener('error', function (event) {
+            var target = event.target;
+            if (!target || !/^(IMG|VIDEO|SCRIPT|LINK)$/.test(target.tagName)) return;
+            var source = target.currentSrc || target.src || target.href || 'unknown asset';
+            var type = target.tagName === 'VIDEO' ? 'video-failure' : 'load-failure';
+            var reason = target.error && target.error.message ? ' (' + target.error.message + ')' : '';
+            reportDebug(type, 'Output “' + ($scope.screen || 'unknown') + '” could not load the ' + target.tagName.toLowerCase() + ' “' + source + '”' + reason + '.');
+        }, true);
+
+        $rootScope.$on('$includeContentError', function (_event, source) {
+            reportDebug('load-failure', 'Output “' + ($scope.screen || 'unknown') + '” could not load the slide template “' + source + '”.');
+        });
 
         $scope.FEED = FEED;
         $scope.languages = [];
@@ -85,7 +104,7 @@
         $scope.render = function () {
             var data = null;
             try {
-                data = angular.fromJson(window.localStorage.getItem($scope.storageKey()));
+                data = window.operatorFeed ? window.operatorFeed.data : angular.fromJson(window.localStorage.getItem($scope.storageKey()));
             } catch (_error) {
                 data = null;
             }
@@ -105,6 +124,7 @@
                 $scope.context = {};
             }
 
+            $scope.testMode = !!data.testMode;
             $scope.frame = {
                 id: $scope.screen,
                 label: data.frameLabel || $scope.screen,
@@ -161,6 +181,18 @@
         };
 
         $scope.loadScreen();
+
+        if (window.operatorFeed) {
+            window.operatorFeed.receive = function (data, languages, testMode) {
+                $scope.$evalAsync(function () {
+                    window.operatorFeed.data = data;
+                    $scope.languages = languages || [{ lang_code: 'en' }];
+                    $scope.testMode = !!testMode;
+                    $scope.render();
+                });
+            };
+            window.parent.postMessage({ type: 'operator-feed-ready' }, window.location.origin);
+        }
 
         // Listen for test mode changes from other windows (control panel toggle)
         window.addEventListener('storage', function (e) {

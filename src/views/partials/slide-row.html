@@ -6,8 +6,8 @@
             <span class="queue-frame-chip" ng-if="rowShowBadge" style="background: {{ FrameService.getFrameColor(rowFrameId) }}">{{ rowFrameLabel }}</span>
             {{ rowSlide.label }}
         </span>
-        <span>
-            <button class="btn btn-sm btn-white py-0 mr-1" ng-click="rowSlide.edit = !rowSlide.edit" ng-disabled="!canEditSlide(rowFrameId, rowSlide)" title="Edit">
+        <span ng-if="workspaceCapabilities.editContext !== false || workspaceCapabilities.copyScript">
+            <button class="btn btn-sm btn-white py-0 mr-1" ng-if="workspaceCapabilities.editContext !== false" ng-click="rowSlide.edit = !rowSlide.edit" ng-disabled="!canEditSlide(rowFrameId, rowSlide)" title="Edit">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
             </button>
             <span class="btn btn-sm btn-white py-0" ng-if="workspaceCapabilities.copyScript" ng-show="rowSlide.script" ng-click="copyPaste($event, rowSlide.script)" title="Copy script">
@@ -29,8 +29,8 @@
             </div>
             <button class="btn btn-sm btn-danger" ng-show="rowSlide.states && rowSlide.states.length" ng-click="resetStates(rowFrameId, rowSlide)" ng-disabled="!canEditSlide(rowFrameId, rowSlide)">Reset</button>
         </div>
-        <div class="list-group-item-text mt-2" ng-show="rowSlide.edit">
-            <textarea class="form-control" json-text rows="9" ng-model="rowSlide.context" ng-change="updateContext(rowFrameId, rowSlide)"></textarea>
+        <div class="list-group-item-text mt-2" ng-if="workspaceCapabilities.editContext !== false" ng-show="rowSlide.edit">
+            <textarea class="form-control" json-text rows="9" ng-model="rowSlide.context" ng-model-options="{debounce: workspaceCapabilities.contextDebounce || 0}" ng-change="updateContext(rowFrameId, rowSlide)"></textarea>
         </div>
     </div>
 </div>

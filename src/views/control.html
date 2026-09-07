@@ -39,6 +39,7 @@
                 </div>
             </a>
             <div class="d-flex align-items-center flex-wrap justify-content-end" style="gap:6px">
+                <button class="btn btn-white btn-sm" ng-click="openOperator()" title="Open single-frame Operator in a separate window">Operator ↗</button>
                 <div class="btn-group" role="group" aria-label="Workspace mode">
                     <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': workspaceMode === WORKSPACE_MODES.SETUP}" ng-click="workspaceMode = WORKSPACE_MODES.SETUP">Setup</button>
                     <button class="btn btn-white btn-sm" ng-class="{'btn-active-mode': workspaceMode === WORKSPACE_MODES.RUN}" ng-click="workspaceMode = WORKSPACE_MODES.RUN; queueViewOpen = true">Run</button>
@@ -490,6 +491,7 @@
                     </div>
                     <div class="form-group" ng-show="remoteInfo && remoteInfo.urls.length">
                         <label>Remote URL</label>
+                        <p class="small">For Operator in a remote browser, use the Operator URL below and enter the same PIN.</p>
                         <div class="input-group input-group-sm mb-2" ng-repeat="url in remoteInfo.urls track by url">
                             <input class="form-control" type="text" value="{{ url }}" readonly>
                             <div class="input-group-append">
@@ -497,6 +499,10 @@
                                     <i class="fa fa-clipboard"></i>
                                 </button>
                             </div>
+                        </div>
+                        <div class="input-group input-group-sm mb-2" ng-repeat="url in remoteInfo.urls track by url">
+                            <input aria-label="Operator URL" class="form-control" type="text" value="{{ url }}operator" readonly>
+                            <div class="input-group-append"><button class="btn btn-outline-secondary" type="button" ng-click="copyPaste($event, url + 'operator')">Copy Operator URL</button></div>
                         </div>
                     </div>
                     <div class="text-warning" ng-show="remoteInfo && !remoteInfo.urls.length" style="font-size:12px">
@@ -561,7 +567,7 @@
                     </div>
                     <div class="form-group" ng-show="displays.length > 1">
                         <label>Display <span style="font-weight:400;text-transform:none;letter-spacing:0">(leave as Auto to use the primary display)</span></label>
-                        <select class="form-control form-control-sm" ng-model="gridConfig.monitor" style="width:320px;max-width:100%"
+                        <select class="form-control form-control-sm" ng-model="gridConfig.monitors[gridConfig.feedType]" ng-change="projectDirty = true" style="width:320px;max-width:100%"
                                 ng-options="d.index as d.label for d in displays">
                             <option value="">Auto (primary display)</option>
                         </select>
@@ -603,7 +609,6 @@
         </div>
     </div>
 
-    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../../node_modules/angular/angular.min.js"></script>
     <script src="../../node_modules/angular-translate/dist/angular-translate.min.js"></script>
     <script src="../../node_modules/ng-file-upload/dist/ng-file-upload.min.js"></script>

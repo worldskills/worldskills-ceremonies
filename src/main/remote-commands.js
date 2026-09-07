@@ -7,6 +7,13 @@ function validCommand(command) {
     const feed = ['main', 'secondary'].includes(command.feedType);
     const integer = (n, min, max) => Number.isInteger(n) && n >= min && n <= max;
     switch (command.name) {
+        case 'operator':
+            return command.frameIds === undefined && frame(command.frameId) && ['previous', 'next', 'blank', 'live', 'show', 'preview', 'state', 'resetStates', 'context'].includes(command.action) &&
+                (feed || command.feedType === 'all') &&
+                (!['show', 'preview', 'state', 'resetStates', 'context'].includes(command.action) ||
+                    (integer(command.slideIndex, 0, 10000) && typeof command.slideId === 'string' && command.slideId.length <= 500)) &&
+                (command.action !== 'state' || (typeof command.state === 'string' && command.state.length <= 200)) &&
+                (command.action !== 'context' || command.context !== undefined);
         case 'continueLive':
             return frame(command.frameId);
         case 'navigateFrame':

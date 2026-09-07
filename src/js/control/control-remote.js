@@ -14,7 +14,36 @@
                 throw new Error('This output feed is not enabled in the project.');
             }
             var frame = FrameService.frames[ids[0]];
-            if (command.name === 'continueLive') {
+            if (command.name === 'operator') {
+                var action = command.action;
+                var selected = (frame.slides || [])[command.slideIndex];
+                if (['show', 'preview', 'state', 'resetStates', 'context'].indexOf(action) >= 0 && (!selected || selected.slideId !== command.slideId)) {
+                    throw new Error('The queue changed. Select the slide again.');
+                }
+                if (action === 'blank' || action === 'live') {
+                    if (action === 'live' && !frame.slide) throw new Error('Select a Live slide first.');
+                    if (!frame.blankedFeeds) frame.blankedFeeds = {};
+                    (command.feedType === 'all' ? FrameService.feedTypes : [{ id: command.feedType }]).forEach(function (feed) {
+                        if (action === 'blank') $scope.resetFrame(command.frameId, feed.id);
+                        else delete frame.blankedFeeds[feed.id];
+                    });
+                    $scope.update(command.frameId);
+                } else if (action === 'show') $scope.showSlide(command.frameId, selected);
+                else if (action === 'preview') $scope.previewSlide(null, command.frameId, selected);
+                else if (['state', 'resetStates', 'context'].indexOf(action) >= 0) {
+                    if (frame.slide !== selected && frame.previewSlide !== selected) throw new Error('Select this slide in Live or Preview first.');
+                    if (action === 'state') {
+                        if ((selected.states || []).indexOf(command.state) < 0) throw new Error('This state no longer exists.');
+                        $scope.toggleState(command.frameId, selected, command.state);
+                    } else if (action === 'resetStates') $scope.resetStates(command.frameId, selected);
+                    else {
+                        selected.context = angular.copy(command.context);
+                        $scope.updateContext(command.frameId, selected);
+                    }
+                } else if (!frame.slide && action === 'next' && frame.slides.length) $scope.showSlide(command.frameId, frame.slides[0]);
+                else if (!frame.slide) throw new Error('Select a Live slide first.');
+                else $scope[action === 'previous' ? 'prevSlideForFrame' : 'nextSlideForFrame'](command.frameId);
+            } else if (command.name === 'continueLive') {
                 var slides = frame.slides || [];
                 var nextIndex = frame.slide ? slides.indexOf(frame.slide) + 1 : 0;
                 if (frame.slide && nextIndex === 0) throw new Error('The current slide is no longer in this frame.');
@@ -50,56 +79,33 @@
             return { ok: true };
         }
 
-        var REMOTE_ACTIONS = {
-            showSlide: function (frame, action) {
-                var slide = frame.slides[action.slideIndex];
-                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) {
-                    $scope.showSlide(action.frameId, slide);
-                }
-            },
-            previewSlide: function (frame, action) {
-                var slide = frame.slides[action.slideIndex];
-                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) {
-                    $scope.previewSlide(null, action.frameId, slide);
-                }
-            },
-            toggleState: function (frame, action) {
-                var slide = frame.slides[action.slideIndex];
-                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) {
-                    $scope.toggleState(action.frameId, slide, action.state);
-                }
-            },
-            resetStates: function (frame, action) {
-                var slide = frame.slides[action.slideIndex];
-                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) {
-                    $scope.resetStates(action.frameId, slide);
-                }
-            },
-            updateContext: function (frame, action) {
-                var slide = frame.slides[action.slideIndex];
-                if (action.slideId && (!slide || slide.slideId !== action.slideId)) return;
-                if (slide) {
-                    slide.context = action.context;
-                    $scope.updateContext(action.frameId, slide);
-                }
-            },
-            resetPreview: function (frame, action) {
-                $scope.resetPreview(action.frameId);
-            },
-            resetFrame: function (frame, action) {
-                $scope.resetFrame(action.frameId, action.feedType || 'main');
-            },
-            prevSlideForFrame: function (frame, action) {
-                $scope.prevSlideForFrame(action.frameId);
-            },
-            nextSlideForFrame: function (frame, action) {
-                $scope.nextSlideForFrame(action.frameId);
+        // Frame actions need only the frame id.
+        var FRAME_ACTIONS = {
+            resetPreview: function (action) { $scope.resetPreview(action.frameId); },
+            resetFrame: function (action) { $scope.resetFrame(action.frameId, action.feedType || 'main'); },
+            prevSlideForFrame: function (action) { $scope.prevSlideForFrame(action.frameId); },
+            nextSlideForFrame: function (action) { $scope.nextSlideForFrame(action.frameId); }
+        };
+
+        // Slide actions share one lookup and one stale-slideId guard, applied by runRemoteAction
+        // before dispatch — a tablet's slideIndex is only valid against the snapshot it last saw.
+        var SLIDE_ACTIONS = {
+            showSlide: function (action, slide) { $scope.showSlide(action.frameId, slide); },
+            previewSlide: function (action, slide) { $scope.previewSlide(null, action.frameId, slide); },
+            toggleState: function (action, slide) { $scope.toggleState(action.frameId, slide, action.state); },
+            resetStates: function (action, slide) { $scope.resetStates(action.frameId, slide); },
+            updateContext: function (action, slide) {
+                slide.context = action.context;
+                $scope.updateContext(action.frameId, slide);
             }
         };
+
+        function runRemoteAction(frame, action) {
+            if (FRAME_ACTIONS[action.name]) return FRAME_ACTIONS[action.name](action);
+            var slide = frame.slides[action.slideIndex];
+            if (!slide || (action.slideId && slide.slideId !== action.slideId)) return;
+            SLIDE_ACTIONS[action.name](action, slide);
+        }
 
         $scope.remoteConfig = { enabled: true, pin: '173210', port: 17321 };
         $scope.remoteConfigDraft = angular.copy($scope.remoteConfig);
@@ -119,6 +125,12 @@
             $scope.remoteConfigDraft = angular.copy($scope.remoteConfig);
             $scope.remoteConfigError = '';
             $scope.remoteConfigDialogOpen = true;
+        };
+
+        $scope.openOperator = function () {
+            $q.when(window.ceremonator.remote.openOperator(FrameService.activeFrameId)).then(function (result) {
+                if (!result || !result.ok) $scope.addNotice('error', (result && result.error) || 'Could not open Operator.');
+            }).catch(function (error) { $scope.addNotice('error', error.message || 'Could not open Operator.'); });
         };
 
         $scope.cancelRemoteConfig = function () {
@@ -170,6 +182,10 @@
 
         if (window.ceremonator && window.ceremonator.remote && window.ceremonator.remote.onAction) {
             window.ceremonator.remote.onAction(function (action) {
+                if (action && action.name === 'operatorHeartbeat') {
+                    $scope.$evalAsync(function () { FrameState.syncRemote(); });
+                    return;
+                }
                 if (action && action.name === 'streamDeckCommand') {
                     $scope.$evalAsync(function () {
                         $q.when().then(function () { return runStreamDeckCommand(action.command); }).then(function (result) {
@@ -180,10 +196,9 @@
                     });
                     return;
                 }
-                var handler = action && REMOTE_ACTIONS[action.name];
                 var frame = action && FrameService.frames[action.frameId];
-                if (!handler || !frame) return;
-                var apply = function () { handler(frame, action); };
+                if (!frame || !(FRAME_ACTIONS[action.name] || SLIDE_ACTIONS[action.name])) return;
+                var apply = function () { runRemoteAction(frame, action); };
                 if (!$scope.$$phase) $scope.$apply(apply); else apply();
             });
         }

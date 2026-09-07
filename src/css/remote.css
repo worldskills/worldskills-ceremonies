@@ -1,3 +1,7 @@
+html, body {
+    touch-action: manipulation;
+}
+
 body {
     min-width: 768px;
     overflow-x: auto;
