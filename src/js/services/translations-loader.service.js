@@ -5,25 +5,47 @@
         var filePromise = null; // one IPC read shared by every language
         var dataPromise = null; // one HTTP read (skills.json + members.json) shared by every language
 
+        function report(message) {
+            var where = window.location.search || window.location.pathname;
+            var text = 'Translations (' + where + '): ' + message;
+            console.warn(text);
+
+            if (window.ceremonator && window.ceremonator.app && window.ceremonator.app.reportDebug) {
+                window.ceremonator.app.reportDebug('load-failure', text);
+                return;
+            }
+
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'grid-cell-debug', debugType: 'load-failure', message: text }, '*');
+            }
+        }
+
         function readFile() {
             if (window.operatorFeed) {
                 return $http.get(window.operatorFeed.projectBase + 'translations.json').then(
                     function (response) {
                         return response.data.languages || {};
                     },
-                    function () {
+                    function (response) {
+                        report('translations.json over the asset route returned ' + (response && response.status));
                         return {};
                     }
                 );
             }
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.readTranslations) {
+                report('window.ceremonator.project.readTranslations is not exposed in this frame');
                 return $q.resolve({});
             }
             return $q.when(window.ceremonator.project.readTranslations()).then(
                 function (result) {
-                    return (result && result.ok && result.languages) || {};
+                    var ok = result && result.ok;
+                    if (!ok) {
+                        report('project:readTranslations returned ' + angular.toJson(result));
+                    }
+                    return (ok && result.languages) || {};
                 },
-                function () {
+                function (error) {
+                    report('project:readTranslations failed: ' + (error && error.message));
                     return {};
                 }
             );
@@ -41,13 +63,13 @@
             });
         }
 
-        // Skill/member name translations live in data/*.json, independent of the project's translations.json — build the same { lang: { English: text } } shape so it merges straight in.
         function readDataTranslations() {
             var skillsLoaded = $http.get(DATA_BASE + 'skills.json').then(
                 function (response) {
                     return angular.isArray(response.data) ? response.data : [];
                 },
-                function () {
+                function (response) {
+                    report(DATA_BASE + 'skills.json returned ' + (response && response.status));
                     return [];
                 }
             );
@@ -56,7 +78,8 @@
                 function (response) {
                     return angular.isArray(response.data) ? response.data : [];
                 },
-                function () {
+                function (response) {
+                    report(DATA_BASE + 'members.json returned ' + (response && response.status));
                     return [];
                 }
             );

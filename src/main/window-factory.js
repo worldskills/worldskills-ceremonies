@@ -16,4 +16,11 @@ function baseWebPreferences(extra) {
     );
 }
 
-module.exports = { baseWebPreferences };
+function hideWindowMenu(win) {
+    if (process.platform !== 'darwin' && win && typeof win.removeMenu === 'function') {
+        win.removeMenu();
+    }
+    return win;
+}
+
+module.exports = { baseWebPreferences, hideWindowMenu };

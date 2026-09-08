@@ -70,6 +70,10 @@
                         cols: null,
                         frameWidth: 1280,
                         frameHeight: 720,
+                        autoFit: false,
+                        // Fullscreen canvas, null = use the target display's own resolution.
+                        displayWidth: null,
+                        displayHeight: null,
                         monitors: {},
                         feed: FEED.LIVE,
                         feedType: null,
@@ -117,6 +121,12 @@
                         $scope.gridConfig.frameWidth = width;
                         $scope.gridConfig.frameHeight = height;
                         $scope.saveGridFeedSize();
+                    };
+
+                    $scope.setGridDisplaySize = function (width, height) {
+                        $scope.gridConfig.displayWidth = width;
+                        $scope.gridConfig.displayHeight = height;
+                        $scope.projectDirty = true;
                     };
 
                     $scope.feedWindowCount = function (frame, feedType, channel) {
@@ -382,6 +392,11 @@
                                 feedType: $scope.gridConfig.feedType || FrameService.primaryFeedId(),
                                 position: monitorOverride != null ? { monitor: monitorOverride } : null,
                                 fullscreen: !!$scope.gridConfig.fullscreen,
+                                displaySize: {
+                                    width: $scope.gridConfig.displayWidth,
+                                    height: $scope.gridConfig.displayHeight,
+                                },
+                                autoFit: !!$scope.gridConfig.autoFit,
                                 testMode: $scope.testMode,
                             })
                             .then(function (result) {

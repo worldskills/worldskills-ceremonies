@@ -82,6 +82,11 @@
                 padding: 6px 14px;
                 border-radius: 4px;
             }
+            .screen-test-size {
+                font-weight: 400;
+                opacity: 0.85;
+                margin-left: 8px;
+            }
         </style>
     </head>
     <body ng-class="{'preview': preview}" style="margin: 0">
@@ -101,9 +106,9 @@
 
         <!-- Test mode watermark — shown on all screens when test mode is active -->
         <div class="screen-test-mark" ng-show="testMode" ng-cloak>
-            <div class="screen-test-id" ng-show="testIdx">
-                <span ng-show="gridCols === 6">W{{ testIdx }}</span>
-                <span ng-hide="gridCols === 6">TEST #{{ testIdx }}</span>
+            <div class="screen-test-id">
+                {{ testIdx ? (gridCols === 6 ? 'W' + testIdx : 'TEST #' + testIdx) : frame.label }}
+                <span class="screen-test-size">{{ frameSize }}</span>
             </div>
             <div class="screen-test-diagonal">TEST</div>
         </div>

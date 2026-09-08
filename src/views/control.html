@@ -831,7 +831,7 @@
             ng-class="{show: gridConfigDialogOpen}"
             ng-click="gridConfigDialogOpen = false"
         >
-            <div class="modal-dialog modal-dialog-centered" ng-click="$event.stopPropagation()">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" ng-click="$event.stopPropagation()">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h6 class="modal-title"><i class="fa fa-th-large mr-2"></i>Grid View Configuration</h6>
@@ -921,6 +921,10 @@
                                     style="width: 90px"
                                 />
                             </div>
+                            <label class="grid-fullscreen-toggle mt-2 mb-0" ng-click="$event.stopPropagation()">
+                                <input type="checkbox" ng-model="gridConfig.autoFit" ng-change="projectDirty = true" />
+                                Auto fit frames into output resolution
+                            </label>
                         </div>
                         <div class="form-group">
                             <label>Channel</label>
@@ -974,6 +978,62 @@
                             </div>
                             <div class="mt-1" style="font-size: 12px; color: #64748b">
                                 Existing Grid views stay open, so Live and Preview can run on separate displays.
+                            </div>
+                            <div class="mt-3" ng-show="gridConfig.fullscreen">
+                                <label>Display resolution (px)</label>
+                                <div class="btn-group btn-group-sm mb-2" role="group">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm"
+                                        ng-class="!gridConfig.displayWidth || !gridConfig.displayHeight ? 'btn-primary' : 'btn-outline-secondary'"
+                                        ng-click="setGridDisplaySize(null, null)"
+                                    >
+                                        Auto
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm"
+                                        ng-class="gridConfig.displayWidth == 3300 && gridConfig.displayHeight == 2000 ? 'btn-primary' : 'btn-outline-secondary'"
+                                        ng-click="setGridDisplaySize(3300, 2000)"
+                                    >
+                                        3300×2000
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm"
+                                        ng-class="gridConfig.displayWidth == 2400 && gridConfig.displayHeight == 2000 ? 'btn-primary' : 'btn-outline-secondary'"
+                                        ng-click="setGridDisplaySize(2400, 2000)"
+                                    >
+                                        2400×2000
+                                    </button>
+                                </div>
+                                <div class="d-flex" style="gap: 8px; align-items: center">
+                                    <input
+                                        class="form-control form-control-sm"
+                                        type="number"
+                                        min="320"
+                                        max="15360"
+                                        ng-model="gridConfig.displayWidth"
+                                        ng-change="projectDirty = true"
+                                        placeholder="auto"
+                                        style="width: 90px"
+                                    />
+                                    ×
+                                    <input
+                                        class="form-control form-control-sm"
+                                        type="number"
+                                        min="240"
+                                        max="8640"
+                                        ng-model="gridConfig.displayHeight"
+                                        ng-change="projectDirty = true"
+                                        placeholder="auto"
+                                        style="width: 90px"
+                                    />
+                                </div>
+                                <div class="mt-1" style="font-size: 12px; color: #64748b">
+                                    Auto uses the target display's own resolution. A pinned value lays the grid out 1:1
+                                    at that size — pin it larger than the display and the edges are cropped.
+                                </div>
                             </div>
                         </div>
                     </div>

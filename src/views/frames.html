@@ -27,8 +27,12 @@
                 var maxH = parseInt(params.get("maxH"), 10) || Number.MAX_SAFE_INTEGER;
                 var testMode = params.get("testMode") === "1" || localStorage.getItem("ceremonator:testMode") === "1";
                 var fullscreen = params.get("fullscreen") === "1";
+                // maxW/maxH are the wall's own resolution, not an available maximum.
+                var pinned = params.get("pinned") === "1";
+                var autoFit = params.get("autoFit") === "1";
 
                 if (fullscreen) document.body.classList.add("grid-fullscreen");
+                if (autoFit) document.body.classList.add("grid-autofit");
 
                 var root = document.getElementById("grid");
 
@@ -73,6 +77,18 @@
                     });
                 }
 
+                var cellFrames = [];
+
+                function reportCellSizes() {
+                    cellFrames.forEach(function (iframe) {
+                        if (!iframe.__loaded || !iframe.contentWindow) return;
+                        var box = iframe.getBoundingClientRect();
+                        var w = Math.round(box.width);
+                        var h = Math.round(box.height);
+                        iframe.contentWindow.postMessage({ type: "grid-cell-size", width: w, height: h }, "*");
+                    });
+                }
+
                 function fillCell(el, cellIndex) {
                     var frameId = el.getAttribute("data-frame");
                     var frame = byId[frameId] || {};
@@ -97,7 +113,13 @@
                     iframe.frameBorder = "0";
                     iframe.scrolling = "no";
                     iframe.className = "frame-cell-screen";
+                    cellFrames.push(iframe);
                     el.appendChild(iframe);
+
+                    iframe.addEventListener("load", function () {
+                        iframe.__loaded = true;
+                        reportCellSizes();
+                    });
 
                     if (label) {
                         var caption = document.createElement("div");
@@ -108,26 +130,36 @@
                     return frameId;
                 }
 
+                function applyAutoFit() {
+                    if (!autoFit) return;
+                    var w = root.offsetWidth;
+                    var h = root.offsetHeight;
+                    if (!w || !h) return;
+                    root.style.transformOrigin = "top left";
+                    root.style.transform = "scale(" + window.innerWidth / w + ", " + window.innerHeight / h + ")";
+                }
+
                 function fitAndShow(frameIds) {
                     var grid = root.querySelector(".frames-grid");
-                    // Measure the authored grid, not #grid: that block initially fills
-                    // the launch window's work-area width even when its cells do not.
                     var naturalWidth = grid ? grid.scrollWidth : root.scrollWidth;
                     var naturalHeight = grid ? grid.scrollHeight : root.scrollHeight;
                     var scale = Math.min(1, maxW / naturalWidth, maxH / naturalHeight);
-                    var fittedWidth = Math.max(1, Math.floor(naturalWidth * scale));
-                    var fittedHeight = Math.max(1, Math.floor(naturalHeight * scale));
+                    var authoredW = pinned ? maxW : naturalWidth;
+                    var authoredH = pinned ? maxH : naturalHeight;
+                    var fittedWidth = autoFit ? authoredW : Math.max(1, Math.floor(naturalWidth * scale));
+                    var fittedHeight = autoFit ? authoredH : Math.max(1, Math.floor(naturalHeight * scale));
 
-                    // Keep every iframe's CSS viewport at its configured dimensions.
-                    // Scaling the completed grid as one surface preserves cell aspect
-                    // ratios, line wrapping and text fitting in constrained work areas.
-                    if (grid && scale < 1) {
+                    if (grid && scale < 1 && !autoFit) {
                         grid.style.transformOrigin = "top left";
                         grid.style.transform = "scale(" + scale + ")";
                     }
                     root.style.width = fittedWidth + "px";
                     root.style.height = fittedHeight + "px";
                     root.style.overflow = "hidden";
+                    applyAutoFit();
+                    // No reportCellSizes() here: at this point no cell has committed its document
+                    // or registered a listener, so it could only do harm (see above). Each cell
+                    // reports on its own load, and every cell again on resize.
 
                     if (window.ceremonator && window.ceremonator.grid) {
                         window.ceremonator.grid.fit({
@@ -175,6 +207,17 @@
                     fail("grid API unavailable");
                 }
 
+                window.addEventListener("message", function (event) {
+                    var data = event.data;
+                    if (event.source === window || !data || data.type !== "grid-cell-debug") return;
+                    if (window.ceremonator && window.ceremonator.app && window.ceremonator.app.reportDebug) {
+                        window.ceremonator.app.reportDebug(
+                            String(data.debugType || "load-failure"),
+                            String(data.message || "").slice(0, 500),
+                        );
+                    }
+                });
+
                 window.addEventListener("keydown", function (e) {
                     if (e.key === "Control") document.body.classList.add("show-overlays");
                 });
@@ -184,6 +227,11 @@
 
                 window.addEventListener("blur", function () {
                     document.body.classList.remove("show-overlays");
+                });
+
+                window.addEventListener("resize", function () {
+                    applyAutoFit();
+                    reportCellSizes();
                 });
             })();
         </script>

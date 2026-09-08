@@ -39,6 +39,10 @@
                 $scope.testMode = false;
                 $scope.testIdx = 0;
                 $scope.gridCols = 0;
+                function measureFrame() {
+                    $scope.frameSize = window.innerWidth + '×' + window.innerHeight;
+                }
+                measureFrame();
 
                 $scope.enableFullscreen = function () {
                     if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -230,6 +234,20 @@
                     },
                     true
                 );
+
+                window.addEventListener('resize', function () {
+                    $scope.$evalAsync(measureFrame);
+                });
+
+                window.addEventListener('message', function (event) {
+                    var data = event.data;
+                    if (event.source !== window.parent || !data || data.type !== 'grid-cell-size') {
+                        return;
+                    }
+                    $scope.$evalAsync(function () {
+                        $scope.frameSize = data.width + '×' + data.height;
+                    });
+                });
 
                 window.addEventListener('keydown', function (e) {
                     if (!$scope.preview) {

@@ -1,5 +1,5 @@
 const { BrowserWindow } = require('electron');
-const { baseWebPreferences } = require('./window-factory');
+const { baseWebPreferences, hideWindowMenu } = require('./window-factory');
 const { centerOnDisplay, resolveTargetDisplay, displayIndexForPoint } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { markWindow } = require('./ipc/sender-role');
@@ -150,14 +150,11 @@ function createFrameBrowserWindow(winBounds, req) {
         webPreferences: baseWebPreferences({ backgroundThrottling: false, ceremonatorRole: 'output' }),
     });
     markWindow(win, 'output');
+    hideWindowMenu(win);
 
     return win;
 }
 
-// Always-on-top only while fullscreen — pinning a windowed live output (e.g. after Escape, or a
-// dev-restart's windowed open) would leave it unreachable above every other window. Plain
-// setAlwaysOnTop (not the 'screen-saver' level) so a fullscreen live window still floats above
-// ordinary windows during a show, but never above the OS/other apps/the control panel itself.
 function pinLiveWindowWhileFullscreen(win, req) {
     if (req.isPreview) return;
     if (req.goFullscreenRequested) win.setAlwaysOnTop(true);
@@ -165,7 +162,6 @@ function pinLiveWindowWhileFullscreen(win, req) {
     win.on('leave-full-screen', () => win.setAlwaysOnTop(false));
 }
 
-// Show only after paint, fullscreen only after show — so the audience never sees the app boot and fullscreen lands on the right monitor.
 function showWhenPainted(win, goFullscreen) {
     win.once('ready-to-show', () => {
         win.show();

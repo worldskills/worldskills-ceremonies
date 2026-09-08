@@ -8,6 +8,8 @@ function attachCloseShortcuts(win, opts) {
             win.setFullScreen(false);
         } else if ((input.control || input.meta) && input.key.toLowerCase() === 'w') {
             win.close();
+        } else if ((input.control || input.meta) && input.shift && input.key.toLowerCase() === 'i') {
+            win.webContents.toggleDevTools();
         }
     });
 }

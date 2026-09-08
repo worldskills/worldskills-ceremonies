@@ -1,5 +1,5 @@
 const { BrowserWindow, screen: electronScreen } = require('electron');
-const { baseWebPreferences } = require('./window-factory');
+const { baseWebPreferences, hideWindowMenu } = require('./window-factory');
 const { centerOnDisplay, resolveTargetDisplay } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { notifyFrameStatus } = require('./control-channel');
@@ -13,6 +13,14 @@ const { FEED, FRAME_STATUS } = require('./constants');
 // coexist on different displays.
 const gridWindows = new Map();
 const GRID_CASCADE_OFFSET = 40;
+
+function pinnedCanvas(displaySize) {
+    if (!displaySize) return null;
+    const width = Math.round(Number(displaySize.width)) || 0;
+    const height = Math.round(Number(displaySize.height)) || 0;
+    if (width < 320 || height < 240 || width > 15360 || height > 8640) return null;
+    return { width, height };
+}
 
 function sameGridFrames(a, b) {
     const left = (a.frames || []).map((frame) => frame.frameId + ':' + (frame.container || '')).sort();
@@ -100,6 +108,7 @@ function openGridWindow(config) {
     const frameSize = config.frameSize || { width: 1100, height: 500 };
     const gap = grid.gap || 0;
     const goFullscreen = config.fullscreen === true;
+    const pinned = goFullscreen ? pinnedCanvas(config.displaySize) : null;
 
     // Explicit config.position.monitor targets that display; otherwise fall back to the primary display (pre-existing behavior).
     const target =
@@ -125,29 +134,27 @@ function openGridWindow(config) {
         height: wa.height,
         x: centered.x,
         y: centered.y,
-        // A native title bar makes windowed Grid Views draggable. It is hidden
-        // by the operating system when the operator opens the grid fullscreen.
+
         useContentSize: true,
         frame: true,
         title: 'Grid View',
         show: false,
         backgroundColor: '#000',
-        // Without nodeIntegrationInSubFrames, the preload's window.ceremonator only reaches frames.html itself, not its iframes — silently breaking screen.js's translation IPC in grid view.
+
         webPreferences: baseWebPreferences({
             nodeIntegrationInSubFrames: true,
             backgroundThrottling: false,
             ceremonatorRole: 'output',
         }),
     });
+
     markWindow(win, 'output');
-    // Measure platform-specific title-bar insets and tell the renderer the real
-    // maximum canvas it may occupy.
+    hideWindowMenu(win);
+
     const outerSize = win.getSize();
     const contentSize = win.getContentSize();
-    const maxContentWidth = Math.max(320, availableWidth - (outerSize[0] - contentSize[0]));
-    const maxContentHeight = Math.max(240, availableHeight - (outerSize[1] - contentSize[1]));
-    // Do not pin the grid always-on-top. Native fullscreen already provides the
-    // requested output surface without trapping the control panel beneath it.
+    const maxContentWidth = pinned ? pinned.width : Math.max(320, availableWidth - (outerSize[0] - contentSize[0]));
+    const maxContentHeight = pinned ? pinned.height : Math.max(240, availableHeight - (outerSize[1] - contentSize[1]));
 
     const entry = {
         config: config,
@@ -156,6 +163,7 @@ function openGridWindow(config) {
         goFullscreen: goFullscreen,
         cascadeOffset: cascadeOffset,
     };
+
     gridWindows.set(win, entry);
 
     win.loadFile('src/views/frames.html', {
@@ -172,16 +180,15 @@ function openGridWindow(config) {
             'testMode=' + (config.testMode ? '1' : '0'),
             'gridCols=' + grid.cols,
             'fullscreen=' + (goFullscreen ? '1' : '0'),
+            // maxW/maxH alone are ambiguous: as an available maximum they only cap a
+            // downscale, as a pinned canvas they *are* the surface. The renderer needs told which.
+            'pinned=' + (pinned ? '1' : '0'),
+            'autoFit=' + (config.autoFit ? '1' : '0'),
         ].join('&'),
     });
 
-    // No 'ready-to-show' → show() here: the window stays hidden until fitGridWindow() has sized it
-    // to the rendered grid, so it never flashes at work-area size first.
-
-    // Cmd/Ctrl+W remains the operator close gesture for this frameless window.
     attachCloseShortcuts(win, { escapeLeavesFullscreen: true });
 
-    // Confirms on every close path; forceCloseGrid()'s win.__forceClose skips it.
     win.on('close', (event) => {
         if (
             !confirmClose(win, {
@@ -194,8 +201,6 @@ function openGridWindow(config) {
     });
 
     win.webContents.on('did-finish-load', () => {
-        // Safety net: if the renderer never reports a size (crashed, or its preload API is missing),
-        // show it anyway at work-area size. A wrong-sized grid beats an invisible one on show day.
         setTimeout(() => {
             if (gridWindows.has(win) && !win.isDestroyed() && !win.isVisible()) {
                 win.show();
