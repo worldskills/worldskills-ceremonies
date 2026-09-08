@@ -11,12 +11,13 @@ const DEFAULTS = {
     columns: 2,
     width: 1280,
     height: 720,
-    fullscreen: false
+    fullscreen: false,
 };
 
 function connectionSettings(settings) {
     const url = new URL(settings.url);
-    const unsupported = !['http:', 'https:', 'ws:', 'wss:'].includes(url.protocol) ||
+    const unsupported =
+        !['http:', 'https:', 'ws:', 'wss:'].includes(url.protocol) ||
         url.username ||
         url.password ||
         url.search ||
@@ -41,12 +42,14 @@ function connectionSettings(settings) {
 function commandFor(action, settings) {
     const kind = action.split('.').pop();
     const frameId = String(settings.frameId || '').trim();
-    const frameIds = [...new Set(
-        String(settings.frameIds || '')
-            .split(',')
-            .map((id) => id.trim())
-            .filter(Boolean)
-    )];
+    const frameIds = [
+        ...new Set(
+            String(settings.frameIds || '')
+                .split(',')
+                .map((id) => id.trim())
+                .filter(Boolean)
+        ),
+    ];
 
     if (['previous', 'next', 'live', 'continue'].includes(kind) && !frameId) {
         throw new Error('Select a frame.');
@@ -75,7 +78,7 @@ function commandFor(action, settings) {
             columns: Number(settings.columns),
             width: Number(settings.width),
             height: Number(settings.height),
-            fullscreen: settings.fullscreen === true
+            fullscreen: settings.fullscreen === true,
         };
     }
     throw new Error('Unknown action.');

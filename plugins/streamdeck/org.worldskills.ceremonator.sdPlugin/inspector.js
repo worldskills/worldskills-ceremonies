@@ -17,7 +17,7 @@ const defaults = {
     columns: 2,
     width: 1280,
     height: 720,
-    fullscreen: false
+    fullscreen: false,
 };
 const fields = Object.keys(defaults);
 
@@ -40,8 +40,8 @@ function renderSettings() {
             return;
         }
         // Keep a saved frame selectable before the instance reports its frames.
-        const missing = id === 'frameId' && settings[id] &&
-            !Array.from(element.options).some((o) => o.value === settings[id]);
+        const missing =
+            id === 'frameId' && settings[id] && !Array.from(element.options).some((o) => o.value === settings[id]);
         if (missing) {
             element.add(new Option(settings[id], settings[id]));
         }
@@ -68,7 +68,8 @@ function renderStatus(payload) {
         : '';
 
     Array.from(field('feedType').options).forEach((option) => {
-        option.disabled = payload.ready &&
+        option.disabled =
+            payload.ready &&
             option.value !== 'all' &&
             !(payload.feedTypes || []).some((feed) => feed.id === option.value);
     });

@@ -2,7 +2,6 @@
     'use strict';
 
     angular.module('ceremonatorStartup', []).controller('StartupCtrl', function ($scope) {
-
         $scope.recentProjects = [];
         $scope.bundledProjects = [];
         $scope.error = null;
@@ -39,7 +38,7 @@
                     window.ceremonator.app.openControl();
                 } else {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to create project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to create project.';
                     });
                 }
             });
@@ -55,7 +54,7 @@
                     window.ceremonator.app.openControl();
                 } else {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to open project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to open project.';
                     });
                 }
             });
@@ -75,7 +74,7 @@
                     });
                 } else if (result && !result.canceled) {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to open project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to open project.';
                     });
                 }
             });
@@ -88,7 +87,7 @@
                     window.ceremonator.app.openControl();
                 } else if (result && !result.canceled) {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to open project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to open project.';
                     });
                 }
             });
@@ -107,5 +106,4 @@
         loadRecent();
         loadBundled();
     });
-
 })();

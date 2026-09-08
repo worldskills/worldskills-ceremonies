@@ -2,7 +2,6 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('Queue', function (FrameService, SLIDE_KEYS, ALBERT_VIDAL_AWARD_LABEL) {
-
         function getSkillFrame(skillNumber) {
             var found = null;
             angular.forEach(FrameService.frames, function (frame, id) {
@@ -185,8 +184,7 @@
             getSkillFrame: getSkillFrame,
             getAlbertVidalFrame: getAlbertVidalFrame,
             getSkillQueueSlides: getSkillQueueSlides,
-            buildQueueList: buildQueueList
+            buildQueueList: buildQueueList,
         };
     });
-
 })();

@@ -13,13 +13,9 @@
 
     --stage-height: max(100vh, calc(100vw / 2.2));
     --stage-offset-y: calc((100vh - var(--stage-height)) / 2);
-    --top-bar-bottom: calc(
-        var(--stage-offset-y) + var(--stage-height) / 5.7142857
-    );
+    --top-bar-bottom: calc(var(--stage-offset-y) + var(--stage-height) / 5.7142857);
 
-    --bottom-bar-inset: calc(
-        var(--stage-offset-y) + var(--stage-height) / 11.4285714
-    );
+    --bottom-bar-inset: calc(var(--stage-offset-y) + var(--stage-height) / 11.4285714);
 }
 
 * {
@@ -234,13 +230,7 @@ body.has-bg-video .screen-empty-logo {
                 100%,
                 max(
                     var(--grid-col-min),
-                    calc(
-                        (
-                                100% - (var(--grid-max-cols) - 1) *
-                                    var(--grid-gap-x)
-                            ) /
-                            var(--grid-max-cols)
-                    )
+                    calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols))
                 )
             ),
             1fr

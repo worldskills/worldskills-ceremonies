@@ -89,16 +89,19 @@ const fullApi = {
 
 const startupApi = {
     project: fullApi.project,
-    app: { openControl: fullApi.app.openControl }
+    app: { openControl: fullApi.app.openControl },
 };
 const outputApi = {
     project: {
         current: fullApi.project.current,
-        readTranslations: fullApi.project.readTranslations
+        readTranslations: fullApi.project.readTranslations,
     },
     // Only the grid window itself gets past grid:fit's sender check; screen windows share this role.
     grid: fullApi.grid,
-    app: { reportDebug: fullApi.app.reportDebug }
+    app: { reportDebug: fullApi.app.reportDebug },
 };
 
-contextBridge.exposeInMainWorld('ceremonator', role === 'control' ? fullApi : (role === 'startup' ? startupApi : outputApi));
+contextBridge.exposeInMainWorld(
+    'ceremonator',
+    role === 'control' ? fullApi : role === 'startup' ? startupApi : outputApi
+);

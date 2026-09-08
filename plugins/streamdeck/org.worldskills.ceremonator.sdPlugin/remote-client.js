@@ -6,7 +6,7 @@ const { randomUUID } = require('crypto');
 const CLOSE_REASONS = {
     4001: 'Incorrect PIN. Update settings and Apply.',
     4003: 'Connection origin rejected. Check the instance URL / proxy.',
-    4008: 'Too many PIN attempts. Retrying in 60 seconds…'
+    4008: 'Too many PIN attempts. Retrying in 60 seconds…',
 };
 
 class RemoteClient {
@@ -25,10 +25,10 @@ class RemoteClient {
         this.status = 'Connecting…';
         this.changed();
 
-        const ws = this.ws = new WebSocket(this.config.url, {
+        const ws = (this.ws = new WebSocket(this.config.url, {
             origin: this.config.origin,
-            handshakeTimeout: 7000
-        });
+            handshakeTimeout: 7000,
+        }));
         const deadline = setTimeout(() => ws.terminate(), 10000);
 
         let alive = true;
@@ -64,20 +64,13 @@ class RemoteClient {
 
             if (msg.type === 'auth-ok') {
                 clearTimeout(deadline);
-                this.ready = Array.isArray(msg.capabilities) &&
-                    msg.capabilities.includes('stream-deck-v1');
-                this.status = this.ready
-                    ? 'Connected'
-                    : 'Update Ceremonator to a version with Stream Deck support.';
+                this.ready = Array.isArray(msg.capabilities) && msg.capabilities.includes('stream-deck-v1');
+                this.status = this.ready ? 'Connected' : 'Update Ceremonator to a version with Stream Deck support.';
                 this.changed();
             } else if (msg.type === 'state') {
                 const snapshot = msg.frames;
-                this.frames = Array.isArray(snapshot)
-                    ? snapshot
-                    : (snapshot && snapshot.frames || []);
-                this.feedTypes = Array.isArray(snapshot)
-                    ? [{ id: 'main' }]
-                    : (snapshot && snapshot.feedTypes || []);
+                this.frames = Array.isArray(snapshot) ? snapshot : (snapshot && snapshot.frames) || [];
+                this.feedTypes = Array.isArray(snapshot) ? [{ id: 'main' }] : (snapshot && snapshot.feedTypes) || [];
                 this.changed();
             } else if (msg.type === 'command-result') {
                 const pending = this.pending.get(msg.id);
@@ -107,9 +100,9 @@ class RemoteClient {
 
             this.pending.forEach((pending) => {
                 clearTimeout(pending.timer);
-                pending.reject(new Error(
-                    'Connection lost; command outcome unknown. Check the output before retrying.'
-                ));
+                pending.reject(
+                    new Error('Connection lost; command outcome unknown. Check the output before retrying.')
+                );
             });
             this.pending.clear();
 
@@ -135,9 +128,7 @@ class RemoteClient {
             const id = randomUUID();
             const timer = setTimeout(() => {
                 this.pending.delete(id);
-                reject(new Error(
-                    'No acknowledgement; outcome unknown. Check the output before retrying.'
-                ));
+                reject(new Error('No acknowledgement; outcome unknown. Check the output before retrying.'));
             }, 10000);
             this.pending.set(id, { resolve, reject, timer });
             // Commands are never queued or replayed on reconnect.

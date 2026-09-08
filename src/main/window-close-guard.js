@@ -21,7 +21,7 @@ function confirmClose(win, opts) {
         defaultId: 1,
         cancelId: 1,
         title: opts.title,
-        message: opts.message
+        message: opts.message,
     });
     return choice === 0;
 }

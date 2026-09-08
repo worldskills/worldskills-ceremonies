@@ -43,23 +43,43 @@ app.whenReady().then(() => {
     screen.on('display-added', notifyDisplaysChanged);
     screen.on('display-removed', (_event, display) => {
         notifyDisplaysChanged();
-        sendControlDebug('streaming-display-unavailable', 'Display “' + (display.label || display.id) + '” was disconnected and is no longer available.');
+        sendControlDebug(
+            'streaming-display-unavailable',
+            'Display “' + (display.label || display.id) + '” was disconnected and is no longer available.'
+        );
     });
 });
 
 app.on('render-process-gone', (_event, webContents, details) => {
-    sendControlDebug('electron-failure', 'The ' + (webContents.__ceremonatorRole || 'unknown') + ' window stopped unexpectedly: ' + details.reason + '.');
+    sendControlDebug(
+        'electron-failure',
+        'The ' + (webContents.__ceremonatorRole || 'unknown') + ' window stopped unexpectedly: ' + details.reason + '.'
+    );
 });
 
 app.on('child-process-gone', (_event, details) => {
     if (details.reason === 'clean-exit') return;
-    sendControlDebug('electron-failure', 'Electron’s ' + details.type + ' process stopped unexpectedly: ' + details.reason + '.');
+    sendControlDebug(
+        'electron-failure',
+        'Electron’s ' + details.type + ' process stopped unexpectedly: ' + details.reason + '.'
+    );
 });
 
 app.on('web-contents-created', (_event, contents) => {
     contents.on('did-fail-load', (_loadEvent, code, description, url, isMainFrame) => {
         if (isMainFrame === false || code === -3) return;
-        sendControlDebug('load-failure', 'The ' + (contents.__ceremonatorRole || 'application') + ' window could not load “' + url + '”: ' + description + ' (' + code + ').');
+        sendControlDebug(
+            'load-failure',
+            'The ' +
+                (contents.__ceremonatorRole || 'application') +
+                ' window could not load “' +
+                url +
+                '”: ' +
+                description +
+                ' (' +
+                code +
+                ').'
+        );
     });
 });
 

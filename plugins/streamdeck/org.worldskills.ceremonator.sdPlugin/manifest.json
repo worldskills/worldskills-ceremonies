@@ -40,9 +40,7 @@
       "Name": "Continue Live — Next Slide",
       "Icon": "images/live-list",
       "Tooltip": "Show the next slide and clear the frame's feed blanks. Does not open a window.",
-      "Controllers": [
-        "Keypad"
-      ],
+      "Controllers": ["Keypad"],
       "States": [
         {
           "Image": "images/live",
@@ -56,9 +54,7 @@
       "Name": "Previous Slide",
       "Icon": "images/previous-list",
       "Tooltip": "Step back through reveals and slides in a frame.",
-      "Controllers": [
-        "Keypad"
-      ],
+      "Controllers": ["Keypad"],
       "States": [
         {
           "Image": "images/previous",
@@ -72,9 +68,7 @@
       "Name": "Next Slide",
       "Icon": "images/next-list",
       "Tooltip": "Advance through reveals and slides in a frame.",
-      "Controllers": [
-        "Keypad"
-      ],
+      "Controllers": ["Keypad"],
       "States": [
         {
           "Image": "images/next",
@@ -88,9 +82,7 @@
       "Name": "Open Grid",
       "Icon": "images/grid-list",
       "Tooltip": "Open a grid on the connected Ceremonator computer.",
-      "Controllers": [
-        "Keypad"
-      ],
+      "Controllers": ["Keypad"],
       "States": [
         {
           "Image": "images/grid",
@@ -104,9 +96,7 @@
       "Name": "Open Live Screen",
       "Icon": "images/live-list",
       "Tooltip": "Open a frame's live output on the connected computer.",
-      "Controllers": [
-        "Keypad"
-      ],
+      "Controllers": ["Keypad"],
       "States": [
         {
           "Image": "images/live",
@@ -120,9 +110,7 @@
       "Name": "Blank Frames / Feed",
       "Icon": "images/blank-list",
       "Tooltip": "Blank selected frames and feeds, including their Preview channels.",
-      "Controllers": [
-        "Keypad"
-      ],
+      "Controllers": ["Keypad"],
       "States": [
         {
           "Image": "images/blank",

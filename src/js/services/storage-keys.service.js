@@ -29,8 +29,7 @@
             previewKey: previewKey,
             TEST_MODE_KEY: TEST_MODE_KEY,
             testMode: testMode,
-            setTestMode: setTestMode
+            setTestMode: setTestMode,
         };
     });
-
 })();

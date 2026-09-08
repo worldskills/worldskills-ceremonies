@@ -12,11 +12,22 @@ const { sendRemoteAction, sendControlNotice, sendControlDebug } = require('./con
 const { normalizeRemoteConfig, DEFAULT_REMOTE_PORT, DEFAULT_REMOTE_PIN } = require('./project-contract');
 
 const MIME = {
-    '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
-    '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.otf': 'font/otf',
-    '.eot': 'application/vnd.ms-fontobject', '.svg': 'image/svg+xml', '.png': 'image/png',
-    '.json': 'application/json', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
-    '.webp': 'image/webp', '.mp4': 'video/mp4', '.webm': 'video/webm'
+    '.html': 'text/html',
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
+    '.otf': 'font/otf',
+    '.eot': 'application/vnd.ms-fontobject',
+    '.svg': 'image/svg+xml',
+    '.png': 'image/png',
+    '.json': 'application/json',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp',
+    '.mp4': 'video/mp4',
+    '.webm': 'video/webm',
 };
 
 const STATIC_FILES = {
@@ -32,14 +43,34 @@ const STATIC_FILES = {
     '/css/control.css': path.join(appRoot, 'src', 'css', 'control.css'),
     '/css/remote.css': path.join(appRoot, 'src', 'css', 'remote.css'),
     '/node_modules/angular/angular.min.js': path.join(appRoot, 'node_modules', 'angular', 'angular.min.js'),
-    '/node_modules/@worldskills/bootstrap/dist/css/bootstrap.min.css': path.join(appRoot, 'node_modules', '@worldskills', 'bootstrap', 'dist', 'css', 'bootstrap.min.css'),
-    '/node_modules/font-awesome/css/font-awesome.min.css': path.join(appRoot, 'node_modules', 'font-awesome', 'css', 'font-awesome.min.css')
+    '/node_modules/@worldskills/bootstrap/dist/css/bootstrap.min.css': path.join(
+        appRoot,
+        'node_modules',
+        '@worldskills',
+        'bootstrap',
+        'dist',
+        'css',
+        'bootstrap.min.css'
+    ),
+    '/node_modules/font-awesome/css/font-awesome.min.css': path.join(
+        appRoot,
+        'node_modules',
+        'font-awesome',
+        'css',
+        'font-awesome.min.css'
+    ),
 };
 ['angular-translate/dist/angular-translate.min.js', 'ng-file-upload/dist/ng-file-upload.min.js'].forEach((name) => {
     STATIC_FILES['/node_modules/' + name] = path.join(appRoot, 'node_modules', name);
 });
-['app.js', 'directives.js', 'screen.js', 'services/translations-loader.service.js', 'services/storage-keys.service.js',
-    'services/remote-transport.service.js'].forEach((name) => {
+[
+    'app.js',
+    'directives.js',
+    'screen.js',
+    'services/translations-loader.service.js',
+    'services/storage-keys.service.js',
+    'services/remote-transport.service.js',
+].forEach((name) => {
     STATIC_FILES['/js/' + name] = path.join(appRoot, 'src/js', name);
 });
 const FONT_AWESOME_FONTS_DIR = path.join(appRoot, 'node_modules', 'font-awesome', 'fonts');
@@ -63,12 +94,14 @@ function completeCommand(requestId, result) {
     pendingCommands.delete(requestId);
 
     if (pending.ws.readyState === WebSocket.OPEN) {
-        pending.ws.send(JSON.stringify({
-            type: 'command-result',
-            id: pending.id,
-            ok: !!(result && result.ok),
-            error: result && result.error,
-        }));
+        pending.ws.send(
+            JSON.stringify({
+                type: 'command-result',
+                id: pending.id,
+                ok: !!(result && result.ok),
+                error: result && result.error,
+            })
+        );
     }
 }
 
@@ -140,10 +173,13 @@ function serveBinaryAsset(req, res, filePath, mime) {
             }
 
             if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start > end || start >= size) {
-                res.writeHead(416, Object.assign(headers, {
-                    'Content-Range': 'bytes */' + size,
-                    'Content-Length': 0,
-                }));
+                res.writeHead(
+                    416,
+                    Object.assign(headers, {
+                        'Content-Range': 'bytes */' + size,
+                        'Content-Length': 0,
+                    })
+                );
                 res.end();
                 return;
             }
@@ -186,9 +222,10 @@ function serveOperatorAsset(req, res, asset) {
         return;
     }
 
-    const roots = host === 'active'
-        ? [projectStore.getActiveTemplateDir(), bundledTemplateDir]
-        : [projectStore.getActiveProjectDir(), bareProjectDir];
+    const roots =
+        host === 'active'
+            ? [projectStore.getActiveTemplateDir(), bundledTemplateDir]
+            : [projectStore.getActiveProjectDir(), bareProjectDir];
 
     for (const root of roots) {
         const hit = resolveUnder(root, rel);
@@ -212,12 +249,16 @@ function serveOperatorAsset(req, res, asset) {
             }
 
             if (['.html', '.css', '.js', '.json', '.svg'].includes(ext)) {
-                const data = fs.readFileSync(hit, 'utf8')
+                const data = fs
+                    .readFileSync(hit, 'utf8')
                     .replace(/wstemplate:\/\/(active|project)\//g, '/operator-assets/' + token + '/$1/');
-                res.writeHead(200, noStore(mime, {
-                    'Referrer-Policy': 'no-referrer',
-                    'Content-Length': Buffer.byteLength(data),
-                }));
+                res.writeHead(
+                    200,
+                    noStore(mime, {
+                        'Referrer-Policy': 'no-referrer',
+                        'Content-Length': Buffer.byteLength(data),
+                    })
+                );
                 res.end(req.method === 'HEAD' ? undefined : data);
             } else {
                 serveBinaryAsset(req, res, hit, mime);
@@ -247,7 +288,10 @@ function serveOperatorFeedPage(req, res) {
             .replace('<link href="wstemplate://active/css/screen.css" rel="stylesheet">', '')
             .replace(/\.\.\/\.\.\/node_modules\//g, '/node_modules/')
             .replace(/\.\.\/js\//g, '/js/')
-            .replace('<script src="/js/screen.js">', '<script src="/js/operator-feed.js"></script><script src="/js/screen.js">');
+            .replace(
+                '<script src="/js/screen.js">',
+                '<script src="/js/operator-feed.js"></script><script src="/js/screen.js">'
+            );
 
         res.writeHead(200, noStore('text/html'));
         res.end(page);
@@ -328,8 +372,17 @@ function broadcastState(snapshot) {
 }
 
 function validAction(action) {
-    const names = ['showSlide', 'previewSlide', 'toggleState', 'resetStates', 'updateContext',
-        'resetPreview', 'resetFrame', 'prevSlideForFrame', 'nextSlideForFrame'];
+    const names = [
+        'showSlide',
+        'previewSlide',
+        'toggleState',
+        'resetStates',
+        'updateContext',
+        'resetPreview',
+        'resetFrame',
+        'prevSlideForFrame',
+        'nextSlideForFrame',
+    ];
 
     if (!action || names.indexOf(action.name) < 0) {
         return false;
@@ -337,7 +390,10 @@ function validAction(action) {
     if (typeof action.frameId !== 'string' || !/^[a-z][a-z0-9_-]*$/i.test(action.frameId)) {
         return false;
     }
-    if (action.slideIndex != null && (!Number.isInteger(action.slideIndex) || action.slideIndex < 0 || action.slideIndex > 10000)) {
+    if (
+        action.slideIndex != null &&
+        (!Number.isInteger(action.slideIndex) || action.slideIndex < 0 || action.slideIndex > 10000)
+    ) {
         return false;
     }
     if (action.slideId != null && (typeof action.slideId !== 'string' || action.slideId.length > 500)) {
@@ -446,12 +502,14 @@ function startRemoteServer(config) {
                 clearTimeout(authTimer);
                 failedByIp.delete(ip);
 
-                ws.send(JSON.stringify({
-                    type: 'auth-ok',
-                    capabilities: ['stream-deck-v1', 'operator-v1'],
-                    assetToken: ws.assetToken,
-                    languages: (projectStore.getActiveProject() || {}).languages || [{ lang_code: 'en' }],
-                }));
+                ws.send(
+                    JSON.stringify({
+                        type: 'auth-ok',
+                        capabilities: ['stream-deck-v1', 'operator-v1'],
+                        assetToken: ws.assetToken,
+                        languages: (projectStore.getActiveProject() || {}).languages || [{ lang_code: 'en' }],
+                    })
+                );
                 sendControlDebug('remote-connected', clientLabel() + ' connected from ' + ip + '.');
 
                 if (lastSnapshot) {
@@ -469,8 +527,11 @@ function startRemoteServer(config) {
             if (msg.type === 'ping') {
                 sendRemoteAction({ name: 'operatorHeartbeat' });
             }
-            if (msg.type === 'debug' && ws.clientType === 'operator' &&
-                ['operator-feed-error', 'streaming-display-unavailable'].includes(msg.debugType)) {
+            if (
+                msg.type === 'debug' &&
+                ws.clientType === 'operator' &&
+                ['operator-feed-error', 'streaming-display-unavailable'].includes(msg.debugType)
+            ) {
                 sendControlDebug(msg.debugType, String(msg.message || '').slice(0, 500));
             }
         });

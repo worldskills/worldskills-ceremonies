@@ -8,12 +8,40 @@
   ],
   "grids": {
     "Test": [
-      { "feedType": "main", "columns": 6, "width": 770, "height": 350, "channel": "live", "fullscreen": false },
-      { "feedType": "secondary", "columns": 6, "width": 640, "height": 400, "channel": "live", "fullscreen": false }
+      {
+        "feedType": "main",
+        "columns": 6,
+        "width": 770,
+        "height": 350,
+        "channel": "live",
+        "fullscreen": false
+      },
+      {
+        "feedType": "secondary",
+        "columns": 6,
+        "width": 640,
+        "height": 400,
+        "channel": "live",
+        "fullscreen": false
+      }
     ],
     "Prod": [
-      { "feedType": "main", "columns": 6, "width": 1100, "height": 500, "channel": "live", "fullscreen": false },
-      { "feedType": "secondary", "columns": 6, "width": 800, "height": 500, "channel": "live", "fullscreen": false }
+      {
+        "feedType": "main",
+        "columns": 6,
+        "width": 1100,
+        "height": 500,
+        "channel": "live",
+        "fullscreen": false
+      },
+      {
+        "feedType": "secondary",
+        "columns": 6,
+        "width": 800,
+        "height": 500,
+        "channel": "live",
+        "fullscreen": false
+      }
     ]
   }
 }

@@ -15,8 +15,13 @@ function registerRemoteIpc() {
             return { ok: false, error: 'Enable the remote server before opening Operator.' };
         }
 
-        const url = 'http://127.0.0.1:' + info.port + '/operator?frame=' +
-            encodeURIComponent(frameId || '') + '#pin=' + info.pin;
+        const url =
+            'http://127.0.0.1:' +
+            info.port +
+            '/operator?frame=' +
+            encodeURIComponent(frameId || '') +
+            '#pin=' +
+            info.pin;
 
         try {
             await appWindows.createOperatorWindow(url);
@@ -65,7 +70,7 @@ function registerRemoteIpc() {
                     enabled: !config || config.enabled !== false,
                     pin: pin,
                     port: port,
-                }
+                },
             });
             projectStore.writeProjectFiles(dir, nextProject);
             projectStore.setActiveProject(nextProject);

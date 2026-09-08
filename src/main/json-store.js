@@ -16,12 +16,19 @@ function readJson(filePath, fallback) {
 function writeJson(filePath, value, opts) {
     const pretty = !opts || opts.pretty !== false;
     const data = pretty ? JSON.stringify(value, null, 2) : JSON.stringify(value);
-    const tempPath = path.join(path.dirname(filePath), '.' + path.basename(filePath) + '.tmp-' + process.pid + '-' + Date.now());
+    const tempPath = path.join(
+        path.dirname(filePath),
+        '.' + path.basename(filePath) + '.tmp-' + process.pid + '-' + Date.now()
+    );
     try {
         fs.writeFileSync(tempPath, data);
         fs.renameSync(tempPath, filePath);
     } catch (error) {
-        try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch (_cleanupError) { /* best effort */ }
+        try {
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+        } catch (_cleanupError) {
+            /* best effort */
+        }
         throw error;
     }
 }

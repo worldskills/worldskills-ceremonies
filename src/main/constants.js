@@ -3,14 +3,14 @@
 
 const FEED = {
     LIVE: 'live',
-    PREVIEW: 'preview'
+    PREVIEW: 'preview',
 };
 
 const FRAME_STATUS = {
     CLOSED: 'closed',
     CONNECTING: 'connecting',
     READY: 'ready',
-    CRASHED: 'crashed'
+    CRASHED: 'crashed',
 };
 
 module.exports = { FEED, FRAME_STATUS };

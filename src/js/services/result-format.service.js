@@ -2,7 +2,6 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('ResultFormat', function (EXCEL_COLUMNS) {
-
         function capitalizeString(inputString) {
             return inputString.substring(0, 1).toUpperCase() + inputString.substring(1);
         }
@@ -32,12 +31,16 @@
             if (text == null) {
                 return '';
             }
-            return String(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            return String(text)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
         }
 
         // Normalize a skill number for comparison: strip leading zeros so "07" and "7" match.
         function normalizeSkillNum(n) {
-            return String(n).trim().replace(/^0+(\d)/, '$1');
+            return String(n)
+                .trim()
+                .replace(/^0+(\d)/, '$1');
         }
 
         function simplifySkill(skill) {
@@ -56,7 +59,8 @@
             }
             r.member = result[EXCEL_COLUMNS.MEMBER_NAME];
             r.memberCode = result[EXCEL_COLUMNS.MEMBER];
-            r.competitor = capitalize(result[EXCEL_COLUMNS.FIRST_NAME]) + ' ' + capitalize(result[EXCEL_COLUMNS.LAST_NAME]);
+            r.competitor =
+                capitalize(result[EXCEL_COLUMNS.FIRST_NAME]) + ' ' + capitalize(result[EXCEL_COLUMNS.LAST_NAME]);
             return r;
         }
 
@@ -71,8 +75,7 @@
             normalizeSkillNum: normalizeSkillNum,
             simplifySkill: simplifySkill,
             simplifyResult: simplifyResult,
-            competitorsOf: competitorsOf
+            competitorsOf: competitorsOf,
         };
     });
-
 })();

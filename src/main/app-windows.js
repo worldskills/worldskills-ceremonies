@@ -34,12 +34,12 @@ function createControlWindow() {
                 type: 'warning',
                 title: 'Outputs are still open',
                 message: 'Close the audience outputs before closing Control.',
-                detail: liveCount + ' Live, ' + previewCount + ' Preview, ' + gridCount + ' Grid.'
+                detail: liveCount + ' Live, ' + previewCount + ' Preview, ' + gridCount + ' Grid.',
             });
         } else if (isProjectDirty()) {
             const confirmed = confirmClose(controlWindow, {
                 title: 'Unsaved changes',
-                message: 'You have unsaved changes. Data could be lost if you close now.'
+                message: 'You have unsaved changes. Data could be lost if you close now.',
             });
             if (!confirmed) {
                 event.preventDefault();

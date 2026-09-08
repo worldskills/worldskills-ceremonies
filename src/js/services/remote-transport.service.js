@@ -179,8 +179,7 @@
             sendRaw: sendRaw,
             loadPin: loadPin,
             savePin: savePin,
-            forgetPin: forgetPin
+            forgetPin: forgetPin,
         };
     });
-
 })();

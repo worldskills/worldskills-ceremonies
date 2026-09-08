@@ -26,7 +26,7 @@
                 if (frame && frame.color) {
                     return frame.color;
                 }
-            }
+            },
         };
 
         $scope.connect = function () {
@@ -104,7 +104,7 @@
 
         function reconcileFrames(message) {
             // Older controllers sent a raw frame array; current snapshots include feeds.
-            var snapshot = angular.isArray(message) ? { frames: message } : (message || {});
+            var snapshot = angular.isArray(message) ? { frames: message } : message || {};
             var incoming = snapshot.frames || [];
             var present = {};
             var options = [];
@@ -153,12 +153,15 @@
                 return;
             }
 
-            action = angular.extend({
-                name: name,
-                frameId: frameId,
-                slideIndex: index,
-                slideId: slide.slideId
-            }, extra || {});
+            action = angular.extend(
+                {
+                    name: name,
+                    frameId: frameId,
+                    slideIndex: index,
+                    slideId: slide.slideId,
+                },
+                extra || {}
+            );
 
             if (!RemoteTransport.send(action)) {
                 $scope.auth.error = 'Action not sent — reconnecting.';
@@ -242,5 +245,4 @@
             $scope.connect();
         }
     });
-
 })();

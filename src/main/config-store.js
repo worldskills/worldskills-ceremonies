@@ -19,7 +19,9 @@ function writeConfig(cfg) {
 function addRecent(dir, name) {
     const cfg = readConfig();
     const recent = cfg.recentProjects || [];
-    const filtered = recent.filter(function (r) { return r.path !== dir; });
+    const filtered = recent.filter(function (r) {
+        return r.path !== dir;
+    });
     filtered.unshift({ path: dir, name: name || path.basename(dir), lastOpened: new Date().toISOString() });
     cfg.recentProjects = filtered.slice(0, 8);
     cfg.lastProject = dir;

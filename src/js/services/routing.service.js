@@ -6,7 +6,6 @@
     // src/main/project-contract.js, so nothing here assumes a feed id or that a project has
     // more than one feed. Set once per project load; read by Catalog while building slides.
     angular.module('ceremoniesApp').factory('Routing', function () {
-
         var EMPTY = { base: [], stateFeed: null, states: {}, content: {} };
 
         var table = {};
@@ -56,5 +55,4 @@
 
         return { set: set, all: all, base: base, stateMap: stateMap, content: content };
     });
-
 })();

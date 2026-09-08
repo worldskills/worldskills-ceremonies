@@ -5,7 +5,6 @@
     // a timeline of the run. Fed by the control panel itself and, over IPC/WebSocket, by output
     // windows and Operator — see sendControlDebug in src/main/control-channel.js.
     angular.module('ceremoniesApp').factory('DebugLog', function (FrameService) {
-
         var COLORS = {
             'slide-changed': '#16a34a',
             'state-changed': '#0891b2',
@@ -15,7 +14,7 @@
             'electron-failure': '#b91c1c',
             'remote-connected': '#7c3aed',
             'operator-feed-error': '#db2777',
-            'streaming-display-unavailable': '#475569'
+            'streaming-display-unavailable': '#475569',
         };
 
         var BADGE = ';color:#fff;font-weight:bold;padding:2px 5px;border-radius:3px';
@@ -25,8 +24,12 @@
         }
 
         function log(type, message, frameId) {
-            var label = String(type || 'debug').replace(/-/g, ' ').toUpperCase();
-            var line = String(message || '').replace(/\s+/g, ' ').trim();
+            var label = String(type || 'debug')
+                .replace(/-/g, ' ')
+                .toUpperCase();
+            var line = String(message || '')
+                .replace(/\s+/g, ' ')
+                .trim();
             var frame = frameId && FrameService.frames[frameId];
             var frameLabel = frame && frame.label ? frame.label : frameId;
             var styles = [badge(COLORS[type] || '#334155'), 'color:inherit'];
@@ -42,5 +45,4 @@
 
         return { log: log };
     });
-
 })();

@@ -35,7 +35,7 @@ function refresh(context) {
         live: 'Open Live',
         continue: 'Live',
         grid: 'Grid',
-        blank: 'Blank'
+        blank: 'Blank',
     }[kind];
     const target = ['previous', 'next', 'live', 'continue'].includes(kind)
         ? key.settings.frameId
@@ -43,7 +43,7 @@ function refresh(context) {
     const title = key.settings.keyTitle || label + '\n' + (target || 'Set frame');
     send('setTitle', context, {
         title: title + (remote && remote.ready ? '' : '\nOffline'),
-        target: 0
+        target: 0,
     });
 
     if (!inspectors.has(context)) {
@@ -53,7 +53,7 @@ function refresh(context) {
         status: key.error || (remote ? remote.status : 'Configure connection.'),
         ready: !!(remote && remote.ready),
         frames: remote ? remote.frames.map((frame) => ({ id: frame.id, label: frame.label })) : [],
-        feedTypes: remote ? remote.feedTypes : []
+        feedTypes: remote ? remote.feedTypes : [],
     });
 }
 
@@ -138,10 +138,12 @@ async function press(event) {
 }
 
 deck.on('open', () => {
-    deck.send(JSON.stringify({
-        event: option('-registerEvent'),
-        uuid: option('-pluginUUID')
-    }));
+    deck.send(
+        JSON.stringify({
+            event: option('-registerEvent'),
+            uuid: option('-pluginUUID'),
+        })
+    );
 });
 
 deck.on('message', async (raw) => {

@@ -7,18 +7,26 @@
 
         function readFile() {
             if (window.operatorFeed) {
-                return $http.get(window.operatorFeed.projectBase + 'translations.json').then(function (response) {
-                    return response.data.languages || {};
-                }, function () { return {}; });
+                return $http.get(window.operatorFeed.projectBase + 'translations.json').then(
+                    function (response) {
+                        return response.data.languages || {};
+                    },
+                    function () {
+                        return {};
+                    }
+                );
             }
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.readTranslations) {
                 return $q.resolve({});
             }
-            return $q.when(window.ceremonator.project.readTranslations()).then(function (result) {
-                return (result && result.ok && result.languages) || {};
-            }, function () {
-                return {};
-            });
+            return $q.when(window.ceremonator.project.readTranslations()).then(
+                function (result) {
+                    return (result && result.ok && result.languages) || {};
+                },
+                function () {
+                    return {};
+                }
+            );
         }
 
         function addToTable(table, name, key) {
@@ -35,13 +43,23 @@
 
         // Skill/member name translations live in data/*.json, independent of the project's translations.json — build the same { lang: { English: text } } shape so it merges straight in.
         function readDataTranslations() {
-            var skillsLoaded = $http.get(DATA_BASE + 'skills.json').then(function (response) {
-                return angular.isArray(response.data) ? response.data : [];
-            }, function () { return []; });
+            var skillsLoaded = $http.get(DATA_BASE + 'skills.json').then(
+                function (response) {
+                    return angular.isArray(response.data) ? response.data : [];
+                },
+                function () {
+                    return [];
+                }
+            );
 
-            var membersLoaded = $http.get(DATA_BASE + 'members.json').then(function (response) {
-                return angular.isArray(response.data) ? response.data : [];
-            }, function () { return []; });
+            var membersLoaded = $http.get(DATA_BASE + 'members.json').then(
+                function (response) {
+                    return angular.isArray(response.data) ? response.data : [];
+                },
+                function () {
+                    return [];
+                }
+            );
 
             return $q.all([skillsLoaded, membersLoaded]).then(function (results) {
                 var table = {};
@@ -73,5 +91,4 @@
             });
         };
     });
-
 })();

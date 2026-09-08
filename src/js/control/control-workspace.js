@@ -1,7 +1,8 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesControlWorkspace', [])
+    angular
+        .module('ceremoniesControlWorkspace', [])
         // Everything slide-row.html and its siblings call on the host scope. Control, Remote
         // and Operator all keep their frames in scope.screens, so one installer serves all
         // three — Control's is FrameService.frames itself, the other two hold a snapshot.
@@ -22,8 +23,12 @@
                 }
 
                 function feedBadge(feedId) {
-                    var match = feeds().filter(function (feed) { return feed.id === feedId; })[0];
-                    return String((match && match.label) || feedId).charAt(0).toUpperCase();
+                    var match = feeds().filter(function (feed) {
+                        return feed.id === feedId;
+                    })[0];
+                    return String((match && match.label) || feedId)
+                        .charAt(0)
+                        .toUpperCase();
                 }
 
                 scope.getSlidePosition = function (frameId) {
@@ -113,7 +118,7 @@
             return {
                 restrict: 'E',
                 transclude: true,
-                templateUrl: 'partials/control-workspace.html'
+                templateUrl: 'partials/control-workspace.html',
             };
         })
         .directive('slideRow', function () {
@@ -128,22 +133,32 @@
                     // rowSlide/rowFrameId to whatever they were at first link, leaving a stale
                     // row that no longer matches any real slide (and reads as non-clickable,
                     // since canEditSlide etc. compare against the frozen object). Watch instead.
-                    scope.$watch(attrs.frameId, function (v) { scope.rowFrameId = v; });
-                    scope.$watch(attrs.slide, function (v) { scope.rowSlide = v; });
+                    scope.$watch(attrs.frameId, function (v) {
+                        scope.rowFrameId = v;
+                    });
+                    scope.$watch(attrs.slide, function (v) {
+                        scope.rowSlide = v;
+                    });
                     if (attrs.label) {
-                        scope.$watch(attrs.label, function (v) { scope.rowLabel = v; });
+                        scope.$watch(attrs.label, function (v) {
+                            scope.rowLabel = v;
+                        });
                     }
                     scope.rowEditContext = attrs.editContext !== 'false';
                     scope.rowShowBadge = attrs.showBadge ? !!scope.$eval(attrs.showBadge) : false;
                     if (attrs.frameLabel) {
-                        scope.$watch(attrs.frameLabel, function (v) { scope.rowFrameLabel = v; });
+                        scope.$watch(attrs.frameLabel, function (v) {
+                            scope.rowFrameLabel = v;
+                        });
                     } else {
                         scope.rowFrameLabel = '';
                     }
                     scope.rowQueueIdx = attrs.queueIdx ? scope.$eval(attrs.queueIdx) : null;
                     var liveExpr = attrs.onLive;
-                    scope.rowShowLive = function () { scope.$eval(liveExpr); };
-                }
+                    scope.rowShowLive = function () {
+                        scope.$eval(liveExpr);
+                    };
+                },
             };
         })
         .directive('jsonText', function ($filter) {
@@ -164,7 +179,7 @@
                     ngModel.$formatters.push(function (data) {
                         return $filter('json')(data);
                     });
-                }
+                },
             };
         });
 })();

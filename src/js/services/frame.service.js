@@ -2,7 +2,6 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('FrameService', function (SCREENS, FRAMES_WINDOW_STATUS, ResultFormat) {
-
         // Stands in until a project is loaded; project-contract.js is the real source.
         var FALLBACK_FEED = { id: 'main', label: 'Main', gridSize: { width: 1280, height: 720 } };
 
@@ -12,7 +11,7 @@
             frames: SCREENS,
             activeFrameId: Object.keys(SCREENS)[0],
             skillOrder: [],
-            feedTypes: [angular.copy(FALLBACK_FEED)]
+            feedTypes: [angular.copy(FALLBACK_FEED)],
         };
 
         function skillNumberValue(number) {
@@ -22,7 +21,9 @@
 
         function pickColor() {
             var used = {};
-            angular.forEach(service.frames, function (f) { if (f && f.color) used[f.color] = true; });
+            angular.forEach(service.frames, function (f) {
+                if (f && f.color) used[f.color] = true;
+            });
             for (var i = 0; i < frameColors.length; i++) {
                 if (!used[frameColors[i]]) {
                     return frameColors[i];
@@ -56,10 +57,12 @@
         };
 
         service.setFeedTypes = function (feeds) {
-            service.feedTypes = angular.copy((feeds && feeds.length) ? feeds : [FALLBACK_FEED]);
+            service.feedTypes = angular.copy(feeds && feeds.length ? feeds : [FALLBACK_FEED]);
         };
         service.hasFeedType = function (id) {
-            return service.feedTypes.some(function (feed) { return feed.id === id; });
+            return service.feedTypes.some(function (feed) {
+                return feed.id === id;
+            });
         };
         // The feed a frame falls back to when nothing names one — the project's first.
         service.primaryFeedId = function () {
@@ -77,7 +80,9 @@
         };
 
         service.getFeedType = function (id) {
-            return service.feedTypes.filter(function (feed) { return feed.id === id; })[0];
+            return service.feedTypes.filter(function (feed) {
+                return feed.id === id;
+            })[0];
         };
 
         service.compareSkillNumbers = function (a, b) {
@@ -119,7 +124,7 @@
         // one frame carries the flag. Pass a falsy frameId to clear it on every frame.
         service.setAlbertVidalFrame = function (frameId) {
             angular.forEach(service.frames, function (frame, id) {
-                frame.ordering.includeAlbertVidal = (id === frameId);
+                frame.ordering.includeAlbertVidal = id === frameId;
             });
         };
 
@@ -161,7 +166,7 @@
                     position: frame.position,
                     ordering: frame.ordering,
                     color: frame.color,
-                    video: frame.video
+                    video: frame.video,
                 });
             });
             return result;
@@ -181,13 +186,20 @@
                         position: config.position,
                         ordering: config.ordering,
                         color: config.color || service.frames[config.id].color,
-                        video: config.video
+                        video: config.video,
                     });
                 } else {
-                    service.frames[config.id] = angular.extend({
-                        slides: [], slide: undefined, previewSlide: undefined, status: FRAMES_WINDOW_STATUS.CLOSED,
-                        windows: { live: 0, preview: 0 }, blankedFeeds: {}
-                    }, config);
+                    service.frames[config.id] = angular.extend(
+                        {
+                            slides: [],
+                            slide: undefined,
+                            previewSlide: undefined,
+                            status: FRAMES_WINDOW_STATUS.CLOSED,
+                            windows: { live: 0, preview: 0 },
+                            blankedFeeds: {},
+                        },
+                        config
+                    );
                 }
             });
             // Backfill colors for projects saved before the color field existed.
@@ -202,7 +214,15 @@
             service.activeFrameId = Object.keys(service.frames)[0];
         };
 
-        service.saveProject = function (projectName, displayMode, gridConfig, languages, bestOfNationGroupSize, remoteConfig, routing) {
+        service.saveProject = function (
+            projectName,
+            displayMode,
+            gridConfig,
+            languages,
+            bestOfNationGroupSize,
+            remoteConfig,
+            routing
+        ) {
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.saveCurrent) {
                 return Promise.resolve({ ok: false, error: 'Electron API unavailable' });
             }
@@ -217,12 +237,11 @@
                 routing: routing ? angular.copy(routing) : null,
                 languages: languages || [],
                 bestOfNationGroupSize: bestOfNationGroupSize || 5,
-                remote: remoteConfig || null
+                remote: remoteConfig || null,
             };
             return window.ceremonator.project.saveCurrent(project);
         };
 
         return service;
     });
-
 })();

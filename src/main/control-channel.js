@@ -7,7 +7,7 @@ function notifyFrameStatus(frameId, status, extra) {
 
         const data = {
             frameId,
-            status
+            status,
         };
 
         if (e.reason) data.reason = e.reason;
@@ -68,4 +68,11 @@ function requestClearAllData() {
     }
 }
 
-module.exports = { notifyFrameStatus, sendControlNotice, sendControlDebug, notifyDisplaysChanged, sendRemoteAction, requestClearAllData };
+module.exports = {
+    notifyFrameStatus,
+    sendControlNotice,
+    sendControlDebug,
+    notifyDisplaysChanged,
+    sendRemoteAction,
+    requestClearAllData,
+};

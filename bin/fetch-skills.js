@@ -25,19 +25,38 @@ function readLanguages() {
 
 function fetchSkills(sourceEventId, lang) {
     return new Promise((resolve, reject) => {
-        https.get(`https://api.worldskills.org/events/${sourceEventId}/skills?sort=name_asc&l=${lang}&limit=100&type=official`, (response) => {
-            let body = '';
-            response.on('data', (chunk) => { body += chunk; });
-            response.on('end', () => {
-                try { resolve(JSON.parse(body).skills); } catch (e) { reject(e); }
-            });
-        }).on('error', reject);
+        https
+            .get(
+                `https://api.worldskills.org/events/${sourceEventId}/skills?sort=name_asc&l=${lang}&limit=100&type=official`,
+                (response) => {
+                    let body = '';
+                    response.on('data', (chunk) => {
+                        body += chunk;
+                    });
+                    response.on('end', () => {
+                        try {
+                            resolve(JSON.parse(body).skills);
+                        } catch (e) {
+                            reject(e);
+                        }
+                    });
+                }
+            )
+            .on('error', reject);
     });
 }
 
 function extensionFor(contentType, url) {
-    const type = String(contentType || '').split(';')[0].toLowerCase();
-    const byType = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/svg+xml': 'svg', 'image/gif': 'gif' };
+    const type = String(contentType || '')
+        .split(';')[0]
+        .toLowerCase();
+    const byType = {
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+        'image/webp': 'webp',
+        'image/svg+xml': 'svg',
+        'image/gif': 'gif',
+    };
     if (byType[type]) return byType[type];
     const match = String(url || '').match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i);
     return match ? match[1].toLowerCase() : 'img';
@@ -45,33 +64,42 @@ function extensionFor(contentType, url) {
 
 function download(url, redirects) {
     return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
-            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location && redirects < 5) {
-                response.resume();
-                return resolve(download(new URL(response.headers.location, url).toString(), redirects + 1));
-            }
-            if (response.statusCode !== 200) { response.resume(); return reject(new Error('HTTP ' + response.statusCode)); }
-            const chunks = [];
-            response.on('data', (chunk) => chunks.push(chunk));
-            response.on('end', () => resolve({ body: Buffer.concat(chunks), type: response.headers['content-type'] }));
-        }).on('error', reject);
+        https
+            .get(url, (response) => {
+                if (
+                    response.statusCode >= 300 &&
+                    response.statusCode < 400 &&
+                    response.headers.location &&
+                    redirects < 5
+                ) {
+                    response.resume();
+                    return resolve(download(new URL(response.headers.location, url).toString(), redirects + 1));
+                }
+                if (response.statusCode !== 200) {
+                    response.resume();
+                    return reject(new Error('HTTP ' + response.statusCode));
+                }
+                const chunks = [];
+                response.on('data', (chunk) => chunks.push(chunk));
+                response.on('end', () =>
+                    resolve({ body: Buffer.concat(chunks), type: response.headers['content-type'] })
+                );
+            })
+            .on('error', reject);
     });
 }
 
 async function main() {
     const enSkills = await fetchSkills(eventId, 'en');
-    const sponsorSkills = sponsorEventId === eventId
-        ? enSkills
-        : await fetchSkills(sponsorEventId, 'en');
-    const sponsorsByNumber = new Map(sponsorSkills.map((skill) => [
-        skill.number,
-        Array.isArray(skill.sponsors) ? skill.sponsors : []
-    ]));
+    const sponsorSkills = sponsorEventId === eventId ? enSkills : await fetchSkills(sponsorEventId, 'en');
+    const sponsorsByNumber = new Map(
+        sponsorSkills.map((skill) => [skill.number, Array.isArray(skill.sponsors) ? skill.sponsors : []])
+    );
     const skills = enSkills.map((skill) => ({
         number: skill.number,
         name: { lang_code: 'en', text: skill.name.text, translations: {} },
         // Preserve source-event sponsor records verbatim; logo.local is added below.
-        sponsors: sponsorsByNumber.get(skill.number) || []
+        sponsors: sponsorsByNumber.get(skill.number) || [],
     }));
 
     const otherLanguages = readLanguages().filter((lang) => lang !== 'en');
@@ -93,7 +121,10 @@ async function main() {
         for (const sponsor of skill.sponsors) {
             const logo = sponsor && sponsor.logo;
             const url = logo && logo.thumbnail;
-            if (!url) { if (logo) delete logo.local; continue; }
+            if (!url) {
+                if (logo) delete logo.local;
+                continue;
+            }
             const id = String(logo.id == null ? '' : logo.id).replace(/[^a-z0-9_-]/gi, '');
             if (!id) {
                 delete logo.local;

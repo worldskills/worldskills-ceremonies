@@ -1,12 +1,16 @@
 (function () {
     'use strict';
 
-    var ceremoniesApp = angular.module('ceremoniesApp', ['ceremoniesControlWorkspace', 'ngFileUpload', 'pascalprecht.translate']);
+    var ceremoniesApp = angular.module('ceremoniesApp', [
+        'ceremoniesControlWorkspace',
+        'ngFileUpload',
+        'pascalprecht.translate',
+    ]);
 
     var FRAMES_WINDOW_STATUS = {
         CLOSED: 'closed',
         CONNECTING: 'connecting',
-        READY: 'ready'
+        READY: 'ready',
     };
 
     var screens = {
@@ -21,8 +25,8 @@
             ordering: { mode: 'skills', skillNumbers: [], sourceFile: null },
             blankedFeeds: {},
             status: FRAMES_WINDOW_STATUS.CLOSED,
-            windows: { live: 0, preview: 0 }
-        }
+            windows: { live: 0, preview: 0 },
+        },
     };
 
     ceremoniesApp.constant('FRAMES_WINDOW_STATUS', FRAMES_WINDOW_STATUS);
@@ -34,7 +38,7 @@
     // The two localStorage/window channels a screen can read — see frame-state.service.js.
     ceremoniesApp.constant('FEED', {
         LIVE: 'live',
-        PREVIEW: 'preview'
+        PREVIEW: 'preview',
     });
 
     ceremoniesApp.constant('DATA_BASE', 'wstemplate://project/data/');
@@ -49,14 +53,14 @@
         'medal_for_excellence.html',
         'best_of_nation.html',
         'albert_vidal_award.html',
-        'partners.html'
+        'partners.html',
     ]);
 
     // Sentinel keys shared by Catalog/FrameState/Queue — not real skill
     // numbers, so they never collide with one.
     ceremoniesApp.constant('SLIDE_KEYS', {
         BEST_OF_NATION: '__bestOfNation__',
-        ALBERT_VIDAL: '__albertVidal__'
+        ALBERT_VIDAL: '__albertVidal__',
     });
 
     ceremoniesApp.constant('ALBERT_VIDAL_AWARD_LABEL', 'Albert Vidal Award');
@@ -65,13 +69,13 @@
     ceremoniesApp.constant('QUEUE_LAYOUTS', {
         LIST: 'list',
         GRID: 'grid',
-        SKILLS: 'skills'
+        SKILLS: 'skills',
     });
 
     // Setup (import/assign/save) vs Run (live show operation) — the two operator workspace modes.
     ceremoniesApp.constant('WORKSPACE_MODES', {
         SETUP: 'setup',
-        RUN: 'run'
+        RUN: 'run',
     });
 
     // CIS results-spreadsheet column headers, shared by Catalog (row filtering/grouping) and
@@ -84,7 +88,7 @@
         MEDAL: 'Medal',
         FIRST_NAME: 'First Name',
         LAST_NAME: 'Last Name',
-        SCALE_SCORE: 'WorldSkills Scale Score'
+        SCALE_SCORE: 'WorldSkills Scale Score',
     });
 
     ceremoniesApp.config(function ($sceDelegateProvider, $compileProvider) {
@@ -100,5 +104,4 @@
         $translateProvider.preferredLanguage('en'); // IDs are English, so the 'en' table is empty
         $translateProvider.useSanitizeValueStrategy(null); // trusted content; set explicitly to silence the 2.x startup warning
     });
-
 })();

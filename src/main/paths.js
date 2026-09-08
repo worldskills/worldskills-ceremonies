@@ -17,11 +17,21 @@ const bundledTemplateDir = path.join(bareProjectDir, 'template');
 const bundledDataDir = path.join(bareProjectDir, 'data');
 const flagsDir = path.join(bundledDataDir, 'flags');
 
-function projectFilePath(dir) { return path.join(dir, 'project.json'); }
-function orderingFilePath(dir) { return path.join(dir, 'ordering.json'); }
-function templateDirPath(dir) { return path.join(dir, 'template'); }
-function translationsFilePath(dir) { return path.join(dir, 'translations.json'); }
-function projectDataDir(dir) { return path.join(dir, 'data'); }
+function projectFilePath(dir) {
+    return path.join(dir, 'project.json');
+}
+function orderingFilePath(dir) {
+    return path.join(dir, 'ordering.json');
+}
+function templateDirPath(dir) {
+    return path.join(dir, 'template');
+}
+function translationsFilePath(dir) {
+    return path.join(dir, 'translations.json');
+}
+function projectDataDir(dir) {
+    return path.join(dir, 'data');
+}
 
 module.exports = {
     appRoot,

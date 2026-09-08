@@ -53,8 +53,11 @@ and leaves the sponsor name as the on-screen fallback. The starter catalog delib
 `"sponsors": []`; a populated entry looks like:
 
 ```json
-{ "name": "Example Partner", "sort": 10,
-  "logo": { "id": 42, "thumbnail": "https://…", "local": "sponsors/42.png" } }
+{
+  "name": "Example Partner",
+  "sort": 10,
+  "logo": { "id": 42, "thumbnail": "https://…", "local": "sponsors/42.png" }
+}
 ```
 
 ## Output feeds
@@ -62,7 +65,7 @@ and leaves the sponsor name as the on-screen fallback. The starter catalog delib
 Projects remain schema version 2 and declare their own output feeds. There are no fixed feed
 names: a project may configure 1–6 feeds with any identifiers and labels it likes, and the whole
 app — window management, grid view, blanking, the tablet remote, Operator and the Stream Deck
-command contract — follows whatever it declares. The first feed in the list is the *audience*
+command contract — follows whatever it declares. The first feed in the list is the _audience_
 feed: anything that does not name a feed falls back to it. Projects without `feedTypes` are
 treated as a single feed called `main`, retaining their legacy `gridConfig.frameWidth`/`frameHeight`.
 

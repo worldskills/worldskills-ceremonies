@@ -22,8 +22,14 @@ function sameGridFrames(a, b) {
 
 function hasMatchingLiveGrid(config) {
     for (const [win, entry] of gridWindows) {
-        if (!win.isDestroyed() && entry.config.feed === FEED.LIVE &&
-            (entry.config.feedType || projectStore.primaryFeedId()) === (config.feedType || projectStore.primaryFeedId()) && sameGridFrames(entry.config, config)) return true;
+        if (
+            !win.isDestroyed() &&
+            entry.config.feed === FEED.LIVE &&
+            (entry.config.feedType || projectStore.primaryFeedId()) ===
+                (config.feedType || projectStore.primaryFeedId()) &&
+            sameGridFrames(entry.config, config)
+        )
+            return true;
     }
     return false;
 }
@@ -80,7 +86,10 @@ function positionFittedGridWindow(win, entry) {
 
 function openGridWindow(config) {
     config = config || {};
-    if ([FEED.LIVE, FEED.PREVIEW].indexOf(config.feed || FEED.LIVE) < 0 || !projectStore.isFeedId(config.feedType || projectStore.primaryFeedId())) {
+    if (
+        [FEED.LIVE, FEED.PREVIEW].indexOf(config.feed || FEED.LIVE) < 0 ||
+        !projectStore.isFeedId(config.feedType || projectStore.primaryFeedId())
+    ) {
         return { ok: false, error: 'Invalid Grid feed or channel.' };
     }
     if (config.feed === FEED.PREVIEW && !hasMatchingLiveGrid(config)) {
@@ -93,9 +102,10 @@ function openGridWindow(config) {
     const goFullscreen = config.fullscreen === true;
 
     // Explicit config.position.monitor targets that display; otherwise fall back to the primary display (pre-existing behavior).
-    const target = config.position && config.position.monitor != null
-        ? resolveTargetDisplay(config.position).display
-        : electronScreen.getPrimaryDisplay();
+    const target =
+        config.position && config.position.monitor != null
+            ? resolveTargetDisplay(config.position).display
+            : electronScreen.getPrimaryDisplay();
     const wa = target.workArea;
     const availableWidth = goFullscreen ? target.bounds.width : wa.width;
     const availableHeight = goFullscreen ? target.bounds.height : wa.height;
@@ -103,7 +113,7 @@ function openGridWindow(config) {
     const cascadeOffset = GRID_CASCADE_OFFSET * countGridWindowsOnDisplay(target);
 
     // JSON blob, not delimiter-joined tokens, so a frame label can contain any character without colliding with the encoding.
-    const framesPayload = frames.map(f => ({
+    const framesPayload = frames.map((f) => ({
         frameId: f.frameId,
         label: f.label || '',
         accent: f.accent || '',
@@ -123,7 +133,11 @@ function openGridWindow(config) {
         show: false,
         backgroundColor: '#000',
         // Without nodeIntegrationInSubFrames, the preload's window.ceremonator only reaches frames.html itself, not its iframes — silently breaking screen.js's translation IPC in grid view.
-        webPreferences: baseWebPreferences({ nodeIntegrationInSubFrames: true, backgroundThrottling: false, ceremonatorRole: 'output' }),
+        webPreferences: baseWebPreferences({
+            nodeIntegrationInSubFrames: true,
+            backgroundThrottling: false,
+            ceremonatorRole: 'output',
+        }),
     });
     markWindow(win, 'output');
     // Measure platform-specific title-bar insets and tell the renderer the real
@@ -137,7 +151,7 @@ function openGridWindow(config) {
 
     const entry = {
         config: config,
-        frameIds: new Set(frames.map(f => f.frameId)),
+        frameIds: new Set(frames.map((f) => f.frameId)),
         targetDisplay: target,
         goFullscreen: goFullscreen,
         cascadeOffset: cascadeOffset,
@@ -158,7 +172,7 @@ function openGridWindow(config) {
             'testMode=' + (config.testMode ? '1' : '0'),
             'gridCols=' + grid.cols,
             'fullscreen=' + (goFullscreen ? '1' : '0'),
-        ].join('&')
+        ].join('&'),
     });
 
     // No 'ready-to-show' → show() here: the window stays hidden until fitGridWindow() has sized it
@@ -169,10 +183,12 @@ function openGridWindow(config) {
 
     // Confirms on every close path; forceCloseGrid()'s win.__forceClose skips it.
     win.on('close', (event) => {
-        if (!confirmClose(win, {
-            title: 'Close grid view?',
-            message: 'This closes the grid view. Any frame with its own independent live window is unaffected.'
-        })) {
+        if (
+            !confirmClose(win, {
+                title: 'Close grid view?',
+                message: 'This closes the grid view. Any frame with its own independent live window is unaffected.',
+            })
+        ) {
             event.preventDefault();
         }
     });

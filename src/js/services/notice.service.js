@@ -2,7 +2,6 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('Notices', function ($timeout) {
-
         // Mutated in place (push/splice), never reassigned — callers hold onto this exact array reference.
         var notices = [];
 
@@ -24,7 +23,9 @@
             var notice = { level: level, text: text, key: key || null };
             notices.push(notice);
             if (level === 'info') {
-                $timeout(function () { dismiss(notice); }, 6000);
+                $timeout(function () {
+                    dismiss(notice);
+                }, 6000);
             }
             return notice;
         }
@@ -32,8 +33,7 @@
         return {
             list: notices,
             add: add,
-            dismiss: dismiss
+            dismiss: dismiss,
         };
     });
-
 })();

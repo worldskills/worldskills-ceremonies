@@ -28,21 +28,26 @@
 
     function assetFailed(target) {
         if (!target.operatorErrorKey) {
-            target.operatorErrorKey = 'asset-' + (++assetSerial);
+            target.operatorErrorKey = 'asset-' + ++assetSerial;
         }
 
         var source = safeSource(target.currentSrc || target.src || '');
         var reason = 'could not load';
         if (target.tagName === 'VIDEO' && target.error) {
-            reason = ({
-                1: 'loading was aborted',
-                2: 'network loading failed',
-                3: 'could not be decoded',
-                4: 'format is unsupported or the file is unavailable'
-            })[target.error.code] || reason;
+            reason =
+                {
+                    1: 'loading was aborted',
+                    2: 'network loading failed',
+                    3: 'could not be decoded',
+                    4: 'format is unsupported or the file is unavailable',
+                }[target.error.code] || reason;
         }
 
-        tell('operator-feed-error', target.operatorErrorKey, target.tagName.toLowerCase() + ' ' + source + ': ' + reason + '.');
+        tell(
+            'operator-feed-error',
+            target.operatorErrorKey,
+            target.tagName.toLowerCase() + ' ' + source + ': ' + reason + '.'
+        );
     }
 
     function scriptFailed(event) {
@@ -82,27 +87,33 @@
     window.addEventListener('load', recovered, true);
     window.addEventListener('loadeddata', recovered, true);
 
-    window.addEventListener('error', function (event) {
-        var target = event.target;
-        if (target && /^(IMG|VIDEO|SCRIPT)$/.test(target.tagName)) {
-            assetFailed(target);
-        } else if (event.message) {
-            scriptFailed(event);
-        }
-    }, true);
+    window.addEventListener(
+        'error',
+        function (event) {
+            var target = event.target;
+            if (target && /^(IMG|VIDEO|SCRIPT)$/.test(target.tagName)) {
+                assetFailed(target);
+            } else if (event.message) {
+                scriptFailed(event);
+            }
+        },
+        true
+    );
 
     // Module constants are queued with unshift in AngularJS 1.5. Override in
     // configuration, after the desktop constants have all been registered.
-    angular.module('ceremoniesApp').config(function ($provide) {
-        $provide.constant('TEMPLATE_BASE', base + 'active/');
-        $provide.constant('DATA_BASE', base + 'project/data/');
-    }).run(function ($rootScope) {
-        $rootScope.$on('$includeContentError', function () {
-            tell('operator-feed-error', 'template', 'The slide template could not load.');
+    angular
+        .module('ceremoniesApp')
+        .config(function ($provide) {
+            $provide.constant('TEMPLATE_BASE', base + 'active/');
+            $provide.constant('DATA_BASE', base + 'project/data/');
+        })
+        .run(function ($rootScope) {
+            $rootScope.$on('$includeContentError', function () {
+                tell('operator-feed-error', 'template', 'The slide template could not load.');
+            });
+            $rootScope.$on('$includeContentLoaded', function () {
+                tell('operator-feed-recovered', 'template');
+            });
         });
-        $rootScope.$on('$includeContentLoaded', function () {
-            tell('operator-feed-recovered', 'template');
-        });
-    });
-
 })();

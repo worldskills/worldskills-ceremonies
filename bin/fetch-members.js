@@ -20,13 +20,21 @@ function readLanguages() {
 
 function fetchMembers(lang) {
     return new Promise((resolve, reject) => {
-        https.get(`https://api.worldskills.org/org/members?member_of=1&sort=1058&limit=100&l=${lang}`, (response) => {
-            let body = '';
-            response.on('data', (chunk) => { body += chunk; });
-            response.on('end', () => {
-                try { resolve(JSON.parse(body).members); } catch (e) { reject(e); }
-            });
-        }).on('error', reject);
+        https
+            .get(`https://api.worldskills.org/org/members?member_of=1&sort=1058&limit=100&l=${lang}`, (response) => {
+                let body = '';
+                response.on('data', (chunk) => {
+                    body += chunk;
+                });
+                response.on('end', () => {
+                    try {
+                        resolve(JSON.parse(body).members);
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            })
+            .on('error', reject);
     });
 }
 
@@ -36,7 +44,11 @@ function fetchFlag(member) {
         const file = fs.createWriteStream(`${projectDir}/data/flags/${member.code}.png`);
         file.on('finish', resolve);
         file.on('error', reject);
-        https.get(`${member.flag.thumbnail}_medium`, (response) => { response.pipe(file); }).on('error', reject);
+        https
+            .get(`${member.flag.thumbnail}_medium`, (response) => {
+                response.pipe(file);
+            })
+            .on('error', reject);
     });
 }
 
@@ -46,7 +58,7 @@ async function main() {
     const enMembers = await fetchMembers('en');
     const members = enMembers.map((member) => ({
         code: member.code,
-        name: { lang_code: 'en', text: member.name.text, translations: {} }
+        name: { lang_code: 'en', text: member.name.text, translations: {} },
     }));
 
     const otherLanguages = readLanguages().filter((lang) => lang !== 'en');

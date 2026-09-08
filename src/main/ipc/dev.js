@@ -12,7 +12,7 @@ function registerDevIpc() {
             projectDir: getActiveProjectDir(),
             control: control || null,
             windows: frameWindows.serializeOpenFrameWindows(),
-            grids: gridWindow.getGridConfigs()
+            grids: gridWindow.getGridConfigs(),
         });
         return { ok: true };
     });
