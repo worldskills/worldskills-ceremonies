@@ -1,11 +1,11 @@
-@import url('./fonts.css');
-@import url('./state.css');
+@import url("./fonts.css");
+@import url("./state.css");
 
 :root {
-    --primary-a: #62B5E5;
-    --secondary-a: #8AE2D1;
-    --primary-b: #DF4661;
-    --secondary-b: #72D0EB;
+    --primary-a: #62b5e5;
+    --secondary-a: #8ae2d1;
+    --primary-b: #df4661;
+    --secondary-b: #72d0eb;
     --background: #000;
     --callup-color: #f1f1f1;
     --font-color: #fff;
@@ -65,6 +65,47 @@ body.preview .screen-content {
     border: 1px solid #eee;
 }
 
+.screen-content-partners {
+    align-items: center;
+    justify-content: center;
+}
+.screen-blank {
+    background: #000;
+}
+.screen-partners {
+    width: 90vw;
+    height: 82vh;
+    display: grid;
+    grid-template-columns: repeat(var(--partner-cols, 1), minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: clamp(8px, 1.5vw, 24px);
+    padding: clamp(8px, 1.5vw, 24px);
+    overflow: hidden;
+}
+.screen-partner {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(4px, 0.8vw, 14px);
+    text-align: center;
+}
+.screen-partner img {
+    display: block;
+    width: 86%;
+    height: 72%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    margin: auto;
+}
+.screen-partner-name {
+    max-width: 100%;
+    font-size: clamp(12px, calc(var(--unit) * 0.75), 28px);
+    color: var(--font-color);
+    overflow-wrap: anywhere;
+}
 
 .screen-region-kv {
     flex: 0 0 var(--top-bar-bottom);
@@ -111,7 +152,6 @@ body.has-bg-video .screen-empty-logo {
     transform: translate(-50%, -50%);
 }
 
-
 .screen-skill-medals-name,
 .screen-skill-callup-name {
     font-weight: 800;
@@ -119,7 +159,7 @@ body.has-bg-video .screen-empty-logo {
 }
 
 .screen-skill-medals-name .screen-skill-medals-name-mfe {
-    color: #FFF !important;
+    color: #fff !important;
 }
 
 .screen-section-heading {
@@ -149,7 +189,8 @@ body.has-bg-video .screen-empty-logo {
     gap: 0.4em;
 }
 
-.screen-medal-for-excellence, .screen-best-of-nation {
+.screen-medal-for-excellence,
+.screen-best-of-nation {
     font-weight: normal !important;
 }
 
@@ -182,10 +223,19 @@ body.has-bg-video .screen-empty-logo {
     padding: calc(var(--unit) * 1.5) var(--grid-gap-x);
 
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(
-        min(100%, max(var(--grid-col-min),
-            calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols)))),
-        1fr));
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(
+            min(
+                100%,
+                max(
+                    var(--grid-col-min),
+                    calc((100% - (var(--grid-max-cols) - 1) * var(--grid-gap-x)) / var(--grid-max-cols))
+                )
+            ),
+            1fr
+        )
+    );
     grid-auto-rows: minmax(0, 1fr);
     grid-auto-flow: row;
     column-gap: var(--grid-gap-x);
@@ -209,6 +259,25 @@ body.has-bg-video .screen-empty-logo {
 
 .screen-grid.screen-skill-medals-medals .screen-medal {
     height: 70%;
+}
+
+.screen-grid.screen-skill-medals-medals-dense {
+    padding: calc(var(--unit) * 0.3) var(--grid-gap-x) var(--bottom-bar-inset);
+    row-gap: 16px;
+    --flag-h: calc(var(--unit) * 0.8);
+    --flag-gap: calc(var(--unit) * 0.28);
+}
+
+.screen-grid.screen-skill-medals-medals-dense .screen-medal {
+    height: 100%;
+}
+
+.screen-grid.screen-skill-medals-medals-dense .screen-medal-row {
+    gap: calc(var(--unit) * 0.4);
+}
+
+.screen-grid.screen-skill-medals-medals-dense .screen-medal-row-position {
+    flex-basis: 17%;
 }
 
 .screen-grid .screen-medal {
@@ -254,14 +323,14 @@ body.has-bg-video .screen-empty-logo {
     flex-direction: row;
     flex: 1 1 0;
     height: 100%;
-    gap: calc(var(--unit) * 0.9);
+    gap: calc(var(--unit) * 0.5);
     min-width: 0;
     align-items: center;
     overflow: hidden;
 }
 
 .screen-grid .screen-medal-row-position {
-    flex: 0 0 27%;
+    flex: 0 0 22%;
     min-width: 0;
     max-height: 100%;
     overflow: hidden;
@@ -312,12 +381,12 @@ body.has-bg-video .screen-empty-logo {
     white-space: nowrap;
 }
 
-
 .screen-flag img {
     width: 100%;
     height: 100%;
     vertical-align: middle;
-    object-fit: fill;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .screen-table-countries {
@@ -343,7 +412,7 @@ body.has-bg-video .screen-empty-logo {
     flex-direction: column;
     gap: 0.5em;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: center;
 }
 
@@ -359,18 +428,112 @@ body.has-bg-video .screen-empty-logo {
     flex-basis: calc(25% - var(--unit));
 }
 
-.screen-table-country img {
+.screen-table-country-flag {
     flex: 0 0 auto;
-    width: calc(var(--unit) * 5.2);
+    width: calc(var(--unit) * 6.5);
     height: calc(var(--unit) * 3.25);
     max-width: 100%;
-    object-fit: fill;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen-table-country-flag img {
+    display: block;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.screen-table-countries-cols-4 .screen-table-country-flag {
+    width: calc(var(--unit) * 5);
+    height: calc(var(--unit) * 2.5);
 }
 
 .screen-table-country .screen-translation {
     align-self: center;
+    width: 100%;
+    max-width: 100%;
+    gap: calc(var(--unit) * 0.15);
 }
 
 .screen-table-country .screen-translation-line {
+    display: flex;
+    flex: 0 0 calc(var(--unit) * 0.95);
+    height: calc(var(--unit) * 0.95);
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    line-height: 1;
     white-space: nowrap;
+}
+
+.screen-table-country .screen-translation-primary {
+    flex-basis: calc(var(--unit) * 1.3);
+    height: calc(var(--unit) * 1.3);
+}
+
+/* Multi-row call-ups use explicit geometry. Parent-level ws-fit cannot resize
+ * unit-sized flags/line slots and would otherwise collapse all text to 6px. */
+.screen-table-countries-dense {
+    padding-top: calc(var(--unit) * 0.45);
+    padding-bottom: calc(var(--unit) * 0.45);
+    row-gap: calc(var(--unit) * 0.3);
+    font-size: 1rem;
+}
+
+.screen-table-countries-dense .screen-table-country {
+    gap: 0.3em;
+}
+
+.screen-table-countries-dense .screen-table-country-flag {
+    width: calc(var(--unit) * 5.2);
+    height: calc(var(--unit) * 2.6);
+}
+
+.screen-table-countries-dense .screen-translation {
+    gap: calc(var(--unit) * 0.1);
+}
+
+.screen-table-countries-dense .screen-translation-line {
+    flex-basis: calc(var(--unit) * 0.8);
+    height: calc(var(--unit) * 0.8);
+}
+
+.screen-table-countries-dense .screen-translation-primary {
+    flex-basis: calc(var(--unit) * 1.15);
+    height: calc(var(--unit) * 1.15);
+}
+
+.screen-table-countries-very-dense {
+    padding-top: calc(var(--unit) * 0.25);
+    padding-bottom: calc(var(--unit) * 0.25);
+    row-gap: calc(var(--unit) * 0.35);
+    font-size: 0.75rem;
+}
+
+.screen-table-countries-very-dense .screen-table-country {
+    gap: 0.3em;
+}
+
+.screen-table-countries-very-dense .screen-table-country-flag {
+    width: calc(var(--unit) * 3.2);
+    height: calc(var(--unit) * 1.6);
+}
+
+.screen-table-countries-very-dense .screen-translation {
+    gap: calc(var(--unit) * 0.08);
+}
+
+.screen-table-countries-very-dense .screen-translation-line {
+    flex-basis: calc(var(--unit) * 0.55);
+    height: calc(var(--unit) * 0.55);
+}
+
+.screen-table-countries-very-dense .screen-translation-primary {
+    flex-basis: calc(var(--unit) * 0.8);
+    height: calc(var(--unit) * 0.8);
 }

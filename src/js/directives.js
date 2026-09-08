@@ -7,10 +7,13 @@
             link: function (scope, element, attrs) {
                 scope.$watch(attrs.autoFocus, function (val) {
                     if (val) {
-                        $timeout(function () { element[0].focus(); element[0].select(); }, 0);
+                        $timeout(function () {
+                            element[0].focus();
+                            element[0].select();
+                        }, 0);
                     }
                 });
-            }
+            },
         };
     });
 
@@ -18,7 +21,6 @@
      * ws-fit — shrink an element's font until its content fits its own box.
      */
     angular.module('ceremoniesApp').directive('wsFit', function () {
-
         // Halvings of the [min, max] range. 10 lands within 0.06px on a 64px
         // range — finer than a rendered pixel, so more would only cost reflows.
         var STEPS = 10;
@@ -40,8 +42,7 @@
                 // +1 tolerates sub-pixel layout rounding, which would otherwise
                 // read as permanent overflow and shrink text that already fits.
                 function overflows() {
-                    return el.scrollHeight > el.clientHeight + 1 ||
-                           el.scrollWidth > el.clientWidth + 1;
+                    return el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
                 }
 
                 function fit() {
@@ -56,7 +57,11 @@
                         for (var i = 0; i < STEPS; i++) {
                             var mid = (lo + hi) / 2;
                             el.style.fontSize = mid + 'px';
-                            if (overflows()) { hi = mid; } else { lo = mid; }
+                            if (overflows()) {
+                                hi = mid;
+                            } else {
+                                lo = mid;
+                            }
                         }
                         size = lo;
                     }
@@ -73,7 +78,9 @@
                 }
 
                 function schedule() {
-                    if (queued) return;
+                    if (queued) {
+                        return;
+                    }
                     queued = true;
                     window.requestAnimationFrame(function () {
                         queued = false;
@@ -82,7 +89,9 @@
                             burst = 0;
                             burstAt = now;
                         }
-                        if (++burst > BURST_LIMIT) return;
+                        if (++burst > BURST_LIMIT) {
+                            return;
+                        }
                         fit();
                     });
                 }
@@ -108,8 +117,7 @@
                 });
 
                 schedule();
-            }
+            },
         };
     });
-
 })();

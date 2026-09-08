@@ -2,13 +2,14 @@
     'use strict';
 
     angular.module('ceremonatorStartup', []).controller('StartupCtrl', function ($scope) {
-
         $scope.recentProjects = [];
         $scope.bundledProjects = [];
         $scope.error = null;
 
         function loadRecent() {
-            if (!window.ceremonator || !window.ceremonator.project) return;
+            if (!window.ceremonator || !window.ceremonator.project) {
+                return;
+            }
             window.ceremonator.project.recent().then(function (recent) {
                 $scope.$apply(function () {
                     $scope.recentProjects = recent || [];
@@ -17,7 +18,9 @@
         }
 
         function loadBundled() {
-            if (!window.ceremonator || !window.ceremonator.project) return;
+            if (!window.ceremonator || !window.ceremonator.project) {
+                return;
+            }
             window.ceremonator.project.bundled().then(function (bundled) {
                 $scope.$apply(function () {
                     $scope.bundledProjects = bundled || [];
@@ -28,12 +31,14 @@
         $scope.create = function () {
             $scope.error = null;
             window.ceremonator.project.create().then(function (result) {
-                if (result && result.canceled) return;
+                if (result && result.canceled) {
+                    return;
+                }
                 if (result && result.ok) {
                     window.ceremonator.app.openControl();
                 } else {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to create project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to create project.';
                     });
                 }
             });
@@ -42,19 +47,23 @@
         $scope.open = function () {
             $scope.error = null;
             window.ceremonator.project.open().then(function (result) {
-                if (result && result.canceled) return;
+                if (result && result.canceled) {
+                    return;
+                }
                 if (result && result.ok) {
                     window.ceremonator.app.openControl();
                 } else {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to open project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to open project.';
                     });
                 }
             });
         };
 
         $scope.openRecent = function (recent) {
-            if (recent.unavailable) return;
+            if (recent.unavailable) {
+                return;
+            }
             $scope.error = null;
             window.ceremonator.project.openPath({ dir: recent.path }).then(function (result) {
                 if (result && result.ok) {
@@ -65,7 +74,7 @@
                     });
                 } else if (result && !result.canceled) {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to open project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to open project.';
                     });
                 }
             });
@@ -78,7 +87,7 @@
                     window.ceremonator.app.openControl();
                 } else if (result && !result.canceled) {
                     $scope.$apply(function () {
-                        $scope.error = (result && result.error) ? result.error : 'Failed to open project.';
+                        $scope.error = result && result.error ? result.error : 'Failed to open project.';
                     });
                 }
             });
@@ -97,5 +106,4 @@
         loadRecent();
         loadBundled();
     });
-
 })();

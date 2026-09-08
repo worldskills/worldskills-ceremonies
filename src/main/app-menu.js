@@ -14,8 +14,8 @@ function installAppMenu() {
                 { role: 'hideOthers' },
                 { role: 'unhide' },
                 { type: 'separator' },
-                { role: 'quit' }
-            ]
+                { role: 'quit' },
+            ],
         });
     }
 
@@ -27,9 +27,9 @@ function installAppMenu() {
             submenu: [
                 {
                     label: 'Clear Session Data…',
-                    click: () => requestClearAllData()
-                }
-            ]
+                    click: () => requestClearAllData(),
+                },
+            ],
         },
         { role: 'windowMenu' }
     );

@@ -2,7 +2,6 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('Excel', function () {
-
         function parse(data) {
             var wb = XLSX.read(data, { type: 'array' });
             var ws = wb.Sheets[wb.SheetNames[0]];
@@ -17,5 +16,4 @@
 
         return { parse: parse, readRows: readRows };
     });
-
 })();

@@ -5,6 +5,9 @@
   "description": "Ceremonies",
   "author": "WorldSkills International",
   "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "streamdeck:build": "node plugins/streamdeck/build.js",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -16,7 +19,6 @@
     "angular-translate": "^2.19.1",
     "electron-squirrel-startup": "^1.0.0",
     "font-awesome": "^4.7.0",
-    "jquery": "^3.4.1",
     "ng-file-upload": "^12.2.13",
     "ws": "^8.21.3",
     "xlsx": "^0.14.3"
@@ -29,7 +31,8 @@
     "@electron-forge/maker-zip": "^7.4.0",
     "@electron-forge/publisher-github": "^7.4.0",
     "electron": "^20.0.1",
-    "electron-reloader": "^1.2.3"
+    "electron-reloader": "^1.2.3",
+    "prettier": "^3.9.6"
   },
   "config": {
     "forge": "./forge.config.js"

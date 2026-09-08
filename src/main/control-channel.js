@@ -7,7 +7,7 @@ function notifyFrameStatus(frameId, status, extra) {
 
         const data = {
             frameId,
-            status
+            status,
         };
 
         if (e.reason) data.reason = e.reason;
@@ -40,11 +40,25 @@ function sendControlNotice(level, text) {
     }
 }
 
+function sendControlDebug(type, message) {
+    const win = getControlWindow();
+    if (win && !win.isDestroyed()) {
+        win.webContents.send('app:debug', { type, message });
+    }
+}
+
+function notifyDisplaysChanged() {
+    const win = getControlWindow();
+    if (win && !win.isDestroyed()) win.webContents.send('displays:changed');
+}
+
 function sendRemoteAction(action) {
     const win = getControlWindow();
     if (win && !win.isDestroyed()) {
         win.webContents.send('remote:action', action);
+        return true;
     }
+    return false;
 }
 
 function requestClearAllData() {
@@ -54,4 +68,11 @@ function requestClearAllData() {
     }
 }
 
-module.exports = { notifyFrameStatus, sendControlNotice, sendRemoteAction, requestClearAllData };
+module.exports = {
+    notifyFrameStatus,
+    sendControlNotice,
+    sendControlDebug,
+    notifyDisplaysChanged,
+    sendRemoteAction,
+    requestClearAllData,
+};

@@ -4,7 +4,7 @@ function centerOnDisplay(display, width, height) {
     const wa = display.workArea;
     return {
         x: wa.x + Math.round((wa.width - width) / 2),
-        y: wa.y + Math.round((wa.height - height) / 2)
+        y: wa.y + Math.round((wa.height - height) / 2),
     };
 }
 
@@ -28,7 +28,7 @@ function resolveTargetDisplay(position) {
         display: electronScreen.getPrimaryDisplay(),
         fellBack: true,
         requested: monitor,
-        available: displays.length
+        available: displays.length,
     };
 }
 
@@ -40,9 +40,7 @@ function listDisplays() {
         // Newer Electron releases expose the OS monitor name as Display.label.
         // Keep a descriptive fallback for the Electron version bundled by this app.
         const nativeName = typeof d.label === 'string' ? d.label.trim() : '';
-        const name = nativeName || (d.internal
-            ? 'Built-in display'
-            : d.bounds.width + '\u00d7' + d.bounds.height);
+        const name = nativeName || (d.internal ? 'Built-in display' : d.bounds.width + '\u00d7' + d.bounds.height);
         const primarySuffix = d.id === primaryId ? ' (Primary)' : '';
 
         return {

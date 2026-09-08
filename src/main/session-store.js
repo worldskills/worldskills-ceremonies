@@ -6,7 +6,7 @@ const SESSION_VERSION = 2;
 
 function readSession() {
     const snapshot = readJson(sessionFilePath, null);
-    return (snapshot && snapshot.version === SESSION_VERSION) ? snapshot : null;
+    return snapshot && snapshot.version === SESSION_VERSION ? snapshot : null;
 }
 
 function writeSession(snapshot) {

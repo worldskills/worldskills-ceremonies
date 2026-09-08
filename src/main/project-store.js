@@ -1,7 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const { dialog } = require('electron');
-const { bundledTemplateDir, bundledDataDir, projectFilePath, orderingFilePath, templateDirPath, projectDataDir } = require('./paths');
+const {
+    bundledTemplateDir,
+    bundledDataDir,
+    projectFilePath,
+    orderingFilePath,
+    templateDirPath,
+    projectDataDir,
+} = require('./paths');
 const { readJson, writeJson } = require('./json-store');
 const { validateProject } = require('./project-contract');
 
@@ -42,7 +49,10 @@ function loadProjectFolder(dir) {
                 }
             } catch (e) {
                 console.error('Failed to parse ordering.json at ' + orderingFile + ':', e.message);
-                orderingWarning = 'Corrupt ordering.json in this project — using the slide ordering saved in project.json instead. (' + e.message + ')';
+                orderingWarning =
+                    'Corrupt ordering.json in this project — using the slide ordering saved in project.json instead. (' +
+                    e.message +
+                    ')';
             }
         }
 
@@ -55,26 +65,28 @@ function loadProjectFolder(dir) {
 
 // Returns { templateDir, copyError }; callers decide whether a copy failure needs its own dialog (project:open shows one, project:openPath doesn't).
 function ensureTemplates(dir, fallbackTemplateDir) {
-    return dialog.showMessageBox({
-        type: 'question',
-        buttons: ['Copy default templates', 'Skip'],
-        defaultId: 0,
-        title: 'Templates missing',
-        message: 'This project has no template/ folder. Copy default templates from the app?'
-    }).then(function (result) {
-        if (result.response !== 0) return { templateDir: null };
-        try {
-            const templateDest = templateDirPath(dir);
-            if (fallbackTemplateDir && fs.existsSync(fallbackTemplateDir)) {
-                fs.cpSync(fallbackTemplateDir, templateDest, { recursive: true });
-            } else {
-                copyDefaultTemplate(templateDest);
+    return dialog
+        .showMessageBox({
+            type: 'question',
+            buttons: ['Copy default templates', 'Skip'],
+            defaultId: 0,
+            title: 'Templates missing',
+            message: 'This project has no template/ folder. Copy default templates from the app?',
+        })
+        .then(function (result) {
+            if (result.response !== 0) return { templateDir: null };
+            try {
+                const templateDest = templateDirPath(dir);
+                if (fallbackTemplateDir && fs.existsSync(fallbackTemplateDir)) {
+                    fs.cpSync(fallbackTemplateDir, templateDest, { recursive: true });
+                } else {
+                    copyDefaultTemplate(templateDest);
+                }
+                return { templateDir: templateDest };
+            } catch (e) {
+                return { templateDir: null, copyError: e };
             }
-            return { templateDir: templateDest };
-        } catch (e) {
-            return { templateDir: null, copyError: e };
-        }
-    });
+        });
 }
 
 function writeProjectFiles(dir, project) {
@@ -96,7 +108,8 @@ function extractOrdering(project) {
 }
 
 function copyDefaultTemplate(dest) {
-    if (!fs.existsSync(bundledTemplateDir)) throw new Error('Default template folder (projects/bare-project/template) not found in app directory.');
+    if (!fs.existsSync(bundledTemplateDir))
+        throw new Error('Default template folder (projects/bare-project/template) not found in app directory.');
     fs.cpSync(bundledTemplateDir, dest, { recursive: true });
 }
 
@@ -119,6 +132,11 @@ function copyDefaultData(dir) {
     if (!fs.existsSync(flagsDest) && fs.existsSync(flagsSrc)) {
         fs.cpSync(flagsSrc, flagsDest, { recursive: true });
     }
+    const sponsorsDest = path.join(dest, 'sponsors');
+    const sponsorsSrc = path.join(bundledDataDir, 'sponsors');
+    if (!fs.existsSync(sponsorsDest) && fs.existsSync(sponsorsSrc)) {
+        fs.cpSync(sponsorsSrc, sponsorsDest, { recursive: true });
+    }
 }
 
 function setActive(dir, project, templateDir) {
@@ -131,11 +149,37 @@ function setActiveProject(project) {
     activeProject = project;
 }
 
-function getActiveProjectDir() { return activeProjectDir; }
-function getActiveProject() { return activeProject; }
-function getActiveTemplateDir() { return activeTemplateDir; }
+function getActiveProjectDir() {
+    return activeProjectDir;
+}
+function getActiveProject() {
+    return activeProject;
+}
+function getActiveTemplateDir() {
+    return activeTemplateDir;
+}
+
+// The project's own output feeds, and the one anything unlabelled belongs to.
+function feedIds() {
+    const project = getActiveProject();
+    const feeds = (project && project.feedTypes) || [];
+    return feeds.map((feed) => feed.id);
+}
+
+function primaryFeedId() {
+    return feedIds()[0] || null;
+}
+
+function isFeedId(feedType) {
+    const ids = feedIds();
+    // With no project open nothing is enabled yet; the caller decides what that means.
+    return ids.length ? ids.indexOf(feedType) >= 0 : false;
+}
 
 module.exports = {
+    feedIds,
+    primaryFeedId,
+    isFeedId,
     loadProjectFolder,
     resolveTemplateDir,
     ensureTemplates,

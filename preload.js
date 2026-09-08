@@ -19,6 +19,11 @@ const fullApi = {
     },
     displays: {
         list: () => ipcRenderer.invoke('displays:list'),
+        onChanged: (callback) => {
+            const listener = () => callback();
+            ipcRenderer.on('displays:changed', listener);
+            return () => ipcRenderer.removeListener('displays:changed', listener);
+        },
     },
     flags: {
         list: () => ipcRenderer.invoke('flags:list'),
@@ -46,8 +51,11 @@ const fullApi = {
     app: {
         openControl: () => ipcRenderer.invoke('app:openControl'),
         reloadScreen: (frameId) => ipcRenderer.invoke('app:reloadScreen', { frameId }),
+        reportDebug: (type, message) => ipcRenderer.send('app:debug', { type, message }),
     },
     remote: {
+        openOperator: (frameId) => ipcRenderer.invoke('remote:openOperator', frameId),
+        commandResult: (requestId, result) => ipcRenderer.send('remote:commandResult', requestId, result),
         info: () => ipcRenderer.invoke('remote:info'),
         configure: (config) => ipcRenderer.invoke('remote:configure', config),
         sync: (snapshot) => ipcRenderer.send('remote:sync', snapshot),
@@ -67,6 +75,11 @@ const fullApi = {
         ipcRenderer.on('app:notice', listener);
         return () => ipcRenderer.removeListener('app:notice', listener);
     },
+    onDebug: (callback) => {
+        const listener = (_event, data) => callback(data);
+        ipcRenderer.on('app:debug', listener);
+        return () => ipcRenderer.removeListener('app:debug', listener);
+    },
     onClearAllDataRequested: (callback) => {
         const listener = () => callback();
         ipcRenderer.on('session:clearRequested', listener);
@@ -76,15 +89,19 @@ const fullApi = {
 
 const startupApi = {
     project: fullApi.project,
-    app: { openControl: fullApi.app.openControl }
+    app: { openControl: fullApi.app.openControl },
 };
 const outputApi = {
     project: {
         current: fullApi.project.current,
-        readTranslations: fullApi.project.readTranslations
+        readTranslations: fullApi.project.readTranslations,
     },
     // Only the grid window itself gets past grid:fit's sender check; screen windows share this role.
-    grid: fullApi.grid
+    grid: fullApi.grid,
+    app: { reportDebug: fullApi.app.reportDebug },
 };
 
-contextBridge.exposeInMainWorld('ceremonator', role === 'control' ? fullApi : (role === 'startup' ? startupApi : outputApi));
+contextBridge.exposeInMainWorld(
+    'ceremonator',
+    role === 'control' ? fullApi : role === 'startup' ? startupApi : outputApi
+);

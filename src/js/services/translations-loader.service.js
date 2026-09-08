@@ -6,33 +6,60 @@
         var dataPromise = null; // one HTTP read (skills.json + members.json) shared by every language
 
         function readFile() {
+            if (window.operatorFeed) {
+                return $http.get(window.operatorFeed.projectBase + 'translations.json').then(
+                    function (response) {
+                        return response.data.languages || {};
+                    },
+                    function () {
+                        return {};
+                    }
+                );
+            }
             if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.readTranslations) {
                 return $q.resolve({});
             }
-            return $q.when(window.ceremonator.project.readTranslations()).then(function (result) {
-                return (result && result.ok && result.languages) || {};
-            }, function () {
-                return {};
-            });
+            return $q.when(window.ceremonator.project.readTranslations()).then(
+                function (result) {
+                    return (result && result.ok && result.languages) || {};
+                },
+                function () {
+                    return {};
+                }
+            );
         }
 
         function addToTable(table, name, key) {
-            if (!name || !name.text || !name.translations || !key) return;
+            if (!name || !name.text || !name.translations || !key) {
+                return;
+            }
             angular.forEach(name.translations, function (text, lang) {
-                if (!table[lang]) table[lang] = {};
+                if (!table[lang]) {
+                    table[lang] = {};
+                }
                 table[lang][key] = text;
             });
         }
 
         // Skill/member name translations live in data/*.json, independent of the project's translations.json — build the same { lang: { English: text } } shape so it merges straight in.
         function readDataTranslations() {
-            var skillsLoaded = $http.get(DATA_BASE + 'skills.json').then(function (response) {
-                return angular.isArray(response.data) ? response.data : [];
-            }, function () { return []; });
+            var skillsLoaded = $http.get(DATA_BASE + 'skills.json').then(
+                function (response) {
+                    return angular.isArray(response.data) ? response.data : [];
+                },
+                function () {
+                    return [];
+                }
+            );
 
-            var membersLoaded = $http.get(DATA_BASE + 'members.json').then(function (response) {
-                return angular.isArray(response.data) ? response.data : [];
-            }, function () { return []; });
+            var membersLoaded = $http.get(DATA_BASE + 'members.json').then(
+                function (response) {
+                    return angular.isArray(response.data) ? response.data : [];
+                },
+                function () {
+                    return [];
+                }
+            );
 
             return $q.all([skillsLoaded, membersLoaded]).then(function (results) {
                 var table = {};
@@ -52,13 +79,16 @@
         }
 
         return function (options) {
-            if (!filePromise) filePromise = readFile();
-            if (!dataPromise) dataPromise = readDataTranslations();
+            if (!filePromise) {
+                filePromise = readFile();
+            }
+            if (!dataPromise) {
+                dataPromise = readDataTranslations();
+            }
             return $q.all([dataPromise, filePromise]).then(function (results) {
                 // results[1] (project translations.json) wins over results[0] (skill/member defaults) — argument order matters here.
                 return angular.extend({}, results[0][options.key], results[1][options.key]);
             });
         };
     });
-
 })();

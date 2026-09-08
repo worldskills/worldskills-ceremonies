@@ -6,10 +6,12 @@ const { getActiveTemplateDir, getActiveProjectDir } = require('./project-store')
 
 // Must be called before app.whenReady
 function registerTemplateScheme() {
-    protocol.registerSchemesAsPrivileged([{
-        scheme: 'wstemplate',
-        privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true }
-    }]);
+    protocol.registerSchemesAsPrivileged([
+        {
+            scheme: 'wstemplate',
+            privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true },
+        },
+    ]);
 }
 
 // Null when rel escapes base (path traversal guard), shared by both hosts below.
@@ -17,7 +19,7 @@ function resolveUnder(base, rel) {
     if (!base) return null;
     const p = path.normalize(path.join(base, rel));
     const b = path.normalize(base);
-    return (p === b || p.startsWith(b + path.sep)) ? p : null;
+    return p === b || p.startsWith(b + path.sep) ? p : null;
 }
 
 function registerTemplateProtocol() {
@@ -31,13 +33,18 @@ function registerTemplateProtocol() {
         }
         if (url.host !== 'active' && url.host !== 'project') return cb({ error: -6 });
 
-        const roots = url.host === 'project'
-            ? [getActiveProjectDir(), bareProjectDir, appRoot]
-            : [getActiveTemplateDir(), bundledTemplateDir, appRoot];
+        const roots =
+            url.host === 'project'
+                ? [getActiveProjectDir(), bareProjectDir, appRoot]
+                : [getActiveTemplateDir(), bundledTemplateDir, appRoot];
         for (const root of roots) {
             const hit = resolveUnder(root, rel);
             if (hit) {
-                try { if (fs.statSync(hit).isFile()) return cb({ path: hit }); } catch (_error) { /* try fallback */ }
+                try {
+                    if (fs.statSync(hit).isFile()) return cb({ path: hit });
+                } catch (_error) {
+                    /* try fallback */
+                }
             }
         }
         return cb({ error: -6 });

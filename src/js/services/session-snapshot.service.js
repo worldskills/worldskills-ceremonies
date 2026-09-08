@@ -6,14 +6,13 @@
     // stored. Runs in both dev (surviving electron-reloader wiping scope state) and production
     // (surviving a crash or unclean close).
     angular.module('ceremoniesApp').factory('SessionSnapshot', function ($timeout, FrameService) {
-
         var SAVE_DEBOUNCE_MS = 600;
         var dev = (window.ceremonator && window.ceremonator.dev) || {};
 
         var service = {
             enabled: true,
             // Starts true: blocks the first digest (which fires before restore resolves) from overwriting the snapshot with empty state. ControlCtrl clears it once restore settles.
-            restoring: true
+            restoring: true,
         };
 
         var collect = null;
@@ -34,14 +33,20 @@
         };
 
         service.clear = function () {
-            if (!service.enabled || !dev.clearSession) return;
+            if (!service.enabled || !dev.clearSession) {
+                return;
+            }
             dev.clearSession();
         };
 
         // Debounced: walking a slide list must not cost one file write per keypress.
         service.schedule = function () {
-            if (!service.enabled || !collect || service.restoring) return;
-            if (pendingSave) $timeout.cancel(pendingSave);
+            if (!service.enabled || !collect || service.restoring) {
+                return;
+            }
+            if (pendingSave) {
+                $timeout.cancel(pendingSave);
+            }
             pendingSave = $timeout(function () {
                 pendingSave = null;
                 if (dev.saveSession) {
@@ -58,21 +63,25 @@
                 scope.uploaded ? 1 : 0,
                 FrameService.activeFrameId,
                 angular.toJson(scope.gridConfig || {}),
-                (FrameService.skillOrder || []).join(',')
+                angular.toJson(FrameService.feedTypes || []),
+                (FrameService.skillOrder || []).join(','),
             ];
             angular.forEach(FrameService.frames, function (frame, id) {
                 var slides = frame.slides || [];
                 var slide = frame.slide;
                 var state = (slide && slide.state) || [];
 
-                parts.push([
-                    id,
-                    frame.label || '',
-                    slides.indexOf(slide),
-                    state.join('+'),
-                    (frame.ordering.skillNumbers || []).join(','),
-                    frame.ordering.includeAlbertVidal ? 1 : 0
-                ].join(':'));
+                parts.push(
+                    [
+                        id,
+                        frame.label || '',
+                        slides.indexOf(slide),
+                        state.join('+'),
+                        (frame.ordering.skillNumbers || []).join(','),
+                        frame.ordering.includeAlbertVidal ? 1 : 0,
+                        angular.toJson(frame.blankedFeeds || {}),
+                    ].join(':')
+                );
             });
             return parts.join('|');
         };
@@ -85,8 +94,11 @@
                 runtime[id] = {
                     slideIndex: index,
                     slideLabel: index >= 0 ? slides[index].label : null,
-                    state: (frame.slide && frame.slide.state) ? angular.copy(frame.slide.state) : [],
-                    done: slides.map(function (slide) { return !!slide.done; })
+                    state: frame.slide && frame.slide.state ? angular.copy(frame.slide.state) : [],
+                    blankedFeeds: angular.copy(frame.blankedFeeds || {}),
+                    done: slides.map(function (slide) {
+                        return !!slide.done;
+                    }),
                 };
             });
             return runtime;
@@ -97,10 +109,20 @@
             angular.forEach(FrameService.frames, function (frame, id) {
                 var saved = runtime && runtime[id];
                 var slides = frame.slides || [];
-                if (!saved || !slides.length) return;
+                if (!saved) {
+                    return;
+                }
+                // A blank state is meaningful even if a catalog has no slides yet,
+                // or if its saved slide disappeared after a data refresh.
+                frame.blankedFeeds = angular.copy(saved.blankedFeeds || {});
+                if (!slides.length) {
+                    return;
+                }
 
                 angular.forEach(saved.done || [], function (done, i) {
-                    if (done && slides[i]) slides[i].done = true;
+                    if (done && slides[i]) {
+                        slides[i].done = true;
+                    }
                 });
 
                 var slide = null;
@@ -109,11 +131,15 @@
                     slide = atIndex;
                 } else if (saved.slideLabel) {
                     angular.forEach(slides, function (candidate) {
-                        if (!slide && candidate.label === saved.slideLabel) slide = candidate;
+                        if (!slide && candidate.label === saved.slideLabel) {
+                            slide = candidate;
+                        }
                     });
                 }
 
-                if (!slide) return;
+                if (!slide) {
+                    return;
+                }
 
                 slide.state = angular.copy(saved.state || []);
                 frame.slide = slide;
@@ -122,5 +148,4 @@
 
         return service;
     });
-
 })();

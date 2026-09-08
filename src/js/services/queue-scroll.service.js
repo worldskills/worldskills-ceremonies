@@ -2,21 +2,26 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('QueueScroll', function ($timeout) {
-
         function scrollToActiveInFrame(frameId) {
             $timeout(function () {
                 var card = document.querySelector('[data-frame-id="' + frameId + '"]');
-                if (!card) return;
+                if (!card) {
+                    return;
+                }
                 var cardBody = card.querySelector('.queue-frame-card-body');
-                if (!cardBody) return;
+                if (!cardBody) {
+                    return;
+                }
                 var activeItem = cardBody.querySelector('.list-group-item-primary');
-                if (!activeItem) return;
+                if (!activeItem) {
+                    return;
+                }
                 var bodyRect = cardBody.getBoundingClientRect();
                 var itemRect = activeItem.getBoundingClientRect();
                 if (itemRect.bottom > bodyRect.bottom) {
-                    cardBody.scrollTop += (itemRect.bottom - bodyRect.bottom) + 8;
+                    cardBody.scrollTop += itemRect.bottom - bodyRect.bottom + 8;
                 } else if (itemRect.top < bodyRect.top) {
-                    cardBody.scrollTop -= (bodyRect.top - itemRect.top) + 8;
+                    cardBody.scrollTop -= bodyRect.top - itemRect.top + 8;
                 }
             }, 30);
         }
@@ -32,7 +37,7 @@
                             var cBottom = container.getBoundingClientRect().bottom;
                             var tBottom = target.getBoundingClientRect().bottom;
                             if (tBottom > cBottom) {
-                                container.scrollTop += (tBottom - cBottom) + 8;
+                                container.scrollTop += tBottom - cBottom + 8;
                             }
                         }
                     }
@@ -48,7 +53,7 @@
                             var cbBottom = cardBody.getBoundingClientRect().bottom;
                             var tElBottom = tEl.getBoundingClientRect().bottom;
                             if (tElBottom > cbBottom) {
-                                cardBody.scrollTop += (tElBottom - cbBottom) + 8;
+                                cardBody.scrollTop += tElBottom - cbBottom + 8;
                             }
                         }
                     }
@@ -63,8 +68,11 @@
                 if (target && container) {
                     var cRect = container.getBoundingClientRect();
                     var tRect = target.getBoundingClientRect();
-                    if (tRect.bottom > cRect.bottom) container.scrollTop += (tRect.bottom - cRect.bottom) + 8;
-                    else if (tRect.top < cRect.top) container.scrollTop -= (cRect.top - tRect.top) + 8;
+                    if (tRect.bottom > cRect.bottom) {
+                        container.scrollTop += tRect.bottom - cRect.bottom + 8;
+                    } else if (tRect.top < cRect.top) {
+                        container.scrollTop -= cRect.top - tRect.top + 8;
+                    }
                 }
             }, 30);
         }
@@ -72,8 +80,7 @@
         return {
             scrollToActiveInFrame: scrollToActiveInFrame,
             scrollQueueLookahead: scrollQueueLookahead,
-            scrollQueueListToIndex: scrollQueueListToIndex
+            scrollQueueListToIndex: scrollQueueListToIndex,
         };
     });
-
 })();

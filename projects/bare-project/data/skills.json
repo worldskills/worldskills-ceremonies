@@ -7,7 +7,16 @@
       "translations": {
         "zh_CN": "3D 数字游戏艺术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "BIZIDEAL",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/bizideal.png"
+        }
+      }
+    ]
   },
   {
     "number": "57",
@@ -17,7 +26,30 @@
       "translations": {
         "zh_CN": "增材制造"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 331,
+        "name": "DMG MORI",
+        "url": "",
+        "logo": {
+          "id": 63450,
+          "thumbnail_hash": "435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws43/ws5c/63450/ws435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63450",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/dmg_mori.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "14",
@@ -27,7 +59,16 @@
       "translations": {
         "zh_CN": "飞机维修"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Jiean Hi-Tech",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/jiean_hi-tech.png"
+        }
+      }
+    ]
   },
   {
     "number": "13",
@@ -37,7 +78,37 @@
       "translations": {
         "zh_CN": "车身修理"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 409,
+        "name": "CAR-O-LINER",
+        "url": "",
+        "logo": {
+          "id": 65357,
+          "thumbnail_hash": "b267ed34-24d2-48ae-959b-a6cb1786d87a",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb2/ws67/65357/wsb267ed34-24d2-48ae-959b-a6cb1786d87a",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/65357",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/car-o-liner.png"
+        },
+        "sort": 1,
+        "links": []
+      },
+      {
+        "name": "Saic Motor",
+        "sort": 2,
+        "logo": {
+          "local": "sponsors/saic_motor.png"
+        }
+      }
+    ]
   },
   {
     "number": "33",
@@ -47,7 +118,16 @@
       "translations": {
         "zh_CN": "汽车技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Saic Motor",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/saic_motor.png"
+        }
+      }
+    ]
   },
   {
     "number": "23",
@@ -57,7 +137,30 @@
       "translations": {
         "zh_CN": "自主移动机器人"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 350,
+        "name": "Studica",
+        "url": "",
+        "logo": {
+          "id": 63469,
+          "thumbnail_hash": "ac1ddb80-cf28-4b50-b247-4f08e2dee95f",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsac/ws1d/63469/wsac1ddb80-cf28-4b50-b247-4f08e2dee95f",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63469",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/studica.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "47",
@@ -67,7 +170,16 @@
       "translations": {
         "zh_CN": "烘焙"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "HANBAKE",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/hanbake.png"
+        }
+      }
+    ]
   },
   {
     "number": "30",
@@ -77,7 +189,16 @@
       "translations": {
         "zh_CN": "美容"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "REVACL",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/revacl.png"
+        }
+      }
+    ]
   },
   {
     "number": "20",
@@ -87,7 +208,16 @@
       "translations": {
         "zh_CN": "砌筑"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Refen",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/refen.png"
+        }
+      }
+    ]
   },
   {
     "number": "24",
@@ -97,7 +227,16 @@
       "translations": {
         "zh_CN": "家具制作"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "SBD",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/sbd.png"
+        }
+      }
+    ]
   },
   {
     "number": "36",
@@ -107,7 +246,30 @@
       "translations": {
         "zh_CN": "汽车喷漆"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 293,
+        "name": "SATA",
+        "url": "https://www.sata.com/en-int/",
+        "logo": {
+          "id": 63275,
+          "thumbnail_hash": "f6d60d0f-a7ac-476b-b2a9-060a3d29fad2",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsf6/wsd6/63275/wsf6d60d0f-a7ac-476b-b2a9-060a3d29fad2",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63275",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/sata.jpg"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "26",
@@ -117,7 +279,16 @@
       "translations": {
         "zh_CN": "木工"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "SBD",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/sbd.png"
+        }
+      }
+    ]
   },
   {
     "number": "52",
@@ -127,7 +298,16 @@
       "translations": {
         "zh_CN": "化学实验室技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "MT",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/mt.png"
+        }
+      }
+    ]
   },
   {
     "number": "53",
@@ -137,7 +317,30 @@
       "translations": {
         "zh_CN": "云计算"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 255,
+        "name": "AWS (Amazon Web Services)",
+        "url": "https://aws.amazon.com/",
+        "logo": {
+          "id": 63031,
+          "thumbnail_hash": "10347e4b-929f-4c56-85cd-0cbca656ef52",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws10/ws34/63031/ws10347e4b-929f-4c56-85cd-0cbca656ef52",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63031",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/aws_(amazon_web_services).png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "07",
@@ -147,7 +350,30 @@
       "translations": {
         "zh_CN": "数控铣"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 331,
+        "name": "DMG MORI",
+        "url": "",
+        "logo": {
+          "id": 63450,
+          "thumbnail_hash": "435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws43/ws5c/63450/ws435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63450",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/dmg_mori.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "06",
@@ -157,7 +383,30 @@
       "translations": {
         "zh_CN": "数控车"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 331,
+        "name": "DMG MORI",
+        "url": "",
+        "logo": {
+          "id": 63450,
+          "thumbnail_hash": "435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws43/ws5c/63450/ws435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63450",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/dmg_mori.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "46",
@@ -167,7 +416,16 @@
       "translations": {
         "zh_CN": "混凝土建筑"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Refen",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/refen.png"
+        }
+      }
+    ]
   },
   {
     "number": "34",
@@ -177,7 +435,16 @@
       "translations": {
         "zh_CN": "烹饪"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "WISTONE",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/wistone.png"
+        }
+      }
+    ]
   },
   {
     "number": "54",
@@ -187,7 +454,37 @@
       "translations": {
         "zh_CN": "网络安全"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "BIZIDEAL",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/bizideal.png"
+        }
+      },
+      {
+        "id": 256,
+        "name": "Root Me",
+        "url": "https://pro.root-me.org/?page=sommaire&lang=en",
+        "logo": {
+          "id": 56686,
+          "thumbnail_hash": "3bb7348f-a542-4b35-9373-81c41ed87774",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws3b/wsb7/56686/ws3bb7348f-a542-4b35-9373-81c41ed87774",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/56686",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/root_me.png"
+        },
+        "sort": 2,
+        "links": []
+      }
+    ]
   },
   {
     "number": "42",
@@ -197,7 +494,30 @@
       "translations": {
         "zh_CN": "口腔修复工艺技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 348,
+        "name": "Shining 3D",
+        "url": "",
+        "logo": {
+          "id": 63467,
+          "thumbnail_hash": "19828385-c0a8-4a58-b3ea-dc7e2e837d39",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws82/63467/ws19828385-c0a8-4a58-b3ea-dc7e2e837d39",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63467",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/shining_3d.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "58",
@@ -207,7 +527,16 @@
       "translations": {
         "zh_CN": "数字建造"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Sino Technology",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/sino_technology.png"
+        }
+      }
+    ]
   },
   {
     "number": "45",
@@ -217,7 +546,16 @@
       "translations": {
         "zh_CN": "数字交互媒体设计"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "BeiCe",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/beice.png"
+        }
+      }
+    ]
   },
   {
     "number": "18",
@@ -227,7 +565,16 @@
       "translations": {
         "zh_CN": "电气装置"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Tianhuang",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/tianhuang.png"
+        }
+      }
+    ]
   },
   {
     "number": "16",
@@ -237,7 +584,16 @@
       "translations": {
         "zh_CN": "电子技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Sunso Intelligence",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/sunso_intelligence.png"
+        }
+      }
+    ]
   },
   {
     "number": "31",
@@ -247,7 +603,16 @@
       "translations": {
         "zh_CN": "时装技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Xibairun",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/xibairun.png"
+        }
+      }
+    ]
   },
   {
     "number": "28",
@@ -257,7 +622,16 @@
       "translations": {
         "zh_CN": "花艺"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "HOTTS",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/hotts.png"
+        }
+      }
+    ]
   },
   {
     "number": "40",
@@ -267,7 +641,23 @@
       "translations": {
         "zh_CN": "平面设计技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "KONICA MINOLTA",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/konica_minolta.png"
+        }
+      },
+      {
+        "name": "Zhongyou Intelligent",
+        "sort": 2,
+        "logo": {
+          "local": "sponsors/zhongyou_intelligent.png"
+        }
+      }
+    ]
   },
   {
     "number": "29",
@@ -277,7 +667,37 @@
       "translations": {
         "zh_CN": "美发"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Miu Elegance",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/miu_elegance.png"
+        }
+      },
+      {
+        "id": 373,
+        "name": "Raphael Perrier",
+        "url": "https://raphaelperrier.com/",
+        "logo": {
+          "id": 63526,
+          "thumbnail_hash": "81c75277-8d17-4d86-bb66-439985c743de",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws81/wsc7/63526/ws81c75277-8d17-4d86-bb66-439985c743de",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63526",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/raphael_perrier.png"
+        },
+        "sort": 2,
+        "links": []
+      }
+    ]
   },
   {
     "number": "41",
@@ -287,7 +707,30 @@
       "translations": {
         "zh_CN": "健康和社会照护"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 265,
+        "name": "VCOM",
+        "url": "https://www.vcomsmart.com/",
+        "logo": {
+          "id": 57678,
+          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/57678",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/vcom.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "49",
@@ -297,7 +740,16 @@
       "translations": {
         "zh_CN": "重型车辆维修"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Liugong",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/liugong.png"
+        }
+      }
+    ]
   },
   {
     "number": "56",
@@ -307,7 +759,16 @@
       "translations": {
         "zh_CN": "酒店接待"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Shiji Information",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/shiji_information.png"
+        }
+      }
+    ]
   },
   {
     "number": "02",
@@ -317,7 +778,30 @@
       "translations": {
         "zh_CN": "信息通信技术网络基础设施"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 265,
+        "name": "VCOM",
+        "url": "https://www.vcomsmart.com/",
+        "logo": {
+          "id": 57678,
+          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/57678",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/vcom.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "19",
@@ -327,7 +811,30 @@
       "translations": {
         "zh_CN": "工业控制"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 319,
+        "name": "SIEMENS",
+        "url": "https://www.siemens.com/global/en.html",
+        "logo": {
+          "id": 63409,
+          "thumbnail_hash": "57dc1eaf-addd-49ce-9a94-751c73f49181",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws57/wsdc/63409/ws57dc1eaf-addd-49ce-9a94-751c73f49181",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63409",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/siemens.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "59",
@@ -337,7 +844,30 @@
       "translations": {
         "zh_CN": "工业设计技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 339,
+        "name": "INTAMSYS",
+        "url": "",
+        "logo": {
+          "id": 63458,
+          "thumbnail_hash": "9055b80d-fcd1-4abf-b798-0674562d8bd6",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws90/ws55/63458/ws9055b80d-fcd1-4abf-b798-0674562d8bd6",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63458",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/intamsys.jpg"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "01",
@@ -347,7 +877,16 @@
       "translations": {
         "zh_CN": "工业机械"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "VASY",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/vasy.png"
+        }
+      }
+    ]
   },
   {
     "number": "48",
@@ -357,7 +896,30 @@
       "translations": {
         "zh_CN": "工业 4.0"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 335,
+        "name": "Festo",
+        "url": "",
+        "logo": {
+          "id": 63454,
+          "thumbnail_hash": "42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws42/wsc0/63454/ws42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63454",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/festo.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "03",
@@ -367,7 +929,30 @@
       "translations": {
         "zh_CN": "智慧安防技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 265,
+        "name": "VCOM",
+        "url": "https://www.vcomsmart.com/",
+        "logo": {
+          "id": 57678,
+          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/57678",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/vcom.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "39",
@@ -377,7 +962,16 @@
       "translations": {
         "zh_CN": "网络系统管理"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "BIZIDEAL",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/bizideal.png"
+        }
+      }
+    ]
   },
   {
     "number": "27",
@@ -387,7 +981,16 @@
       "translations": {
         "zh_CN": "珠宝加工"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "CHOW TAI FOOK",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/chow_tai_fook.png"
+        }
+      }
+    ]
   },
   {
     "number": "25",
@@ -397,7 +1000,16 @@
       "translations": {
         "zh_CN": "精细木工"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "SBD",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/sbd.png"
+        }
+      }
+    ]
   },
   {
     "number": "37",
@@ -407,7 +1019,16 @@
       "translations": {
         "zh_CN": "园艺"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Refen",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/refen.png"
+        }
+      }
+    ]
   },
   {
     "number": "51",
@@ -417,7 +1038,16 @@
       "translations": {
         "zh_CN": "物流与货运代理"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Zhongnuo",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/zhongnuo.png"
+        }
+      }
+    ]
   },
   {
     "number": "05",
@@ -427,7 +1057,30 @@
       "translations": {
         "zh_CN": "CAD 机械设计"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 348,
+        "name": "Shining 3D",
+        "url": "",
+        "logo": {
+          "id": 63467,
+          "thumbnail_hash": "19828385-c0a8-4a58-b3ea-dc7e2e837d39",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws82/63467/ws19828385-c0a8-4a58-b3ea-dc7e2e837d39",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63467",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/shining_3d.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "04",
@@ -437,7 +1090,30 @@
       "translations": {
         "zh_CN": "机电一体化"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 335,
+        "name": "Festo",
+        "url": "",
+        "logo": {
+          "id": 63454,
+          "thumbnail_hash": "42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws42/wsc0/63454/ws42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63454",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/festo.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "08",
@@ -447,7 +1123,30 @@
       "translations": {
         "zh_CN": "移动应用开发"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 257,
+        "name": "ZHONGHUI",
+        "url": "https://www.zhonghui.vip/",
+        "logo": {
+          "id": 66061,
+          "thumbnail_hash": "47a48334-5779-408c-9698-2f5304a38905",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws47/wsa4/66061/ws47a48334-5779-408c-9698-2f5304a38905",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/66061",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/zhonghui.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "60",
@@ -457,7 +1156,30 @@
       "translations": {
         "zh_CN": "光电技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 265,
+        "name": "VCOM",
+        "url": "https://www.vcomsmart.com/",
+        "logo": {
+          "id": 57678,
+          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/57678",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/vcom.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "22",
@@ -467,7 +1189,16 @@
       "translations": {
         "zh_CN": "油漆与装饰"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Nippon Paint",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/nippon_paint.png"
+        }
+      }
+    ]
   },
   {
     "number": "32",
@@ -477,7 +1208,16 @@
       "translations": {
         "zh_CN": "糖艺/西点制作"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "WISTONE",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/wistone.png"
+        }
+      }
+    ]
   },
   {
     "number": "21",
@@ -487,7 +1227,16 @@
       "translations": {
         "zh_CN": "抹灰与隔墙系统"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Refen",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/refen.png"
+        }
+      }
+    ]
   },
   {
     "number": "15",
@@ -497,7 +1246,37 @@
       "translations": {
         "zh_CN": "管道与制暖"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 239,
+        "name": "Grohe",
+        "url": "https://www.grohe.fr/fr_fr/",
+        "logo": {
+          "id": 54120,
+          "thumbnail_hash": "22aa92be-3190-44d0-ba06-de0a9877efcc",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws22/wsaa/54120/ws22aa92be-3190-44d0-ba06-de0a9877efcc",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/54120",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/grohe.png"
+        },
+        "sort": 1,
+        "links": []
+      },
+      {
+        "name": "Rothenberger",
+        "sort": 2,
+        "logo": {
+          "local": "sponsors/rothenberger.png"
+        }
+      }
+    ]
   },
   {
     "number": "61",
@@ -507,7 +1286,16 @@
       "translations": {
         "zh_CN": "轨道车辆技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Jiean Hi-Tech",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/jiean_hi-tech.png"
+        }
+      }
+    ]
   },
   {
     "number": "38",
@@ -517,7 +1305,16 @@
       "translations": {
         "zh_CN": "制冷与空调"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Xingke",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/xingke.png"
+        }
+      }
+    ]
   },
   {
     "number": "62",
@@ -527,7 +1324,16 @@
       "translations": {
         "zh_CN": "可再生能源"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "WEI CHUANG JING",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/wei_chuang_jing.png"
+        }
+      }
+    ]
   },
   {
     "number": "35",
@@ -537,7 +1343,16 @@
       "translations": {
         "zh_CN": "餐厅服务"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "South Union",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/south_union.png"
+        }
+      }
+    ]
   },
   {
     "number": "43",
@@ -547,7 +1362,30 @@
       "translations": {
         "zh_CN": "零售"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 260,
+        "name": "Neusoft",
+        "url": "https://www.neuedu.com/?lang=en",
+        "logo": {
+          "id": 56690,
+          "thumbnail_hash": "b04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb0/ws4d/56690/wsb04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/56690",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/neusoft.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "63",
@@ -557,7 +1395,30 @@
       "translations": {
         "zh_CN": "机器人系统集成"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 334,
+        "name": "Fanuc",
+        "url": "",
+        "logo": {
+          "id": 63453,
+          "thumbnail_hash": "114bce05-1d5c-4f4c-a16e-42ac53db93cf",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws11/ws4b/63453/ws114bce05-1d5c-4f4c-a16e-42ac53db93cf",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63453",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/fanuc.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "09",
@@ -567,7 +1428,30 @@
       "translations": {
         "zh_CN": "软件应用开发"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 260,
+        "name": "Neusoft",
+        "url": "https://www.neuedu.com/?lang=en",
+        "logo": {
+          "id": 56690,
+          "thumbnail_hash": "b04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb0/ws4d/56690/wsb04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/56690",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/neusoft.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "11",
@@ -577,7 +1461,30 @@
       "translations": {
         "zh_CN": "软件测试"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 260,
+        "name": "Neusoft",
+        "url": "https://www.neuedu.com/?lang=en",
+        "logo": {
+          "id": 56690,
+          "thumbnail_hash": "b04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb0/ws4d/56690/wsb04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/56690",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/neusoft.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "64",
@@ -587,7 +1494,30 @@
       "translations": {
         "zh_CN": "无人机系统"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 350,
+        "name": "Studica",
+        "url": "",
+        "logo": {
+          "id": 63469,
+          "thumbnail_hash": "ac1ddb80-cf28-4b50-b247-4f08e2dee95f",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsac/ws1d/63469/wsac1ddb80-cf28-4b50-b247-4f08e2dee95f",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63469",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/studica.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "44",
@@ -597,7 +1527,16 @@
       "translations": {
         "zh_CN": "商品展示技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "HOTTS",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/hotts.png"
+        }
+      }
+    ]
   },
   {
     "number": "12",
@@ -607,7 +1546,16 @@
       "translations": {
         "zh_CN": "瓷砖贴面"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "name": "Refen",
+        "sort": 1,
+        "logo": {
+          "local": "sponsors/refen.png"
+        }
+      }
+    ]
   },
   {
     "number": "55",
@@ -617,7 +1565,30 @@
       "translations": {
         "zh_CN": "水处理技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 335,
+        "name": "Festo",
+        "url": "",
+        "logo": {
+          "id": 63454,
+          "thumbnail_hash": "42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws42/wsc0/63454/ws42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63454",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/festo.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "17",
@@ -627,7 +1598,30 @@
       "translations": {
         "zh_CN": "网站技术"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 257,
+        "name": "ZHONGHUI",
+        "url": "https://www.zhonghui.vip/",
+        "logo": {
+          "id": 66061,
+          "thumbnail_hash": "47a48334-5779-408c-9698-2f5304a38905",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws47/wsa4/66061/ws47a48334-5779-408c-9698-2f5304a38905",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/66061",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/zhonghui.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   },
   {
     "number": "10",
@@ -637,6 +1631,29 @@
       "translations": {
         "zh_CN": "焊接"
       }
-    }
+    },
+    "sponsors": [
+      {
+        "id": 242,
+        "name": "Lincoln",
+        "url": "https://www.lincolnelectric.com/en",
+        "logo": {
+          "id": 63898,
+          "thumbnail_hash": "1b5b3776-cca8-4536-bafb-e30b7b9072f1",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws1b/ws5b/63898/ws1b5b3776-cca8-4536-bafb-e30b7b9072f1",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/63898",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/lincoln.png"
+        },
+        "sort": 1,
+        "links": []
+      }
+    ]
   }
 ]

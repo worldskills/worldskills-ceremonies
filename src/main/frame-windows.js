@@ -5,6 +5,7 @@ const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { markWindow } = require('./ipc/sender-role');
 const { notifyFrameStatus, sendControlNotice } = require('./control-channel');
 const { FEED, FRAME_STATUS } = require('./constants');
+const { primaryFeedId } = require('./project-store');
 
 const frameWindows = new Map();
 // Keyed like frameWindows; a dev restart uses this to reopen exactly what was open.
@@ -22,7 +23,9 @@ function parseFrameWindowKey(key) {
     const hashIdx = key.indexOf('#');
     const withoutSeq = hashIdx < 0 ? key : key.slice(0, hashIdx);
     const colonIdx = withoutSeq.indexOf(':');
-    return colonIdx < 0 ? { frameId: withoutSeq, container: '' } : { frameId: withoutSeq.slice(0, colonIdx), container: withoutSeq.slice(colonIdx + 1) };
+    return colonIdx < 0
+        ? { frameId: withoutSeq, container: '' }
+        : { frameId: withoutSeq.slice(0, colonIdx), container: withoutSeq.slice(colonIdx + 1) };
 }
 
 function matchesFrameKey(key, frameId) {
@@ -33,12 +36,23 @@ function matchesFrameKey(key, frameId) {
 // in sync with frameWindows — both are deleted together on close). Drives the frame-card
 // "×N" badges and the closed→ready status downgrade when only one of several windows closes.
 function countFrameWindows(frameId) {
-    let live = 0, preview = 0;
+    let live = 0,
+        preview = 0;
+    const feeds = {};
     frameWindowOpts.forEach((opts, key) => {
         if (parseFrameWindowKey(key).frameId !== frameId) return;
-        if (opts && opts.preview) preview++; else live++;
+        const feedType = (opts && opts.feedType) || primaryFeedId();
+        if (!feeds[feedType]) feeds[feedType] = { live: 0, preview: 0, total: 0 };
+        if (opts && opts.preview) {
+            preview++;
+            feeds[feedType].preview++;
+        } else {
+            live++;
+            feeds[feedType].live++;
+        }
+        feeds[feedType].total++;
     });
-    return { live, preview, total: live + preview };
+    return { live, preview, total: live + preview, feeds: feeds };
 }
 
 // Wraps notifyFrameStatus with the current window counts, and downgrades a 'closed' report to
@@ -47,12 +61,12 @@ function emitFrameStatus(frameId, status, extra) {
     const windows = countFrameWindows(frameId);
     // A frame remains live while any regular output or Grid view still contains
     // it. Lazy loading avoids the frame-windows <-> grid-window module cycle.
-    const remainsInGrid = status === FRAME_STATUS.CLOSED && windows.total === 0
-        ? require('./grid-window').hasGridWindowFor(frameId)
-        : false;
-    const effectiveStatus = (status === FRAME_STATUS.CLOSED && (windows.total > 0 || remainsInGrid))
-        ? FRAME_STATUS.READY
-        : status;
+    const remainsInGrid =
+        status === FRAME_STATUS.CLOSED && windows.total === 0
+            ? require('./grid-window').hasGridWindowFor(frameId)
+            : false;
+    const effectiveStatus =
+        status === FRAME_STATUS.CLOSED && (windows.total > 0 || remainsInGrid) ? FRAME_STATUS.READY : status;
     notifyFrameStatus(frameId, effectiveStatus, Object.assign({}, extra, { windows: windows }));
 }
 
@@ -60,13 +74,21 @@ function normalizeFrameRequest(frameId, opts) {
     const container = (opts && opts.container) || '';
     const key = frameWindowKey(frameId, container);
     const isPreview = !!(opts && opts.preview);
-    const size = isPreview
-        ? { width: 1280, height: 720 }
-        : ((opts && opts.size) || { width: 1920, height: 1080 });
+    // Main/Secondary windows use the frame's saved viewport on either channel.
+    // Preview remains windowed, but it no longer silently changes the configured size.
+    const size = (opts && opts.size) || { width: 1920, height: 1080 };
     const position = (opts && opts.position) || {};
 
     const goFullscreenRequested = !isPreview && position.fullscreen === true && (!opts || opts.windowed !== true);
-    return { container, key, isPreview, size, position, goFullscreenRequested };
+    return {
+        container,
+        key,
+        isPreview,
+        size,
+        position,
+        goFullscreenRequested,
+        feedType: (opts && opts.feedType) || primaryFeedId(),
+    };
 }
 
 // Returns the fallback notice text instead of emitting it, to keep this function side-effect-free.
@@ -76,8 +98,14 @@ function frameWindowBounds(req, frameId, opts) {
     const targetDisplay = resolved.display;
     let fallbackNotice = null;
     if (resolved.fellBack) {
-        fallbackNotice = 'Frame "' + ((opts && opts.label) || frameId) + '" is assigned to display ' +
-            (resolved.requested + 1) + ', but only ' + resolved.available + ' display(s) are connected. Opening on the primary display.';
+        fallbackNotice =
+            'Frame "' +
+            ((opts && opts.label) || frameId) +
+            '" is assigned to display ' +
+            (resolved.requested + 1) +
+            ', but only ' +
+            resolved.available +
+            ' display(s) are connected. Opening on the primary display.';
     }
 
     let winBounds;
@@ -88,7 +116,7 @@ function frameWindowBounds(req, frameId, opts) {
             x: b.x,
             y: b.y,
             width: b.width,
-            height: b.height
+            height: b.height,
         };
     } else {
         // Cascade duplicate windows of the same frame by 40px per window already open, so
@@ -97,9 +125,10 @@ function frameWindowBounds(req, frameId, opts) {
         // Coordinates already encode which display the user dragged it to; otherwise center fresh
         // on the assigned target display. No fit-to-display shrinking or on-screen clamping — a
         // frame's configured size is expected to fit its assigned display.
-        const origin = (position.x != null && position.y != null)
-            ? { x: position.x, y: position.y }
-            : centerOnDisplay(targetDisplay, size.width, size.height);
+        const origin =
+            position.x != null && position.y != null
+                ? { x: position.x, y: position.y }
+                : centerOnDisplay(targetDisplay, size.width, size.height);
         winBounds = { x: origin.x + cascade, y: origin.y + cascade, width: size.width, height: size.height };
     }
 
@@ -145,13 +174,23 @@ function showWhenPainted(win, goFullscreen) {
 }
 
 function frameWindowSearch(frameId, req, opts) {
-    const labelParam = (opts && opts.label) ? '&label=' + encodeURIComponent(opts.label) : '';
+    const labelParam = opts && opts.label ? '&label=' + encodeURIComponent(opts.label) : '';
     const containerParam = req.container ? '&container=' + encodeURIComponent(req.container) : '';
     // preview=true stays the window-chrome flag (size/fullscreen/F11); feed=preview is the
     // separate localStorage channel screen.js reads from (see frame-state.service.js).
     const feedParam = req.isPreview ? '&feed=' + FEED.PREVIEW : '';
-    const testParam = (opts && opts.testMode) ? '&testMode=1' : '';
-    return 'screen=' + frameId + (req.isPreview ? '&preview=true' : '') + labelParam + containerParam + feedParam + testParam;
+    const feedTypeParam = '&feedType=' + encodeURIComponent(req.feedType);
+    const testParam = opts && opts.testMode ? '&testMode=1' : '';
+    return (
+        'screen=' +
+        frameId +
+        (req.isPreview ? '&preview=true' : '') +
+        labelParam +
+        containerParam +
+        feedParam +
+        feedTypeParam +
+        testParam
+    );
 }
 
 function reportFrameStatus(win, frameId) {
@@ -175,18 +214,25 @@ function reportFrameStatus(win, frameId) {
 // Tracks windowed bounds so the 'closed' status report has real numbers even if the window was never dragged this session.
 function trackWindowedBounds(win) {
     const state = { lastPos: null, lastSize: null };
-    win.on('moved', () => { state.lastPos = win.getPosition(); });
-    win.on('resize', () => { state.lastSize = win.getSize(); });
+    win.on('moved', () => {
+        state.lastPos = win.getPosition();
+    });
+    win.on('resize', () => {
+        state.lastSize = win.getSize();
+    });
     return state;
 }
 
 // Guards every close path now that the native title bar (M1 fix) gives a real close button; win.__forceClose (set by closeFrameWindow) skips the dialog for already-confirmed closes.
 function guardLiveClose(win, req, boundsState) {
     win.on('close', (event) => {
-        if (!req.isPreview && !confirmClose(win, {
-            title: 'Close live output?',
-            message: 'This closes a live audience-facing window. Continue?'
-        })) {
+        if (
+            !req.isPreview &&
+            !confirmClose(win, {
+                title: 'Close live output?',
+                message: 'This closes a live audience-facing window. Continue?',
+            })
+        ) {
             event.preventDefault();
             return;
         }
@@ -204,11 +250,11 @@ function guardLiveClose(win, req, boundsState) {
 // never confirm-dialog on close (guardLiveClose skips them) and are never fullscreen, so a plain
 // win.close() is enough — this recurses into cleanupOnClosed for each one, but req.isPreview is
 // true there, so it never re-triggers this cascade.
-function closePreviewWindowsFor(frameId) {
+function closePreviewWindowsFor(frameId, feedType) {
     frameWindows.forEach((win, key) => {
         if (!matchesFrameKey(key, frameId)) return;
         const opts = frameWindowOpts.get(key);
-        if (opts && opts.preview && !win.isDestroyed()) win.close();
+        if (opts && opts.preview && (opts.feedType || primaryFeedId()) === feedType && !win.isDestroyed()) win.close();
     });
 }
 
@@ -216,14 +262,24 @@ function cleanupOnClosed(win, key, frameId, boundsState, req) {
     win.on('closed', () => {
         frameWindows.delete(key);
         frameWindowOpts.delete(key);
-        if (!req.isPreview && countFrameWindows(frameId).live === 0) {
-            closePreviewWindowsFor(frameId);
+        if (
+            !req.isPreview &&
+            (!countFrameWindows(frameId).feeds[req.feedType] ||
+                countFrameWindows(frameId).feeds[req.feedType].live === 0)
+        ) {
+            closePreviewWindowsFor(frameId, req.feedType);
         }
         if (boundsState.lastPos) {
             const w = boundsState.lastSize ? boundsState.lastSize[0] : null;
             const h = boundsState.lastSize ? boundsState.lastSize[1] : null;
             const monitor = displayIndexForPoint(boundsState.lastPos[0], boundsState.lastPos[1]);
-            emitFrameStatus(frameId, FRAME_STATUS.CLOSED, { x: boundsState.lastPos[0], y: boundsState.lastPos[1], width: w, height: h, monitor: monitor });
+            emitFrameStatus(frameId, FRAME_STATUS.CLOSED, {
+                x: boundsState.lastPos[0],
+                y: boundsState.lastPos[1],
+                width: w,
+                height: h,
+                monitor: monitor,
+            });
         } else {
             emitFrameStatus(frameId, FRAME_STATUS.CLOSED);
         }
@@ -338,6 +394,15 @@ function hasFrameWindowFor(frameId) {
     return false;
 }
 
+function hasLiveFrameWindowFor(frameId, feedType) {
+    for (const [key, win] of frameWindows) {
+        if (win.isDestroyed() || !matchesFrameKey(key, frameId)) continue;
+        const opts = frameWindowOpts.get(key) || {};
+        if (!opts.preview && (opts.feedType || primaryFeedId()) === (feedType || primaryFeedId())) return true;
+    }
+    return false;
+}
+
 function serializeOpenFrameWindows() {
     const list = [];
     frameWindows.forEach((win, key) => {
@@ -349,7 +414,7 @@ function serializeOpenFrameWindows() {
             // Fullscreen geometry is the whole display; bounds is null and callers fall back to the original opts.
             bounds: fullscreen ? null : { x, y, width, height },
             fullscreen: fullscreen,
-            opts: frameWindowOpts.get(key) || { frameId: parseFrameWindowKey(key).frameId }
+            opts: frameWindowOpts.get(key) || { frameId: parseFrameWindowKey(key).frameId },
         });
     });
     return list;
@@ -388,6 +453,7 @@ module.exports = {
     getOpenFrameIds,
     getOpenFrameCounts,
     hasFrameWindowFor,
+    hasLiveFrameWindowFor,
     serializeOpenFrameWindows,
     reopenFrameWindowFromSnapshot,
     destroyAllFrameWindows,

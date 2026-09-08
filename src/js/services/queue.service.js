@@ -2,7 +2,6 @@
     'use strict';
 
     angular.module('ceremoniesApp').factory('Queue', function (FrameService, SLIDE_KEYS, ALBERT_VIDAL_AWARD_LABEL) {
-
         function getSkillFrame(skillNumber) {
             var found = null;
             angular.forEach(FrameService.frames, function (frame, id) {
@@ -16,19 +15,27 @@
         function getAlbertVidalFrame() {
             var found = null;
             angular.forEach(FrameService.frames, function (frame, id) {
-                if (frame.ordering.includeAlbertVidal) found = id;
+                if (frame.ordering.includeAlbertVidal) {
+                    found = id;
+                }
             });
             return found;
         }
 
         function getSkillQueueSlides(catalog, albertVidalFrame, skillNumber) {
-            if (!catalog) return [];
+            if (!catalog) {
+                return [];
+            }
 
             if (skillNumber === SLIDE_KEYS.ALBERT_VIDAL) {
                 var avaFrameId = albertVidalFrame;
-                if (!avaFrameId || !catalog[SLIDE_KEYS.ALBERT_VIDAL]) return [];
+                if (!avaFrameId || !catalog[SLIDE_KEYS.ALBERT_VIDAL]) {
+                    return [];
+                }
                 var avaFrame = FrameService.frames[avaFrameId];
-                if (!avaFrame || !avaFrame.slides) return [];
+                if (!avaFrame || !avaFrame.slides) {
+                    return [];
+                }
                 var avaResult = [];
 
                 angular.forEach(avaFrame.slides, function (slide) {
@@ -40,9 +47,13 @@
             }
 
             var frameId = getSkillFrame(skillNumber);
-            if (!frameId) return [];
+            if (!frameId) {
+                return [];
+            }
             var frame = FrameService.frames[frameId];
-            if (!frame || !frame.slides) return [];
+            if (!frame || !frame.slides) {
+                return [];
+            }
             var catalogSlides = catalog[skillNumber] || [];
             var result = [];
 
@@ -62,24 +73,36 @@
         }
 
         function pushMatching(list, group, callup) {
-            if (!group) return;
+            if (!group) {
+                return;
+            }
             angular.forEach(group, function (item) {
-                if (isCallup(item) === callup) list.push(item);
+                if (isCallup(item) === callup) {
+                    list.push(item);
+                }
             });
         }
 
         function buildQueueList(catalog, skills, albertVidalFrame) {
-            if (!catalog) return { list: [], byFrame: {} };
+            if (!catalog) {
+                return { list: [], byFrame: {} };
+            }
             var list = [];
             var groupsByFrame = {};
 
             angular.forEach(FrameService.sortSkills(skills), function (skill) {
                 var catalogSlides = catalog[skill.number];
-                if (!catalogSlides || !catalogSlides.length) return;
+                if (!catalogSlides || !catalogSlides.length) {
+                    return;
+                }
                 var frameId = getSkillFrame(skill.number);
-                if (!frameId) return;
+                if (!frameId) {
+                    return;
+                }
                 var frame = FrameService.frames[frameId];
-                if (!frame || !frame.slides) return;
+                if (!frame || !frame.slides) {
+                    return;
+                }
 
                 var group = [];
 
@@ -92,15 +115,21 @@
                     });
                 });
 
-                if (!group.length) return;
-                if (!groupsByFrame[frameId]) groupsByFrame[frameId] = [];
+                if (!group.length) {
+                    return;
+                }
+                if (!groupsByFrame[frameId]) {
+                    groupsByFrame[frameId] = [];
+                }
                 groupsByFrame[frameId].push(group);
             });
 
             var frameOrder = [];
             var rounds = 0;
             angular.forEach(FrameService.frames, function (frame, id) {
-                if (!groupsByFrame[id]) return;
+                if (!groupsByFrame[id]) {
+                    return;
+                }
                 frameOrder.push(id);
                 rounds = Math.max(rounds, groupsByFrame[id].length);
             });
@@ -142,7 +171,9 @@
 
             var byFrame = {};
             angular.forEach(list, function (item) {
-                if (!byFrame[item.frameId]) byFrame[item.frameId] = [];
+                if (!byFrame[item.frameId]) {
+                    byFrame[item.frameId] = [];
+                }
                 byFrame[item.frameId].push(item);
             });
 
@@ -153,8 +184,7 @@
             getSkillFrame: getSkillFrame,
             getAlbertVidalFrame: getAlbertVidalFrame,
             getSkillQueueSlides: getSkillQueueSlides,
-            buildQueueList: buildQueueList
+            buildQueueList: buildQueueList,
         };
     });
-
 })();

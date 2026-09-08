@@ -1,0 +1,447 @@
+/* Operator owns its page colors and available height rather than inheriting
+   Bootstrap's light body. Loaded after Bootstrap, so equal-specificity wins. */
+:root {
+    color-scheme: dark;
+    background: #101419;
+    color: #e6edf3;
+    font-size: 14px;
+}
+* {
+    box-sizing: border-box;
+}
+[ng-cloak] {
+    display: none !important;
+}
+html,
+body {
+    touch-action: manipulation;
+}
+body.operator-page {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background: #101419;
+    color: #e6edf3;
+    font:
+        14px/1.5 system-ui,
+        -apple-system,
+        sans-serif;
+}
+
+header {
+    flex-shrink: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 1px solid #303b49;
+    background: #161d25;
+    color: #e6edf3;
+}
+header strong {
+    letter-spacing: 0.07em;
+}
+header strong span,
+.hint {
+    color: #9baaba;
+}
+.connection {
+    color: #ffc66d;
+}
+.connection.ready {
+    color: #78dda8;
+}
+
+button,
+input,
+select {
+    font: inherit;
+    color: #e6edf3;
+    border: 1px solid #465568;
+    border-radius: 6px;
+    background: #253140;
+    padding: 10px 14px;
+}
+button {
+    cursor: pointer;
+    min-height: 42px;
+}
+button:hover:enabled {
+    background: #34465a;
+}
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid #8dc7ff;
+    outline-offset: 2px;
+}
+button.selected {
+    background: #284c6b;
+    border-color: #91caff;
+}
+.live,
+.next {
+    background: #19563e;
+    border-color: #43896a;
+}
+
+.operator-alerts {
+    flex-shrink: 0;
+    max-height: 24vh;
+    overflow: auto;
+}
+.alert {
+    margin: 0;
+    border-radius: 0;
+    background: #593821;
+    border: 1px solid #c18b4a;
+    color: #ffe0b3;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.alert button {
+    flex-shrink: 0;
+    margin-left: 16px;
+}
+
+.login {
+    max-width: 440px;
+    margin: 15vh auto;
+    padding: 28px;
+    background: #1b242f;
+    border: 1px solid #3d4a5a;
+    border-radius: 12px;
+}
+.login input {
+    width: 140px;
+    margin: 16px 8px;
+}
+
+main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 18px 24px;
+}
+.toolbar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+.toolbar label {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 0;
+}
+.toolbar select {
+    min-width: 180px;
+}
+.channels {
+    display: flex;
+    gap: 6px;
+}
+.layout-control {
+    margin-left: auto;
+    font-size: 12px;
+}
+.layout-control input {
+    width: 120px;
+    padding: 0;
+}
+.workspace {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    gap: 20px;
+    align-items: stretch;
+    grid-template-rows: minmax(0, 1fr);
+}
+
+.feeds {
+    min-width: 0;
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+    padding-right: 8px;
+}
+.feed-card {
+    background: #1b242f;
+    border: 1px solid #3c4959;
+    border-radius: 10px;
+    padding: 12px;
+    resize: both;
+    overflow: auto;
+    min-width: 240px;
+    min-height: 240px;
+    max-width: 100%;
+    width: 100%;
+    height: 360px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+.feed-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    text-transform: capitalize;
+}
+.feed-heading span {
+    font-size: 12px;
+    color: #7addad;
+}
+.feed-heading .blank-label {
+    color: #ffc66d;
+}
+.monitor {
+    position: relative;
+    background: #000;
+    flex: 1;
+    min-height: 100px;
+    overflow: hidden;
+}
+.monitor iframe {
+    position: absolute;
+    border: 0;
+    transform-origin: top left;
+    pointer-events: none;
+}
+.feed-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+.feed-actions button {
+    flex: 1;
+}
+
+.queue-panel {
+    background: #19212b;
+    border: 1px solid #3c4959;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding: 16px;
+}
+.queue-heading {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+}
+.queue-heading h1 {
+    font-size: 19px;
+    margin: 0;
+    color: #e6edf3;
+}
+.queue {
+    flex: 1 1 0;
+    height: 0;
+    min-height: 0;
+    overflow-y: auto;
+    scroll-behavior: auto;
+    overflow-anchor: none;
+}
+.transport,
+.all-controls {
+    flex-shrink: 0;
+    display: flex;
+    gap: 12px;
+    margin-top: 14px;
+}
+.transport button,
+.all-controls button {
+    flex: 1;
+}
+.transport button {
+    font-size: 21px;
+    min-height: 60px;
+}
+.queue-panel > .hint {
+    flex-shrink: 0;
+}
+.hint {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+kbd {
+    font-size: 10px;
+    opacity: 0.75;
+    margin-left: 8px;
+}
+.empty {
+    color: #adbbcc;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+/* Dark skin for the shared slide-row partial's Bootstrap classes. Operator sets
+   editContext/copyScript false, so no textarea or edit buttons render here. */
+.operator-queue-rows {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+.operator-queue-rows:disabled .btn {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.queue .card {
+    background: #202b38;
+    border-color: #3b4858;
+}
+.queue [data-operator-row] {
+    flex: 0 0 auto;
+}
+.queue [data-operator-row] > .list-group-item {
+    border-radius: 0;
+}
+.queue .list-group-item {
+    background: #202b38;
+    color: #e6edf3;
+    border-color: #3b4858;
+}
+.queue .list-group-item-secondary {
+    background: #27323c;
+    color: #adbbcc;
+}
+.queue .list-group-item-primary {
+    background: #203b32;
+    color: #e6edf3;
+    box-shadow: inset 3px 0 0 #28a745;
+}
+.queue .list-group-item-previewing {
+    box-shadow: inset 3px 0 0 #d97706;
+}
+.queue .list-group-item-primary.list-group-item-previewing {
+    box-shadow:
+        inset 3px 0 0 #28a745,
+        inset -3px 0 0 #d97706;
+}
+.queue .list-group-item > .d-flex > span:first-child {
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+.queue .btn {
+    min-height: 0;
+}
+.queue .btn:disabled {
+    opacity: 0.55;
+}
+.queue .btn-toolbar {
+    row-gap: 4px;
+}
+.queue .btn-group {
+    flex-wrap: wrap;
+}
+.queue .btn-primary {
+    background: #294661;
+    border-color: #4e7090;
+}
+.queue .btn-primary.active {
+    background: #356891;
+    border-color: #91caff;
+}
+.queue .btn-success {
+    background: #19563e;
+    border-color: #43896a;
+}
+.queue .btn-success.active {
+    background: #267953;
+    border-color: #78dda8;
+}
+.queue .btn-danger {
+    background: #71383e;
+    border-color: #b5686f;
+}
+.queue .btn-outline-info {
+    color: #81cde4;
+    border-color: #5599af;
+}
+.queue .btn-outline-info.active {
+    background: #286578;
+    color: #fff;
+}
+.queue .state-feed-badge {
+    display: inline-block;
+    min-width: 1.35em;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    font-size: 0.7em;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+}
+
+@media (max-width: 800px) {
+    body.operator-page {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+    }
+    header {
+        padding: 12px;
+        font-size: 12px;
+    }
+    main {
+        flex: none;
+        overflow: visible;
+        padding: 12px;
+    }
+    .toolbar {
+        gap: 10px;
+    }
+    .workspace {
+        flex: none;
+        display: flex !important;
+        flex-direction: column;
+    }
+    .feeds {
+        height: auto;
+        max-height: none;
+        width: clamp(240px, var(--operator-feed-width, 80vw), 100%);
+    }
+    .feed-card {
+        height: 300px;
+    }
+    .queue-panel {
+        width: 100%;
+        height: 70vh;
+        min-height: 400px;
+    }
+    .layout-control {
+        display: flex !important;
+        width: 100%;
+        margin-left: 0;
+        flex-wrap: wrap;
+    }
+    .layout-control input {
+        flex: 1;
+        min-width: 80px;
+        min-height: 32px;
+    }
+}

@@ -2,6 +2,10 @@
   "version": 2,
   "name": "WorldSkills Competition 2026",
   "displayMode": "windows",
+  "feedTypes": [
+    { "id": "main", "gridSize": { "width": 1100, "height": 500 } },
+    { "id": "secondary", "gridSize": { "width": 800, "height": 500 } }
+  ],
   "remote": {
     "enabled": true,
     "pin": "173210",
@@ -19,7 +23,7 @@
     {
       "id": "a",
       "label": "Podium Red",
-      "video": "red.mp4",
+      "video": { "main": "red.mp4", "secondary": "" },
       "size": {
         "width": 589,
         "height": 553
@@ -40,7 +44,7 @@
     {
       "id": "b",
       "label": "Podium Blue",
-      "video": "blue.mp4",
+      "video": { "main": "blue.mp4", "secondary": "" },
       "size": {
         "width": 589,
         "height": 553
@@ -61,7 +65,7 @@
     {
       "id": "c",
       "label": "Podium Yellow",
-      "video": "yellow.mp4",
+      "video": { "main": "yellow.mp4", "secondary": "" },
       "size": {
         "width": 588,
         "height": 553

@@ -6,7 +6,14 @@ const projectStore = require('../project-store');
 const { applyRemoteConfig } = require('../remote-server');
 const { DEFAULT_REMOTE_PIN, DEFAULT_REMOTE_PORT } = require('../project-contract');
 const { readJson, writeJson } = require('../json-store');
-const { projectFilePath, templateDirPath, translationsFilePath, projectDataDir, appRoot, projectsRootDir } = require('../paths');
+const {
+    projectFilePath,
+    templateDirPath,
+    translationsFilePath,
+    projectDataDir,
+    appRoot,
+    projectsRootDir,
+} = require('../paths');
 
 function registerProjectIpc() {
     ipcMain.handle('project:recent', () => {
@@ -18,10 +25,17 @@ function registerProjectIpc() {
     // as opposed to project:recent's arbitrary folders picked via file dialog.
     ipcMain.handle('project:bundled', () => {
         if (!fs.existsSync(projectsRootDir)) return [];
-        return fs.readdirSync(projectsRootDir, { withFileTypes: true })
-            .filter(function (entry) { return entry.isDirectory(); })
-            .map(function (entry) { return path.join(projectsRootDir, entry.name); })
-            .filter(function (dir) { return fs.existsSync(projectFilePath(dir)); })
+        return fs
+            .readdirSync(projectsRootDir, { withFileTypes: true })
+            .filter(function (entry) {
+                return entry.isDirectory();
+            })
+            .map(function (entry) {
+                return path.join(projectsRootDir, entry.name);
+            })
+            .filter(function (dir) {
+                return fs.existsSync(projectFilePath(dir));
+            })
             .map(function (dir) {
                 const loaded = projectStore.loadProjectFolder(dir);
                 const name = (loaded.ok && loaded.project && loaded.project.name) || path.basename(dir);
@@ -33,7 +47,9 @@ function registerProjectIpc() {
         const dir = opts && opts.dir;
         if (!dir) return { ok: false };
         const cfg = readConfig();
-        cfg.recentProjects = (cfg.recentProjects || []).filter(function (r) { return r.path !== dir; });
+        cfg.recentProjects = (cfg.recentProjects || []).filter(function (r) {
+            return r.path !== dir;
+        });
         if (cfg.lastProject === dir) delete cfg.lastProject;
         writeConfig(cfg);
         return { ok: true, recentProjects: cfg.recentProjects };
@@ -42,7 +58,7 @@ function registerProjectIpc() {
     ipcMain.handle('project:create', async () => {
         const { canceled, filePaths } = await dialog.showOpenDialog({
             title: 'Choose Project Folder',
-            properties: ['openDirectory', 'createDirectory']
+            properties: ['openDirectory', 'createDirectory'],
         });
         if (canceled || !filePaths || !filePaths.length) return { canceled: true };
         const dir = filePaths[0];
@@ -61,7 +77,7 @@ function registerProjectIpc() {
                 defaultId: 1,
                 cancelId: 1,
                 title: 'Project exists',
-                message: 'This folder already contains a project.json. Overwrite it?'
+                message: 'This folder already contains a project.json. Overwrite it?',
             });
             if (response !== 0) return { canceled: true };
         }
@@ -77,15 +93,18 @@ function registerProjectIpc() {
                 version: 2,
                 name: path.basename(dir),
                 displayMode: 'windows',
+                feedTypes: [{ id: 'main', label: 'Main', gridSize: { width: 1280, height: 720 } }],
                 languages: [{ lang_code: 'en' }],
                 remote: { enabled: true, pin: DEFAULT_REMOTE_PIN, port: DEFAULT_REMOTE_PORT },
-                frames: [{
-                    id: 'a',
-                    label: 'Main Stage',
-                    size: { width: 1920, height: 1080 },
-                    position: { monitor: 0, x: null, y: null, fullscreen: false },
-                    ordering: { mode: 'skills', skillNumbers: [], includeAlbertVidal: true }
-                }]
+                frames: [
+                    {
+                        id: 'a',
+                        label: 'Main Stage',
+                        size: { width: 1920, height: 1080 },
+                        position: { monitor: 0, x: null, y: null, fullscreen: false },
+                        ordering: { mode: 'skills', skillNumbers: [], includeAlbertVidal: true },
+                    },
+                ],
             };
             writeJson(translationsFilePath(dir), { version: 1, languages: {} });
             projectStore.writeProjectFiles(dir, project);
@@ -102,7 +121,7 @@ function registerProjectIpc() {
     ipcMain.handle('project:open', async () => {
         const { canceled, filePaths } = await dialog.showOpenDialog({
             title: 'Open Project Folder',
-            properties: ['openDirectory']
+            properties: ['openDirectory'],
         });
         if (canceled || !filePaths || !filePaths.length) return { canceled: true };
         const dir = filePaths[0];
@@ -112,7 +131,7 @@ function registerProjectIpc() {
             await dialog.showMessageBox({
                 type: 'error',
                 title: 'Cannot open project',
-                message: loaded.error
+                message: loaded.error,
             });
             return { ok: false, error: loaded.error };
         }

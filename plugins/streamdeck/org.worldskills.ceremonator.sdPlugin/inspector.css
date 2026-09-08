@@ -1,0 +1,74 @@
+:root {
+    color-scheme: dark;
+    font:
+        12px -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+body {
+    margin: 12px;
+    background: #2d2d2d;
+    color: #ddd;
+}
+
+label {
+    display: block;
+    margin: 12px 0;
+}
+
+input,
+textarea,
+select,
+button {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 7px;
+    margin-top: 5px;
+    border: 1px solid #666;
+    border-radius: 4px;
+    background: #393939;
+    color: #fff;
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    background: #16568a;
+    border-color: #2879b8;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+    outline: 2px solid #72bafa;
+    outline-offset: 1px;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.check input {
+    width: auto;
+    margin: 0;
+}
+
+p {
+    color: #bbb;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#status {
+    border-top: 1px solid #555;
+    padding-top: 10px;
+}
+
+[hidden] {
+    display: none !important;
+}

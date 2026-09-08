@@ -1,0 +1,47 @@
+{
+  "name": "Ceremonator — Stream Deck+",
+  "connection": { "url": "http://127.0.0.1:17321", "pin": "173210" },
+  "frames": [
+    { "id": "a", "name": "Red", "color": "#D51067" },
+    { "id": "c", "name": "Yellow", "color": "#FEE300" },
+    { "id": "b", "name": "Blue", "color": "#0084AD" }
+  ],
+  "grids": {
+    "Test": [
+      {
+        "feedType": "main",
+        "columns": 6,
+        "width": 770,
+        "height": 350,
+        "channel": "live",
+        "fullscreen": false
+      },
+      {
+        "feedType": "secondary",
+        "columns": 6,
+        "width": 640,
+        "height": 400,
+        "channel": "live",
+        "fullscreen": false
+      }
+    ],
+    "Prod": [
+      {
+        "feedType": "main",
+        "columns": 6,
+        "width": 1100,
+        "height": 500,
+        "channel": "live",
+        "fullscreen": false
+      },
+      {
+        "feedType": "secondary",
+        "columns": 6,
+        "width": 800,
+        "height": 500,
+        "channel": "live",
+        "fullscreen": false
+      }
+    ]
+  }
+}

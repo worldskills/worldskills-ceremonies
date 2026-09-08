@@ -1,160 +1,277 @@
 (function () {
     'use strict';
 
-    angular.module('ceremoniesApp').factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys) {
+    angular
+        .module('ceremoniesApp')
+        .factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys, FEED) {
+            var screenKey = StorageKeys.screenKey;
+            var previewKey = StorageKeys.previewKey;
 
-        var screenKey = StorageKeys.screenKey;
-        var previewKey = StorageKeys.previewKey;
-
-        function createStoragePayload(frame, slide, frameId, stateOverride) {
-            return {
-                template: TEMPLATE_BASE + (slide ? slide.template : 'empty.html'),
-                context: (slide && slide.context) || {},
-                state: stateOverride || (slide && slide.state) || [],
-                label: (slide && slide.label) || '',
-                frameLabel: frame.label || frameId,
-                accent: FrameService.getFrameColor(frameId),
-                video: frame.video ? TEMPLATE_BASE + 'videos/' + frame.video : ''
-            };
-        }
-
-        function liveSlideFor(frame) {
-            return frame.blanked ? undefined : frame.slide;
-        }
-
-        function publish(frameId) {
-            var frame = FrameService.frames[frameId];
-            if (!frame) return;
-            window.localStorage.setItem(screenKey(frameId), angular.toJson(createStoragePayload(frame, liveSlideFor(frame), frameId)));
-            publishPreview(frameId);
-        }
-
-        function publishPreview(frameId) {
-            var frame = FrameService.frames[frameId];
-            if (!frame) return;
-            var slide = frame.previewSlide || liveSlideFor(frame);
-            var stateOverride = frame.previewSlide ? (frame.previewState || []) : null;
-            window.localStorage.setItem(previewKey(frameId), angular.toJson(createStoragePayload(frame, slide, frameId, stateOverride)));
-            syncRemote();
-        }
-
-        function syncRemote() {
-            if (!window.ceremonator || !window.ceremonator.remote) return;
-            var frames = [];
-            angular.forEach(FrameService.frames, function (frame, id) {
-                frames.push({
-                    id: id,
-                    label: frame.label,
-                    color: FrameService.getFrameColor(id),
-                    status: frame.status,
-                    blanked: !!frame.blanked,
-                    slideIndex: frame.slide ? frame.slides.indexOf(frame.slide) : -1,
-                    previewSlideIndex: frame.previewSlide ? frame.slides.indexOf(frame.previewSlide) : -1,
-                    previewState: frame.previewState || null,
-                    slides: (frame.slides || []).map(function (slide) {
-                        return { slideId: slide.slideId, label: slide.label, context: slide.context, state: slide.state || [], states: slide.states || [], done: !!slide.done };
-                    })
+            function activeForFeed(slide, feedType, state) {
+                if (!slide) {
+                    return false;
+                }
+                var base = slide.baseFeedTypes || [FrameService.primaryFeedId()];
+                if (base.indexOf(feedType) >= 0) {
+                    return true;
+                }
+                return (state || []).some(function (name) {
+                    return slide.stateFeedTypes && slide.stateFeedTypes[name] === feedType;
                 });
-            });
-            window.ceremonator.remote.sync(frames);
-        }
+            }
 
-        function clear(frameId) {
-            window.localStorage.removeItem(screenKey(frameId));
-            window.localStorage.removeItem(previewKey(frameId));
-        }
+            function videoFor(frame, feedType) {
+                var v = frame.video;
+                if (v && typeof v === 'object') {
+                    // A missing key inherits the primary feed's video; an explicit
+                    // empty string means "no video for this feed" and must not fall back.
+                    if (Object.prototype.hasOwnProperty.call(v, feedType)) {
+                        return v[feedType] || '';
+                    }
+                    return v[FrameService.primaryFeedId()] || '';
+                }
+                return v || '';
+            }
 
-        function reloadTemplates() {
-            var t = Date.now();
-            angular.forEach(FrameService.frames, function (frame, id) {
-                [screenKey(id), previewKey(id)].forEach(function (key) {
-                    var raw = window.localStorage.getItem(key);
-                    if (!raw) return;
-                    var entry = angular.fromJson(raw);
-                    if (!entry) return;
-                    var base = entry.template ? entry.template.split('?')[0] : (TEMPLATE_BASE + 'empty.html');
-                    entry.template = base + '?t=' + t;
-                    window.localStorage.setItem(key, angular.toJson(entry));
+            function createStoragePayload(frame, slide, frameId, stateOverride, feedType) {
+                var state = stateOverride || (slide && slide.state) || [];
+                var isActive = activeForFeed(slide, feedType, state);
+                if (!isActive) {
+                    slide = undefined;
+                }
+                var content = slide && slide.feedContent && slide.feedContent[feedType];
+                var filteredState = slide
+                    ? state.filter(function (name) {
+                          return (
+                              !slide.stateFeedTypes ||
+                              !slide.stateFeedTypes[name] ||
+                              slide.stateFeedTypes[name] === feedType
+                          );
+                      })
+                    : [];
+                return {
+                    // No slide (blanked, routed away, or never assigned yet — e.g. right after
+                    // a restart or a fresh import) always shows the project's logo template,
+                    // never a plain black screen, while retaining the frame background/video.
+                    template: TEMPLATE_BASE + (content ? content.template : slide ? slide.template : 'empty.html'),
+                    context: (content && content.context) || (slide && slide.context) || {},
+                    state: filteredState,
+                    label: (slide && slide.label) || '',
+                    frameLabel: frame.label || frameId,
+                    accent: FrameService.getFrameColor(frameId),
+                    video: videoFor(frame, feedType) ? TEMPLATE_BASE + 'videos/' + videoFor(frame, feedType) : '',
+                    testMode: StorageKeys.testMode(),
+                };
+            }
+
+            function liveSlideFor(frame, feedType) {
+                return frame.blankedFeeds && frame.blankedFeeds[feedType] ? undefined : frame.slide;
+            }
+
+            function publish(frameId) {
+                var frame = FrameService.frames[frameId];
+                if (!frame) {
+                    return;
+                }
+                angular.forEach(FrameService.feedTypes, function (feed) {
+                    var type = feed.id;
+                    window.localStorage.setItem(
+                        screenKey(frameId, type),
+                        angular.toJson(createStoragePayload(frame, liveSlideFor(frame, type), frameId, null, type))
+                    );
                 });
-            });
-        }
+                publishPreview(frameId);
+            }
 
-        function assembleFrame(frame, catalog) {
-            var prevLabel  = frame.slide ? frame.slide.label : null;
-            var prevState  = frame.slide ? angular.copy(frame.slide.state || []) : [];
-            var prevDone   = frame.slide ? (frame.slide.done || false) : false;
+            function publishPreview(frameId) {
+                var frame = FrameService.frames[frameId];
+                if (!frame) {
+                    return;
+                }
+                var slide = frame.previewSlide || frame.slide;
+                var stateOverride = frame.previewSlide ? frame.previewState || [] : null;
+                angular.forEach(FrameService.feedTypes, function (feed) {
+                    var type = feed.id;
+                    // A feed blank wins over a pinned Preview slide, but does not alter
+                    // the pin for the other feed.
+                    var visible =
+                        frame.blankedFeeds && frame.blankedFeeds[type]
+                            ? undefined
+                            : frame.previewSlide
+                              ? slide
+                              : frame.slide;
+                    window.localStorage.setItem(
+                        previewKey(frameId, type),
+                        angular.toJson(createStoragePayload(frame, visible, frameId, stateOverride, type))
+                    );
+                });
+                syncRemote();
+            }
 
-            frame.slides = [];
+            function syncRemote() {
+                if (!window.ceremonator || !window.ceremonator.remote) {
+                    return;
+                }
+                var frames = [];
+                angular.forEach(FrameService.frames, function (frame, id) {
+                    frames.push({
+                        id: id,
+                        label: frame.label,
+                        color: FrameService.getFrameColor(id),
+                        status: frame.status,
+                        size: frame.size,
+                        outputs: FrameService.feedTypes.reduce(function (outputs, feed) {
+                            outputs[feed.id] = {
+                                live: createStoragePayload(frame, liveSlideFor(frame, feed.id), id, null, feed.id),
+                                preview: createStoragePayload(
+                                    frame,
+                                    frame.blankedFeeds && frame.blankedFeeds[feed.id]
+                                        ? undefined
+                                        : frame.previewSlide || frame.slide,
+                                    id,
+                                    frame.previewSlide ? frame.previewState || [] : null,
+                                    feed.id
+                                ),
+                            };
+                            return outputs;
+                        }, {}),
+                        blankedFeeds: angular.copy(frame.blankedFeeds || {}),
+                        slideIndex: frame.slide ? frame.slides.indexOf(frame.slide) : -1,
+                        previewSlideIndex: frame.previewSlide ? frame.slides.indexOf(frame.previewSlide) : -1,
+                        previewState: frame.previewState || null,
+                        slides: (frame.slides || []).map(function (slide) {
+                            return {
+                                slideId: slide.slideId,
+                                label: slide.label,
+                                context: slide.context,
+                                state: slide.state || [],
+                                states: slide.states || [],
+                                baseFeedTypes: slide.baseFeedTypes,
+                                stateFeedTypes: slide.stateFeedTypes,
+                                feedContent: slide.feedContent,
+                                done: !!slide.done,
+                            };
+                        }),
+                    });
+                });
 
-            var skillNumbers = FrameService.sortSkillNumbers(frame.ordering.skillNumbers);
+                window.ceremonator.remote.sync({
+                    feedTypes: angular.copy(FrameService.feedTypes),
+                    frames: frames,
+                    testMode: StorageKeys.testMode(),
+                });
+            }
 
-            angular.forEach(skillNumbers, function (num) {
-                var slides = catalog[num];
-                if (slides && slides.length > 0) {
-                    angular.forEach(slides, function (slide) {
+            function clear(frameId) {
+                angular.forEach(FrameService.feedTypes, function (feed) {
+                    window.localStorage.removeItem(screenKey(frameId, feed.id));
+                    window.localStorage.removeItem(previewKey(frameId, feed.id));
+                });
+            }
+
+            function reloadTemplates() {
+                var t = Date.now();
+                angular.forEach(FrameService.frames, function (frame, id) {
+                    FrameService.feedTypes.forEach(function (feed) {
+                        [screenKey(id, feed.id), previewKey(id, feed.id)].forEach(function (key) {
+                            var raw = window.localStorage.getItem(key);
+                            if (!raw) {
+                                return;
+                            }
+                            var entry = angular.fromJson(raw);
+                            if (!entry) {
+                                return;
+                            }
+                            var base = entry.template ? entry.template.split('?')[0] : TEMPLATE_BASE + 'blank.html';
+                            entry.template = base + '?t=' + t;
+                            window.localStorage.setItem(key, angular.toJson(entry));
+                        });
+                    });
+                });
+            }
+
+            function assembleFrame(frame, catalog) {
+                var prevLabel = frame.slide ? frame.slide.label : null;
+                var prevState = frame.slide ? angular.copy(frame.slide.state || []) : [];
+                var prevDone = frame.slide ? frame.slide.done || false : false;
+
+                frame.slides = [];
+
+                var skillNumbers = FrameService.sortSkillNumbers(frame.ordering.skillNumbers);
+
+                angular.forEach(skillNumbers, function (num) {
+                    var slides = catalog[num];
+                    if (slides && slides.length > 0) {
+                        angular.forEach(slides, function (slide) {
+                            frame.slides.push(angular.copy(slide));
+                        });
+                    }
+                });
+
+                var bestOfNation = catalog[SLIDE_KEYS.BEST_OF_NATION];
+                if (bestOfNation && bestOfNation.length > 0) {
+                    angular.forEach(bestOfNation, function (slide) {
                         frame.slides.push(angular.copy(slide));
                     });
                 }
-            });
 
-            var bestOfNation = catalog[SLIDE_KEYS.BEST_OF_NATION];
-            if (bestOfNation && bestOfNation.length > 0) {
-                angular.forEach(bestOfNation, function (slide) {
-                    frame.slides.push(angular.copy(slide));
-                });
-            }
-
-            if (frame.ordering.includeAlbertVidal) {
-                var albertVidal = catalog[SLIDE_KEYS.ALBERT_VIDAL];
-                if (albertVidal && albertVidal.length > 0) {
-                    frame.slides.push(angular.copy(albertVidal[0]));
+                if (frame.ordering.includeAlbertVidal) {
+                    var albertVidal = catalog[SLIDE_KEYS.ALBERT_VIDAL];
+                    if (albertVidal && albertVidal.length > 0) {
+                        frame.slides.push(angular.copy(albertVidal[0]));
+                    }
                 }
-            }
 
-            angular.forEach(frame.slides, function (slide, index) {
-                if (!slide.slideId) {
-                    slide.slideId = frame.id + ':' + encodeURIComponent((slide.template || '') + '|' + (slide.label || index));
-                }
-            });
-
-            if (prevLabel) {
-                var restored = null;
-                angular.forEach(frame.slides, function (s) {
-                    if (!restored && s.label === prevLabel) { restored = s; }
+                angular.forEach(frame.slides, function (slide, index) {
+                    if (!slide.slideId) {
+                        slide.slideId =
+                            frame.id + ':' + encodeURIComponent((slide.template || '') + '|' + (slide.label || index));
+                    }
                 });
-                if (restored) {
-                    restored.state = prevState;
-                    restored.done  = prevDone;
-                    frame.slide    = restored;
-                } else {
-                    frame.slide = undefined;
+
+                if (prevLabel) {
+                    var restored = null;
+                    angular.forEach(frame.slides, function (s) {
+                        if (!restored && s.label === prevLabel) {
+                            restored = s;
+                        }
+                    });
+                    if (restored) {
+                        restored.state = prevState;
+                        restored.done = prevDone;
+                        frame.slide = restored;
+                    } else {
+                        frame.slide = undefined;
+                    }
                 }
+
+                // Same identity-restore as frame.slide above, for whatever's on the Preview channel.
+                // previewState itself is untouched — it's a frame-level array, not tied to slide
+                // identity, so it survives the rebuild; only clear it if the pin itself is lost.
+                if (frame.previewSlide) {
+                    var prevPreviewLabel = frame.previewSlide.label;
+                    var restoredPreview = null;
+                    angular.forEach(frame.slides, function (s) {
+                        if (!restoredPreview && s.label === prevPreviewLabel) {
+                            restoredPreview = s;
+                        }
+                    });
+                    frame.previewSlide = restoredPreview || undefined;
+                    if (!restoredPreview) {
+                        frame.previewState = undefined;
+                    }
+                }
+
+                return frame;
             }
 
-            // Same identity-restore as frame.slide above, for whatever's on the Preview channel.
-            // previewState itself is untouched — it's a frame-level array, not tied to slide
-            // identity, so it survives the rebuild; only clear it if the pin itself is lost.
-            if (frame.previewSlide) {
-                var prevPreviewLabel = frame.previewSlide.label;
-                var restoredPreview = null;
-                angular.forEach(frame.slides, function (s) {
-                    if (!restoredPreview && s.label === prevPreviewLabel) { restoredPreview = s; }
-                });
-                frame.previewSlide = restoredPreview || undefined;
-                if (!restoredPreview) frame.previewState = undefined;
-            }
-
-            return frame;
-        }
-
-        return {
-            publish: publish,
-            publishPreview: publishPreview,
-            clear: clear,
-            reloadTemplates: reloadTemplates,
-            assembleFrame: assembleFrame,
-            syncRemote: syncRemote
-        };
-    });
-
+            return {
+                publish: publish,
+                publishPreview: publishPreview,
+                clear: clear,
+                reloadTemplates: reloadTemplates,
+                assembleFrame: assembleFrame,
+                syncRemote: syncRemote,
+            };
+        });
 })();
