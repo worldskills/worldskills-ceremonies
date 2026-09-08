@@ -70,7 +70,10 @@
     css.onload = function () {
         tell('operator-feed-recovered', 'stylesheet');
     };
-    document.head.appendChild(css);
+    // Must land before screen.html's inline <style>, where the desktop window's own
+    // <link> sits: both set `body { background-color }` at equal specificity, so
+    // appending here would let the project stylesheet outrank --frame-accent.
+    document.head.insertBefore(css, document.head.firstChild);
 
     window.addEventListener('message', function (event) {
         if (event.origin !== location.origin || event.source !== parent) {

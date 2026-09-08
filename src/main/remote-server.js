@@ -285,7 +285,7 @@ function serveOperatorFeedPage(req, res) {
         // operator-feed.js re-adds the stylesheet through the asset route, so the
         // wstemplate:// link the desktop window uses comes out here.
         const page = html
-            .replace('<link href="wstemplate://active/css/screen.css" rel="stylesheet">', '')
+            .replace(/<link href="wstemplate:\/\/active\/css\/screen\.css" rel="stylesheet"\s*\/?>/, '')
             .replace(/\.\.\/\.\.\/node_modules\//g, '/node_modules/')
             .replace(/\.\.\/js\//g, '/js/')
             .replace(
