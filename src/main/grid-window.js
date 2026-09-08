@@ -136,7 +136,7 @@ function openGridWindow(config) {
         y: centered.y,
 
         useContentSize: true,
-        frame: true,
+        frame: !goFullscreen,
         title: 'Grid View',
         show: false,
         backgroundColor: '#000',
