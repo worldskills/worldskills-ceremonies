@@ -57,7 +57,9 @@ function extensionFor(contentType, url) {
         'image/svg+xml': 'svg',
         'image/gif': 'gif',
     };
-    if (byType[type]) return byType[type];
+    if (byType[type]) {
+        return byType[type];
+    }
     const match = String(url || '').match(/\.([a-z0-9]{2,5})(?:[?#]|$)/i);
     return match ? match[1].toLowerCase() : 'img';
 }
@@ -90,6 +92,16 @@ function download(url, redirects) {
 }
 
 async function main() {
+    const skillsPath = path.join(projectDir, 'data', 'skills.json');
+    const previousSkills = fs.existsSync(skillsPath) ? JSON.parse(fs.readFileSync(skillsPath, 'utf8')) : [];
+    const backgrounds = new Map();
+    for (const skill of previousSkills) {
+        for (const sponsor of skill.sponsors || []) {
+            if (sponsor.logo && sponsor.logo.backgroundColor != null) {
+                backgrounds.set(String(sponsor.logo.id), sponsor.logo.backgroundColor);
+            }
+        }
+    }
     const enSkills = await fetchSkills(eventId, 'en');
     const sponsorSkills = sponsorEventId === eventId ? enSkills : await fetchSkills(sponsorEventId, 'en');
     const sponsorsByNumber = new Map(
@@ -98,8 +110,9 @@ async function main() {
     const skills = enSkills.map((skill) => ({
         number: skill.number,
         name: { lang_code: 'en', text: skill.name.text, translations: {} },
-        // Preserve source-event sponsor records verbatim; logo.local is added below.
-        sponsors: sponsorsByNumber.get(skill.number) || [],
+        // Preserve source-event sponsor records; local logo settings are added below.
+        // Import only featured sponsors with sort=0
+        sponsors: (sponsorsByNumber.get(skill.number) || []).filter((e) => e.sort === 0),
     }));
 
     const otherLanguages = readLanguages().filter((lang) => lang !== 'en');
@@ -107,7 +120,9 @@ async function main() {
         const translated = await fetchSkills(eventId, lang);
         translated.forEach((skill) => {
             const match = skills.find((s) => s.number === skill.number);
-            if (match) match.name.translations[lang] = skill.name.text;
+            if (match) {
+                match.name.translations[lang] = skill.name.text;
+            }
         });
     }
 
@@ -120,9 +135,14 @@ async function main() {
     for (const skill of skills) {
         for (const sponsor of skill.sponsors) {
             const logo = sponsor && sponsor.logo;
+            if (logo && backgrounds.has(String(logo.id))) {
+                logo.backgroundColor = backgrounds.get(String(logo.id));
+            }
             const url = logo && logo.thumbnail;
             if (!url) {
-                if (logo) delete logo.local;
+                if (logo) {
+                    delete logo.local;
+                }
                 continue;
             }
             const id = String(logo.id == null ? '' : logo.id).replace(/[^a-z0-9_-]/gi, '');
@@ -152,7 +172,7 @@ async function main() {
         }
     }
 
-    fs.writeFileSync(`${projectDir}/data/skills.json`, JSON.stringify(skills, null, 2));
+    fs.writeFileSync(skillsPath, JSON.stringify(skills, null, 2));
 }
 
 main().catch((e) => {

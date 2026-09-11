@@ -4,7 +4,7 @@ const path = require('path');
 const { readConfig, writeConfig, addRecent } = require('../config-store');
 const projectStore = require('../project-store');
 const { applyRemoteConfig } = require('../remote-server');
-const { DEFAULT_REMOTE_PIN, DEFAULT_REMOTE_PORT } = require('../project-contract');
+const { DEFAULT_REMOTE_PIN, DEFAULT_REMOTE_PORT, PROJECT_SCHEMA_VERSION } = require('../project-contract');
 const { readJson, writeJson } = require('../json-store');
 const {
     projectFilePath,
@@ -15,6 +15,33 @@ const {
     projectsRootDir,
 } = require('../paths');
 
+// Shared by project:open and project:openPath — they differ only in whether a template-copy
+// failure gets its own dialog (project:openPath's caller already shows one for the outer error).
+async function activateProject(dir, loaded, opts) {
+    let templateDir = loaded.templateDir;
+    if (!templateDir) {
+        const result = await projectStore.ensureTemplates(dir);
+        templateDir = result.templateDir;
+        if (result.copyError && opts.reportCopyError) {
+            await dialog.showMessageBox({ type: 'error', title: 'Copy failed', message: result.copyError.message });
+        }
+    }
+
+    try {
+        projectStore.copyDefaultData(dir);
+    } catch (e) {
+        // Non-destructive best-effort — wstemplate://project/ falls back to bundled data on a failed copy.
+    }
+
+    projectStore.setActive(dir, loaded.project, templateDir);
+    applyRemoteConfig(loaded.project);
+    addRecent(dir, loaded.project.name || path.basename(dir));
+
+    return loaded.orderingWarning
+        ? { ok: true, dir, project: loaded.project, orderingWarning: loaded.orderingWarning }
+        : { ok: true, dir, project: loaded.project };
+}
+
 function registerProjectIpc() {
     ipcMain.handle('project:recent', () => {
         const cfg = readConfig();
@@ -24,7 +51,9 @@ function registerProjectIpc() {
     // Projects that ship inside projects/ (source-controlled, shared with every organiser),
     // as opposed to project:recent's arbitrary folders picked via file dialog.
     ipcMain.handle('project:bundled', () => {
-        if (!fs.existsSync(projectsRootDir)) return [];
+        if (!fs.existsSync(projectsRootDir)) {
+            return [];
+        }
         return fs
             .readdirSync(projectsRootDir, { withFileTypes: true })
             .filter(function (entry) {
@@ -45,13 +74,22 @@ function registerProjectIpc() {
 
     ipcMain.handle('project:removeRecent', (_event, opts) => {
         const dir = opts && opts.dir;
-        if (!dir) return { ok: false };
+        if (!dir) {
+            return { ok: false };
+        }
+
         const cfg = readConfig();
+
         cfg.recentProjects = (cfg.recentProjects || []).filter(function (r) {
             return r.path !== dir;
         });
-        if (cfg.lastProject === dir) delete cfg.lastProject;
+
+        if (cfg.lastProject === dir) {
+            delete cfg.lastProject;
+        }
+
         writeConfig(cfg);
+
         return { ok: true, recentProjects: cfg.recentProjects };
     });
 
@@ -60,16 +98,24 @@ function registerProjectIpc() {
             title: 'Choose Project Folder',
             properties: ['openDirectory', 'createDirectory'],
         });
-        if (canceled || !filePaths || !filePaths.length) return { canceled: true };
+
+        if (canceled || !filePaths || !filePaths.length) {
+            return { canceled: true };
+        }
+
         const dir = filePaths[0];
 
         try {
             fs.accessSync(dir, fs.constants.W_OK);
         } catch (e) {
-            return { ok: false, error: 'Folder is not writable: ' + dir };
+            return {
+                ok: false,
+                error: 'Folder is not writable: ' + dir,
+            };
         }
 
         const existingProjectFile = projectFilePath(dir);
+
         if (fs.existsSync(existingProjectFile)) {
             const { response } = await dialog.showMessageBox({
                 type: 'warning',
@@ -79,18 +125,23 @@ function registerProjectIpc() {
                 title: 'Project exists',
                 message: 'This folder already contains a project.json. Overwrite it?',
             });
-            if (response !== 0) return { canceled: true };
+
+            if (response !== 0) {
+                return { canceled: true };
+            }
         }
 
         try {
             const templateDest = templateDirPath(dir);
+
             if (!fs.existsSync(templateDest)) {
                 projectStore.copyDefaultTemplate(templateDest);
             }
+
             projectStore.copyDefaultData(dir);
 
             const project = {
-                version: 2,
+                version: PROJECT_SCHEMA_VERSION,
                 name: path.basename(dir),
                 displayMode: 'windows',
                 feedTypes: [{ id: 'main', label: 'Main', gridSize: { width: 1280, height: 720 } }],
@@ -106,6 +157,7 @@ function registerProjectIpc() {
                     },
                 ],
             };
+
             writeJson(translationsFilePath(dir), { version: 1, languages: {} });
             projectStore.writeProjectFiles(dir, project);
 
@@ -123,7 +175,9 @@ function registerProjectIpc() {
             title: 'Open Project Folder',
             properties: ['openDirectory'],
         });
-        if (canceled || !filePaths || !filePaths.length) return { canceled: true };
+        if (canceled || !filePaths || !filePaths.length) {
+            return { canceled: true };
+        }
         const dir = filePaths[0];
 
         const loaded = projectStore.loadProjectFolder(dir);
@@ -136,72 +190,43 @@ function registerProjectIpc() {
             return { ok: false, error: loaded.error };
         }
 
-        let templateDir = loaded.templateDir;
-        if (!templateDir) {
-            const result = await projectStore.ensureTemplates(dir);
-            templateDir = result.templateDir;
-            if (result.copyError) {
-                await dialog.showMessageBox({ type: 'error', title: 'Copy failed', message: result.copyError.message });
-            }
-        }
-
-        try {
-            projectStore.copyDefaultData(dir);
-        } catch (e) {
-            // Non-destructive best-effort — wstemplate://project/ falls back to bundled data on a failed copy.
-        }
-
-        projectStore.setActive(dir, loaded.project, templateDir);
-        applyRemoteConfig(loaded.project);
-        addRecent(dir, loaded.project.name || path.basename(dir));
-        const orderingWarning = loaded.orderingWarning;
-        return orderingWarning
-            ? { ok: true, dir, project: loaded.project, orderingWarning }
-            : { ok: true, dir, project: loaded.project };
+        return activateProject(dir, loaded, { reportCopyError: true });
     });
 
     ipcMain.handle('project:openPath', async (_event, { dir }) => {
-        if (!dir || !fs.existsSync(dir)) return { ok: false, code: 'missing', error: 'Path no longer exists.' };
+        if (!dir || !fs.existsSync(dir)) {
+            return { ok: false, code: 'missing', error: 'Path no longer exists.' };
+        }
 
         const loaded = projectStore.loadProjectFolder(dir);
-        if (!loaded.ok) return { ok: false, code: loaded.code, error: loaded.error };
-
-        let templateDir = loaded.templateDir;
-        if (!templateDir) {
-            const result = await projectStore.ensureTemplates(dir);
-            templateDir = result.templateDir;
+        if (!loaded.ok) {
+            return { ok: false, code: loaded.code, error: loaded.error };
         }
 
-        try {
-            projectStore.copyDefaultData(dir);
-        } catch (e) {
-            // Non-destructive best-effort — wstemplate://project/ falls back to bundled data on a failed copy.
-        }
-
-        projectStore.setActive(dir, loaded.project, templateDir);
-        applyRemoteConfig(loaded.project);
-        addRecent(dir, loaded.project.name || path.basename(dir));
-        const orderingWarning = loaded.orderingWarning;
-        return orderingWarning
-            ? { ok: true, dir, project: loaded.project, orderingWarning }
-            : { ok: true, dir, project: loaded.project };
+        return activateProject(dir, loaded, { reportCopyError: false });
     });
 
     ipcMain.handle('project:current', () => {
         const dir = projectStore.getActiveProjectDir();
         const project = projectStore.getActiveProject();
-        if (!dir || !project) return { dir: null, project: null };
+        if (!dir || !project) {
+            return { dir: null, project: null };
+        }
         return { dir, project };
     });
 
     ipcMain.handle('project:saveCurrent', (_event, project) => {
         const activeProjectDir = projectStore.getActiveProjectDir();
-        if (!activeProjectDir) return { ok: false, error: 'No active project open.' };
+        if (!activeProjectDir) {
+            return { ok: false, error: 'No active project open.' };
+        }
         try {
             projectStore.writeProjectFiles(activeProjectDir, project);
             projectStore.setActiveProject(project);
             applyRemoteConfig(project);
-            if (project.name) addRecent(activeProjectDir, project.name);
+            if (project.name) {
+                addRecent(activeProjectDir, project.name);
+            }
             return { ok: true };
         } catch (e) {
             return { ok: false, error: e.message };
@@ -210,14 +235,18 @@ function registerProjectIpc() {
 
     ipcMain.handle('project:readTranslations', () => {
         const activeProjectDir = projectStore.getActiveProjectDir();
-        if (!activeProjectDir) return { ok: false, languages: {} };
+        if (!activeProjectDir) {
+            return { ok: false, languages: {} };
+        }
         const data = readJson(translationsFilePath(activeProjectDir), { languages: {} });
         return { ok: true, languages: (data && data.languages) || {} };
     });
 
     ipcMain.handle('project:writeTranslations', (_event, languages) => {
         const activeProjectDir = projectStore.getActiveProjectDir();
-        if (!activeProjectDir) return { ok: false, error: 'No active project open.' };
+        if (!activeProjectDir) {
+            return { ok: false, error: 'No active project open.' };
+        }
         try {
             writeJson(translationsFilePath(activeProjectDir), { version: 1, languages: languages || {} });
             return { ok: true };

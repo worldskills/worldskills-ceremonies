@@ -1,3 +1,4 @@
+const PROJECT_SCHEMA_VERSION = 2;
 const DEFAULT_REMOTE_PORT = 17321;
 const DEFAULT_REMOTE_PIN = '173210';
 
@@ -6,12 +7,6 @@ const TEMPLATE_NAME = /^[a-z0-9_-]+\.html$/i;
 const DEFAULT_FEED_ID = 'main';
 const MAX_FEEDS = 6;
 
-// Every slide kind Catalog.build emits, and the feed routing each one needs. `base` lists the
-// feeds a slide shows on by default, `stateFeed` is the feed each of its reveals belongs to
-// (medal names and Best of Nation member codes come from the spreadsheet, so they cannot be
-// enumerated in config), `states` overrides that per reveal name, and `content` gives a feed a
-// template of its own. A project that omits `routing` gets the table below, built from feed
-// order: the first feed is the audience feed, a second one carries sponsors.
 const ROUTING_KINDS = ['callup', 'medals', 'mfe', 'bestOfNation', 'albertVidal'];
 
 function defaultRouting(feedTypes) {
@@ -41,7 +36,9 @@ function defaultRouting(feedTypes) {
 
 function normalizeRouting(routing, feedTypes) {
     const defaults = defaultRouting(feedTypes);
-    if (routing == null) return { ok: true, routing: defaults };
+    if (routing == null) {
+        return { ok: true, routing: defaults };
+    }
     if (typeof routing !== 'object' || Array.isArray(routing)) {
         return { ok: false, error: 'Project routing must be an object keyed by slide kind.' };
     }
@@ -140,8 +137,16 @@ function normalizeRemoteConfig(remote) {
 }
 
 function validateProject(project) {
-    if (!project || project.version !== 2 || !Array.isArray(project.frames) || !project.frames.length) {
-        return { ok: false, error: 'Project must use schema version 2 and contain at least one frame.' };
+    if (
+        !project ||
+        project.version !== PROJECT_SCHEMA_VERSION ||
+        !Array.isArray(project.frames) ||
+        !project.frames.length
+    ) {
+        return {
+            ok: false,
+            error: 'Project must use schema version ' + PROJECT_SCHEMA_VERSION + ' and contain at least one frame.',
+        };
     }
     const ids = new Set();
     for (const frame of project.frames) {
@@ -167,7 +172,9 @@ function validateProject(project) {
         frame.position = Object.assign({ monitor: 0, x: null, y: null, fullscreen: false }, frame.position || {});
         frame.ordering = Object.assign({ includeAlbertVidal: false }, ordering);
     }
-    if (!Array.isArray(project.languages)) project.languages = [{ lang_code: 'en' }];
+    if (!Array.isArray(project.languages)) {
+        project.languages = [{ lang_code: 'en' }];
+    }
     project.skillOrder = Array.isArray(project.skillOrder) ? project.skillOrder.map(String) : [];
 
     // Pre-feed version-2 projects have no feedTypes: one audience feed, old Grid size kept.
@@ -221,7 +228,9 @@ function validateProject(project) {
     }));
 
     const routing = normalizeRouting(project.routing, project.feedTypes);
-    if (!routing.ok) return routing;
+    if (!routing.ok) {
+        return routing;
+    }
     project.routing = routing.routing;
 
     project.remote = normalizeRemoteConfig(project.remote);
@@ -229,4 +238,10 @@ function validateProject(project) {
     return { ok: true, project };
 }
 
-module.exports = { validateProject, normalizeRemoteConfig, DEFAULT_REMOTE_PORT, DEFAULT_REMOTE_PIN };
+module.exports = {
+    validateProject,
+    normalizeRemoteConfig,
+    DEFAULT_REMOTE_PORT,
+    DEFAULT_REMOTE_PIN,
+    PROJECT_SCHEMA_VERSION,
+};

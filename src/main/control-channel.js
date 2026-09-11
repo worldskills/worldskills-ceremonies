@@ -10,7 +10,9 @@ function notifyFrameStatus(frameId, status, extra) {
             status,
         };
 
-        if (e.reason) data.reason = e.reason;
+        if (e.reason) {
+            data.reason = e.reason;
+        }
 
         if (e.x != null && e.y != null) {
             data.x = e.x;
@@ -49,7 +51,9 @@ function sendControlDebug(type, message) {
 
 function notifyDisplaysChanged() {
     const win = getControlWindow();
-    if (win && !win.isDestroyed()) win.webContents.send('displays:changed');
+    if (win && !win.isDestroyed()) {
+        win.webContents.send('displays:changed');
+    }
 }
 
 function sendRemoteAction(action) {

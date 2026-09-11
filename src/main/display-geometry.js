@@ -9,11 +9,15 @@ function centerOnDisplay(display, width, height) {
 }
 
 function displayIndexForPoint(x, y) {
-    if (x == null || y == null) return null;
+    if (x == null || y == null) {
+        return null;
+    }
     const displays = electronScreen.getAllDisplays();
     for (let i = 0; i < displays.length; i++) {
         const b = displays[i].bounds;
-        if (x >= b.x && x < b.x + b.width && y >= b.y && y < b.y + b.height) return i;
+        if (x >= b.x && x < b.x + b.width && y >= b.y && y < b.y + b.height) {
+            return i;
+        }
     }
     return null;
 }

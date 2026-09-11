@@ -44,11 +44,21 @@
                         .sort(function (a, b) {
                             var left = a.sponsor && a.sponsor.sort;
                             var right = b.sponsor && b.sponsor.sort;
-                            if (left == null && right == null) return a.index - b.index;
-                            if (left == null) return 1;
-                            if (right == null) return -1;
-                            if (left < right) return -1;
-                            if (left > right) return 1;
+                            if (left == null && right == null) {
+                                return a.index - b.index;
+                            }
+                            if (left == null) {
+                                return 1;
+                            }
+                            if (right == null) {
+                                return -1;
+                            }
+                            if (left < right) {
+                                return -1;
+                            }
+                            if (left > right) {
+                                return 1;
+                            }
                             return a.index - b.index;
                         })
                         .map(function (entry) {

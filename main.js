@@ -36,10 +36,11 @@ app.whenReady().then(() => {
     if (!devResume()) {
         createStartupWindow();
     }
+
     app.setAboutPanelOptions({ applicationName: 'Ceremonator' });
-    // Reflects whatever project devResume() may have already made active (or none) — reapplied
-    // on every subsequent project open/create/save, see ipc/project.js.
+
     applyRemoteConfig(getActiveProject());
+
     screen.on('display-added', notifyDisplaysChanged);
     screen.on('display-removed', (_event, display) => {
         notifyDisplaysChanged();
@@ -58,7 +59,9 @@ app.on('render-process-gone', (_event, webContents, details) => {
 });
 
 app.on('child-process-gone', (_event, details) => {
-    if (details.reason === 'clean-exit') return;
+    if (details.reason === 'clean-exit') {
+        return;
+    }
     sendControlDebug(
         'electron-failure',
         'Electron’s ' + details.type + ' process stopped unexpectedly: ' + details.reason + '.'
@@ -67,7 +70,10 @@ app.on('child-process-gone', (_event, details) => {
 
 app.on('web-contents-created', (_event, contents) => {
     contents.on('did-fail-load', (_loadEvent, code, description, url, isMainFrame) => {
-        if (isMainFrame === false || code === -3) return;
+        if (isMainFrame === false || code === -3) {
+            return;
+        }
+
         sendControlDebug(
             'load-failure',
             'The ' +
@@ -88,7 +94,9 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-    if (!hasControlWindow()) createControlWindow();
+    if (!hasControlWindow()) {
+        createControlWindow();
+    }
 });
 
 app.on('before-quit', () => {

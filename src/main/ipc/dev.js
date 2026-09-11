@@ -14,14 +14,19 @@ function registerDevIpc() {
             windows: frameWindows.serializeOpenFrameWindows(),
             grids: gridWindow.getGridConfigs(),
         });
+
         return { ok: true };
     });
 
     ipcMain.handle('dev:loadSession', () => {
         const snapshot = readSession();
-        if (!snapshot) return null;
+        if (!snapshot) {
+            return null;
+        }
         const activeProjectDir = getActiveProjectDir();
-        if (!activeProjectDir || snapshot.projectDir !== activeProjectDir) return null;
+        if (!activeProjectDir || snapshot.projectDir !== activeProjectDir) {
+            return null;
+        }
         return snapshot.control || null;
     });
 

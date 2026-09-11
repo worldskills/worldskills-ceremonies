@@ -22,7 +22,9 @@
         function pickColor() {
             var used = {};
             angular.forEach(service.frames, function (f) {
-                if (f && f.color) used[f.color] = true;
+                if (f && f.color) {
+                    used[f.color] = true;
+                }
             });
             for (var i = 0; i < frameColors.length; i++) {
                 if (!used[frameColors[i]]) {

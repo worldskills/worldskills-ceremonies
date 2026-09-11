@@ -15,7 +15,6 @@ const projectsRootDir = path.join(appRoot, 'projects');
 const bareProjectDir = path.join(projectsRootDir, 'bare-project');
 const bundledTemplateDir = path.join(bareProjectDir, 'template');
 const bundledDataDir = path.join(bareProjectDir, 'data');
-const flagsDir = path.join(bundledDataDir, 'flags');
 
 function projectFilePath(dir) {
     return path.join(dir, 'project.json');
@@ -36,14 +35,12 @@ function projectDataDir(dir) {
 module.exports = {
     appRoot,
     preloadPath,
-    userDataPath,
     configFilePath,
     sessionFilePath,
     projectsRootDir,
     bareProjectDir,
     bundledTemplateDir,
     bundledDataDir,
-    flagsDir,
     projectFilePath,
     orderingFilePath,
     templateDirPath,

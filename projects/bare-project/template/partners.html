@@ -4,6 +4,7 @@
             <img
                 ng-if="sponsor.logo && sponsor.logo.local"
                 ng-src="wstemplate://project/data/{{ sponsor.logo.local }}"
+                ng-style="{ 'background-color': sponsor.logo.backgroundColor }"
                 alt="{{ sponsorName(sponsor) || 'Sponsor' }}"
                 onerror="
                     this.style.display = 'none';

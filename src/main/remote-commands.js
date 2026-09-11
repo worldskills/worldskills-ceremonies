@@ -3,7 +3,9 @@ const FRAME_ID = /^[a-z][a-z0-9_-]*$/i;
 
 // feedIds are the output feeds the open project configures — there are no fixed feed names.
 function validCommand(command, feedIds) {
-    if (!command || typeof command !== 'object') return false;
+    if (!command || typeof command !== 'object') {
+        return false;
+    }
     const frame = (id) => typeof id === 'string' && id.length <= 100 && FRAME_ID.test(id);
     const frames = (ids) => Array.isArray(ids) && ids.length > 0 && ids.length <= 100 && ids.every(frame);
     const feed = Array.isArray(feedIds) && feedIds.indexOf(command.feedType) >= 0;

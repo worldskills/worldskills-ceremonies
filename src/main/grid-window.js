@@ -15,10 +15,14 @@ const gridWindows = new Map();
 const GRID_CASCADE_OFFSET = 40;
 
 function pinnedCanvas(displaySize) {
-    if (!displaySize) return null;
+    if (!displaySize) {
+        return null;
+    }
     const width = Math.round(Number(displaySize.width)) || 0;
     const height = Math.round(Number(displaySize.height)) || 0;
-    if (width < 320 || height < 240 || width > 15360 || height > 8640) return null;
+    if (width < 320 || height < 240 || width > 15360 || height > 8640) {
+        return null;
+    }
     return { width, height };
 }
 
@@ -36,24 +40,18 @@ function hasMatchingLiveGrid(config) {
             (entry.config.feedType || projectStore.primaryFeedId()) ===
                 (config.feedType || projectStore.primaryFeedId()) &&
             sameGridFrames(entry.config, config)
-        )
+        ) {
             return true;
+        }
     }
     return false;
 }
 
-function forceCloseGrid() {
-    gridWindows.forEach((entry, win) => {
-        if (win.isDestroyed()) return;
-        win.__forceClose = true;
-        if (win.isFullScreen()) win.setFullScreen(false);
-        win.close();
-    });
-}
-
 function hasGridWindowFor(frameId) {
     for (const [win, entry] of gridWindows) {
-        if (!win.isDestroyed() && entry.frameIds.has(frameId)) return true;
+        if (!win.isDestroyed() && entry.frameIds.has(frameId)) {
+            return true;
+        }
     }
     return false;
 }
@@ -66,14 +64,18 @@ function notifyClosedIfUnused(frameId) {
 
 function notifyGridFramesReady(entry) {
     entry.frameIds.forEach((frameId) => {
-        if (!hasFrameWindowFor(frameId)) notifyFrameStatus(frameId, FRAME_STATUS.READY);
+        if (!hasFrameWindowFor(frameId)) {
+            notifyFrameStatus(frameId, FRAME_STATUS.READY);
+        }
     });
 }
 
 function countGridWindowsOnDisplay(display) {
     let count = 0;
     gridWindows.forEach((entry, win) => {
-        if (!win.isDestroyed() && entry.targetDisplay && entry.targetDisplay.id === display.id) count++;
+        if (!win.isDestroyed() && entry.targetDisplay && entry.targetDisplay.id === display.id) {
+            count++;
+        }
     });
     return count;
 }
@@ -204,7 +206,9 @@ function openGridWindow(config) {
         setTimeout(() => {
             if (gridWindows.has(win) && !win.isDestroyed() && !win.isVisible()) {
                 win.show();
-                if (entry.goFullscreen) win.setFullScreen(true);
+                if (entry.goFullscreen) {
+                    win.setFullScreen(true);
+                }
                 notifyGridFramesReady(entry);
             }
         }, 3000);
@@ -241,7 +245,9 @@ function fitGridWindow(sender, size) {
         const previousFrameIds = entry.frameIds;
         entry.frameIds = new Set(size.frameIds);
         previousFrameIds.forEach((frameId) => {
-            if (!entry.frameIds.has(frameId)) notifyClosedIfUnused(frameId);
+            if (!entry.frameIds.has(frameId)) {
+                notifyClosedIfUnused(frameId);
+            }
         });
     }
 
@@ -250,52 +256,36 @@ function fitGridWindow(sender, size) {
     gridWindow.setContentSize(width, height);
     positionFittedGridWindow(gridWindow, entry);
     gridWindow.show();
-    if (entry.goFullscreen) gridWindow.setFullScreen(true);
+    if (entry.goFullscreen) {
+        gridWindow.setFullScreen(true);
+    }
     return { ok: true };
-}
-
-function isGridOpen() {
-    return getGridWindowCount() > 0;
 }
 
 function getGridWindowCount() {
     let count = 0;
     gridWindows.forEach((_entry, win) => {
-        if (!win.isDestroyed()) count++;
+        if (!win.isDestroyed()) {
+            count++;
+        }
     });
     return count;
-}
-
-function getGridFrameIds() {
-    const ids = new Set();
-    gridWindows.forEach((entry, win) => {
-        if (!win.isDestroyed()) entry.frameIds.forEach((frameId) => ids.add(frameId));
-    });
-    return Array.from(ids);
 }
 
 function getGridConfigs() {
     const configs = [];
     gridWindows.forEach((entry, win) => {
-        if (!win.isDestroyed()) configs.push(entry.config);
+        if (!win.isDestroyed()) {
+            configs.push(entry.config);
+        }
     });
     return configs;
-}
-
-function getLastGridConfig() {
-    const configs = getGridConfigs();
-    return configs.length ? configs[configs.length - 1] : null;
 }
 
 module.exports = {
     openGridWindow,
     fitGridWindow,
-    isGridOpen,
     getGridWindowCount,
-    getGridFrameIds,
     getGridConfigs,
-    getLastGridConfig,
-    hasMatchingLiveGrid,
     hasGridWindowFor,
-    forceCloseGrid,
 };

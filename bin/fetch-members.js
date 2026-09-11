@@ -40,7 +40,9 @@ function fetchMembers(lang) {
 
 function fetchFlag(member) {
     return new Promise((resolve, reject) => {
-        if (!member.flag || !member.flag.thumbnail) return resolve();
+        if (!member.flag || !member.flag.thumbnail) {
+            return resolve();
+        }
         const file = fs.createWriteStream(`${projectDir}/data/flags/${member.code}.png`);
         file.on('finish', resolve);
         file.on('error', reject);
@@ -66,7 +68,9 @@ async function main() {
         const translated = await fetchMembers(lang);
         translated.forEach((member) => {
             const match = members.find((m) => m.code === member.code);
-            if (match) match.name.translations[lang] = member.name.text;
+            if (match) {
+                match.name.translations[lang] = member.name.text;
+            }
         });
     }
 

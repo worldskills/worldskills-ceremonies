@@ -18,9 +18,13 @@ let activeProject = null;
 
 function resolveTemplateDir(dir) {
     const templateDir = templateDirPath(dir);
-    if (fs.existsSync(templateDir)) return templateDir;
+    if (fs.existsSync(templateDir)) {
+        return templateDir;
+    }
     const legacyDir = path.join(dir, 'screens');
-    if (fs.existsSync(legacyDir)) return legacyDir;
+    if (fs.existsSync(legacyDir)) {
+        return legacyDir;
+    }
     return null;
 }
 
@@ -32,7 +36,9 @@ function loadProjectFolder(dir) {
     try {
         const project = JSON.parse(fs.readFileSync(projectFile, 'utf8'));
         const validated = validateProject(project);
-        if (!validated.ok) return { ok: false, code: 'invalidproject', error: validated.error };
+        if (!validated.ok) {
+            return { ok: false, code: 'invalidproject', error: validated.error };
+        }
 
         let orderingWarning = null;
         const orderingFile = orderingFilePath(dir);
@@ -74,7 +80,9 @@ function ensureTemplates(dir, fallbackTemplateDir) {
             message: 'This project has no template/ folder. Copy default templates from the app?',
         })
         .then(function (result) {
-            if (result.response !== 0) return { templateDir: null };
+            if (result.response !== 0) {
+                return { templateDir: null };
+            }
             try {
                 const templateDest = templateDirPath(dir);
                 if (fallbackTemplateDir && fs.existsSync(fallbackTemplateDir)) {
@@ -91,7 +99,9 @@ function ensureTemplates(dir, fallbackTemplateDir) {
 
 function writeProjectFiles(dir, project) {
     const validated = validateProject(project);
-    if (!validated.ok) throw new Error(validated.error);
+    if (!validated.ok) {
+        throw new Error(validated.error);
+    }
     // project.json deliberately retains ordering as the recovery source if ordering.json is corrupt.
     writeJson(projectFilePath(dir), project);
     writeJson(orderingFilePath(dir), extractOrdering(project));
@@ -108,16 +118,23 @@ function extractOrdering(project) {
 }
 
 function copyDefaultTemplate(dest) {
-    if (!fs.existsSync(bundledTemplateDir))
+    if (!fs.existsSync(bundledTemplateDir)) {
         throw new Error('Default template folder (projects/bare-project/template) not found in app directory.');
+    }
+
     fs.cpSync(bundledTemplateDir, dest, { recursive: true });
 }
 
 // Skips anything already present, so re-running on an already-populated project is a no-op.
 function copyDefaultData(dir) {
     const dest = projectDataDir(dir);
-    if (!fs.existsSync(bundledDataDir)) return;
-    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+
+    if (!fs.existsSync(bundledDataDir)) {
+        return;
+    }
+    if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest, { recursive: true });
+    }
 
     ['skills.json', 'members.json'].forEach(function (name) {
         const destFile = path.join(dest, name);
@@ -129,11 +146,14 @@ function copyDefaultData(dir) {
 
     const flagsDest = path.join(dest, 'flags');
     const flagsSrc = path.join(bundledDataDir, 'flags');
+
     if (!fs.existsSync(flagsDest) && fs.existsSync(flagsSrc)) {
         fs.cpSync(flagsSrc, flagsDest, { recursive: true });
     }
+
     const sponsorsDest = path.join(dest, 'sponsors');
     const sponsorsSrc = path.join(bundledDataDir, 'sponsors');
+
     if (!fs.existsSync(sponsorsDest) && fs.existsSync(sponsorsSrc)) {
         fs.cpSync(sponsorsSrc, sponsorsDest, { recursive: true });
     }
@@ -181,10 +201,8 @@ module.exports = {
     primaryFeedId,
     isFeedId,
     loadProjectFolder,
-    resolveTemplateDir,
     ensureTemplates,
     writeProjectFiles,
-    extractOrdering,
     copyDefaultTemplate,
     copyDefaultData,
     setActive,

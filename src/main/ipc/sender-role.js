@@ -1,5 +1,7 @@
 function markWindow(win, role) {
-    if (win && win.webContents) win.webContents.__ceremonatorRole = role;
+    if (win && win.webContents) {
+        win.webContents.__ceremonatorRole = role;
+    }
     return win;
 }
 

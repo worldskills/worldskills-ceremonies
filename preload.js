@@ -8,10 +8,8 @@ const role = roleArg ? roleArg.split('=')[1] : 'output';
 const fullApi = {
     frames: {
         openWindow: (opts) => ipcRenderer.invoke('frames:openWindow', opts),
-        closeWindow: (opts) => ipcRenderer.invoke('frames:closeWindow', opts),
         openLargeWindow: (config) => ipcRenderer.invoke('frames:openLarge', config),
         getPositions: () => ipcRenderer.invoke('frames:getPositions'),
-        openIds: () => ipcRenderer.invoke('frames:openIds'),
     },
     grid: {
         template: () => ipcRenderer.invoke('grid:template'),
@@ -25,9 +23,6 @@ const fullApi = {
             return () => ipcRenderer.removeListener('displays:changed', listener);
         },
     },
-    flags: {
-        list: () => ipcRenderer.invoke('flags:list'),
-    },
     project: {
         recent: () => ipcRenderer.invoke('project:recent'),
         bundled: () => ipcRenderer.invoke('project:bundled'),
@@ -37,7 +32,6 @@ const fullApi = {
         openPath: (opts) => ipcRenderer.invoke('project:openPath', opts),
         current: () => ipcRenderer.invoke('project:current'),
         saveCurrent: (project) => ipcRenderer.invoke('project:saveCurrent', project),
-        saveAs: (project) => ipcRenderer.invoke('project:saveAs', project),
         readTranslations: () => ipcRenderer.invoke('project:readTranslations'),
         writeTranslations: (languages) => ipcRenderer.invoke('project:writeTranslations', languages),
         setDirty: (dirty) => ipcRenderer.send('project:setDirty', !!dirty),

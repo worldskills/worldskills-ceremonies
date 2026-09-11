@@ -9,7 +9,7 @@ const { appRoot, bareProjectDir, bundledTemplateDir } = require('./paths');
 const projectStore = require('./project-store');
 const { resolveUnder } = require('./template-protocol');
 const { sendRemoteAction, sendControlNotice, sendControlDebug } = require('./control-channel');
-const { normalizeRemoteConfig, DEFAULT_REMOTE_PORT, DEFAULT_REMOTE_PIN } = require('./project-contract');
+const { normalizeRemoteConfig } = require('./project-contract');
 
 const MIME = {
     '.html': 'text/html',
@@ -590,6 +590,4 @@ module.exports = {
     getInfo,
     broadcastState,
     completeCommand,
-    DEFAULT_PORT: DEFAULT_REMOTE_PORT,
-    DEFAULT_PIN: DEFAULT_REMOTE_PIN,
 };

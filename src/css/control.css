@@ -427,6 +427,11 @@ control-workspace,
     padding: 12px 16px;
 }
 
+.slide-list-area .list-group-item,
+.queue-frame-card-body .list-group-item {
+    scroll-margin: 8px;
+}
+
 .frame-color-0 {
     --frame-color: #8b5cf6;
 }

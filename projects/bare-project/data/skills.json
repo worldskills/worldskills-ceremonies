@@ -10,11 +10,26 @@
     },
     "sponsors": [
       {
+        "id": 445,
         "name": "BIZIDEAL",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/bizideal.png"
-        }
+          "id": 119524,
+          "thumbnail_hash": "b6f0d9a6-d92c-43bf-b04c-9eccce154212",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb6/wsf0/119524/wsb6f0d9a6-d92c-43bf-b04c-9eccce154212",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119524",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119524.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -29,24 +44,25 @@
     },
     "sponsors": [
       {
-        "id": 331,
-        "name": "DMG MORI",
+        "id": 463,
+        "name": "DMG",
         "url": "",
         "logo": {
-          "id": 63450,
-          "thumbnail_hash": "435c0363-7894-439d-aecd-a3f81d2dcd34",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws43/ws5c/63450/ws435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "id": 119542,
+          "thumbnail_hash": "b301b25b-baa1-4729-baa0-41a3684fc777",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb3/ws01/119542/wsb301b25b-baa1-4729-baa0-41a3684fc777",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63450",
+              "href": "https://api.worldskills.org/images/119542",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/dmg_mori.png"
+          "local": "sponsors/119542.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -62,11 +78,26 @@
     },
     "sponsors": [
       {
+        "id": 484,
         "name": "Jiean Hi-Tech",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/jiean_hi-tech.png"
-        }
+          "id": 119564,
+          "thumbnail_hash": "de41a53d-a7f8-4749-8226-dd5fb4654481",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsde/ws41/119564/wsde41a53d-a7f8-4749-8226-dd5fb4654481",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119564",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119564.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -81,32 +112,48 @@
     },
     "sponsors": [
       {
-        "id": 409,
-        "name": "CAR-O-LINER",
+        "id": 478,
+        "name": "Car-O-Liner",
         "url": "",
         "logo": {
-          "id": 65357,
-          "thumbnail_hash": "b267ed34-24d2-48ae-959b-a6cb1786d87a",
-          "thumbnail": "https://images.worldskillsusercontent.org/wsb2/ws67/65357/wsb267ed34-24d2-48ae-959b-a6cb1786d87a",
+          "id": 119557,
+          "thumbnail_hash": "526fc7bd-e4fa-420e-9c0f-7715f32c58a7",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws52/ws6f/119557/ws526fc7bd-e4fa-420e-9c0f-7715f32c58a7",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/65357",
+              "href": "https://api.worldskills.org/images/119557",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/car-o-liner.png"
+          "local": "sponsors/119557.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       },
       {
+        "id": 482,
         "name": "Saic Motor",
-        "sort": 2,
+        "url": "",
         "logo": {
-          "local": "sponsors/saic_motor.png"
-        }
+          "id": 119562,
+          "thumbnail_hash": "a536ea8f-609d-4e1a-ba44-f88fc01b7de1",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsa5/ws36/119562/wsa536ea8f-609d-4e1a-ba44-f88fc01b7de1",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119562",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119562.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -121,11 +168,26 @@
     },
     "sponsors": [
       {
+        "id": 482,
         "name": "Saic Motor",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/saic_motor.png"
-        }
+          "id": 119562,
+          "thumbnail_hash": "a536ea8f-609d-4e1a-ba44-f88fc01b7de1",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsa5/ws36/119562/wsa536ea8f-609d-4e1a-ba44-f88fc01b7de1",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119562",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119562.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -140,24 +202,24 @@
     },
     "sponsors": [
       {
-        "id": 350,
+        "id": 501,
         "name": "Studica",
         "url": "",
         "logo": {
-          "id": 63469,
-          "thumbnail_hash": "ac1ddb80-cf28-4b50-b247-4f08e2dee95f",
-          "thumbnail": "https://images.worldskillsusercontent.org/wsac/ws1d/63469/wsac1ddb80-cf28-4b50-b247-4f08e2dee95f",
+          "id": 119581,
+          "thumbnail_hash": "7aa498d9-73e6-48fa-8144-24a20dd42dd0",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws7a/wsa4/119581/ws7aa498d9-73e6-48fa-8144-24a20dd42dd0",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63469",
+              "href": "https://api.worldskills.org/images/119581",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/studica.png"
+          "local": "sponsors/119581.png"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -173,11 +235,26 @@
     },
     "sponsors": [
       {
+        "id": 523,
         "name": "HANBAKE",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/hanbake.png"
-        }
+          "id": 119603,
+          "thumbnail_hash": "d7d9c1be-ed76-40b7-97e9-33057b783153",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsd7/wsd9/119603/wsd7d9c1be-ed76-40b7-97e9-33057b783153",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119603",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119603.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -192,11 +269,26 @@
     },
     "sponsors": [
       {
+        "id": 519,
         "name": "REVACL",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/revacl.png"
-        }
+          "id": 119599,
+          "thumbnail_hash": "b3767fa7-c30d-430d-a78a-2df9972ede9b",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb3/ws76/119599/wsb3767fa7-c30d-430d-a78a-2df9972ede9b",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119599",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119599.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -211,11 +303,26 @@
     },
     "sponsors": [
       {
+        "id": 474,
         "name": "Refen",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/refen.png"
-        }
+          "id": 119553,
+          "thumbnail_hash": "1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws51/119553/ws1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119553",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119553.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -230,11 +337,25 @@
     },
     "sponsors": [
       {
+        "id": 476,
         "name": "SBD",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/sbd.png"
-        }
+          "id": 119555,
+          "thumbnail_hash": "b1e2fc9e-57be-4c00-b9a1-20b278b6fbdc",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb1/wse2/119555/wsb1e2fc9e-57be-4c00-b9a1-20b278b6fbdc",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119555",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119555.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -249,24 +370,24 @@
     },
     "sponsors": [
       {
-        "id": 293,
+        "id": 451,
         "name": "SATA",
-        "url": "https://www.sata.com/en-int/",
+        "url": "",
         "logo": {
-          "id": 63275,
-          "thumbnail_hash": "f6d60d0f-a7ac-476b-b2a9-060a3d29fad2",
-          "thumbnail": "https://images.worldskillsusercontent.org/wsf6/wsd6/63275/wsf6d60d0f-a7ac-476b-b2a9-060a3d29fad2",
+          "id": 119530,
+          "thumbnail_hash": "e6e4b02f-3e2d-4373-8cc8-90268cc0f5f7",
+          "thumbnail": "https://images.worldskillsusercontent.org/wse6/wse4/119530/wse6e4b02f-3e2d-4373-8cc8-90268cc0f5f7",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63275",
+              "href": "https://api.worldskills.org/images/119530",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/sata.jpg"
+          "local": "sponsors/119530.png"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -282,11 +403,25 @@
     },
     "sponsors": [
       {
+        "id": 476,
         "name": "SBD",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/sbd.png"
-        }
+          "id": 119555,
+          "thumbnail_hash": "b1e2fc9e-57be-4c00-b9a1-20b278b6fbdc",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb1/wse2/119555/wsb1e2fc9e-57be-4c00-b9a1-20b278b6fbdc",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119555",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119555.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -301,11 +436,26 @@
     },
     "sponsors": [
       {
+        "id": 536,
         "name": "MT",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/mt.png"
-        }
+          "id": 119619,
+          "thumbnail_hash": "ca4fd9db-c48f-4a80-89fb-00702b353c8f",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsca/ws4f/119619/wsca4fd9db-c48f-4a80-89fb-00702b353c8f",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119619",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119619.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -320,24 +470,25 @@
     },
     "sponsors": [
       {
-        "id": 255,
-        "name": "AWS (Amazon Web Services)",
-        "url": "https://aws.amazon.com/",
+        "id": 472,
+        "name": "Amazon",
+        "url": "",
         "logo": {
-          "id": 63031,
-          "thumbnail_hash": "10347e4b-929f-4c56-85cd-0cbca656ef52",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws10/ws34/63031/ws10347e4b-929f-4c56-85cd-0cbca656ef52",
+          "id": 119551,
+          "thumbnail_hash": "c8530c39-52d0-4dbf-b262-4f000b69dee6",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsc8/ws53/119551/wsc8530c39-52d0-4dbf-b262-4f000b69dee6",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63031",
+              "href": "https://api.worldskills.org/images/119551",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/aws_(amazon_web_services).png"
+          "local": "sponsors/119551.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -353,24 +504,25 @@
     },
     "sponsors": [
       {
-        "id": 331,
-        "name": "DMG MORI",
+        "id": 463,
+        "name": "DMG",
         "url": "",
         "logo": {
-          "id": 63450,
-          "thumbnail_hash": "435c0363-7894-439d-aecd-a3f81d2dcd34",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws43/ws5c/63450/ws435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "id": 119542,
+          "thumbnail_hash": "b301b25b-baa1-4729-baa0-41a3684fc777",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb3/ws01/119542/wsb301b25b-baa1-4729-baa0-41a3684fc777",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63450",
+              "href": "https://api.worldskills.org/images/119542",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/dmg_mori.png"
+          "local": "sponsors/119542.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -386,24 +538,25 @@
     },
     "sponsors": [
       {
-        "id": 331,
-        "name": "DMG MORI",
+        "id": 463,
+        "name": "DMG",
         "url": "",
         "logo": {
-          "id": 63450,
-          "thumbnail_hash": "435c0363-7894-439d-aecd-a3f81d2dcd34",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws43/ws5c/63450/ws435c0363-7894-439d-aecd-a3f81d2dcd34",
+          "id": 119542,
+          "thumbnail_hash": "b301b25b-baa1-4729-baa0-41a3684fc777",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb3/ws01/119542/wsb301b25b-baa1-4729-baa0-41a3684fc777",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63450",
+              "href": "https://api.worldskills.org/images/119542",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/dmg_mori.png"
+          "local": "sponsors/119542.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -419,11 +572,26 @@
     },
     "sponsors": [
       {
+        "id": 474,
         "name": "Refen",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/refen.png"
-        }
+          "id": 119553,
+          "thumbnail_hash": "1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws51/119553/ws1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119553",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119553.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -438,11 +606,25 @@
     },
     "sponsors": [
       {
+        "id": 526,
         "name": "WISTONE",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/wistone.png"
-        }
+          "id": 119606,
+          "thumbnail_hash": "6143baaa-3edb-4621-8951-82c9b593eb60",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws61/ws43/119606/ws6143baaa-3edb-4621-8951-82c9b593eb60",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119606",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119606.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -457,31 +639,47 @@
     },
     "sponsors": [
       {
+        "id": 445,
         "name": "BIZIDEAL",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/bizideal.png"
-        }
-      },
-      {
-        "id": 256,
-        "name": "Root Me",
-        "url": "https://pro.root-me.org/?page=sommaire&lang=en",
-        "logo": {
-          "id": 56686,
-          "thumbnail_hash": "3bb7348f-a542-4b35-9373-81c41ed87774",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws3b/wsb7/56686/ws3bb7348f-a542-4b35-9373-81c41ed87774",
+          "id": 119524,
+          "thumbnail_hash": "b6f0d9a6-d92c-43bf-b04c-9eccce154212",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb6/wsf0/119524/wsb6f0d9a6-d92c-43bf-b04c-9eccce154212",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/56686",
+              "href": "https://api.worldskills.org/images/119524",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/root_me.png"
+          "local": "sponsors/119524.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 2,
+        "sort": 0,
+        "links": []
+      },
+      {
+        "id": 563,
+        "name": "RootMe",
+        "url": "",
+        "logo": {
+          "id": 119646,
+          "thumbnail_hash": "0ccf61e4-4c92-41cb-9a61-66e2b8f385d1",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws0c/wscf/119646/ws0ccf61e4-4c92-41cb-9a61-66e2b8f385d1",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119646",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119646.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
         "links": []
       }
     ]
@@ -497,24 +695,25 @@
     },
     "sponsors": [
       {
-        "id": 348,
+        "id": 462,
         "name": "Shining 3D",
         "url": "",
         "logo": {
-          "id": 63467,
-          "thumbnail_hash": "19828385-c0a8-4a58-b3ea-dc7e2e837d39",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws82/63467/ws19828385-c0a8-4a58-b3ea-dc7e2e837d39",
+          "id": 119541,
+          "thumbnail_hash": "bf0dbf24-baa9-4f7f-aa2c-fcc17100bf57",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsbf/ws0d/119541/wsbf0dbf24-baa9-4f7f-aa2c-fcc17100bf57",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63467",
+              "href": "https://api.worldskills.org/images/119541",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/shining_3d.png"
+          "local": "sponsors/119541.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -530,11 +729,26 @@
     },
     "sponsors": [
       {
+        "id": 571,
         "name": "Sino Technology",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/sino_technology.png"
-        }
+          "id": 119654,
+          "thumbnail_hash": "ad877db7-ee04-4264-88a7-1b2414daf86b",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsad/ws87/119654/wsad877db7-ee04-4264-88a7-1b2414daf86b",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119654",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119654.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -549,11 +763,26 @@
     },
     "sponsors": [
       {
+        "id": 546,
         "name": "BeiCe",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/beice.png"
-        }
+          "id": 119629,
+          "thumbnail_hash": "a1ccbcf6-756f-427c-8c9c-fc2492e73b41",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsa1/wscc/119629/wsa1ccbcf6-756f-427c-8c9c-fc2492e73b41",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119629",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119629.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -568,11 +797,26 @@
     },
     "sponsors": [
       {
+        "id": 494,
         "name": "Tianhuang",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/tianhuang.png"
-        }
+          "id": 119574,
+          "thumbnail_hash": "dc100e15-50dc-434e-948f-a99fecec68ae",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsdc/ws10/119574/wsdc100e15-50dc-434e-948f-a99fecec68ae",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119574",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119574.png",
+          "backgroundColor": "#13244b"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -587,11 +831,26 @@
     },
     "sponsors": [
       {
+        "id": 490,
         "name": "Sunso Intelligence",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/sunso_intelligence.png"
-        }
+          "id": 119570,
+          "thumbnail_hash": "386ee4cd-2728-43cc-958b-70d4fe5419e1",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws38/ws6e/119570/ws386ee4cd-2728-43cc-958b-70d4fe5419e1",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119570",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119570.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -606,11 +865,26 @@
     },
     "sponsors": [
       {
+        "id": 522,
         "name": "Xibairun",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/xibairun.png"
-        }
+          "id": 119602,
+          "thumbnail_hash": "66cedd48-f875-43ce-97ea-fa6f15e7b9da",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws66/wsce/119602/ws66cedd48-f875-43ce-97ea-fa6f15e7b9da",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119602",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119602.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -625,11 +899,26 @@
     },
     "sponsors": [
       {
+        "id": 509,
         "name": "HOTTS",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/hotts.png"
-        }
+          "id": 119589,
+          "thumbnail_hash": "0b21e159-a2a7-4b1d-86a9-461bee97271e",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws0b/ws21/119589/ws0b21e159-a2a7-4b1d-86a9-461bee97271e",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119589",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119589.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -644,18 +933,48 @@
     },
     "sponsors": [
       {
+        "id": 539,
         "name": "KONICA MINOLTA",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/konica_minolta.png"
-        }
+          "id": 119622,
+          "thumbnail_hash": "cbfe0354-7769-430b-8e4c-97106761a65a",
+          "thumbnail": "https://images.worldskillsusercontent.org/wscb/wsfe/119622/wscbfe0354-7769-430b-8e4c-97106761a65a",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119622",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119622.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       },
       {
+        "id": 540,
         "name": "Zhongyou Intelligent",
-        "sort": 2,
+        "url": "",
         "logo": {
-          "local": "sponsors/zhongyou_intelligent.png"
-        }
+          "id": 119623,
+          "thumbnail_hash": "098f44b7-976f-4917-98cf-6778acd368a8",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws09/ws8f/119623/ws098f44b7-976f-4917-98cf-6778acd368a8",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119623",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119623.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -670,31 +989,47 @@
     },
     "sponsors": [
       {
+        "id": 513,
         "name": "Miu Elegance",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/miu_elegance.png"
-        }
-      },
-      {
-        "id": 373,
-        "name": "Raphael Perrier",
-        "url": "https://raphaelperrier.com/",
-        "logo": {
-          "id": 63526,
-          "thumbnail_hash": "81c75277-8d17-4d86-bb66-439985c743de",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws81/wsc7/63526/ws81c75277-8d17-4d86-bb66-439985c743de",
+          "id": 119593,
+          "thumbnail_hash": "9421acbc-21e5-4151-bb9e-2035240054c5",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws94/ws21/119593/ws9421acbc-21e5-4151-bb9e-2035240054c5",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63526",
+              "href": "https://api.worldskills.org/images/119593",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/raphael_perrier.png"
+          "local": "sponsors/119593.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 2,
+        "sort": 0,
+        "links": []
+      },
+      {
+        "id": 514,
+        "name": "Raphael Perrier",
+        "url": "",
+        "logo": {
+          "id": 119594,
+          "thumbnail_hash": "70fe1aac-c4e4-4500-b970-896f142984b0",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws70/wsfe/119594/ws70fe1aac-c4e4-4500-b970-896f142984b0",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119594",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119594.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
         "links": []
       }
     ]
@@ -710,24 +1045,25 @@
     },
     "sponsors": [
       {
-        "id": 265,
+        "id": 460,
         "name": "VCOM",
-        "url": "https://www.vcomsmart.com/",
+        "url": "",
         "logo": {
-          "id": 57678,
-          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "id": 119539,
+          "thumbnail_hash": "d13a30f3-b43b-4637-b91c-32b3b5c3a274",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsd1/ws3a/119539/wsd13a30f3-b43b-4637-b91c-32b3b5c3a274",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/57678",
+              "href": "https://api.worldskills.org/images/119539",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/vcom.png"
+          "local": "sponsors/119539.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -743,11 +1079,26 @@
     },
     "sponsors": [
       {
+        "id": 551,
         "name": "Liugong",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/liugong.png"
-        }
+          "id": 119634,
+          "thumbnail_hash": "b2b2c745-c917-4d01-8ffd-fe1bc955dda5",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb2/wsb2/119634/wsb2b2c745-c917-4d01-8ffd-fe1bc955dda5",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119634",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119634.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -762,11 +1113,26 @@
     },
     "sponsors": [
       {
+        "id": 567,
         "name": "Shiji Information",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/shiji_information.png"
-        }
+          "id": 119650,
+          "thumbnail_hash": "4ef9caca-f87a-4c1d-8ed5-6306b4e0e743",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws4e/wsf9/119650/ws4ef9caca-f87a-4c1d-8ed5-6306b4e0e743",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119650",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119650.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -781,24 +1147,25 @@
     },
     "sponsors": [
       {
-        "id": 265,
+        "id": 460,
         "name": "VCOM",
-        "url": "https://www.vcomsmart.com/",
+        "url": "",
         "logo": {
-          "id": 57678,
-          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "id": 119539,
+          "thumbnail_hash": "d13a30f3-b43b-4637-b91c-32b3b5c3a274",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsd1/ws3a/119539/wsd13a30f3-b43b-4637-b91c-32b3b5c3a274",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/57678",
+              "href": "https://api.worldskills.org/images/119539",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/vcom.png"
+          "local": "sponsors/119539.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -814,24 +1181,25 @@
     },
     "sponsors": [
       {
-        "id": 319,
-        "name": "SIEMENS",
-        "url": "https://www.siemens.com/global/en.html",
+        "id": 452,
+        "name": "Siemens",
+        "url": "",
         "logo": {
-          "id": 63409,
-          "thumbnail_hash": "57dc1eaf-addd-49ce-9a94-751c73f49181",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws57/wsdc/63409/ws57dc1eaf-addd-49ce-9a94-751c73f49181",
+          "id": 119531,
+          "thumbnail_hash": "bb18e5aa-e44f-49a5-a0dd-38423fb9a295",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsbb/ws18/119531/wsbb18e5aa-e44f-49a5-a0dd-38423fb9a295",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63409",
+              "href": "https://api.worldskills.org/images/119531",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/siemens.png"
+          "local": "sponsors/119531.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -847,24 +1215,24 @@
     },
     "sponsors": [
       {
-        "id": 339,
-        "name": "INTAMSYS",
+        "id": 461,
+        "name": "Intamsys",
         "url": "",
         "logo": {
-          "id": 63458,
-          "thumbnail_hash": "9055b80d-fcd1-4abf-b798-0674562d8bd6",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws90/ws55/63458/ws9055b80d-fcd1-4abf-b798-0674562d8bd6",
+          "id": 119540,
+          "thumbnail_hash": "4403e1b3-fd19-454a-9050-481bf8558e18",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws44/ws03/119540/ws4403e1b3-fd19-454a-9050-481bf8558e18",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63458",
+              "href": "https://api.worldskills.org/images/119540",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/intamsys.jpg"
+          "local": "sponsors/119540.png"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -880,11 +1248,25 @@
     },
     "sponsors": [
       {
+        "id": 453,
         "name": "VASY",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/vasy.png"
-        }
+          "id": 119532,
+          "thumbnail_hash": "d87883d6-a3aa-4126-b9d5-84713dc6e749",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsd8/ws78/119532/wsd87883d6-a3aa-4126-b9d5-84713dc6e749",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119532",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119532.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -899,24 +1281,25 @@
     },
     "sponsors": [
       {
-        "id": 335,
+        "id": 446,
         "name": "Festo",
         "url": "",
         "logo": {
-          "id": 63454,
-          "thumbnail_hash": "42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws42/wsc0/63454/ws42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "id": 119525,
+          "thumbnail_hash": "bd972aa6-8d5c-4dff-aae4-7e91e75d2fec",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsbd/ws97/119525/wsbd972aa6-8d5c-4dff-aae4-7e91e75d2fec",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63454",
+              "href": "https://api.worldskills.org/images/119525",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/festo.png"
+          "local": "sponsors/119525.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -932,24 +1315,25 @@
     },
     "sponsors": [
       {
-        "id": 265,
+        "id": 460,
         "name": "VCOM",
-        "url": "https://www.vcomsmart.com/",
+        "url": "",
         "logo": {
-          "id": 57678,
-          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "id": 119539,
+          "thumbnail_hash": "d13a30f3-b43b-4637-b91c-32b3b5c3a274",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsd1/ws3a/119539/wsd13a30f3-b43b-4637-b91c-32b3b5c3a274",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/57678",
+              "href": "https://api.worldskills.org/images/119539",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/vcom.png"
+          "local": "sponsors/119539.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -965,11 +1349,26 @@
     },
     "sponsors": [
       {
+        "id": 445,
         "name": "BIZIDEAL",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/bizideal.png"
-        }
+          "id": 119524,
+          "thumbnail_hash": "b6f0d9a6-d92c-43bf-b04c-9eccce154212",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb6/wsf0/119524/wsb6f0d9a6-d92c-43bf-b04c-9eccce154212",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119524",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119524.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -984,11 +1383,25 @@
     },
     "sponsors": [
       {
+        "id": 505,
         "name": "CHOW TAI FOOK",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/chow_tai_fook.png"
-        }
+          "id": 119585,
+          "thumbnail_hash": "03b25842-09ef-4329-8ae2-06ef585e3df1",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws03/wsb2/119585/ws03b25842-09ef-4329-8ae2-06ef585e3df1",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119585",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119585.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1003,11 +1416,25 @@
     },
     "sponsors": [
       {
+        "id": 476,
         "name": "SBD",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/sbd.png"
-        }
+          "id": 119555,
+          "thumbnail_hash": "b1e2fc9e-57be-4c00-b9a1-20b278b6fbdc",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb1/wse2/119555/wsb1e2fc9e-57be-4c00-b9a1-20b278b6fbdc",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119555",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119555.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1022,11 +1449,26 @@
     },
     "sponsors": [
       {
+        "id": 474,
         "name": "Refen",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/refen.png"
-        }
+          "id": 119553,
+          "thumbnail_hash": "1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws51/119553/ws1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119553",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119553.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1041,11 +1483,26 @@
     },
     "sponsors": [
       {
+        "id": 555,
         "name": "Zhongnuo",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/zhongnuo.png"
-        }
+          "id": 119638,
+          "thumbnail_hash": "0f0b6c0d-93b8-40b7-8be8-14d178fc8b37",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws0f/ws0b/119638/ws0f0b6c0d-93b8-40b7-8be8-14d178fc8b37",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119638",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119638.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1060,24 +1517,25 @@
     },
     "sponsors": [
       {
-        "id": 348,
+        "id": 462,
         "name": "Shining 3D",
         "url": "",
         "logo": {
-          "id": 63467,
-          "thumbnail_hash": "19828385-c0a8-4a58-b3ea-dc7e2e837d39",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws82/63467/ws19828385-c0a8-4a58-b3ea-dc7e2e837d39",
+          "id": 119541,
+          "thumbnail_hash": "bf0dbf24-baa9-4f7f-aa2c-fcc17100bf57",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsbf/ws0d/119541/wsbf0dbf24-baa9-4f7f-aa2c-fcc17100bf57",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63467",
+              "href": "https://api.worldskills.org/images/119541",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/shining_3d.png"
+          "local": "sponsors/119541.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1093,24 +1551,25 @@
     },
     "sponsors": [
       {
-        "id": 335,
+        "id": 446,
         "name": "Festo",
         "url": "",
         "logo": {
-          "id": 63454,
-          "thumbnail_hash": "42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws42/wsc0/63454/ws42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "id": 119525,
+          "thumbnail_hash": "bd972aa6-8d5c-4dff-aae4-7e91e75d2fec",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsbd/ws97/119525/wsbd972aa6-8d5c-4dff-aae4-7e91e75d2fec",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63454",
+              "href": "https://api.worldskills.org/images/119525",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/festo.png"
+          "local": "sponsors/119525.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1126,24 +1585,25 @@
     },
     "sponsors": [
       {
-        "id": 257,
-        "name": "ZHONGHUI",
-        "url": "https://www.zhonghui.vip/",
+        "id": 470,
+        "name": "Zhonghui",
+        "url": "",
         "logo": {
-          "id": 66061,
-          "thumbnail_hash": "47a48334-5779-408c-9698-2f5304a38905",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws47/wsa4/66061/ws47a48334-5779-408c-9698-2f5304a38905",
+          "id": 119549,
+          "thumbnail_hash": "0fb06f81-dc88-41f8-922b-95b7e1e2a209",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws0f/wsb0/119549/ws0fb06f81-dc88-41f8-922b-95b7e1e2a209",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/66061",
+              "href": "https://api.worldskills.org/images/119549",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/zhonghui.png"
+          "local": "sponsors/119549.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1159,24 +1619,25 @@
     },
     "sponsors": [
       {
-        "id": 265,
+        "id": 460,
         "name": "VCOM",
-        "url": "https://www.vcomsmart.com/",
+        "url": "",
         "logo": {
-          "id": 57678,
-          "thumbnail_hash": "87582c39-5367-44e5-8e79-0d951ad2cf8a",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws87/ws58/57678/ws87582c39-5367-44e5-8e79-0d951ad2cf8a",
+          "id": 119539,
+          "thumbnail_hash": "d13a30f3-b43b-4637-b91c-32b3b5c3a274",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsd1/ws3a/119539/wsd13a30f3-b43b-4637-b91c-32b3b5c3a274",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/57678",
+              "href": "https://api.worldskills.org/images/119539",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/vcom.png"
+          "local": "sponsors/119539.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1192,11 +1653,26 @@
     },
     "sponsors": [
       {
+        "id": 499,
         "name": "Nippon Paint",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/nippon_paint.png"
-        }
+          "id": 119579,
+          "thumbnail_hash": "e33a45a5-8511-4722-bdc7-11b9a1b9687e",
+          "thumbnail": "https://images.worldskillsusercontent.org/wse3/ws3a/119579/wse33a45a5-8511-4722-bdc7-11b9a1b9687e",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119579",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119579.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1211,11 +1687,25 @@
     },
     "sponsors": [
       {
+        "id": 526,
         "name": "WISTONE",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/wistone.png"
-        }
+          "id": 119606,
+          "thumbnail_hash": "6143baaa-3edb-4621-8951-82c9b593eb60",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws61/ws43/119606/ws6143baaa-3edb-4621-8951-82c9b593eb60",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119606",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119606.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1230,11 +1720,26 @@
     },
     "sponsors": [
       {
+        "id": 474,
         "name": "Refen",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/refen.png"
-        }
+          "id": 119553,
+          "thumbnail_hash": "1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws51/119553/ws1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119553",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119553.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1249,32 +1754,47 @@
     },
     "sponsors": [
       {
-        "id": 239,
-        "name": "Grohe",
-        "url": "https://www.grohe.fr/fr_fr/",
+        "id": 488,
+        "name": "Rothenberger",
+        "url": "",
         "logo": {
-          "id": 54120,
-          "thumbnail_hash": "22aa92be-3190-44d0-ba06-de0a9877efcc",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws22/wsaa/54120/ws22aa92be-3190-44d0-ba06-de0a9877efcc",
+          "id": 119568,
+          "thumbnail_hash": "2fc98ce7-4c52-4598-8d7e-862c1f66edc0",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws2f/wsc9/119568/ws2fc98ce7-4c52-4598-8d7e-862c1f66edc0",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/54120",
+              "href": "https://api.worldskills.org/images/119568",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/grohe.png"
+          "local": "sponsors/119568.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       },
       {
-        "name": "Rothenberger",
-        "sort": 2,
+        "id": 486,
+        "name": "Grohe",
+        "url": "",
         "logo": {
-          "local": "sponsors/rothenberger.png"
-        }
+          "id": 119566,
+          "thumbnail_hash": "bccdc645-2afa-48ca-8f16-e34af12585ae",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsbc/wscd/119566/wsbccdc645-2afa-48ca-8f16-e34af12585ae",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119566",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119566.png"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1289,11 +1809,26 @@
     },
     "sponsors": [
       {
+        "id": 484,
         "name": "Jiean Hi-Tech",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/jiean_hi-tech.png"
-        }
+          "id": 119564,
+          "thumbnail_hash": "de41a53d-a7f8-4749-8226-dd5fb4654481",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsde/ws41/119564/wsde41a53d-a7f8-4749-8226-dd5fb4654481",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119564",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119564.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1308,11 +1843,26 @@
     },
     "sponsors": [
       {
+        "id": 538,
         "name": "Xingke",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/xingke.png"
-        }
+          "id": 119621,
+          "thumbnail_hash": "4dd49d16-e34e-4def-ad86-3e42972dd9d9",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws4d/wsd4/119621/ws4dd49d16-e34e-4def-ad86-3e42972dd9d9",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119621",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119621.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1327,11 +1877,26 @@
     },
     "sponsors": [
       {
+        "id": 496,
         "name": "WEI CHUANG JING",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/wei_chuang_jing.png"
-        }
+          "id": 119576,
+          "thumbnail_hash": "e938ba69-cbba-4b58-8ab8-90547d1c54be",
+          "thumbnail": "https://images.worldskillsusercontent.org/wse9/ws38/119576/wse938ba69-cbba-4b58-8ab8-90547d1c54be",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119576",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119576.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1346,11 +1911,26 @@
     },
     "sponsors": [
       {
+        "id": 525,
         "name": "South Union",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/south_union.png"
-        }
+          "id": 119605,
+          "thumbnail_hash": "87c90324-e8fe-456c-8e92-fbbc77ec0a1e",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws87/wsc9/119605/ws87c90324-e8fe-456c-8e92-fbbc77ec0a1e",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119605",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119605.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1365,24 +1945,25 @@
     },
     "sponsors": [
       {
-        "id": 260,
+        "id": 471,
         "name": "Neusoft",
-        "url": "https://www.neuedu.com/?lang=en",
+        "url": "",
         "logo": {
-          "id": 56690,
-          "thumbnail_hash": "b04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
-          "thumbnail": "https://images.worldskillsusercontent.org/wsb0/ws4d/56690/wsb04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "id": 119550,
+          "thumbnail_hash": "b915b3a7-671f-4b98-a01a-8957a9670013",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb9/ws15/119550/wsb915b3a7-671f-4b98-a01a-8957a9670013",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/56690",
+              "href": "https://api.worldskills.org/images/119550",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/neusoft.png"
+          "local": "sponsors/119550.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1398,24 +1979,25 @@
     },
     "sponsors": [
       {
-        "id": 334,
+        "id": 574,
         "name": "Fanuc",
         "url": "",
         "logo": {
-          "id": 63453,
-          "thumbnail_hash": "114bce05-1d5c-4f4c-a16e-42ac53db93cf",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws11/ws4b/63453/ws114bce05-1d5c-4f4c-a16e-42ac53db93cf",
+          "id": 119657,
+          "thumbnail_hash": "3b174aca-bc00-4cdc-ba44-43e8caefae2d",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws3b/ws17/119657/ws3b174aca-bc00-4cdc-ba44-43e8caefae2d",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63453",
+              "href": "https://api.worldskills.org/images/119657",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/fanuc.png"
+          "local": "sponsors/119657.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1431,24 +2013,25 @@
     },
     "sponsors": [
       {
-        "id": 260,
+        "id": 471,
         "name": "Neusoft",
-        "url": "https://www.neuedu.com/?lang=en",
+        "url": "",
         "logo": {
-          "id": 56690,
-          "thumbnail_hash": "b04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
-          "thumbnail": "https://images.worldskillsusercontent.org/wsb0/ws4d/56690/wsb04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "id": 119550,
+          "thumbnail_hash": "b915b3a7-671f-4b98-a01a-8957a9670013",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb9/ws15/119550/wsb915b3a7-671f-4b98-a01a-8957a9670013",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/56690",
+              "href": "https://api.worldskills.org/images/119550",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/neusoft.png"
+          "local": "sponsors/119550.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1464,24 +2047,25 @@
     },
     "sponsors": [
       {
-        "id": 260,
+        "id": 471,
         "name": "Neusoft",
-        "url": "https://www.neuedu.com/?lang=en",
+        "url": "",
         "logo": {
-          "id": 56690,
-          "thumbnail_hash": "b04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
-          "thumbnail": "https://images.worldskillsusercontent.org/wsb0/ws4d/56690/wsb04d3486-bb7c-4ee7-bbf5-4bfa5410696c",
+          "id": 119550,
+          "thumbnail_hash": "b915b3a7-671f-4b98-a01a-8957a9670013",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsb9/ws15/119550/wsb915b3a7-671f-4b98-a01a-8957a9670013",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/56690",
+              "href": "https://api.worldskills.org/images/119550",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/neusoft.png"
+          "local": "sponsors/119550.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1497,24 +2081,24 @@
     },
     "sponsors": [
       {
-        "id": 350,
+        "id": 501,
         "name": "Studica",
         "url": "",
         "logo": {
-          "id": 63469,
-          "thumbnail_hash": "ac1ddb80-cf28-4b50-b247-4f08e2dee95f",
-          "thumbnail": "https://images.worldskillsusercontent.org/wsac/ws1d/63469/wsac1ddb80-cf28-4b50-b247-4f08e2dee95f",
+          "id": 119581,
+          "thumbnail_hash": "7aa498d9-73e6-48fa-8144-24a20dd42dd0",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws7a/wsa4/119581/ws7aa498d9-73e6-48fa-8144-24a20dd42dd0",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63469",
+              "href": "https://api.worldskills.org/images/119581",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/studica.png"
+          "local": "sponsors/119581.png"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1530,11 +2114,26 @@
     },
     "sponsors": [
       {
+        "id": 509,
         "name": "HOTTS",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/hotts.png"
-        }
+          "id": 119589,
+          "thumbnail_hash": "0b21e159-a2a7-4b1d-86a9-461bee97271e",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws0b/ws21/119589/ws0b21e159-a2a7-4b1d-86a9-461bee97271e",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119589",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119589.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1549,11 +2148,26 @@
     },
     "sponsors": [
       {
+        "id": 474,
         "name": "Refen",
-        "sort": 1,
+        "url": "",
         "logo": {
-          "local": "sponsors/refen.png"
-        }
+          "id": 119553,
+          "thumbnail_hash": "1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws19/ws51/119553/ws1951d325-2742-4ce9-9a2c-44011b4e794d",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.worldskills.org/images/119553",
+              "content_type": null,
+              "description": null
+            }
+          ],
+          "local": "sponsors/119553.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },
@@ -1568,24 +2182,25 @@
     },
     "sponsors": [
       {
-        "id": 335,
+        "id": 446,
         "name": "Festo",
         "url": "",
         "logo": {
-          "id": 63454,
-          "thumbnail_hash": "42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws42/wsc0/63454/ws42c0ac7a-56b9-43e5-a8e5-b6418c06517e",
+          "id": 119525,
+          "thumbnail_hash": "bd972aa6-8d5c-4dff-aae4-7e91e75d2fec",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsbd/ws97/119525/wsbd972aa6-8d5c-4dff-aae4-7e91e75d2fec",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63454",
+              "href": "https://api.worldskills.org/images/119525",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/festo.png"
+          "local": "sponsors/119525.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1601,24 +2216,25 @@
     },
     "sponsors": [
       {
-        "id": 257,
-        "name": "ZHONGHUI",
-        "url": "https://www.zhonghui.vip/",
+        "id": 470,
+        "name": "Zhonghui",
+        "url": "",
         "logo": {
-          "id": 66061,
-          "thumbnail_hash": "47a48334-5779-408c-9698-2f5304a38905",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws47/wsa4/66061/ws47a48334-5779-408c-9698-2f5304a38905",
+          "id": 119549,
+          "thumbnail_hash": "0fb06f81-dc88-41f8-922b-95b7e1e2a209",
+          "thumbnail": "https://images.worldskillsusercontent.org/ws0f/wsb0/119549/ws0fb06f81-dc88-41f8-922b-95b7e1e2a209",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/66061",
+              "href": "https://api.worldskills.org/images/119549",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/zhonghui.png"
+          "local": "sponsors/119549.png",
+          "backgroundColor": "#ffffff"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]
@@ -1634,24 +2250,24 @@
     },
     "sponsors": [
       {
-        "id": 242,
-        "name": "Lincoln",
-        "url": "https://www.lincolnelectric.com/en",
+        "id": 449,
+        "name": "Lincoln Electric",
+        "url": "",
         "logo": {
-          "id": 63898,
-          "thumbnail_hash": "1b5b3776-cca8-4536-bafb-e30b7b9072f1",
-          "thumbnail": "https://images.worldskillsusercontent.org/ws1b/ws5b/63898/ws1b5b3776-cca8-4536-bafb-e30b7b9072f1",
+          "id": 119528,
+          "thumbnail_hash": "ad9de71a-1a30-43e5-9664-9474bfa02c13",
+          "thumbnail": "https://images.worldskillsusercontent.org/wsad/ws9d/119528/wsad9de71a-1a30-43e5-9664-9474bfa02c13",
           "links": [
             {
               "rel": "self",
-              "href": "https://api.worldskills.org/images/63898",
+              "href": "https://api.worldskills.org/images/119528",
               "content_type": null,
               "description": null
             }
           ],
-          "local": "sponsors/lincoln.png"
+          "local": "sponsors/119528.png"
         },
-        "sort": 1,
+        "sort": 0,
         "links": []
       }
     ]

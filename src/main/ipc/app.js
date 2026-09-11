@@ -13,14 +13,20 @@ function registerAppIpc() {
 
     ipcMain.handle('app:reloadScreen', (_event, opts) => {
         const frameId = opts && opts.frameId;
-        if (!frameId) return { ok: false };
+        if (!frameId) {
+            return { ok: false };
+        }
         return frameWindows.reloadFrameWindow(frameId);
     });
 
     ipcMain.on('app:debug', (event, data) => {
-        if (!hasRole(event, ['output']) || !data) return;
+        if (!hasRole(event, ['output']) || !data) {
+            return;
+        }
         const allowed = ['video-failure', 'load-failure'];
-        if (allowed.indexOf(data.type) < 0) return;
+        if (allowed.indexOf(data.type) < 0) {
+            return;
+        }
         sendControlDebug(data.type, String(data.message || '').slice(0, 500));
     });
 }

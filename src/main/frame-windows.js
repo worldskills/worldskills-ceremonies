@@ -40,9 +40,13 @@ function countFrameWindows(frameId) {
         preview = 0;
     const feeds = {};
     frameWindowOpts.forEach((opts, key) => {
-        if (parseFrameWindowKey(key).frameId !== frameId) return;
+        if (parseFrameWindowKey(key).frameId !== frameId) {
+            return;
+        }
         const feedType = (opts && opts.feedType) || primaryFeedId();
-        if (!feeds[feedType]) feeds[feedType] = { live: 0, preview: 0, total: 0 };
+        if (!feeds[feedType]) {
+            feeds[feedType] = { live: 0, preview: 0, total: 0 };
+        }
         if (opts && opts.preview) {
             preview++;
             feeds[feedType].preview++;
@@ -156,8 +160,12 @@ function createFrameBrowserWindow(winBounds, req) {
 }
 
 function pinLiveWindowWhileFullscreen(win, req) {
-    if (req.isPreview) return;
-    if (req.goFullscreenRequested) win.setAlwaysOnTop(true);
+    if (req.isPreview) {
+        return;
+    }
+    if (req.goFullscreenRequested) {
+        win.setAlwaysOnTop(true);
+    }
     win.on('enter-full-screen', () => win.setAlwaysOnTop(true));
     win.on('leave-full-screen', () => win.setAlwaysOnTop(false));
 }
@@ -165,7 +173,9 @@ function pinLiveWindowWhileFullscreen(win, req) {
 function showWhenPainted(win, goFullscreen) {
     win.once('ready-to-show', () => {
         win.show();
-        if (goFullscreen) win.setFullScreen(true);
+        if (goFullscreen) {
+            win.setFullScreen(true);
+        }
     });
 }
 
@@ -248,9 +258,13 @@ function guardLiveClose(win, req, boundsState) {
 // true there, so it never re-triggers this cascade.
 function closePreviewWindowsFor(frameId, feedType) {
     frameWindows.forEach((win, key) => {
-        if (!matchesFrameKey(key, frameId)) return;
+        if (!matchesFrameKey(key, frameId)) {
+            return;
+        }
         const opts = frameWindowOpts.get(key);
-        if (opts && opts.preview && (opts.feedType || primaryFeedId()) === feedType && !win.isDestroyed()) win.close();
+        if (opts && opts.preview && (opts.feedType || primaryFeedId()) === feedType && !win.isDestroyed()) {
+            win.close();
+        }
     });
 }
 
@@ -312,32 +326,19 @@ function openFrameWindow(frameId, opts) {
     return win;
 }
 
-// Matches every window open for this frame (any number of Live/Preview duplicates, plus its
-// :kv/:state halves), so closing a frame closes all of its live output, not just one window.
-function closeFrameWindow(frameId) {
-    frameWindows.forEach((win, key) => {
-        if (!matchesFrameKey(key, frameId)) return;
-        if (!win.isDestroyed()) {
-            // Operator already confirmed in the control panel; skip the close handler's own dialog.
-            win.__forceClose = true;
-            // macOS: a frameless fullscreen window can fail to close; leave fullscreen first so close() takes effect.
-            if (win.isFullScreen()) win.setFullScreen(false);
-            win.close();
-        }
-        frameWindows.delete(key);
-        frameWindowOpts.delete(key);
-    });
-}
-
 // Matches every window open for this frame — Split frames are keyed 'a:kv'/'a:state', never bare 'a', so an exact match would silently no-op.
 function reloadFrameWindow(frameId) {
     let reloadedCount = 0;
     frameWindows.forEach((win, key) => {
-        if (!matchesFrameKey(key, frameId) || win.isDestroyed()) return;
+        if (!matchesFrameKey(key, frameId) || win.isDestroyed()) {
+            return;
+        }
         win.webContents.reload();
         reloadedCount++;
     });
-    if (reloadedCount > 0) emitFrameStatus(frameId, FRAME_STATUS.CONNECTING);
+    if (reloadedCount > 0) {
+        emitFrameStatus(frameId, FRAME_STATUS.CONNECTING);
+    }
     return { ok: reloadedCount > 0 };
 }
 
@@ -346,13 +347,17 @@ function getFrameWindowPositions() {
     const bestScore = {};
     frameWindows.forEach((win, key) => {
         // Fullscreen geometry is the whole display, not a usable windowed position (same skip as serializeOpenFrameWindows).
-        if (win.isDestroyed() || win.isFullScreen()) return;
+        if (win.isDestroyed() || win.isFullScreen()) {
+            return;
+        }
         const parsed = parseFrameWindowKey(key);
         const opts = frameWindowOpts.get(key) || {};
         // Prefer a bare (non-Split), non-preview window when several are open for one frame —
         // Save Project expects exactly one entry per frame. Lower score wins; ties keep the first seen.
         const score = (opts.preview ? 10 : 0) + (parsed.container ? 1 : 0);
-        if (bestScore[parsed.frameId] !== undefined && score >= bestScore[parsed.frameId]) return;
+        if (bestScore[parsed.frameId] !== undefined && score >= bestScore[parsed.frameId]) {
+            return;
+        }
         bestScore[parsed.frameId] = score;
         const [x, y] = win.getPosition();
         // getContentSize, not getSize: windows use useContentSize: true, so getSize() would include the title bar and inflate frame.size.
@@ -366,9 +371,13 @@ function getFrameWindowPositions() {
 function getOpenFrameIds() {
     const ids = [];
     frameWindows.forEach((win, key) => {
-        if (win.isDestroyed()) return;
+        if (win.isDestroyed()) {
+            return;
+        }
         const frameId = parseFrameWindowKey(key).frameId;
-        if (ids.indexOf(frameId) < 0) ids.push(frameId);
+        if (ids.indexOf(frameId) < 0) {
+            ids.push(frameId);
+        }
     });
     return ids;
 }
@@ -385,16 +394,22 @@ function getOpenFrameCounts() {
 // Split KV/State windows are keyed 'frameId:kv'/'frameId:state', never bare frameId, so this can't be a plain Map.has() lookup.
 function hasFrameWindowFor(frameId) {
     for (const key of frameWindows.keys()) {
-        if (matchesFrameKey(key, frameId)) return true;
+        if (matchesFrameKey(key, frameId)) {
+            return true;
+        }
     }
     return false;
 }
 
 function hasLiveFrameWindowFor(frameId, feedType) {
     for (const [key, win] of frameWindows) {
-        if (win.isDestroyed() || !matchesFrameKey(key, frameId)) continue;
+        if (win.isDestroyed() || !matchesFrameKey(key, frameId)) {
+            continue;
+        }
         const opts = frameWindowOpts.get(key) || {};
-        if (!opts.preview && (opts.feedType || primaryFeedId()) === (feedType || primaryFeedId())) return true;
+        if (!opts.preview && (opts.feedType || primaryFeedId()) === (feedType || primaryFeedId())) {
+            return true;
+        }
     }
     return false;
 }
@@ -402,7 +417,9 @@ function hasLiveFrameWindowFor(frameId, feedType) {
 function serializeOpenFrameWindows() {
     const list = [];
     frameWindows.forEach((win, key) => {
-        if (win.isDestroyed()) return;
+        if (win.isDestroyed()) {
+            return;
+        }
         const fullscreen = win.isFullScreen();
         const [x, y] = win.getPosition();
         const [width, height] = win.getContentSize();
@@ -419,7 +436,9 @@ function serializeOpenFrameWindows() {
 // Always reopens windowed, never fullscreen — a dev restart shouldn't resurrect a fullscreen always-on-top window over the editor.
 function reopenFrameWindowFromSnapshot(entry) {
     const saved = (entry && entry.opts) || {};
-    if (!saved.frameId) return;
+    if (!saved.frameId) {
+        return;
+    }
 
     const opts = Object.assign({}, saved, { windowed: true });
     opts.position = Object.assign({}, saved.position, { fullscreen: false });
@@ -428,14 +447,18 @@ function reopenFrameWindowFromSnapshot(entry) {
         opts.position.x = entry.bounds.x;
         opts.position.y = entry.bounds.y;
         const monitor = displayIndexForPoint(entry.bounds.x, entry.bounds.y);
-        if (monitor != null) opts.position.monitor = monitor;
+        if (monitor != null) {
+            opts.position.monitor = monitor;
+        }
     }
     openFrameWindow(saved.frameId, opts);
 }
 
 function destroyAllFrameWindows() {
     frameWindows.forEach((win) => {
-        if (!win.isDestroyed()) win.destroy();
+        if (!win.isDestroyed()) {
+            win.destroy();
+        }
     });
     frameWindows.clear();
     frameWindowOpts.clear();
@@ -443,10 +466,8 @@ function destroyAllFrameWindows() {
 
 module.exports = {
     openFrameWindow,
-    closeFrameWindow,
     reloadFrameWindow,
     getFrameWindowPositions,
-    getOpenFrameIds,
     getOpenFrameCounts,
     hasFrameWindowFor,
     hasLiveFrameWindowFor,

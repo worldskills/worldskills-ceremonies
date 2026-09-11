@@ -13,21 +13,24 @@ function createControlWindow() {
         controlWindow.focus();
         return controlWindow;
     }
+
     controlWindow = new BrowserWindow({
         width: 1100,
         height: 700,
         webPreferences: baseWebPreferences({ ceremonatorRole: 'control' }),
     });
+
     markWindow(controlWindow, 'control');
     controlWindow.loadFile('src/views/control.html');
     controlWindow.on('close', (event) => {
-        // Lazy imports avoid the app-windows -> frame-windows -> control-channel cycle.
         const frameWindows = require('./frame-windows');
         const gridWindow = require('./grid-window');
+
         const counts = frameWindows.getOpenFrameCounts();
         const liveCount = Object.values(counts).reduce((sum, entry) => sum + entry.live, 0);
         const previewCount = Object.values(counts).reduce((sum, entry) => sum + entry.preview, 0);
         const gridCount = gridWindow.getGridWindowCount();
+
         if (liveCount || previewCount || gridCount) {
             event.preventDefault();
             dialog.showMessageBox(controlWindow, {
@@ -59,6 +62,7 @@ function createStartupWindow() {
         resizable: false,
         webPreferences: baseWebPreferences({ ceremonatorRole: 'startup' }),
     });
+
     markWindow(startupWindow, 'startup');
     startupWindow.loadFile('src/views/startup.html');
     startupWindow.on('closed', () => {
@@ -66,8 +70,6 @@ function createStartupWindow() {
     });
 }
 
-// Operator is served over HTTP and reachable from the LAN, so it gets no preload and no
-// role mark: it drives the show through the same PIN-authenticated socket a tablet uses.
 async function createOperatorWindow(url) {
     const win = new BrowserWindow({
         width: 1440,
@@ -75,13 +77,16 @@ async function createOperatorWindow(url) {
         backgroundColor: '#101419',
         webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true },
     });
+
     win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+
     try {
         await win.loadURL(url);
     } catch (error) {
         win.close();
         throw error;
     }
+
     return win;
 }
 

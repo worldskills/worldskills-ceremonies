@@ -16,7 +16,9 @@ function registerTemplateScheme() {
 
 // Null when rel escapes base (path traversal guard), shared by both hosts below.
 function resolveUnder(base, rel) {
-    if (!base) return null;
+    if (!base) {
+        return null;
+    }
     const p = path.normalize(path.join(base, rel));
     const b = path.normalize(base);
     return p === b || p.startsWith(b + path.sep) ? p : null;
@@ -31,7 +33,9 @@ function registerTemplateProtocol() {
         } catch (_error) {
             return cb({ error: -300 });
         }
-        if (url.host !== 'active' && url.host !== 'project') return cb({ error: -6 });
+        if (url.host !== 'active' && url.host !== 'project') {
+            return cb({ error: -6 });
+        }
 
         const roots =
             url.host === 'project'
@@ -41,7 +45,9 @@ function registerTemplateProtocol() {
             const hit = resolveUnder(root, rel);
             if (hit) {
                 try {
-                    if (fs.statSync(hit).isFile()) return cb({ path: hit });
+                    if (fs.statSync(hit).isFile()) {
+                        return cb({ path: hit });
+                    }
                 } catch (_error) {
                     /* try fallback */
                 }

@@ -400,7 +400,7 @@
                                 testMode: $scope.testMode,
                             })
                             .then(function (result) {
-                                if (!result || result.ok === false)
+                                if (!result || result.ok === false) {
                                     $scope.$applyAsync(function () {
                                         $scope.addNotice(
                                             'warning',
@@ -408,6 +408,7 @@
                                             'grid-open'
                                         );
                                     });
+                                }
                             });
                     };
                 };
