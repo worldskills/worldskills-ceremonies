@@ -1,8 +1,8 @@
 const { BrowserWindow, screen: electronScreen } = require('electron');
 const { baseWebPreferences, hideWindowMenu } = require('./window-factory');
 const { centerOnDisplay, resolveTargetDisplay } = require('./display-geometry');
-const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
-const { notifyFrameStatus } = require('./control-channel');
+const { attachCloseShortcuts, confirmClose, closeWithoutConfirm } = require('./window-close-guard');
+const { notifyFrameStatus, notifyOutputsChanged } = require('./control-channel');
 const { hasFrameWindowFor } = require('./frame-windows');
 const projectStore = require('./project-store');
 const { markWindow } = require('./ipc/sender-role');
@@ -29,7 +29,11 @@ function pinnedCanvas(displaySize) {
 function sameGridFrames(a, b) {
     const left = (a.frames || []).map((frame) => frame.frameId + ':' + (frame.container || '')).sort();
     const right = (b.frames || []).map((frame) => frame.frameId + ':' + (frame.container || '')).sort();
-    return left.length === right.length && left.every((id, index) => id === right[index]);
+    return (
+        left.length === right.length &&
+        left.every((id, index) => id === right[index]) &&
+        (a.dynamicState || []).slice().sort().join(',') === (b.dynamicState || []).slice().sort().join(',')
+    );
 }
 
 function hasMatchingLiveGrid(config) {
@@ -96,6 +100,22 @@ function positionFittedGridWindow(win, entry) {
 
 function openGridWindow(config) {
     config = config || {};
+    const definitions = ((projectStore.getActiveProject() || {}).dynamicFunctionalities || []).filter(
+        (item) => item.scope === 'grid'
+    );
+    const dynamicState = config.dynamicState == null ? [] : config.dynamicState;
+    if (!Array.isArray(dynamicState) || dynamicState.some((id) => !definitions.some((item) => item.id === id))) {
+        return { ok: false, error: 'Invalid Grid dynamic functionality.' };
+    }
+    const groups = new Set();
+    for (const item of definitions.filter((item) => dynamicState.includes(item.id))) {
+        if (item.group && groups.has(item.group))
+            return { ok: false, error: 'Conflicting Grid dynamic functionalities.' };
+        if (item.group) groups.add(item.group);
+    }
+    config = Object.assign({}, config, {
+        dynamicState: definitions.filter((item) => dynamicState.includes(item.id)).map((item) => item.id),
+    });
     if (
         [FEED.LIVE, FEED.PREVIEW].indexOf(config.feed || FEED.LIVE) < 0 ||
         !projectStore.isFeedId(config.feedType || projectStore.primaryFeedId())
@@ -167,11 +187,13 @@ function openGridWindow(config) {
     };
 
     gridWindows.set(win, entry);
+    notifyOutputsChanged();
 
     win.loadFile('src/views/frames.html', {
         search: [
             'frames=' + encodeURIComponent(JSON.stringify(framesPayload)),
             'cols=' + grid.cols,
+            'dynamicState=' + encodeURIComponent(JSON.stringify(config.dynamicState)),
             'cellW=' + frameSize.width,
             'cellH=' + frameSize.height,
             'gap=' + gap,
@@ -189,7 +211,7 @@ function openGridWindow(config) {
         ].join('&'),
     });
 
-    attachCloseShortcuts(win, { escapeLeavesFullscreen: true });
+    attachCloseShortcuts(win, { escapeLeavesFullscreen: true, forceCloseOnShift: true });
 
     win.on('close', (event) => {
         if (
@@ -217,6 +239,7 @@ function openGridWindow(config) {
     win.on('closed', () => {
         const frameIds = Array.from(entry.frameIds);
         gridWindows.delete(win);
+        notifyOutputsChanged();
         frameIds.forEach(notifyClosedIfUnused);
     });
 
@@ -272,6 +295,59 @@ function getGridWindowCount() {
     return count;
 }
 
+// Source changes must not run fitGridWindow: fitting also moves/resizes the output.
+function updateGridSources(sender, frameIds) {
+    if (!Array.isArray(frameIds) || frameIds.some((id) => typeof id !== 'string' || !/^[a-z][a-z0-9_-]*$/i.test(id))) {
+        return { ok: false, error: 'Invalid Grid frame IDs.' };
+    }
+    for (const [win, entry] of gridWindows) {
+        if (win.isDestroyed() || win.webContents !== sender) continue;
+        const previous = entry.frameIds;
+        const next = new Set(frameIds);
+        if (previous.size === next.size && frameIds.every((id) => previous.has(id))) return { ok: true };
+        entry.frameIds = next;
+        previous.forEach((id) => {
+            if (!next.has(id)) notifyClosedIfUnused(id);
+        });
+        notifyGridFramesReady(entry);
+        notifyOutputsChanged();
+        return { ok: true };
+    }
+    return { ok: false, error: 'Not the grid window' };
+}
+
+function listGridWindows() {
+    const list = [];
+    gridWindows.forEach((entry, win) => {
+        if (!win.isDestroyed()) {
+            list.push({
+                id: win.id,
+                type: 'grid',
+                label: 'Grid View',
+                frames: Array.from(entry.frameIds).map((id) => {
+                    const frame = ((projectStore.getActiveProject() || {}).frames || []).find(
+                        (frame) => frame.id === id
+                    );
+                    return (frame && frame.label) || id;
+                }),
+                feedType: entry.config.feedType || projectStore.primaryFeedId(),
+                channel: entry.config.feed === FEED.PREVIEW ? 'Preview' : 'Live',
+            });
+        }
+    });
+    return list;
+}
+
+function closeGridWindowById(id) {
+    for (const win of gridWindows.keys()) {
+        if (!win.isDestroyed() && win.id === id) {
+            closeWithoutConfirm(win);
+            return { ok: win.isDestroyed() };
+        }
+    }
+    return { ok: false };
+}
+
 function getGridConfigs() {
     const configs = [];
     gridWindows.forEach((entry, win) => {
@@ -285,7 +361,10 @@ function getGridConfigs() {
 module.exports = {
     openGridWindow,
     fitGridWindow,
+    updateGridSources,
     getGridWindowCount,
+    listGridWindows,
+    closeGridWindowById,
     getGridConfigs,
     hasGridWindowFor,
 };

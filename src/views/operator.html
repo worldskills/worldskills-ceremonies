@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="/node_modules/@worldskills/bootstrap/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css" />
         <link rel="stylesheet" href="/css/operator.css" />
+        <link rel="stylesheet" href="/css/dynamic-functionalities.css" />
     </head>
     <body class="operator-page" ng-controller="OperatorCtrl" ng-cloak>
         <header>
@@ -78,6 +79,18 @@
                     <i class="fa fa-expand" aria-hidden="true"></i>
                 </button>
             </div>
+            <dynamic-functionalities
+                definitions="dynamicFunctionalities"
+                groups="dynamicFunctionalityGroups"
+                active-ids="dynamicState"
+                frames="screens"
+                scope-kind="global"
+                current-frame-id="frameId"
+                current-frame-only="true"
+                disabled="!ready"
+                on-set="setDynamicFunctionality(id, enabled)"
+                on-clear-group="clearDynamicGroup(group)"
+            ></dynamic-functionalities>
             <div
                 class="workspace"
                 ng-style="{'--operator-feed-width': layout.width + 'vw', 'grid-template-columns': 'minmax(0, ' + layout.width + 'vw) minmax(0, 1fr)'}"
@@ -165,6 +178,7 @@
         </main>
         <script src="/node_modules/angular/angular.min.js"></script>
         <script src="/js/control/control-workspace.js"></script>
+        <script src="/js/control/dynamic-functionalities.js"></script>
         <script src="/js/services/remote-transport.service.js"></script>
         <script src="/js/operator.js"></script>
     </body>

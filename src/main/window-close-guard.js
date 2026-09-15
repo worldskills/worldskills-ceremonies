@@ -2,18 +2,32 @@ const { dialog } = require('electron');
 
 function attachCloseShortcuts(win, opts) {
     const escapeLeavesFullscreen = !!(opts && opts.escapeLeavesFullscreen);
-    win.webContents.on('before-input-event', (_event, input) => {
+    win.webContents.on('before-input-event', (event, input) => {
         if (input.type !== 'keyDown') {
             return;
         }
         if (escapeLeavesFullscreen && input.key === 'Escape' && win.isFullScreen()) {
             win.setFullScreen(false);
         } else if ((input.control || input.meta) && input.key.toLowerCase() === 'w') {
-            win.close();
+            if (input.shift && opts && opts.forceCloseOnShift) {
+                event.preventDefault();
+                closeWithoutConfirm(win);
+            } else {
+                win.close();
+            }
         } else if ((input.control || input.meta) && input.shift && input.key.toLowerCase() === 'i') {
             win.webContents.toggleDevTools();
         }
     });
+}
+
+function closeWithoutConfirm(win) {
+    win.__forceClose = true;
+    try {
+        win.close();
+    } finally {
+        win.__forceClose = false;
+    }
 }
 
 // Returns false to mean the caller should preventDefault(); win.__forceClose (set by the caller) skips the dialog for already-confirmed closes.
@@ -32,4 +46,4 @@ function confirmClose(win, opts) {
     return choice === 0;
 }
 
-module.exports = { attachCloseShortcuts, confirmClose };
+module.exports = { attachCloseShortcuts, confirmClose, closeWithoutConfirm };

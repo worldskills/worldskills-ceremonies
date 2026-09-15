@@ -7,6 +7,7 @@
     </head>
     <body>
         <div id="grid"></div>
+        <div id="grid-loading" class="grid-loading">Preparing podium views…</div>
         <script>
             (function () {
                 var params = new URLSearchParams(window.location.search);
@@ -18,6 +19,16 @@
                 }
 
                 var cols = parseInt(params.get("cols"), 10) || 2;
+                var gridState = [];
+                try {
+                    var configuredState = JSON.parse(params.get("dynamicState") || "[]");
+                    if (Array.isArray(configuredState))
+                        gridState = configuredState.filter(function (id) {
+                            return typeof id === "string";
+                        });
+                } catch (_error) {
+                    /* No per-Grid functionality selected. */
+                }
                 var cellW = parseInt(params.get("cellW"), 10) || 1100;
                 var cellH = parseInt(params.get("cellH"), 10) || 500;
                 var gap = parseInt(params.get("gap"), 10) || 0;
@@ -35,6 +46,7 @@
                 if (autoFit) document.body.classList.add("grid-autofit");
 
                 var root = document.getElementById("grid");
+                var loading = document.getElementById("grid-loading");
 
                 var rootStyle = document.documentElement.style;
                 rootStyle.setProperty("--grid-cols", cols);
@@ -48,6 +60,12 @@
                 });
 
                 function applyConditions() {
+                    Array.prototype.forEach.call(root.querySelectorAll("[data-when-state]"), function (el) {
+                        var spec = el.getAttribute("data-when-state") || "";
+                        var negate = spec.charAt(0) === "!";
+                        var match = gridState.indexOf(negate ? spec.slice(1) : spec) >= 0;
+                        if (negate === match) el.parentNode.removeChild(el);
+                    });
                     Array.prototype.forEach.call(root.querySelectorAll("[data-when-cols]"), function (el) {
                         var spec = el.getAttribute("data-when-cols") || "";
                         var negate = spec.charAt(0) === "!";
@@ -77,7 +95,69 @@
                     });
                 }
 
+                var cells = [];
                 var cellFrames = [];
+                var pendingViews = [];
+                var dynamicStateKey = "ceremonator:dynamicState";
+                var mappingErrors = {};
+
+                function readDynamicState() {
+                    try {
+                        var state = JSON.parse(localStorage.getItem(dynamicStateKey) || "[]");
+                        return (Array.isArray(state) ? state : []).concat(gridState);
+                    } catch (_error) {
+                        return gridState.slice();
+                    }
+                }
+
+                function mappingError(message) {
+                    if (mappingErrors[message]) return;
+                    mappingErrors[message] = true;
+                    if (window.ceremonator && window.ceremonator.app) {
+                        window.ceremonator.app.reportDebug("load-failure", message);
+                    }
+                }
+
+                function sourceFor(cell, state) {
+                    var mapping = cell.mapping;
+                    for (var i = 0; i < state.length; i++) {
+                        if (!Object.prototype.hasOwnProperty.call(mapping, state[i])) continue;
+                        var id = mapping[state[i]];
+                        if (typeof id === "string" && Object.prototype.hasOwnProperty.call(byId, id)) return id;
+                        mappingError("Grid functionality “" + state[i] + "” names an unavailable frame.");
+                        break;
+                    }
+                    return cell.originalId;
+                }
+
+                function updateCellSource(cell, state) {
+                    var id = sourceFor(cell, state);
+                    var original = id === cell.originalId;
+                    var frame = byId[id] || {};
+                    cell.caption.textContent = original ? cell.label : frame.label || id;
+                    cell.caption.hidden = !cell.caption.textContent;
+                    cell.element.style.setProperty("--cell-accent", original ? cell.accent : frame.accent || "");
+                    cell.views.forEach(function (iframe) {
+                        var active = iframe.dataset.frameId === id;
+                        iframe.classList.toggle("is-active", active);
+                        iframe.setAttribute("aria-hidden", String(!active));
+                        iframe.tabIndex = active ? 0 : -1;
+                    });
+                    return id;
+                }
+
+                function applyDynamicSources() {
+                    var state = readDynamicState();
+                    var ids = [...new Set(cells.map(cell => updateCellSource(cell, state)))];
+                    if (cells.length && window.ceremonator && window.ceremonator.grid) {
+                        window.ceremonator.grid.sources(ids);
+                    }
+                    return ids;
+                }
+
+                window.addEventListener("storage", function (event) {
+                    if (event.key === dynamicStateKey) applyDynamicSources();
+                });
 
                 function reportCellSizes() {
                     cellFrames.forEach(function (iframe) {
@@ -97,37 +177,75 @@
                     var accent = el.getAttribute("data-accent") || frame.accent || "";
                     if (accent) el.style.setProperty("--cell-accent", accent);
 
-                    var iframe = document.createElement("iframe");
-                    var src = "screen.html?screen=" + encodeURIComponent(frameId);
-                    if (feed === "preview") src += "&feed=preview";
-                    src += "&feedType=" + encodeURIComponent(feedType);
-                    if (container) src += "&container=" + encodeURIComponent(container);
-                    if (label) src += "&label=" + encodeURIComponent(label);
-                    if (testMode) src += "&testMode=1";
-                    // Every rendered cell gets its own DOM-order position. Keep this
-                    // metadata present even while test mode is off so it can be
-                    // enabled on an already-open grid via the localStorage event.
-                    src += "&testIdx=" + (cellIndex + 1);
-                    src += "&gridCols=" + cols;
-                    iframe.src = src;
-                    iframe.frameBorder = "0";
-                    iframe.scrolling = "no";
-                    iframe.className = "frame-cell-screen";
-                    cellFrames.push(iframe);
-                    el.appendChild(iframe);
-
-                    iframe.addEventListener("load", function () {
-                        iframe.__loaded = true;
-                        reportCellSizes();
-                    });
-
-                    if (label) {
-                        var caption = document.createElement("div");
-                        caption.className = "frame-cell-caption";
-                        caption.textContent = label;
-                        el.appendChild(caption);
+                    var mappingElement = el.closest("[data-frame-states]");
+                    var mapping = {};
+                    if (mappingElement) {
+                        try {
+                            mapping = JSON.parse(mappingElement.getAttribute("data-frame-states"));
+                            if (!mapping || typeof mapping !== "object" || Array.isArray(mapping)) throw new Error();
+                        } catch (_error) {
+                            mapping = {};
+                            mappingError(
+                                "Grid data-frame-states must be a JSON object of functionality ID to frame ID.",
+                            );
+                        }
                     }
-                    return frameId;
+                    var caption = document.createElement("div");
+                    caption.className = "frame-cell-caption";
+                    var cell = {
+                        element: el,
+                        originalId: frameId,
+                        mapping: mapping,
+                        label: label,
+                        accent: accent,
+                        caption: caption,
+                        views: [],
+                    };
+                    cells.push(cell);
+                    var ids = [frameId].concat(Object.keys(mapping).map(function (key) { return mapping[key]; }));
+                    var fragment = document.createDocumentFragment();
+                    Array.from(new Set(ids)).forEach(function (id) {
+                        if (id !== frameId && !Object.prototype.hasOwnProperty.call(byId, id)) return;
+                        var iframe = document.createElement("iframe");
+                        var query = new URLSearchParams({
+                            screen: id,
+                            feed: feed,
+                            feedType: feedType,
+                            dynamicState: JSON.stringify(gridState),
+                            testPrefix: el.getAttribute("data-test-prefix") || "TEST #",
+                            testIdx: cellIndex + 1,
+                            gridCols: cols,
+                        });
+                        if (container) query.set("container", container);
+                        if (label) query.set("label", label);
+                        if (testMode) query.set("testMode", "1");
+                        iframe.src = "screen.html?" + query.toString();
+                        iframe.dataset.frameId = id;
+                        iframe.title = (byId[id] && byId[id].label) || id;
+                        iframe.scrolling = "no";
+                        iframe.className = "frame-cell-screen";
+                        cell.views.push(iframe);
+                        cellFrames.push(iframe);
+                        pendingViews.push(new Promise(function (resolve, reject) {
+                            var timer = setTimeout(function () {
+                                reject(new Error("Podium “" + id + "” did not finish preparing. Reload the Grid to retry."));
+                            }, 30000);
+                            iframe.__ready = function () {
+                                clearTimeout(timer);
+                                resolve();
+                            };
+                        }));
+                        iframe.addEventListener("load", function () {
+                            iframe.__loaded = true;
+                            reportCellSizes();
+                            // Never inspect contentWindow before this iframe's own load.
+                            iframe.contentWindow.postMessage({ type: "grid-cell-prepare" }, "*");
+                        });
+                        fragment.appendChild(iframe);
+                    });
+                    fragment.appendChild(caption);
+                    el.appendChild(fragment);
+                    return updateCellSource(cell, readDynamicState());
                 }
 
                 function applyAutoFit() {
@@ -157,9 +275,8 @@
                     root.style.height = fittedHeight + "px";
                     root.style.overflow = "hidden";
                     applyAutoFit();
-                    // No reportCellSizes() here: at this point no cell has committed its document
-                    // or registered a listener, so it could only do harm (see above). Each cell
-                    // reports on its own load, and every cell again on resize.
+                    // Pool startup has completed; report the final scaled dimensions to every view.
+                    reportCellSizes();
 
                     if (window.ceremonator && window.ceremonator.grid) {
                         window.ceremonator.grid.fit({
@@ -175,16 +292,19 @@
                     root.innerHTML = html;
                     applyConditions();
                     expandEach();
-                    var frameIds = [];
-                    Array.prototype.forEach.call(root.querySelectorAll("[data-frame]"), function (el, cellIndex) {
-                        var id = fillCell(el, cellIndex);
-                        if (id && frameIds.indexOf(id) < 0) frameIds.push(id);
+                    Array.prototype.forEach.call(root.querySelectorAll("[data-frame]"), fillCell);
+                    // Opacity keeps every pooled document alive while the loading overlay covers startup.
+                    return Promise.all(pendingViews).then(function () {
+                        loading.remove();
+                        fitAndShow(applyDynamicSources());
                     });
-                    fitAndShow(frameIds);
                 }
 
                 // A black window with no explanation is the worst outcome on show day.
                 function fail(message) {
+                    cells = [];
+                    cellFrames = [];
+                    loading.remove();
                     root.innerHTML = "";
                     var p = document.createElement("div");
                     p.className = "frames-grid-error";
@@ -194,10 +314,16 @@
                 }
 
                 if (window.ceremonator && window.ceremonator.grid) {
-                    window.ceremonator.grid
-                        .template()
-                        .then(function (html) {
-                            if (html) build(html);
+                    Promise.all([window.ceremonator.grid.template(), window.ceremonator.project.current()])
+                        .then(function (results) {
+                            var project = results[1] && results[1].project;
+                            ((project && project.frames) || []).forEach(function (frame) {
+                                if (!Object.prototype.hasOwnProperty.call(byId, frame.id)) {
+                                    byId[frame.id] = { frameId: frame.id, label: frame.label, accent: frame.color };
+                                }
+                            });
+                            var html = results[0];
+                            if (html) return build(html);
                             else fail("file not found");
                         })
                         .catch(function (error) {
@@ -209,7 +335,15 @@
 
                 window.addEventListener("message", function (event) {
                     var data = event.data;
-                    if (event.source === window || !data || data.type !== "grid-cell-debug") return;
+                    if (!data) return;
+                    if (data.type === "grid-cell-ready") {
+                        var iframe = cellFrames.find(function (item) {
+                            return item.__loaded && item.contentWindow === event.source;
+                        });
+                        if (iframe) iframe.__ready();
+                        return;
+                    }
+                    if (event.source === window || data.type !== "grid-cell-debug") return;
                     if (window.ceremonator && window.ceremonator.app && window.ceremonator.app.reportDebug) {
                         window.ceremonator.app.reportDebug(
                             String(data.debugType || "load-failure"),

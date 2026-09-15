@@ -12,6 +12,9 @@
             activeFrameId: Object.keys(SCREENS)[0],
             skillOrder: [],
             feedTypes: [angular.copy(FALLBACK_FEED)],
+            dynamicFunctionalities: [],
+            dynamicFunctionalityGroups: {},
+            dynamicState: [],
         };
 
         function skillNumberValue(number) {
@@ -44,10 +47,47 @@
             return service.frames[service.activeFrameId];
         };
 
+        service.setFunctionalityState = function (state, id, enabled, scope) {
+            var definitions = service.dynamicFunctionalities.filter(function (item) {
+                return (item.scope || 'global') === scope;
+            });
+            var definition = definitions.filter(function (item) {
+                return item.id === id;
+            })[0];
+            if (!definition || typeof enabled !== 'boolean') {
+                throw new Error('Unknown dynamic functionality or invalid enabled value.');
+            }
+            return definitions
+                .filter(function (item) {
+                    if (item.id === id) return enabled;
+                    return (
+                        (state || []).indexOf(item.id) >= 0 &&
+                        !(enabled && definition.group && item.group === definition.group)
+                    );
+                })
+                .map(function (item) {
+                    return item.id;
+                });
+        };
+
         service.setActiveFrame = function (id) {
             if (service.frames[id]) {
                 service.activeFrameId = id;
             }
+        };
+
+        service.clearFunctionalityGroup = function (state, group, scope) {
+            var members = service.dynamicFunctionalities
+                .filter(function (item) {
+                    return (item.scope || 'global') === scope && item.group === group;
+                })
+                .map(function (item) {
+                    return item.id;
+                });
+            if (!members.length) throw new Error('Unknown functionality group.');
+            return (state || []).filter(function (id) {
+                return members.indexOf(id) < 0;
+            });
         };
 
         service.getFrame = function (id) {
@@ -236,6 +276,8 @@
                 skillOrder: service.skillOrder || [],
                 gridConfig: gridConfig || null,
                 feedTypes: angular.copy(service.feedTypes),
+                dynamicFunctionalities: angular.copy(service.dynamicFunctionalities),
+                dynamicFunctionalityGroups: angular.copy(service.dynamicFunctionalityGroups),
                 routing: routing ? angular.copy(routing) : null,
                 languages: languages || [],
                 bestOfNationGroupSize: bestOfNationGroupSize || 5,

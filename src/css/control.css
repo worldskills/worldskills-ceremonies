@@ -559,6 +559,13 @@ control-workspace,
     min-height: 0;
 }
 
+.windows-manager {
+    flex: 1;
+    overflow: auto;
+    background: #101a2a;
+    color: #fff;
+}
+
 .project-dirty-dot {
     display: inline-block;
     width: 6px;

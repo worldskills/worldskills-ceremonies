@@ -20,6 +20,9 @@
             $scope.channel = 'live';
             $scope.frames = [];
             $scope.feeds = [];
+            $scope.dynamicFunctionalities = [];
+            $scope.dynamicFunctionalityGroups = {};
+            $scope.dynamicState = [];
             $scope.screens = {};
             $scope.feedErrors = {};
             $scope.layout = { width: 80, panels: {} };
@@ -100,17 +103,7 @@
             };
 
             $scope.command = function (action, feed, index, state, context) {
-                if (!$scope.ready) {
-                    fail('Command was not sent: connection is not ready.');
-                    return;
-                }
-
                 if (!$scope.frame) {
-                    return;
-                }
-
-                if (Object.keys(pending).length >= 32) {
-                    fail('Command not sent: too many commands are awaiting confirmation.');
                     return;
                 }
 
@@ -131,6 +124,27 @@
                     command.context = context;
                 }
 
+                sendCommand(command);
+            };
+
+            $scope.setDynamicFunctionality = function (id, enabled) {
+                sendCommand({ name: 'setDynamicFunctionality', functionalityId: id, enabled: enabled });
+            };
+
+            $scope.clearDynamicGroup = function (group) {
+                sendCommand({ name: 'clearDynamicGroup', group: group });
+            };
+
+            function sendCommand(command) {
+                if (!$scope.ready) {
+                    fail('Command was not sent: connection is not ready.');
+                    return;
+                }
+                if (Object.keys(pending).length >= 32) {
+                    fail('Command not sent: too many commands are awaiting confirmation.');
+                    return;
+                }
+
                 var id = 'operator-' + ++serial;
 
                 pending[id] = {
@@ -148,7 +162,7 @@
                 if (!RemoteTransport.sendRaw(payload)) {
                     settle(id, 'Command could not be sent. Check the connection before trying again.');
                 }
-            };
+            }
 
             $scope.connect = function () {
                 $scope.auth.pin = String($scope.auth.pin || '').trim();
@@ -231,6 +245,9 @@
                 $scope.feeds = snapshot.feedTypes || [];
                 $scope.FrameService.feedTypes = $scope.feeds;
                 $scope.testMode = !!snapshot.testMode;
+                $scope.dynamicFunctionalities = snapshot.dynamicFunctionalities || [];
+                $scope.dynamicFunctionalityGroups = snapshot.dynamicFunctionalityGroups || {};
+                $scope.dynamicState = snapshot.dynamicState || [];
                 $scope.frame = selectedFrame();
 
                 if (!$scope.frame && $scope.frames.length) {

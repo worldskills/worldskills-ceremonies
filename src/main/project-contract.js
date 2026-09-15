@@ -177,6 +177,84 @@ function validateProject(project) {
     }
     project.skillOrder = Array.isArray(project.skillOrder) ? project.skillOrder.map(String) : [];
 
+    const functionalities = project.dynamicFunctionalities == null ? [] : project.dynamicFunctionalities;
+    const functionalityIds = new Set();
+    if (!Array.isArray(functionalities)) {
+        return { ok: false, error: 'Project dynamicFunctionalities must be an array.' };
+    }
+    for (const item of functionalities) {
+        if (
+            !item ||
+            typeof item.id !== 'string' ||
+            item.id.length > 100 ||
+            !FEED_ID.test(item.id) ||
+            functionalityIds.has(item.id) ||
+            typeof item.label !== 'string' ||
+            !item.label.trim() ||
+            item.label.length > 200 ||
+            (item.scope != null && !['global', 'grid'].includes(item.scope)) ||
+            (item.frameId != null && !ids.has(item.frameId)) ||
+            (item.group != null &&
+                (typeof item.group !== 'string' || item.group.length > 100 || !FEED_ID.test(item.group)))
+        ) {
+            return {
+                ok: false,
+                error: 'Dynamic functionalities need unique IDs, labels, valid groups/scopes, and existing frame IDs when specified.',
+            };
+        }
+        functionalityIds.add(item.id);
+    }
+    project.dynamicFunctionalities = functionalities.map((item) => ({
+        id: item.id,
+        label: item.label,
+        group: item.group || null,
+        scope: item.scope || 'global',
+        frameId: item.frameId || null,
+    }));
+    const groups = project.dynamicFunctionalityGroups == null ? {} : project.dynamicFunctionalityGroups;
+    if (typeof groups !== 'object' || Array.isArray(groups)) {
+        return { ok: false, error: 'Dynamic functionality groups must be an object keyed by group ID.' };
+    }
+    for (const [id, group] of Object.entries(groups)) {
+        if (
+            !FEED_ID.test(id) ||
+            id.length > 100 ||
+            !group ||
+            typeof group !== 'object' ||
+            Array.isArray(group) ||
+            ['label', 'description', 'clearLabel'].some(
+                (key) =>
+                    group[key] != null &&
+                    (typeof group[key] !== 'string' || !group[key].trim() || group[key].length > 200)
+            )
+        ) {
+            return {
+                ok: false,
+                error: 'Dynamic functionality groups need valid IDs and nonempty display text up to 200 characters.',
+            };
+        }
+    }
+    project.dynamicFunctionalityGroups = Object.fromEntries(
+        Object.entries(groups).map(([id, group]) => [
+            id,
+            Object.fromEntries(
+                ['label', 'description', 'clearLabel']
+                    .filter((key) => group[key] != null)
+                    .map((key) => [key, group[key]])
+            ),
+        ])
+    );
+    const gridState = project.gridConfig && project.gridConfig.dynamicState;
+    if (
+        gridState != null &&
+        (!Array.isArray(gridState) ||
+            gridState.some(
+                (id) => !project.dynamicFunctionalities.some((item) => item.scope === 'grid' && item.id === id)
+            ))
+    ) {
+        return { ok: false, error: 'Grid dynamicState must contain configured Grid functionality IDs.' };
+    }
+
     // Pre-feed version-2 projects have no feedTypes: one audience feed, old Grid size kept.
     const legacyGrid = project.gridConfig || {};
     const configuredFeeds =

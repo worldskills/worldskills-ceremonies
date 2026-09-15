@@ -16,39 +16,41 @@
 
     <div
         class="screen-skill-medals-medals screen-region-state screen-grid"
-        ng-class="{'screen-skill-medals-medals-dense': context.results.length >= 6}"
+        ng-class="{
+            'screen-skill-medals-medals-compact': context.results.length >= 4,
+            'screen-skill-medals-medals-dense': context.results.length >= 6
+        }"
     >
-        <div class="screen-medal screen-medal-{{ result.medal }}" ng-repeat="result in context.results">
+        <div
+            class="screen-medal screen-medal-{{ result.medal }}"
+            ng-class="{'screen-medal-compact': result.competitors.length >= 3}"
+            ng-repeat="result in context.results"
+        >
             <div class="screen-medal-row">
                 <div class="screen-medal-row-position" ws-fit>
                     <div class="screen-translation screen-translation-row">
                         <span
-                            class="screen-translation-line"
-                            ng-repeat="l in languages"
-                            ng-class="{'screen-translation-primary': $index === 0}"
+                            class="screen-translation-line screen-translation-primary"
                             translate="{{ result.medal }}"
-                            translate-language="{{ l.lang_code }}"
                         ></span>
                     </div>
                 </div>
-                <div class="screen-medal-row-competitors" ws-fit>
-                    <div class="screen-flag">
-                        <img
-                            ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
-                            onerror="
-                                this.onerror = null;
-                                this.src = 'wstemplate://project/data/flags/_placeholder.svg';
-                            "
-                        />
-                    </div>
-                    <div class="screen-medal-text">
-                        <div class="screen-competitors screen-competitors-multiline" style="text-transform: uppercase">
-                            <span
-                                class="screen-competitor-name"
-                                ng-repeat="competitor in result.competitors track by $index"
-                                >{{ competitor }}</span
-                            >
-                        </div>
+                <div class="screen-flag">
+                    <img
+                        ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
+                        onerror="
+                            this.onerror = null;
+                            this.src = 'wstemplate://project/data/flags/_placeholder.svg';
+                        "
+                    />
+                </div>
+                <div class="screen-medal-text" ws-fit>
+                    <div class="screen-competitors screen-competitors-multiline" style="text-transform: uppercase">
+                        <span
+                            class="screen-competitor-name"
+                            ng-repeat="competitor in result.competitors track by $index"
+                            >{{ competitor }}</span
+                        >
                     </div>
                 </div>
             </div>

@@ -56,6 +56,13 @@ function notifyDisplaysChanged() {
     }
 }
 
+function notifyOutputsChanged() {
+    const win = getControlWindow();
+    if (win && !win.isDestroyed()) {
+        win.webContents.send('outputs:changed');
+    }
+}
+
 function sendRemoteAction(action) {
     const win = getControlWindow();
     if (win && !win.isDestroyed()) {
@@ -77,6 +84,7 @@ module.exports = {
     sendControlNotice,
     sendControlDebug,
     notifyDisplaysChanged,
+    notifyOutputsChanged,
     sendRemoteAction,
     requestClearAllData,
 };

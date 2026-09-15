@@ -5,6 +5,16 @@
         // Test mode is a workstation-wide toggle: every window reads it from this one key,
         // and its `storage` events are how already-open outputs hear the control panel flip it.
         var TEST_MODE_KEY = 'ceremonator:testMode';
+        var DYNAMIC_STATE_KEY = 'ceremonator:dynamicState';
+
+        function dynamicState() {
+            try {
+                var state = angular.fromJson(window.localStorage.getItem(DYNAMIC_STATE_KEY));
+                return angular.isArray(state) ? state : [];
+            } catch (_error) {
+                return [];
+            }
+        }
 
         function testMode() {
             return window.localStorage.getItem(TEST_MODE_KEY) === '1';
@@ -28,6 +38,8 @@
             screenKey: screenKey,
             previewKey: previewKey,
             TEST_MODE_KEY: TEST_MODE_KEY,
+            DYNAMIC_STATE_KEY: DYNAMIC_STATE_KEY,
+            dynamicState: dynamicState,
             testMode: testMode,
             setTestMode: setTestMode,
         };
