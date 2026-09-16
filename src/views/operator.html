@@ -17,6 +17,14 @@
         </header>
 
         <div class="operator-alerts" aria-live="polite">
+            <div
+                class="alert podium-warning"
+                role="alert"
+                ng-if="authenticated && ready && frame && hasFrameHighlight() && !isFrameHighlighted()"
+            >
+                {{ frame.label }} is not highlighted on the Grid. You are in Preview; select Live to show this podium on
+                all screens.
+            </div>
             <div class="alert" role="alert" ng-if="error">
                 {{ error }}
                 <button ng-click="dismissError()" aria-label="Dismiss alert">×</button>
@@ -55,12 +63,6 @@
                         ng-disabled="!ready"
                     ></select
                 ></label>
-                <div class="channels" role="group" aria-label="Monitor channel">
-                    <button ng-class="{selected: channel === 'live'}" ng-click="setChannel('live')">Live</button
-                    ><button ng-class="{selected: channel === 'preview'}" ng-click="setChannel('preview')">
-                        Preview
-                    </button>
-                </div>
                 <label class="layout-control"
                     >Feed panel width
                     <input
@@ -155,11 +157,38 @@
                         </fieldset>
                     </div>
                     <div class="transport">
-                        <button ng-click="command('previous')" ng-disabled="!ready || !frame || frame.slideIndex < 0">
-                            ← Prev</button
-                        ><button class="next" ng-click="command('next')" ng-disabled="!ready || !frame.slides.length">
-                            Next →
-                        </button>
+                        <div class="channels" role="group" aria-label="Monitor channel">
+                            <button
+                                class="live"
+                                ng-class="{selected: channel === 'live'}"
+                                ng-click="setChannel('live')"
+                                ng-disabled="!ready || !frame"
+                                aria-pressed="{{ channel === 'live' }}"
+                            >
+                                Live</button
+                            ><button
+                                ng-class="{selected: channel === 'preview'}"
+                                ng-click="setChannel('preview')"
+                                ng-disabled="!ready || !frame || (hasFrameHighlight() && isFrameHighlighted())"
+                                aria-pressed="{{ channel === 'preview' }}"
+                            >
+                                Preview
+                            </button>
+                        </div>
+                        <div class="navigation" role="group" aria-label="Slide navigation">
+                            <button
+                                ng-click="command('previous')"
+                                ng-disabled="!ready || !frame || frame.slideIndex < 0"
+                            >
+                                ← Prev</button
+                            ><button
+                                class="next"
+                                ng-click="command('next')"
+                                ng-disabled="!ready || !frame.slides.length"
+                            >
+                                Next →
+                            </button>
+                        </div>
                     </div>
                     <div class="all-controls">
                         <button ng-click="command('blank')" ng-disabled="!ready || !frame">

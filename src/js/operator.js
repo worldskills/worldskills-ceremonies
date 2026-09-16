@@ -26,7 +26,12 @@
             $scope.screens = {};
             $scope.feedErrors = {};
             $scope.layout = { width: 80, panels: {} };
-            $scope.workspaceCapabilities = { preview: true, copyScript: false, editContext: false };
+            $scope.workspaceCapabilities = {
+                preview: true,
+                copyScript: false,
+                editContext: false,
+                disableSlideLive: false,
+            };
             $scope.FrameService = {
                 // The shared slide-row helpers read the project's feeds through here.
                 feedTypes: [],
@@ -65,11 +70,33 @@
                 if ($scope.frame) {
                     $scope.everSelected = true;
                 }
+                syncHighlightChannel();
                 $scope.saveLayout();
             };
 
             $scope.setChannel = function (channel) {
-                $scope.channel = channel;
+                var highlight = frameHighlight();
+
+                if (highlight) {
+                    if (channel === 'preview' && $scope.isFrameHighlighted()) {
+                        return;
+                    }
+                    if (channel === 'live' && !$scope.isFrameHighlighted()) {
+                        $scope.setDynamicFunctionality(highlight.id, true);
+                        return;
+                    }
+                }
+
+                setMonitorChannel(channel);
+            };
+
+            $scope.hasFrameHighlight = function () {
+                return !!frameHighlight();
+            };
+
+            $scope.isFrameHighlighted = function () {
+                var highlight = frameHighlight();
+                return !!highlight && $scope.dynamicState.indexOf(highlight.id) >= 0;
             };
 
             $scope.openFullscreen = function () {
@@ -197,6 +224,32 @@
                 return selected;
             }
 
+            function frameHighlight() {
+                var highlight;
+                angular.forEach($scope.dynamicFunctionalities, function (item) {
+                    if (
+                        !highlight &&
+                        item.frameId === $scope.frameId &&
+                        item.group &&
+                        (item.scope || 'global') === 'global'
+                    ) {
+                        highlight = item;
+                    }
+                });
+                return highlight;
+            }
+
+            function setMonitorChannel(channel) {
+                $scope.channel = channel;
+                $scope.workspaceCapabilities.disableSlideLive = channel === 'preview';
+            }
+
+            function syncHighlightChannel() {
+                if (frameHighlight()) {
+                    setMonitorChannel($scope.isFrameHighlighted() ? 'live' : 'preview');
+                }
+            }
+
             function restoreLayout() {
                 var saved = null;
                 try {
@@ -272,6 +325,7 @@
                 if ($scope.frame) {
                     $scope.everSelected = true;
                 }
+                syncHighlightChannel();
 
                 lastState = Date.now();
                 $scope.ready = true;

@@ -112,6 +112,10 @@ button.selected {
     flex-shrink: 0;
     margin-left: 16px;
 }
+.podium-warning {
+    justify-content: center;
+    font-weight: 600;
+}
 
 .login {
     max-width: 440px;
@@ -271,9 +275,19 @@ main {
     gap: 12px;
     margin-top: 14px;
 }
+.transport {
+    flex-wrap: wrap;
+}
 .transport button,
 .all-controls button {
     flex: 1;
+}
+.transport .channels,
+.transport .navigation {
+    display: flex;
+    flex: 1 1 180px;
+    min-width: 0;
+    gap: 6px;
 }
 .transport button {
     font-size: 21px;
