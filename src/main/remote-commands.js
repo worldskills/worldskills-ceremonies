@@ -19,6 +19,7 @@ function validCommand(command, feedIds) {
             return (
                 command.frameIds === undefined &&
                 frame(command.frameId) &&
+                (command.autoHighlightPodium === undefined || typeof command.autoHighlightPodium === 'boolean') &&
                 ['previous', 'next', 'blank', 'live', 'show', 'preview', 'state', 'resetStates', 'context'].includes(
                     command.action
                 ) &&

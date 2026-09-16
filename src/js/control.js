@@ -360,7 +360,7 @@
                     publishAfterEdit(screen, slide);
                 };
 
-                $scope.showSlide = function (screen, slide, initialState) {
+                $scope.showSlide = function (screen, slide, initialState, autoHighlightPodium) {
                     var frame = FrameService.frames[screen];
                     var wasPreviewing = frame.previewSlide === slide;
                     var sameSlide = frame.slide === slide;
@@ -378,6 +378,13 @@
                         frame.previewState = undefined;
                     } else if (!sameSlide) {
                         slide.state = angular.copy(initialState || []);
+                    }
+
+                    if (autoHighlightPodium === undefined) {
+                        autoHighlightPodium = $scope.gridConfig.autoHighlightPodium;
+                    }
+                    if (autoHighlightPodium) {
+                        FrameState.highlightPodium(screen);
                     }
 
                     if (!sameSlide || wasPreviewing || wasBlanked) {

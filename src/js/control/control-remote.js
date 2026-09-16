@@ -243,11 +243,14 @@
                     });
 
                     $scope.update(command.frameId);
+                    if (action === 'live' && command.autoHighlightPodium === true) {
+                        FrameState.highlightPodium(command.frameId);
+                    }
                     return;
                 }
 
                 if (action === 'show') {
-                    $scope.showSlide(command.frameId, selected);
+                    $scope.showSlide(command.frameId, selected, null, command.autoHighlightPodium === true);
                     return;
                 }
 
@@ -278,13 +281,16 @@
                 // Only previous/next are left here. With nothing live, Next starts the frame.
                 if (!frame.slide) {
                     if (action === 'next' && frame.slides.length) {
-                        $scope.showSlide(command.frameId, frame.slides[0]);
+                        $scope.showSlide(command.frameId, frame.slides[0], null, command.autoHighlightPodium === true);
                         return;
                     }
                     throw new Error('Select a Live slide first.');
                 }
 
-                $scope[action === 'previous' ? 'prevSlideForFrame' : 'nextSlideForFrame'](command.frameId);
+                $scope[action === 'previous' ? 'prevSlideForFrame' : 'nextSlideForFrame'](
+                    command.frameId,
+                    command.autoHighlightPodium === true
+                );
             }
 
             function runRemoteAction(frame, action) {

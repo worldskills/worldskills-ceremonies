@@ -154,6 +154,14 @@
                             <label class="dropdown-checkbox-item" ng-click="$event.stopPropagation()">
                                 <input
                                     type="checkbox"
+                                    ng-model="gridConfig.autoHighlightPodium"
+                                    ng-change="projectDirty = true"
+                                />
+                                Automatically highlight podium
+                            </label>
+                            <label class="dropdown-checkbox-item" ng-click="$event.stopPropagation()">
+                                <input
+                                    type="checkbox"
                                     ng-model="gridConfig.splitContainers"
                                     ng-disabled="!isPrimaryGridFeed()"
                                 />

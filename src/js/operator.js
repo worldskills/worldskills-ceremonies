@@ -18,6 +18,7 @@
             $scope.auth = { pin: '' };
             $scope.status = 'Disconnected';
             $scope.channel = 'live';
+            $scope.autoHighlightPodium = false;
             $scope.frames = [];
             $scope.feeds = [];
             $scope.dynamicFunctionalities = [];
@@ -139,6 +140,7 @@
                     frameId: $scope.frameId,
                     action: action,
                     feedType: feed || 'all',
+                    autoHighlightPodium: $scope.autoHighlightPodium,
                 };
 
                 if (index != null) {
@@ -241,8 +243,12 @@
 
             function setMonitorChannel(channel) {
                 $scope.channel = channel;
-                $scope.workspaceCapabilities.disableSlideLive = channel === 'preview';
+                $scope.workspaceCapabilities.disableSlideLive = channel === 'preview' && !$scope.autoHighlightPodium;
             }
+
+            $scope.autoHighlightChanged = function () {
+                setMonitorChannel($scope.channel);
+            };
 
             function syncHighlightChannel() {
                 if (frameHighlight()) {

@@ -36,6 +36,15 @@
                 publishDynamicState();
             }
 
+            function highlightPodium(frameId) {
+                var highlight = FrameService.dynamicFunctionalities.filter(function (item) {
+                    return item.frameId === frameId && item.group && (item.scope || 'global') === 'global';
+                })[0];
+                if (highlight && FrameService.dynamicState.indexOf(highlight.id) < 0) {
+                    setDynamicFunctionality(highlight.id, true);
+                }
+            }
+
             function activeForFeed(slide, feedType, state) {
                 if (!slide) {
                     return false;
@@ -303,6 +312,7 @@
             }
 
             return {
+                highlightPodium: highlightPodium,
                 setDynamicFunctionality: setDynamicFunctionality,
                 clearDynamicGroup: clearDynamicGroup,
                 clearDynamicState: clearDynamicState,

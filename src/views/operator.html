@@ -63,6 +63,15 @@
                         ng-disabled="!ready"
                     ></select
                 ></label>
+                <label ng-show="hasFrameHighlight()">
+                    <input
+                        type="checkbox"
+                        ng-model="autoHighlightPodium"
+                        ng-change="autoHighlightChanged()"
+                        ng-disabled="!ready || !frame"
+                    />
+                    Automatically highlight podium
+                </label>
                 <label class="layout-control"
                     >Feed panel width
                     <input

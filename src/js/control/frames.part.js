@@ -13,7 +13,7 @@
                         FrameService.setActiveFrame(id);
                     };
 
-                    function stepFrame(frameId, direction) {
+                    function stepFrame(frameId, direction, autoHighlightPodium) {
                         var frame = FrameService.frames[frameId];
                         if (!frame || !frame.slide || !frame.slides || !frame.slides.length) {
                             return;
@@ -25,17 +25,17 @@
                         if (step.state) {
                             $scope.toggleState(frameId, frame.slide, step.state, true);
                         } else if (step.index < frame.slides.length) {
-                            $scope.showSlide(frameId, frame.slides[step.index], step.initialState);
+                            $scope.showSlide(frameId, frame.slides[step.index], step.initialState, autoHighlightPodium);
                             QueueScroll.scrollToActiveInFrame(frameId);
                         }
                     }
 
-                    $scope.prevSlideForFrame = function (frameId) {
-                        stepFrame(frameId, -1);
+                    $scope.prevSlideForFrame = function (frameId, autoHighlightPodium) {
+                        stepFrame(frameId, -1, autoHighlightPodium);
                     };
 
-                    $scope.nextSlideForFrame = function (frameId) {
-                        stepFrame(frameId, 1);
+                    $scope.nextSlideForFrame = function (frameId, autoHighlightPodium) {
+                        stepFrame(frameId, 1, autoHighlightPodium);
                     };
 
                     $scope.prevSlide = function () {
@@ -67,6 +67,7 @@
                     $scope.allFramesViewOpen = false;
                     $scope.gridConfigDialogOpen = false;
                     $scope.gridConfig = {
+                        autoHighlightPodium: true,
                         dynamicState: [],
                         cols: null,
                         frameWidth: 1280,
