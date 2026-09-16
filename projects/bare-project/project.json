@@ -2,28 +2,23 @@
   "version": 2,
   "name": "WorldSkills Competition 2026",
   "displayMode": "windows",
-  "feedTypes": [
-    { "id": "main", "gridSize": { "width": 1100, "height": 500 } },
-    { "id": "secondary", "gridSize": { "width": 800, "height": 500 } }
+  "dynamicFunctionalities": [
+    { "id": "highlight-red", "label": "Highlight Red podium on all screens", "group": "podium-highlight", "frameId": "a" },
+    { "id": "highlight-blue", "label": "Highlight Blue podium on all screens", "group": "podium-highlight", "frameId": "b" },
+    { "id": "highlight-yellow", "label": "Highlight Yellow podium on all screens", "group": "podium-highlight", "frameId": "c" },
+    { "id": "venue-wall", "label": "WSC2026 layout", "scope": "grid" }
   ],
-  "remote": {
-    "enabled": true,
-    "pin": "173210",
-    "port": 17321
-  },
-  "languages": [
-    {
-      "lang_code": "en"
-    },
-    {
-      "lang_code": "zh_CN"
+  "dynamicFunctionalityGroups": {
+    "podium-highlight": {
+      "label": "Podium highlight",
+      "description": "Show one podium on all screens",
+      "clearLabel": "Clear highlight"
     }
-  ],
+  },
   "frames": [
     {
       "id": "a",
       "label": "Podium Red",
-      "video": { "main": "red.mp4", "secondary": "" },
       "size": {
         "width": 589,
         "height": 553
@@ -35,16 +30,40 @@
         "fullscreen": false
       },
       "ordering": {
+        "includeAlbertVidal": true,
         "mode": "skills",
-        "skillNumbers": [],
-        "includeAlbertVidal": true
+        "skillNumbers": [
+          "01",
+          "04",
+          "07",
+          "10",
+          "14",
+          "17",
+          "20",
+          "23",
+          "26",
+          "29",
+          "32",
+          "35",
+          "38",
+          "41",
+          "46",
+          "49",
+          "52",
+          "55",
+          "58",
+          "62"
+        ]
       },
-      "color": "#D51067"
+      "color": "#D51067",
+      "video": {
+        "main": "red.mp4",
+        "secondary": ""
+      }
     },
     {
       "id": "b",
       "label": "Podium Blue",
-      "video": { "main": "blue.mp4", "secondary": "" },
       "size": {
         "width": 589,
         "height": 553
@@ -56,16 +75,41 @@
         "fullscreen": false
       },
       "ordering": {
+        "includeAlbertVidal": false,
         "mode": "skills",
-        "skillNumbers": [],
+        "skillNumbers": [
+          "02",
+          "05",
+          "08",
+          "12",
+          "15",
+          "18",
+          "21",
+          "24",
+          "27",
+          "30",
+          "33",
+          "36",
+          "39",
+          "42",
+          "47",
+          "50",
+          "53",
+          "56",
+          "59",
+          "63"
+        ],
         "sourceFile": null
       },
-      "color": "#0084AD"
+      "color": "#0084AD",
+      "video": {
+        "main": "blue.mp4",
+        "secondary": ""
+      }
     },
     {
       "id": "c",
       "label": "Podium Yellow",
-      "video": { "main": "yellow.mp4", "secondary": "" },
       "size": {
         "width": 588,
         "height": 553
@@ -77,17 +121,139 @@
         "fullscreen": false
       },
       "ordering": {
+        "includeAlbertVidal": false,
         "mode": "skills",
-        "skillNumbers": [],
+        "skillNumbers": [
+          "03",
+          "06",
+          "09",
+          "13",
+          "16",
+          "19",
+          "22",
+          "25",
+          "28",
+          "31",
+          "34",
+          "37",
+          "40",
+          "44",
+          "48",
+          "51",
+          "54",
+          "57",
+          "60"
+        ],
         "sourceFile": null
       },
-      "color": "#FEE300"
+      "color": "#FEE300",
+      "video": {
+        "main": "yellow.mp4",
+        "secondary": ""
+      }
     }
   ],
+  "skillOrder": [],
   "gridConfig": {
-    "cols": null,
-    "gap": 0,
-    "frameWidth": 500,
-    "frameHeight": 300
+    "dynamicState": ["venue-wall"],
+    "cols": 6,
+    "frameWidth": 1100,
+    "frameHeight": 500,
+    "autoFit": false,
+    "displayWidth": null,
+    "displayHeight": null,
+    "monitors": {
+      "main": null,
+      "secondary": null
+    },
+    "feed": "live",
+    "feedType": "secondary",
+    "splitContainers": false,
+    "fullscreen": true,
+    "gap": 0
+  },
+  "feedTypes": [
+    {
+      "id": "main",
+      "label": "main",
+      "gridSize": {
+        "width": 1100,
+        "height": 500
+      }
+    },
+    {
+      "id": "secondary",
+      "label": "secondary",
+      "gridSize": {
+        "width": 800,
+        "height": 500
+      }
+    }
+  ],
+  "routing": {
+    "callup": {
+      "base": [
+        "main"
+      ],
+      "stateFeed": "main",
+      "states": {
+        "Sponsors": "secondary"
+      },
+      "content": {
+        "secondary": "partners.html"
+      }
+    },
+    "medals": {
+      "base": [
+        "main",
+        "secondary"
+      ],
+      "stateFeed": "main",
+      "states": {},
+      "content": {
+        "secondary": "partners.html"
+      }
+    },
+    "mfe": {
+      "base": [
+        "main",
+        "secondary"
+      ],
+      "stateFeed": "main",
+      "states": {},
+      "content": {
+        "secondary": "partners.html"
+      }
+    },
+    "bestOfNation": {
+      "base": [
+        "secondary"
+      ],
+      "stateFeed": "secondary",
+      "states": {},
+      "content": {}
+    },
+    "albertVidal": {
+      "base": [
+        "main"
+      ],
+      "stateFeed": "main",
+      "states": {},
+      "content": {}
+    }
+  },
+  "languages": [
+    {
+      "lang_code": "en"
+    },
+    {
+      "lang_code": "zh_CN"
+    }
+  ],
+  "bestOfNationGroupSize": 5,
+  "remote": {
+    "enabled": true,
+    "port": 17321,
+    "pin": "173210"
   }
 }

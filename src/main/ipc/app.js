@@ -1,10 +1,16 @@
-const { ipcMain } = require('electron');
+const { app, ipcMain } = require('electron');
 const appWindows = require('../app-windows');
 const frameWindows = require('../frame-windows');
 const { sendControlDebug } = require('../control-channel');
 const { hasRole } = require('./sender-role');
 
 function registerAppIpc() {
+    ipcMain.on('app:forceQuit', (event) => {
+        if (hasRole(event, ['control'])) {
+            app.exit(0);
+        }
+    });
+
     ipcMain.handle('app:openControl', () => {
         appWindows.createControlWindow();
         appWindows.closeStartupWindow();

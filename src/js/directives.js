@@ -120,4 +120,35 @@
             },
         };
     });
+
+    angular.module('ceremoniesApp').directive('wsEqualAreaFlags', function () {
+        return {
+            restrict: 'A',
+            link: function (scope, element, attrs) {
+                scope.$evalAsync(function () {
+                    var flags = element[0].querySelectorAll('.screen-img-flag');
+                    var results = scope.$eval(attrs.wsEqualAreaFlags) || [];
+                    var targetArea = Infinity;
+                    var i;
+
+                    for (i = 0; i < flags.length; i++) {
+                        var flagArea = flags[i].parentElement;
+                        var ratio = Number(results[i] && results[i].flagRatio) || 1.5;
+                        targetArea = Math.min(
+                            targetArea,
+                            (flagArea.clientWidth * flagArea.clientWidth) / ratio,
+                            flagArea.clientHeight * flagArea.clientHeight * ratio
+                        );
+                    }
+
+                    for (i = 0; i < flags.length; i++) {
+                        var flagRatio = Number(results[i] && results[i].flagRatio) || 1.5;
+                        var height = Math.sqrt(targetArea / flagRatio);
+                        flags[i].style.width = height * flagRatio + 'px';
+                        flags[i].style.height = height + 'px';
+                    }
+                });
+            },
+        };
+    });
 })();

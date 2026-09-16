@@ -213,12 +213,8 @@ body.has-bg-video .screen-empty-logo {
     /* 1.3 = .screen-region-kv's padding-left, so rows align with the title. */
     --grid-gap-x: calc(var(--unit) * 1.3);
 
-    /*
-     * Flag box in --unit, never em: ws-fit gives every row its own font size,
-     * so an em-sized flag would come out a different size on every row.
-     */
     --flag-h: calc(var(--unit) * 0.62);
-    --flag-gap: calc(var(--unit) * 0.4);
+    --flag-gap: calc(var(--unit) * 0.6);
 
     padding: calc(var(--unit) * 1.5) var(--grid-gap-x);
 
@@ -252,32 +248,22 @@ body.has-bg-video .screen-empty-logo {
 }
 
 .screen-grid.screen-skill-medals-medals {
-    font-size: 1.3rem;
-    align-items: center;
-    --flag-h: calc(var(--unit) * 1.05);
-}
-
-.screen-grid.screen-skill-medals-medals .screen-medal {
-    height: 70%;
+    padding: 0 var(--grid-gap-x) var(--bottom-bar-inset);
+    font-size: 1.6rem;
+    row-gap: calc(var(--unit) * 0.5);
 }
 
 .screen-grid.screen-skill-medals-medals-dense {
-    padding: calc(var(--unit) * 0.3) var(--grid-gap-x) var(--bottom-bar-inset);
-    row-gap: 16px;
-    --flag-h: calc(var(--unit) * 0.8);
-    --flag-gap: calc(var(--unit) * 0.28);
+    row-gap: calc(var(--unit) * 0.3);
 }
 
-.screen-grid.screen-skill-medals-medals-dense .screen-medal {
-    height: 100%;
+.screen-grid.screen-skill-medals-medals-compact,
+.screen-grid .screen-medal-compact {
+    font-size: 1rem;
 }
 
-.screen-grid.screen-skill-medals-medals-dense .screen-medal-row {
-    gap: calc(var(--unit) * 0.4);
-}
-
-.screen-grid.screen-skill-medals-medals-dense .screen-medal-row-position {
-    flex-basis: 17%;
+.screen-grid.screen-skill-medals-medals-compact {
+    row-gap: calc(var(--unit) * 0.25);
 }
 
 .screen-grid .screen-medal {
@@ -297,7 +283,7 @@ body.has-bg-video .screen-empty-logo {
     max-height: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     flex-shrink: 0;
 }
 
@@ -319,38 +305,72 @@ body.has-bg-video .screen-empty-logo {
 }
 
 .screen-grid .screen-medal-row {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 15% min(22%, calc(var(--unit) * 4)) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     flex: 1 1 0;
     height: 100%;
-    gap: calc(var(--unit) * 0.5);
+    width: 100%;
+    gap: calc(var(--unit) * 0.8);
     min-width: 0;
     align-items: center;
     overflow: hidden;
 }
 
+.screen-skill-medals-medals-compact .screen-medal-row,
+.screen-grid .screen-medal-compact .screen-medal-row {
+    grid-template-columns: 15% min(18%, calc(var(--unit) * 2.6)) minmax(0, 1fr);
+    gap: calc(var(--unit) * 0.6);
+}
+
 .screen-grid .screen-medal-row-position {
-    flex: 0 0 22%;
+    display: flex;
+    align-items: center;
+    height: 100%;
     min-width: 0;
     max-height: 100%;
     overflow: hidden;
 }
 
-.screen-grid .screen-medal-row-competitors {
-    display: flex;
-    flex-direction: row;
-    flex: 1 1 0;
-    height: 100%;
-    align-items: center;
-    gap: var(--flag-gap);
-    min-width: 0;
-    overflow: hidden;
+.screen-medal-row-position .screen-translation {
+    align-self: center;
+}
+
+.screen-grid .screen-medal-row .screen-flag {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
 }
 
 .screen-medal-text {
     display: flex;
-    flex: 1 1 0;
+    align-items: center;
+    height: 100%;
     min-width: 0;
+    overflow: hidden;
+}
+
+.screen-grid .screen-medal-for-excellence {
+    --mfe-scale: clamp(1, calc(7 / var(--mfe-results, 7)), 2.5);
+    --flag-size: calc(var(--unit) * 1.8 * var(--mfe-scale));
+    font-size: min(1.3rem, calc(1rem * var(--mfe-scale)));
+    gap: calc(var(--unit) * 0.3);
+    display: grid;
+    grid-template-columns: var(--flag-size) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+}
+
+.screen-grid .screen-medal-for-excellence .screen-flag {
+    width: auto;
+    height: min(100%, var(--flag-size));
+    aspect-ratio: 1;
+    justify-self: start;
+}
+
+.screen-grid .screen-medal-for-excellence .screen-competitors {
+    height: 100%;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .screen-medal-name {
@@ -386,7 +406,11 @@ body.has-bg-video .screen-empty-logo {
     height: 100%;
     vertical-align: middle;
     object-fit: contain;
-    object-position: left center;
+    object-position: center;
+}
+
+.screen-medal-for-excellence .screen-flag img {
+    height: auto;
 }
 
 .screen-table-countries {
@@ -394,44 +418,40 @@ body.has-bg-video .screen-empty-logo {
 
     padding: var(--unit) calc(var(--unit) * 1.3);
 
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: minmax(0, 1fr);
     column-gap: var(--grid-gap-x);
     row-gap: calc(var(--unit) * 0.6);
-    align-content: center;
 
     font-size: 1.2rem;
     line-height: 1.25;
 }
 
 .screen-table-country {
-    flex: 0 0 100%;
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 3fr) minmax(0, 2fr);
     align-items: center;
-    justify-content: flex-start;
     text-align: center;
 }
 
-.screen-table-countries-cols-2 .screen-table-country {
-    flex-basis: calc(50% - var(--unit));
+.screen-table-countries-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.screen-table-countries-cols-3 .screen-table-country {
-    flex-basis: calc(33.333% - var(--unit));
+.screen-table-countries-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.screen-table-countries-cols-4 .screen-table-country {
-    flex-basis: calc(25% - var(--unit));
+.screen-table-countries-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .screen-table-country-flag {
-    flex: 0 0 auto;
-    width: calc(var(--unit) * 6.5);
-    height: calc(var(--unit) * 3.25);
+    width: 100%;
+    height: 100%;
     max-width: 100%;
     display: flex;
     align-items: center;
@@ -447,16 +467,15 @@ body.has-bg-video .screen-empty-logo {
     object-fit: contain;
 }
 
-.screen-table-countries-cols-4 .screen-table-country-flag {
-    width: calc(var(--unit) * 5);
-    height: calc(var(--unit) * 2.5);
-}
-
 .screen-table-country .screen-translation {
     align-self: center;
     width: 100%;
+    height: 100%;
     max-width: 100%;
+    font-size: 0.8em;
     gap: calc(var(--unit) * 0.15);
+    justify-content: center;
+    overflow: hidden;
 }
 
 .screen-table-country .screen-translation-line {
@@ -485,15 +504,6 @@ body.has-bg-video .screen-empty-logo {
     font-size: 1rem;
 }
 
-.screen-table-countries-dense .screen-table-country {
-    gap: 0.3em;
-}
-
-.screen-table-countries-dense .screen-table-country-flag {
-    width: calc(var(--unit) * 5.2);
-    height: calc(var(--unit) * 2.6);
-}
-
 .screen-table-countries-dense .screen-translation {
     gap: calc(var(--unit) * 0.1);
 }
@@ -513,15 +523,6 @@ body.has-bg-video .screen-empty-logo {
     padding-bottom: calc(var(--unit) * 0.25);
     row-gap: calc(var(--unit) * 0.35);
     font-size: 0.75rem;
-}
-
-.screen-table-countries-very-dense .screen-table-country {
-    gap: 0.3em;
-}
-
-.screen-table-countries-very-dense .screen-table-country-flag {
-    width: calc(var(--unit) * 3.2);
-    height: calc(var(--unit) * 1.6);
 }
 
 .screen-table-countries-very-dense .screen-translation {

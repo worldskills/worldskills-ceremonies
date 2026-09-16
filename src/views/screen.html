@@ -6,10 +6,6 @@
         <title>Ceremonies Screen</title>
         <link href="wstemplate://active/css/screen.css" rel="stylesheet" />
         <style>
-            /* Base layer behind everything: the frame's own color. A working bg video
-               (z-index -1, still painted above this) fully covers it; when there's no
-               video for this feed, or it fails to load, the color shows through instead
-               of the browser's default black canvas. */
             body {
                 background-color: var(--frame-accent, #000);
             }
@@ -107,7 +103,7 @@
         <!-- Test mode watermark — shown on all screens when test mode is active -->
         <div class="screen-test-mark" ng-show="testMode" ng-cloak>
             <div class="screen-test-id">
-                {{ testIdx ? (gridCols === 6 ? 'W' + testIdx : 'TEST #' + testIdx) : frame.label }}
+                {{ testIdx ? testPrefix + testIdx : frame.label }}
                 <span class="screen-test-size">{{ frameSize }}</span>
             </div>
             <div class="screen-test-diagonal">TEST</div>

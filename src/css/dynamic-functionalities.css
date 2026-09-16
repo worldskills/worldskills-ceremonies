@@ -1,0 +1,79 @@
+dynamic-functionalities {
+    display: block;
+    flex-shrink: 0;
+    min-width: 0;
+}
+.dynamic-functionalities {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 30vh;
+    overflow: auto;
+    margin: 0 0 12px;
+    padding: 4px 8px;
+    border: 1px solid #303e4e;
+    border-radius: 10px;
+    background: #161f2a;
+    color: #e6edf3;
+    font-size: 14px;
+}
+.dynamic-group,
+.dynamic-choices {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.dynamic-group {
+    gap: 12px 24px;
+}
+.dynamic-group + .dynamic-group {
+    padding-top: 12px;
+    border-top: 1px solid #303e4e;
+}
+.dynamic-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 160px;
+}
+.dynamic-heading span {
+    color: #a9b8c9;
+    font-size: 12px;
+}
+.dynamic-functionalities .dynamic-choice {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0;
+    padding: 5px 9px;
+    border: 1px solid #465568;
+    border-radius: 6px;
+    background: #253140;
+    color: #e6edf3;
+    font: inherit;
+    cursor: pointer;
+}
+.dynamic-functionalities .dynamic-choice:hover:enabled {
+    background: #34465a;
+}
+.dynamic-functionalities .dynamic-choice.is-active {
+    border-color: #91caff;
+    background: #284c6b;
+    box-shadow: inset 0 -2px #91caff;
+}
+.dynamic-functionalities .dynamic-choice:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.dynamic-functionalities .dynamic-choice:focus-visible {
+    outline: 3px solid #8dc7ff;
+    outline-offset: 2px;
+}
+.dynamic-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}

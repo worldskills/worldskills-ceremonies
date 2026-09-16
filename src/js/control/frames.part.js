@@ -67,6 +67,7 @@
                     $scope.allFramesViewOpen = false;
                     $scope.gridConfigDialogOpen = false;
                     $scope.gridConfig = {
+                        dynamicState: [],
                         cols: null,
                         frameWidth: 1280,
                         frameHeight: 720,
@@ -79,6 +80,25 @@
                         feedType: null,
                         splitContainers: false,
                         fullscreen: false,
+                    };
+
+                    $scope.setGridFunctionality = function (id, enabled) {
+                        $scope.gridConfig.dynamicState = FrameService.setFunctionalityState(
+                            $scope.gridConfig.dynamicState,
+                            id,
+                            enabled,
+                            'grid'
+                        );
+                        $scope.projectDirty = true;
+                    };
+
+                    $scope.clearGridFunctionalityGroup = function (group) {
+                        $scope.gridConfig.dynamicState = FrameService.clearFunctionalityGroup(
+                            $scope.gridConfig.dynamicState,
+                            group,
+                            'grid'
+                        );
+                        $scope.projectDirty = true;
                     };
 
                     $scope.gridFeedChanged = function () {
@@ -384,6 +404,7 @@
                             .openLargeWindow({
                                 frames: frames,
                                 grid: { cols: $scope.getGridCols(), gap: 0 },
+                                dynamicState: angular.copy($scope.gridConfig.dynamicState || []),
                                 frameSize: {
                                     width: parseInt($scope.gridConfig.frameWidth, 10) || 1280,
                                     height: parseInt($scope.gridConfig.frameHeight, 10) || 720,

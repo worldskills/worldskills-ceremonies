@@ -23,6 +23,7 @@
                         return;
                     }
                     SessionSnapshot.clear();
+                    FrameState.clearDynamicState();
                     $scope.clearScreenStorage();
                     $scope.addNotice('info', 'Session data cleared — restart to begin a fresh run.', 'session-cleared');
                 };

@@ -11,9 +11,19 @@ const fullApi = {
         openLargeWindow: (config) => ipcRenderer.invoke('frames:openLarge', config),
         getPositions: () => ipcRenderer.invoke('frames:getPositions'),
     },
+    outputs: {
+        list: () => ipcRenderer.invoke('outputs:list'),
+        close: (target) => ipcRenderer.invoke('outputs:close', target),
+        onChanged: (callback) => {
+            const listener = () => callback();
+            ipcRenderer.on('outputs:changed', listener);
+            return () => ipcRenderer.removeListener('outputs:changed', listener);
+        },
+    },
     grid: {
         template: () => ipcRenderer.invoke('grid:template'),
         fit: (size) => ipcRenderer.invoke('grid:fit', size),
+        sources: (frameIds) => ipcRenderer.invoke('grid:sources', frameIds),
     },
     displays: {
         list: () => ipcRenderer.invoke('displays:list'),
@@ -43,6 +53,7 @@ const fullApi = {
         clearSession: () => ipcRenderer.invoke('dev:clearSession'),
     },
     app: {
+        forceQuit: () => ipcRenderer.send('app:forceQuit'),
         openControl: () => ipcRenderer.invoke('app:openControl'),
         reloadScreen: (frameId) => ipcRenderer.invoke('app:reloadScreen', { frameId }),
         reportDebug: (type, message) => ipcRenderer.send('app:debug', { type, message }),

@@ -20,10 +20,18 @@
             $scope.channel = 'live';
             $scope.frames = [];
             $scope.feeds = [];
+            $scope.dynamicFunctionalities = [];
+            $scope.dynamicFunctionalityGroups = {};
+            $scope.dynamicState = [];
             $scope.screens = {};
             $scope.feedErrors = {};
             $scope.layout = { width: 80, panels: {} };
-            $scope.workspaceCapabilities = { preview: true, copyScript: false, editContext: false };
+            $scope.workspaceCapabilities = {
+                preview: true,
+                copyScript: false,
+                editContext: false,
+                disableSlideLive: false,
+            };
             $scope.FrameService = {
                 // The shared slide-row helpers read the project's feeds through here.
                 feedTypes: [],
@@ -62,11 +70,33 @@
                 if ($scope.frame) {
                     $scope.everSelected = true;
                 }
+                syncHighlightChannel();
                 $scope.saveLayout();
             };
 
             $scope.setChannel = function (channel) {
-                $scope.channel = channel;
+                var highlight = frameHighlight();
+
+                if (highlight) {
+                    if (channel === 'preview' && $scope.isFrameHighlighted()) {
+                        return;
+                    }
+                    if (channel === 'live' && !$scope.isFrameHighlighted()) {
+                        $scope.setDynamicFunctionality(highlight.id, true);
+                        return;
+                    }
+                }
+
+                setMonitorChannel(channel);
+            };
+
+            $scope.hasFrameHighlight = function () {
+                return !!frameHighlight();
+            };
+
+            $scope.isFrameHighlighted = function () {
+                var highlight = frameHighlight();
+                return !!highlight && $scope.dynamicState.indexOf(highlight.id) >= 0;
             };
 
             $scope.openFullscreen = function () {
@@ -100,17 +130,7 @@
             };
 
             $scope.command = function (action, feed, index, state, context) {
-                if (!$scope.ready) {
-                    fail('Command was not sent: connection is not ready.');
-                    return;
-                }
-
                 if (!$scope.frame) {
-                    return;
-                }
-
-                if (Object.keys(pending).length >= 32) {
-                    fail('Command not sent: too many commands are awaiting confirmation.');
                     return;
                 }
 
@@ -131,6 +151,27 @@
                     command.context = context;
                 }
 
+                sendCommand(command);
+            };
+
+            $scope.setDynamicFunctionality = function (id, enabled) {
+                sendCommand({ name: 'setDynamicFunctionality', functionalityId: id, enabled: enabled });
+            };
+
+            $scope.clearDynamicGroup = function (group) {
+                sendCommand({ name: 'clearDynamicGroup', group: group });
+            };
+
+            function sendCommand(command) {
+                if (!$scope.ready) {
+                    fail('Command was not sent: connection is not ready.');
+                    return;
+                }
+                if (Object.keys(pending).length >= 32) {
+                    fail('Command not sent: too many commands are awaiting confirmation.');
+                    return;
+                }
+
                 var id = 'operator-' + ++serial;
 
                 pending[id] = {
@@ -148,7 +189,7 @@
                 if (!RemoteTransport.sendRaw(payload)) {
                     settle(id, 'Command could not be sent. Check the connection before trying again.');
                 }
-            };
+            }
 
             $scope.connect = function () {
                 $scope.auth.pin = String($scope.auth.pin || '').trim();
@@ -181,6 +222,32 @@
                     }
                 });
                 return selected;
+            }
+
+            function frameHighlight() {
+                var highlight;
+                angular.forEach($scope.dynamicFunctionalities, function (item) {
+                    if (
+                        !highlight &&
+                        item.frameId === $scope.frameId &&
+                        item.group &&
+                        (item.scope || 'global') === 'global'
+                    ) {
+                        highlight = item;
+                    }
+                });
+                return highlight;
+            }
+
+            function setMonitorChannel(channel) {
+                $scope.channel = channel;
+                $scope.workspaceCapabilities.disableSlideLive = channel === 'preview';
+            }
+
+            function syncHighlightChannel() {
+                if (frameHighlight()) {
+                    setMonitorChannel($scope.isFrameHighlighted() ? 'live' : 'preview');
+                }
             }
 
             function restoreLayout() {
@@ -231,6 +298,9 @@
                 $scope.feeds = snapshot.feedTypes || [];
                 $scope.FrameService.feedTypes = $scope.feeds;
                 $scope.testMode = !!snapshot.testMode;
+                $scope.dynamicFunctionalities = snapshot.dynamicFunctionalities || [];
+                $scope.dynamicFunctionalityGroups = snapshot.dynamicFunctionalityGroups || {};
+                $scope.dynamicState = snapshot.dynamicState || [];
                 $scope.frame = selectedFrame();
 
                 if (!$scope.frame && $scope.frames.length) {
@@ -255,6 +325,7 @@
                 if ($scope.frame) {
                     $scope.everSelected = true;
                 }
+                syncHighlightChannel();
 
                 lastState = Date.now();
                 $scope.ready = true;

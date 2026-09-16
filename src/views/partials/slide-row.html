@@ -42,7 +42,8 @@
                 class="btn btn-sm btn-success mr-1"
                 ng-class="{active: screens[rowFrameId].slide === rowSlide}"
                 ng-click="rowShowLive()"
-                title="Show live"
+                ng-disabled="workspaceCapabilities.disableSlideLive"
+                title="{{ workspaceCapabilities.disableSlideLive ? 'Select Live before showing a live slide' : 'Show live' }}"
             >
                 <i class="fa fa-play"></i> Live
             </button>

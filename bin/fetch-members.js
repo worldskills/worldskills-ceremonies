@@ -54,6 +54,20 @@ function fetchFlag(member) {
     });
 }
 
+function flagRatio(code) {
+    try {
+        const png = fs.readFileSync(`${projectDir}/data/flags/${code}.png`);
+        if (png.length < 24 || png.toString('ascii', 1, 4) !== 'PNG') {
+            return 1.5;
+        }
+        const width = png.readUInt32BE(16);
+        const height = png.readUInt32BE(20);
+        return width && height ? width / height : 1.5;
+    } catch (_error) {
+        return 1.5;
+    }
+}
+
 async function main() {
     // English fetch doubles as the flag source (code + flag.thumbnail) — no need to hit the
     // members endpoint again just for that.
@@ -74,8 +88,11 @@ async function main() {
         });
     }
 
-    fs.writeFileSync(`${projectDir}/data/members.json`, JSON.stringify(members, null, 2));
     await Promise.all(enMembers.map(fetchFlag));
+    members.forEach((member) => {
+        member.flagRatio = flagRatio(member.code);
+    });
+    fs.writeFileSync(`${projectDir}/data/members.json`, JSON.stringify(members, null, 2));
 }
 
 main().catch((e) => {

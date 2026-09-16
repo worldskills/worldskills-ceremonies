@@ -16,7 +16,7 @@
                     return Object.keys(content).length ? CALLUP_STATES.slice() : ['Countries'];
                 }
 
-                function groupByMember(filteredResults) {
+                function groupByMember(filteredResults, flagRatios) {
                     return Array.from(
                         filteredResults
                             .reduce(function (accumulator, result) {
@@ -25,6 +25,7 @@
                                 // prototype-like codes such as "__proto__" safe.
                                 var memberCode = result[EXCEL_COLUMNS.MEMBER];
                                 var key = memberCode ? String(memberCode) : '__missing__' + accumulator.size;
+                                resultSimplified.flagRatio = flagRatios.get(key) || 1.5;
                                 if (!accumulator.has(key)) {
                                     resultSimplified.competitors = [];
                                     accumulator.set(key, resultSimplified);
@@ -69,6 +70,11 @@
                 function build(input) {
                     var skills = input.skills || [];
                     var members = input.members || [];
+                    var flagRatios = new Map(
+                        members.map(function (member) {
+                            return [String(member.code), Number(member.flagRatio) || 1.5];
+                        })
+                    );
                     var rawResults = input.results || [];
                     var results = rawResults.filter(function (result) {
                         return result && result[EXCEL_COLUMNS.FIRST_NAME] && result[EXCEL_COLUMNS.LAST_NAME];
@@ -100,7 +106,8 @@
                                     result[EXCEL_COLUMNS.MEDAL] &&
                                     result[EXCEL_COLUMNS.MEDAL].toUpperCase() != 'MEDAL FOR EXCELLENCE'
                                 );
-                            })
+                            }),
+                            flagRatios
                         );
 
                         if (skillMedalResults.length > 0) {
@@ -173,7 +180,8 @@
                                     result[EXCEL_COLUMNS.MEDAL] &&
                                     result[EXCEL_COLUMNS.MEDAL].toUpperCase() == 'MEDAL FOR EXCELLENCE'
                                 );
-                            })
+                            }),
+                            flagRatios
                         );
 
                         if (resultsMedalForExcellence.length > 0) {
@@ -290,7 +298,8 @@
                             : groupByMember(
                                   results.filter(function (result) {
                                       return parseFloat(result[EXCEL_COLUMNS.SCALE_SCORE]) === maxResult;
-                                  })
+                                  }),
+                                  flagRatios
                               );
 
                     var slideAlbertVidal = {

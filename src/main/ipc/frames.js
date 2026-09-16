@@ -86,8 +86,26 @@ function registerFrameIpc() {
     });
 
     ipcMain.handle('grid:fit', (event, size) => gridWindow.fitGridWindow(event.sender, size));
+    ipcMain.handle('grid:sources', (event, frameIds) => gridWindow.updateGridSources(event.sender, frameIds));
 
     ipcMain.handle('frames:getPositions', () => frameWindows.getFrameWindowPositions());
+
+    ipcMain.handle('outputs:list', (event) =>
+        hasRole(event, ['control']) ? frameWindows.listFrameWindows().concat(gridWindow.listGridWindows()) : []
+    );
+
+    ipcMain.handle('outputs:close', (event, target) => {
+        if (!hasRole(event, ['control']) || !target || !Number.isInteger(target.id)) {
+            return { ok: false };
+        }
+        if (target.type === 'frame') {
+            return frameWindows.closeFrameWindowById(target.id);
+        }
+        if (target.type === 'grid') {
+            return gridWindow.closeGridWindowById(target.id);
+        }
+        return { ok: false };
+    });
 
     ipcMain.handle('displays:list', () => listDisplays());
 }

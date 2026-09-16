@@ -11,6 +11,10 @@ function validCommand(command, feedIds) {
     const feed = Array.isArray(feedIds) && feedIds.indexOf(command.feedType) >= 0;
     const integer = (n, min, max) => Number.isInteger(n) && n >= min && n <= max;
     switch (command.name) {
+        case 'clearDynamicGroup':
+            return frame(command.group);
+        case 'setDynamicFunctionality':
+            return frame(command.functionalityId) && typeof command.enabled === 'boolean';
         case 'operator':
             return (
                 command.frameIds === undefined &&

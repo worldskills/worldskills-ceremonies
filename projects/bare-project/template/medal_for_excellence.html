@@ -26,9 +26,9 @@
     </div>
     <div
         class="screen-skill-medal-for-excellence screen-region-state screen-grid"
-        style="--grid-max-cols: {{ context.total >= 8 ? 2 : 1 }};"
+        style="--grid-max-cols: {{ context.total >= 8 ? 2 : 1 }}; --mfe-results: {{ context.results.length || 1 }};"
     >
-        <div class="screen-medal screen-medal-for-excellence" ng-repeat="result in context.results" ws-fit>
+        <div class="screen-medal screen-medal-for-excellence" ng-repeat="result in context.results">
             <div class="screen-flag">
                 <img
                     ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
@@ -38,7 +38,7 @@
                     "
                 />
             </div>
-            <div class="screen-competitors screen-competitors-multiline" style="text-transform: uppercase">
+            <div class="screen-competitors screen-competitors-multiline" style="text-transform: uppercase" ws-fit>
                 <span class="screen-competitor-name" ng-repeat="competitor in result.competitors track by $index"
                     >{{ competitor }}</span
                 >

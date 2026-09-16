@@ -131,6 +131,14 @@
             };
 
             function runStreamDeckCommand(command) {
+                if (command.name === 'clearDynamicGroup') {
+                    $scope.clearDynamicGroup(command.group);
+                    return { ok: true };
+                }
+                if (command.name === 'setDynamicFunctionality') {
+                    $scope.setDynamicFunctionality(command.functionalityId, command.enabled);
+                    return { ok: true };
+                }
                 var ids = command.frameIds || (command.frameId ? [command.frameId] : Object.keys(FrameService.frames));
                 if (
                     !ids.length ||

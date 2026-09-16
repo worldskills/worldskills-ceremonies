@@ -1,0 +1,65 @@
+<div class="dynamic-functionalities" ng-if="$ctrl.rows.length" >
+    <div class="dynamic-group" ng-repeat="row in $ctrl.rows track by row.key" role="group" aria-label="{{ row.label }}">
+        <div class="dynamic-heading">
+            <strong>{{ row.label }}</strong>
+            <span ng-if="row.description">{{ row.description }}</span>
+        </div>
+        <div class="dynamic-choices" ng-if="!row.forCurrentFrame">
+            <button
+                type="button"
+                class="dynamic-choice"
+                ng-if="row.group"
+                ng-disabled="$ctrl.disabled"
+                ng-class="{'is-active': !row.active}"
+                aria-pressed="{{ !row.active }}"
+                ng-click="$ctrl.clear(row)"
+            >
+                Off
+            </button>
+            <button
+                type="button"
+                class="dynamic-choice"
+                ng-repeat="item in row.items track by item.id"
+                ng-disabled="$ctrl.disabled"
+                ng-class="{'is-active': $ctrl.isActive(item)}"
+                aria-pressed="{{ $ctrl.isActive(item) }}"
+                title="{{ item.label }}"
+                ng-click="$ctrl.set(item, row.group ? true : !$ctrl.isActive(item))"
+            >
+                <span
+                    class="dynamic-color"
+                    ng-if="item.frameId"
+                    ng-style="{'background-color': $ctrl.color(item)}"
+                    aria-hidden="true"
+                ></span>
+                {{ row.frameLinked ? $ctrl.shortLabel(item) : item.label }}
+            </button>
+        </div>
+        <div class="dynamic-choices" ng-if="row.forCurrentFrame">
+            <button
+                type="button"
+                class="dynamic-choice"
+                ng-disabled="$ctrl.disabled || !row.current"
+                ng-class="{'is-active': $ctrl.isActive(row.current)}"
+                aria-pressed="{{ $ctrl.isActive(row.current) }}"
+                ng-click="$ctrl.set(row.current, true)"
+            >
+                <span
+                    class="dynamic-color"
+                    ng-if="row.current"
+                    ng-style="{'background-color': $ctrl.color(row.current)}"
+                    aria-hidden="true"
+                ></span>
+                {{ row.current.label || 'Activate for current frame' }}
+            </button>
+            <button
+                type="button"
+                class="dynamic-choice"
+                ng-disabled="$ctrl.disabled || !row.active"
+                ng-click="$ctrl.clear(row)"
+            >
+                {{ row.clearLabel }}
+            </button>
+        </div>
+    </div>
+</div>

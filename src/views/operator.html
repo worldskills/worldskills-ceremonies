@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="/node_modules/@worldskills/bootstrap/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css" />
         <link rel="stylesheet" href="/css/operator.css" />
+        <link rel="stylesheet" href="/css/dynamic-functionalities.css" />
     </head>
     <body class="operator-page" ng-controller="OperatorCtrl" ng-cloak>
         <header>
@@ -16,6 +17,14 @@
         </header>
 
         <div class="operator-alerts" aria-live="polite">
+            <div
+                class="alert podium-warning"
+                role="alert"
+                ng-if="authenticated && ready && frame && hasFrameHighlight() && !isFrameHighlighted()"
+            >
+                {{ frame.label }} is not highlighted on the Grid. You are in Preview; select Live to show this podium on
+                all screens.
+            </div>
             <div class="alert" role="alert" ng-if="error">
                 {{ error }}
                 <button ng-click="dismissError()" aria-label="Dismiss alert">×</button>
@@ -54,12 +63,6 @@
                         ng-disabled="!ready"
                     ></select
                 ></label>
-                <div class="channels" role="group" aria-label="Monitor channel">
-                    <button ng-class="{selected: channel === 'live'}" ng-click="setChannel('live')">Live</button
-                    ><button ng-class="{selected: channel === 'preview'}" ng-click="setChannel('preview')">
-                        Preview
-                    </button>
-                </div>
                 <label class="layout-control"
                     >Feed panel width
                     <input
@@ -78,6 +81,18 @@
                     <i class="fa fa-expand" aria-hidden="true"></i>
                 </button>
             </div>
+            <dynamic-functionalities
+                definitions="dynamicFunctionalities"
+                groups="dynamicFunctionalityGroups"
+                active-ids="dynamicState"
+                frames="screens"
+                scope-kind="global"
+                current-frame-id="frameId"
+                current-frame-only="true"
+                disabled="!ready"
+                on-set="setDynamicFunctionality(id, enabled)"
+                on-clear-group="clearDynamicGroup(group)"
+            ></dynamic-functionalities>
             <div
                 class="workspace"
                 ng-style="{'--operator-feed-width': layout.width + 'vw', 'grid-template-columns': 'minmax(0, ' + layout.width + 'vw) minmax(0, 1fr)'}"
@@ -142,11 +157,38 @@
                         </fieldset>
                     </div>
                     <div class="transport">
-                        <button ng-click="command('previous')" ng-disabled="!ready || !frame || frame.slideIndex < 0">
-                            ← Prev</button
-                        ><button class="next" ng-click="command('next')" ng-disabled="!ready || !frame.slides.length">
-                            Next →
-                        </button>
+                        <div class="channels" role="group" aria-label="Monitor channel">
+                            <button
+                                class="live"
+                                ng-class="{selected: channel === 'live'}"
+                                ng-click="setChannel('live')"
+                                ng-disabled="!ready || !frame"
+                                aria-pressed="{{ channel === 'live' }}"
+                            >
+                                Live</button
+                            ><button
+                                ng-class="{selected: channel === 'preview'}"
+                                ng-click="setChannel('preview')"
+                                ng-disabled="!ready || !frame || (hasFrameHighlight() && isFrameHighlighted())"
+                                aria-pressed="{{ channel === 'preview' }}"
+                            >
+                                Preview
+                            </button>
+                        </div>
+                        <div class="navigation" role="group" aria-label="Slide navigation">
+                            <button
+                                ng-click="command('previous')"
+                                ng-disabled="!ready || !frame || frame.slideIndex < 0"
+                            >
+                                ← Prev</button
+                            ><button
+                                class="next"
+                                ng-click="command('next')"
+                                ng-disabled="!ready || !frame.slides.length"
+                            >
+                                Next →
+                            </button>
+                        </div>
                     </div>
                     <div class="all-controls">
                         <button ng-click="command('blank')" ng-disabled="!ready || !frame">
@@ -165,6 +207,7 @@
         </main>
         <script src="/node_modules/angular/angular.min.js"></script>
         <script src="/js/control/control-workspace.js"></script>
+        <script src="/js/control/dynamic-functionalities.js"></script>
         <script src="/js/services/remote-transport.service.js"></script>
         <script src="/js/operator.js"></script>
     </body>

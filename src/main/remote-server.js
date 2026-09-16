@@ -31,6 +31,9 @@ const MIME = {
 };
 
 const STATIC_FILES = {
+    '/js/control/dynamic-functionalities.js': path.join(appRoot, 'src/js/control/dynamic-functionalities.js'),
+    '/partials/dynamic-functionalities.html': path.join(appRoot, 'src/views/partials/dynamic-functionalities.html'),
+    '/css/dynamic-functionalities.css': path.join(appRoot, 'src/css/dynamic-functionalities.css'),
     '/operator': path.join(appRoot, 'src/views/operator.html'),
     '/js/operator.js': path.join(appRoot, 'src/js/operator.js'),
     '/js/operator-feed.js': path.join(appRoot, 'src/js/operator-feed.js'),

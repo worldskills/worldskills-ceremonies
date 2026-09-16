@@ -7,6 +7,35 @@
             var screenKey = StorageKeys.screenKey;
             var previewKey = StorageKeys.previewKey;
 
+            function publishDynamicState() {
+                window.localStorage.setItem(StorageKeys.DYNAMIC_STATE_KEY, angular.toJson(FrameService.dynamicState));
+                syncRemote();
+            }
+
+            function clearDynamicState() {
+                FrameService.dynamicState = [];
+                publishDynamicState();
+            }
+
+            function setDynamicFunctionality(id, enabled) {
+                FrameService.dynamicState = FrameService.setFunctionalityState(
+                    FrameService.dynamicState,
+                    id,
+                    enabled,
+                    'global'
+                );
+                publishDynamicState();
+            }
+
+            function clearDynamicGroup(group) {
+                FrameService.dynamicState = FrameService.clearFunctionalityGroup(
+                    FrameService.dynamicState,
+                    group,
+                    'global'
+                );
+                publishDynamicState();
+            }
+
             function activeForFeed(slide, feedType, state) {
                 if (!slide) {
                     return false;
@@ -56,6 +85,7 @@
                     template: TEMPLATE_BASE + (content ? content.template : slide ? slide.template : 'empty.html'),
                     context: (content && content.context) || (slide && slide.context) || {},
                     state: filteredState,
+                    dynamicState: angular.copy(FrameService.dynamicState),
                     label: (slide && slide.label) || '',
                     frameLabel: frame.label || frameId,
                     accent: FrameService.getFrameColor(frameId),
@@ -157,7 +187,14 @@
 
                 window.ceremonator.remote.sync({
                     feedTypes: angular.copy(FrameService.feedTypes),
+                    dynamicFunctionalities: angular.copy(
+                        FrameService.dynamicFunctionalities.filter(function (item) {
+                            return item.scope !== 'grid';
+                        })
+                    ),
+                    dynamicState: angular.copy(FrameService.dynamicState),
                     frames: frames,
+                    dynamicFunctionalityGroups: angular.copy(FrameService.dynamicFunctionalityGroups),
                     testMode: StorageKeys.testMode(),
                 });
             }
@@ -266,6 +303,9 @@
             }
 
             return {
+                setDynamicFunctionality: setDynamicFunctionality,
+                clearDynamicGroup: clearDynamicGroup,
+                clearDynamicState: clearDynamicState,
                 publish: publish,
                 publishPreview: publishPreview,
                 clear: clear,

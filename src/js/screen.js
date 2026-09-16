@@ -38,6 +38,8 @@
                 // ── Test Mode ──────────────────────────────────────────────────
                 $scope.testMode = false;
                 $scope.testIdx = 0;
+                $scope.testPrefix = 'TEST #';
+                var gridState = [];
                 $scope.gridCols = 0;
                 function measureFrame() {
                     $scope.frameSize = window.innerWidth + '×' + window.innerHeight;
@@ -81,6 +83,10 @@
                         data = null;
                     }
 
+                    $scope.dynamicState = window.operatorFeed
+                        ? (data && data.dynamicState) || []
+                        : StorageKeys.dynamicState().concat(gridState);
+
                     if (!data) {
                         $scope.template = TEMPLATE_BASE + 'empty.html';
                         $scope.context = {};
@@ -98,6 +104,10 @@
                             testIdx: $scope.testIdx,
                             gridCols: $scope.gridCols,
                         };
+                        document.body.dataset.frame = $scope.frame.id;
+                        document.body.dataset.frameLabel = $scope.frame.label;
+                        document.body.classList.remove('has-bg-video', 'screen-bg-video-failed');
+                        document.documentElement.style.removeProperty('--frame-accent');
                         document.title =
                             'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.screen;
                         return;
@@ -153,6 +163,16 @@
                     var testMode = params.get('testMode') === '1' || StorageKeys.testMode();
                     var testIdx = parseInt(params.get('testIdx'), 10) || 0;
                     var gridCols = parseInt(params.get('gridCols'), 10) || 0;
+                    $scope.testPrefix = params.get('testPrefix') || 'TEST #';
+                    try {
+                        var configuredState = angular.fromJson(params.get('dynamicState') || '[]');
+                        if (angular.isArray(configuredState))
+                            gridState = configuredState.filter(function (id) {
+                                return typeof id === 'string';
+                            });
+                    } catch (_error) {
+                        /* No per-Grid functionality selected. */
+                    }
                     var container = params.get('container');
                     if (container) {
                         document.body.classList.add('screen-container-' + container);
@@ -197,6 +217,10 @@
                 window.addEventListener('storage', function (e) {
                     if (e.key === $scope.storageKey()) {
                         $scope.$evalAsync($scope.render);
+                    } else if (e.key === StorageKeys.DYNAMIC_STATE_KEY) {
+                        $scope.$evalAsync(function () {
+                            $scope.dynamicState = StorageKeys.dynamicState().concat(gridState);
+                        });
                     } else if (e.key === StorageKeys.TEST_MODE_KEY) {
                         // Test mode is toggled in the control panel while outputs stay open.
                         var enabled = e.newValue === '1';
@@ -239,14 +263,45 @@
                     $scope.$evalAsync(measureFrame);
                 });
 
+                var loadedTemplate = null;
+                $rootScope.$on('$includeContentLoaded', function (_event, source) {
+                    if (source === $scope.template) loadedTemplate = source;
+                });
+
+                function prepareGridCell() {
+                    var deadline = Date.now() + 30000;
+                    function ready() {
+                        var video = document.querySelector('video.screen-bg-video');
+                        var imagesReady = Array.prototype.every.call(document.images, function (img) {
+                            return img.complete;
+                        });
+                        var videoReady =
+                            !$scope.frame.video ||
+                            (video && (video.error || (video.readyState >= 2 && !video.paused)));
+                        if (
+                            loadedTemplate === $scope.template && imagesReady && videoReady &&
+                            (!document.fonts || document.fonts.status === 'loaded')
+                        ) {
+                            window.parent.postMessage({ type: 'grid-cell-ready' }, '*');
+                        } else if (Date.now() < deadline) {
+                            window.setTimeout(ready, 50);
+                        }
+                    }
+                    ready();
+                }
+
                 window.addEventListener('message', function (event) {
                     var data = event.data;
-                    if (event.source !== window.parent || !data || data.type !== 'grid-cell-size') {
+                    if (window.parent === window || event.source !== window.parent || !data) {
                         return;
                     }
-                    $scope.$evalAsync(function () {
-                        $scope.frameSize = data.width + '×' + data.height;
-                    });
+                    if (data.type === 'grid-cell-size') {
+                        $scope.$evalAsync(function () {
+                            $scope.frameSize = data.width + '×' + data.height;
+                        });
+                    } else if (data.type === 'grid-cell-prepare') {
+                        prepareGridCell();
+                    }
                 });
 
                 window.addEventListener('keydown', function (e) {

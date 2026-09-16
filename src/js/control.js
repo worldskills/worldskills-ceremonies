@@ -29,6 +29,11 @@
             ) {
                 var debug = DebugLog.log;
 
+                // Clear transient effects before session restoration can reopen outputs.
+                FrameState.clearDynamicState();
+                $scope.setDynamicFunctionality = FrameState.setDynamicFunctionality;
+                $scope.clearDynamicGroup = FrameState.clearDynamicGroup;
+
                 $scope.uploaded = false;
                 $scope.FrameService = FrameService;
                 $scope.displays = Displays.list;
@@ -36,6 +41,35 @@
                 $scope.projectDirty = false;
                 $scope.WORKSPACE_MODES = WORKSPACE_MODES;
                 $scope.workspaceMode = WORKSPACE_MODES.SETUP;
+                $scope.windowsManagerOpen = false;
+                $scope.openOutputs = [];
+                $scope.forceQuit = window.ceremonator?.app?.forceQuit;
+                $scope.showWindowsManager = function () {
+                    $scope.windowsManagerOpen = !$scope.windowsManagerOpen;
+                    if ($scope.windowsManagerOpen) {
+                        refreshOpenOutputs();
+                    }
+                };
+
+                function refreshOpenOutputs() {
+                    window.ceremonator.outputs.list().then(function (outputs) {
+                        $scope.$evalAsync(function () {
+                            $scope.openOutputs = outputs;
+                        });
+                    });
+                }
+
+                $scope.closeOutput = function (output) {
+                    window.ceremonator.outputs.close({ type: output.type, id: output.id });
+                };
+
+                if(window.ceremonator) {
+                    window.ceremonator.outputs.onChanged(function () {
+                        if ($scope.windowsManagerOpen) {
+                            refreshOpenOutputs();
+                        }
+                    });
+                }
 
                 // ── Test Mode ──────────────────────────────────────────────────
                 $scope.testMode = StorageKeys.testMode();
@@ -131,6 +165,10 @@
                         $scope.remoteConfig = angular.extend({}, $scope.remoteConfig, project.remote || {});
 
                         FrameService.setFeedTypes(project.feedTypes);
+                        FrameService.dynamicFunctionalities = angular.copy(project.dynamicFunctionalities || []);
+                        FrameService.dynamicFunctionalityGroups = angular.copy(
+                            project.dynamicFunctionalityGroups || {}
+                        );
                         Routing.set(project.routing);
 
                         if (project.gridConfig) {
@@ -517,6 +555,7 @@
                         $scope.projectMenuOpen ||
                         $scope.importMenuOpen ||
                         $scope.feedMenuOpen ||
+                        $scope.windowsManagerOpen ||
                         $scope.gridConfigDialogOpen ||
                         $scope.remoteConfigDialogOpen ||
                         $scope.bestOfNationImportDialogOpen

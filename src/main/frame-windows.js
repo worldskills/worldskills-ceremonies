@@ -3,7 +3,7 @@ const { baseWebPreferences, hideWindowMenu } = require('./window-factory');
 const { centerOnDisplay, resolveTargetDisplay, displayIndexForPoint } = require('./display-geometry');
 const { attachCloseShortcuts, confirmClose } = require('./window-close-guard');
 const { markWindow } = require('./ipc/sender-role');
-const { notifyFrameStatus, sendControlNotice } = require('./control-channel');
+const { notifyFrameStatus, sendControlNotice, notifyOutputsChanged } = require('./control-channel');
 const { FEED, FRAME_STATUS } = require('./constants');
 const { primaryFeedId } = require('./project-store');
 
@@ -272,6 +272,7 @@ function cleanupOnClosed(win, key, frameId, boundsState, req) {
     win.on('closed', () => {
         frameWindows.delete(key);
         frameWindowOpts.delete(key);
+        notifyOutputsChanged();
         if (
             !req.isPreview &&
             (!countFrameWindows(frameId).feeds[req.feedType] ||
@@ -316,6 +317,7 @@ function openFrameWindow(frameId, opts) {
     win.loadFile('src/views/screen.html', { search: frameWindowSearch(frameId, req, opts) });
     frameWindows.set(req.key, win);
     frameWindowOpts.set(req.key, Object.assign({ frameId: frameId }, opts || {}));
+    notifyOutputsChanged();
     emitFrameStatus(frameId, FRAME_STATUS.CONNECTING);
 
     reportFrameStatus(win, frameId);
@@ -389,6 +391,35 @@ function getOpenFrameCounts() {
         counts[frameId] = countFrameWindows(frameId);
     });
     return counts;
+}
+
+function listFrameWindows() {
+    const list = [];
+    frameWindows.forEach((win, key) => {
+        if (!win.isDestroyed()) {
+            const opts = frameWindowOpts.get(key) || {};
+            list.push({
+                id: win.id,
+                type: 'frame',
+                frameId: parseFrameWindowKey(key).frameId,
+                label: opts.label || parseFrameWindowKey(key).frameId,
+                container: parseFrameWindowKey(key).container,
+                feedType: opts.feedType || primaryFeedId(),
+                channel: opts.preview ? 'Preview' : 'Live',
+            });
+        }
+    });
+    return list;
+}
+
+function closeFrameWindowById(id) {
+    for (const win of frameWindows.values()) {
+        if (!win.isDestroyed() && win.id === id) {
+            win.close();
+            return { ok: win.isDestroyed() };
+        }
+    }
+    return { ok: false };
 }
 
 // Split KV/State windows are keyed 'frameId:kv'/'frameId:state', never bare frameId, so this can't be a plain Map.has() lookup.
@@ -469,6 +500,8 @@ module.exports = {
     reloadFrameWindow,
     getFrameWindowPositions,
     getOpenFrameCounts,
+    listFrameWindows,
+    closeFrameWindowById,
     hasFrameWindowFor,
     hasLiveFrameWindowFor,
     serializeOpenFrameWindows,
