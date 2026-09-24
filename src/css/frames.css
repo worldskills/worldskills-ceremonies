@@ -44,17 +44,20 @@ body.grid-autofit {
 .frame-cell-screen {
     position: absolute;
     inset: 0;
-    display: block;
+    display: none;
     width: 100%;
     height: 100%;
     border: none;
     overflow: hidden;
-    opacity: 0;
     pointer-events: none;
 }
 
+.frame-cell-screen.is-preparing,
 .frame-cell-screen.is-active {
-    opacity: 1;
+    display: block;
+}
+
+.frame-cell-screen.is-active {
     pointer-events: auto;
     z-index: 1;
 }

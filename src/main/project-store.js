@@ -6,11 +6,13 @@ const {
     bundledDataDir,
     projectFilePath,
     orderingFilePath,
+    slidesFilePath,
     templateDirPath,
     projectDataDir,
 } = require('./paths');
 const { readJson, writeJson } = require('./json-store');
 const { validateProject } = require('./project-contract');
+const { validate: validateFreeSlides } = require('../shared/free-slides');
 
 let activeProjectDir = null;
 let activeTemplateDir = null;
@@ -62,6 +64,21 @@ function loadProjectFolder(dir) {
             }
         }
 
+        // Missing means an older project; malformed content must never be silently overwritten on Save.
+        const slidesFile = slidesFilePath(dir);
+        project.freeSlides = [];
+        if (fs.existsSync(slidesFile)) {
+            try {
+                const data = JSON.parse(fs.readFileSync(slidesFile, 'utf8'));
+                const error =
+                    !data || data.version !== 1 ? 'Unsupported slides.json format.' : validateFreeSlides(data.slides);
+                if (error) throw new Error(error);
+                project.freeSlides = data.slides;
+            } catch (error) {
+                return { ok: false, code: 'invalidslides', error: 'Invalid slides.json: ' + error.message };
+            }
+        }
+
         const templateDir = resolveTemplateDir(dir);
         return { ok: true, dir, project, templateDir, orderingWarning };
     } catch (e) {
@@ -102,8 +119,15 @@ function writeProjectFiles(dir, project) {
     if (!validated.ok) {
         throw new Error(validated.error);
     }
+    const freeSlides = project.freeSlides || [];
+    const slidesError = validateFreeSlides(freeSlides);
+    if (slidesError) throw new Error(slidesError);
+    // Free slide definitions and placement belong exclusively to slides.json.
+    const config = Object.assign({}, project);
+    delete config.freeSlides;
+    writeJson(slidesFilePath(dir), { version: 1, slides: freeSlides });
     // project.json deliberately retains ordering as the recovery source if ordering.json is corrupt.
-    writeJson(projectFilePath(dir), project);
+    writeJson(projectFilePath(dir), config);
     writeJson(orderingFilePath(dir), extractOrdering(project));
 }
 

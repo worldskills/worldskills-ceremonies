@@ -39,7 +39,7 @@
                 var avaResult = [];
 
                 angular.forEach(avaFrame.slides, function (slide) {
-                    if (slide.label === ALBERT_VIDAL_AWARD_LABEL) {
+                    if (slide.kind !== 'free' && slide.label === ALBERT_VIDAL_AWARD_LABEL) {
                         avaResult.push({ slide: slide, frameId: avaFrameId, frame: avaFrame });
                     }
                 });
@@ -59,7 +59,7 @@
 
             angular.forEach(catalogSlides, function (catalogSlide) {
                 angular.forEach(frame.slides, function (slide) {
-                    if (slide.label === catalogSlide.label) {
+                    if (slide.kind !== 'free' && slide.label === catalogSlide.label) {
                         result.push({ slide: slide, frameId: frameId, frame: frame });
                     }
                 });
@@ -81,6 +81,76 @@
                     list.push(item);
                 }
             });
+        }
+
+        function insertFreeSlides(list, frameId, globalList) {
+            var slots = [];
+            angular.forEach(FrameService.freeSlides, function (definition, order) {
+                angular.forEach(
+                    window.CeremonatorFreeSlides.frameIds(definition),
+                    function (targetFrameId, targetOrder) {
+                        var id = window.CeremonatorFreeSlides.slideId(definition, targetFrameId);
+                        var queueOrder = globalList
+                            ? globalList
+                                  .map(function (item) {
+                                      return item.slide.slideId;
+                                  })
+                                  .indexOf(id)
+                            : -1;
+                        if (frameId && (targetFrameId !== frameId || queueOrder < 0)) return;
+                        var frame = FrameService.frames[targetFrameId];
+                        if (!frame || !FrameService.hasFeedType(definition.feedType)) return;
+                        var slide = (frame.slides || []).filter(function (candidate) {
+                            return candidate.slideId === id;
+                        })[0];
+                        if (!slide) return;
+                        var placement = window.CeremonatorFreeSlides.placementFor(definition, targetFrameId);
+                        var index =
+                            placement.position === 'start' ? 0 : placement.position === 'end' ? list.length : -1;
+                        if (index < 0) {
+                            angular.forEach(list, function (item, i) {
+                                var skill = item.slide.context && item.slide.context.skill;
+                                if (
+                                    item.frameId !== targetFrameId ||
+                                    !skill ||
+                                    Number(skill.number) !== Number(placement.skillNumber) ||
+                                    (placement.kind && item.slide.kind !== placement.kind)
+                                )
+                                    return;
+                                if (placement.position === 'after') index = i + 1;
+                                else if (index < 0) index = i;
+                            });
+                        }
+                        // An unavailable anchor stays saved, but must not silently move elsewhere in the show.
+                        if (index < 0) return;
+                        if (!slots[index]) slots[index] = [];
+                        slots[index].push({
+                            slide: slide,
+                            frameId: targetFrameId,
+                            frame: frame,
+                            sort: definition.sort,
+                            order: globalList ? queueOrder : order,
+                            targetOrder: targetOrder,
+                            rank: placement.position === 'start' ? 0 : placement.position === 'end' ? 2 : 1,
+                        });
+                    }
+                );
+            });
+            var result = [];
+            for (var i = 0; i <= list.length; i++) {
+                angular.forEach(
+                    (slots[i] || []).sort(function (a, b) {
+                        return globalList
+                            ? a.order - b.order
+                            : a.rank - b.rank || a.sort - b.sort || a.order - b.order || a.targetOrder - b.targetOrder;
+                    }),
+                    function (item) {
+                        result.push({ slide: item.slide, frameId: item.frameId, frame: item.frame });
+                    }
+                );
+                if (i < list.length) result.push(list[i]);
+            }
+            return result;
         }
 
         function buildQueueList(catalog, skills, albertVidalFrame) {
@@ -109,7 +179,7 @@
                 // assembleFrame does angular.copy so labels are preserved — match by label
                 angular.forEach(catalogSlides, function (catalogSlide) {
                     angular.forEach(frame.slides, function (slide) {
-                        if (slide.label === catalogSlide.label) {
+                        if (slide.kind !== 'free' && slide.label === catalogSlide.label) {
                             group.push({ slide: slide, frameId: frameId, frame: frame });
                         }
                     });
@@ -146,28 +216,20 @@
                 }
             }
 
-            // Best of Nation slides are assigned to the same configured special-award frame.
-            if (catalog[SLIDE_KEYS.BEST_OF_NATION]) {
-                var bonFrame = FrameService.frames[albertVidalFrame];
-                if (bonFrame && bonFrame.slides) {
-                    angular.forEach(bonFrame.slides, function (slide) {
-                        if (slide.template === 'best_of_nation.html') {
-                            list.push({ slide: slide, frameId: albertVidalFrame, frame: bonFrame });
-                        }
-                    });
-                }
+            // assembleFrame already puts the special awards in the project's sequence order.
+            var specialFrame = FrameService.frames[albertVidalFrame];
+            if (specialFrame && specialFrame.slides) {
+                angular.forEach(specialFrame.slides, function (slide) {
+                    if (
+                        slide.kind !== 'free' &&
+                        (slide.template === 'best_of_nation.html' || slide.label === ALBERT_VIDAL_AWARD_LABEL)
+                    ) {
+                        list.push({ slide: slide, frameId: albertVidalFrame, frame: specialFrame });
+                    }
+                });
             }
 
-            if (albertVidalFrame && catalog[SLIDE_KEYS.ALBERT_VIDAL]) {
-                var avaFrame = FrameService.frames[albertVidalFrame];
-                if (avaFrame && avaFrame.slides) {
-                    angular.forEach(avaFrame.slides, function (slide) {
-                        if (slide.label === ALBERT_VIDAL_AWARD_LABEL) {
-                            list.push({ slide: slide, frameId: albertVidalFrame, frame: avaFrame });
-                        }
-                    });
-                }
-            }
+            list = insertFreeSlides(list);
 
             var byFrame = {};
             angular.forEach(list, function (item) {
@@ -175,6 +237,30 @@
                     byFrame[item.frameId] = [];
                 }
                 byFrame[item.frameId].push(item);
+            });
+
+            // Keep frame Prev/Next's existing skill sequence, inserting the same free slides.
+            angular.forEach(FrameService.frames, function (frame, id) {
+                var local = (frame.slides || [])
+                    .filter(function (slide) {
+                        return slide.kind !== 'free';
+                    })
+                    .map(function (slide) {
+                        return { slide: slide, frameId: id, frame: frame };
+                    });
+                frame.slides = insertFreeSlides(local, id, list).map(function (item) {
+                    return item.slide;
+                });
+                if (frame.slide && frame.slide.kind === 'free' && frame.slides.indexOf(frame.slide) < 0)
+                    frame.slide = undefined;
+                if (
+                    frame.previewSlide &&
+                    frame.previewSlide.kind === 'free' &&
+                    frame.slides.indexOf(frame.previewSlide) < 0
+                ) {
+                    frame.previewSlide = undefined;
+                    frame.previewState = undefined;
+                }
             });
 
             return { list: list, byFrame: byFrame };

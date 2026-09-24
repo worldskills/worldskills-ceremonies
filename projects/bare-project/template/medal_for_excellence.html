@@ -26,11 +26,13 @@
     </div>
     <div
         class="screen-skill-medal-for-excellence screen-region-state screen-grid"
+        ws-equal-area-flags="context.results"
         style="--grid-max-cols: {{ context.total >= 8 ? 2 : 1 }}; --mfe-results: {{ context.results.length || 1 }};"
     >
         <div class="screen-medal screen-medal-for-excellence" ng-repeat="result in context.results">
             <div class="screen-flag">
                 <img
+                    class="screen-img-flag"
                     ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
                     onerror="
                         this.onerror = null;

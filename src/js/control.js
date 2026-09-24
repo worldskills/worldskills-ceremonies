@@ -63,7 +63,7 @@
                     window.ceremonator.outputs.close({ type: output.type, id: output.id });
                 };
 
-                if(window.ceremonator) {
+                if (window.ceremonator) {
                     window.ceremonator.outputs.onChanged(function () {
                         if ($scope.windowsManagerOpen) {
                             refreshOpenOutputs();
@@ -165,11 +165,16 @@
                         $scope.remoteConfig = angular.extend({}, $scope.remoteConfig, project.remote || {});
 
                         FrameService.setFeedTypes(project.feedTypes);
+                        FrameService.freeSlides = angular.copy(project.freeSlides || []);
                         FrameService.dynamicFunctionalities = angular.copy(project.dynamicFunctionalities || []);
                         FrameService.dynamicFunctionalityGroups = angular.copy(
                             project.dynamicFunctionalityGroups || {}
                         );
                         Routing.set(project.routing);
+                        FrameService.awardingSequence = angular.copy(project.awardingSequence || null);
+                        if (FrameService.awardingSequence) {
+                            $scope.gridConfig.autoHighlightPodium = FrameService.awardingSequence.autoHighlightPodium;
+                        }
 
                         if (project.gridConfig) {
                             $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
@@ -236,12 +241,14 @@
 
                     angular.forEach(FrameService.frames, function (frame, id) {
                         FrameService.frames[id] = $scope.assembleFrame(frame, $scope.catalog);
-                        $scope.update(id);
                     });
 
                     $scope.rebuildCatalogSkillList();
                     $scope.albertVidalFrame = $scope.getAlbertVidalFrame() || '';
                     $scope.buildQueueList();
+                    angular.forEach(FrameService.frames, function (frame, id) {
+                        $scope.update(id);
+                    });
                     if ($scope.skillsSelectedSkill) {
                         $scope.skillsSelectedSlides = $scope.getSkillQueueSlides($scope.skillsSelectedSkill.number);
                     }
@@ -271,12 +278,14 @@
                             if (frame.slide) {
                                 frame.slide.state = [];
                             }
-                            $scope.update(id);
                         });
                     }
                     $scope.rebuildCatalogSkillList();
                     $scope.albertVidalFrame = $scope.getAlbertVidalFrame() || '';
                     $scope.buildQueueList();
+                    angular.forEach(FrameService.frames, function (frame, id) {
+                        $scope.update(id);
+                    });
                     if ($scope.skillsSelectedSkill) {
                         $scope.skillsSelectedSlides = $scope.getSkillQueueSlides($scope.skillsSelectedSkill.number);
                     }
@@ -307,7 +316,17 @@
                     }
                 }
 
-                $scope.toggleState = function (screen, slide, state, live) {
+                function applyAwardingHighlight(screen, slide, autoHighlightPodium) {
+                    if (!FrameService.awardingSequence) return;
+                    if (autoHighlightPodium === undefined) {
+                        autoHighlightPodium = $scope.gridConfig.autoHighlightPodium;
+                    }
+                    if (autoHighlightPodium && FrameService.frames[screen].slide === slide) {
+                        FrameState.syncAwardingHighlight(screen);
+                    }
+                }
+
+                $scope.toggleState = function (screen, slide, state, live, autoHighlightPodium) {
                     FrameService.setActiveFrame(screen);
                     var frame = FrameService.frames[screen];
                     // Navigation changes Live; explicit row edits follow the Preview pin.
@@ -331,13 +350,17 @@
                     );
                     if (live) {
                         frame.blankedFeeds = {};
+                        frame.queueComplete = false;
                         $scope.update(screen);
                     } else {
                         publishAfterEdit(screen, slide);
                     }
+                    if (live || frame.previewSlide !== slide) {
+                        applyAwardingHighlight(screen, slide, autoHighlightPodium);
+                    }
                 };
 
-                $scope.resetStates = function (screen, slide) {
+                $scope.resetStates = function (screen, slide, autoHighlightPodium) {
                     FrameService.setActiveFrame(screen);
                     var frame = FrameService.frames[screen];
                     var hadStates = stateArrayFor(screen, slide).length > 0;
@@ -354,9 +377,50 @@
                         );
                     }
                     publishAfterEdit(screen, slide);
+                    if (frame.previewSlide !== slide) {
+                        applyAwardingHighlight(screen, slide, autoHighlightPodium);
+                    }
                 };
 
                 $scope.updateContext = function (screen, slide) {
+                    if (slide.kind === 'free') {
+                        var validContext =
+                            slide.context && typeof slide.context === 'object' && !angular.isArray(slide.context);
+                        angular.forEach(FrameService.freeSlides, function (definition) {
+                            if (window.CeremonatorFreeSlides.slideId(definition, screen) !== slide.slideId) return;
+                            if (validContext) definition.context = angular.copy(slide.context);
+                            else slide.context = angular.copy(definition.context);
+                            if (validContext) {
+                                angular.forEach(FrameService.frames, function (frame, frameId) {
+                                    var assignedSlide = null;
+                                    angular.forEach(frame.slides || [], function (candidate) {
+                                        if (
+                                            candidate.slideId ===
+                                            window.CeremonatorFreeSlides.slideId(definition, frameId)
+                                        ) {
+                                            candidate.context = angular.copy(slide.context);
+                                            assignedSlide = candidate;
+                                        }
+                                    });
+                                    if (
+                                        frameId !== screen &&
+                                        assignedSlide &&
+                                        (frame.slide === assignedSlide || frame.previewSlide === assignedSlide)
+                                    )
+                                        $scope.update(frameId);
+                                });
+                            }
+                        });
+                        if (!validContext) {
+                            $scope.addNotice(
+                                'warning',
+                                'Free slide content must be a valid JSON object.',
+                                'free-slide-context'
+                            );
+                            return;
+                        }
+                        $scope.projectDirty = true;
+                    }
                     publishAfterEdit(screen, slide);
                 };
 
@@ -366,6 +430,7 @@
                     var sameSlide = frame.slide === slide;
                     var wasBlanked = Object.keys(frame.blankedFeeds || {}).length > 0;
 
+                    frame.queueComplete = false;
                     if (!sameSlide) {
                         slide.done = true;
                         frame.slide = slide;
@@ -380,13 +445,11 @@
                         slide.state = angular.copy(initialState || []);
                     }
 
+                    var clearedHighlights = FrameState.clearHighlightsForSlide(slide);
+
                     if (autoHighlightPodium === undefined) {
                         autoHighlightPodium = $scope.gridConfig.autoHighlightPodium;
                     }
-                    if (autoHighlightPodium) {
-                        FrameState.highlightPodium(screen);
-                    }
-
                     if (!sameSlide || wasPreviewing || wasBlanked) {
                         debug(
                             'slide-changed',
@@ -409,6 +472,14 @@
                         }
 
                         $scope.update(screen);
+                    }
+
+                    if (autoHighlightPodium && !clearedHighlights) {
+                        if (FrameService.awardingSequence) {
+                            FrameState.syncAwardingHighlight(screen);
+                        } else {
+                            FrameState.highlightPodium(screen);
+                        }
                     }
                 };
 

@@ -16,6 +16,7 @@
 
     <div
         class="screen-skill-medals-medals screen-region-state screen-grid"
+        ws-equal-area-flags="context.results"
         ng-class="{
             'screen-skill-medals-medals-compact': context.results.length >= 4,
             'screen-skill-medals-medals-dense': context.results.length >= 6
@@ -37,6 +38,7 @@
                 </div>
                 <div class="screen-flag">
                     <img
+                        class="screen-img-flag"
                         ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
                         onerror="
                             this.onerror = null;

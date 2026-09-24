@@ -15,7 +15,20 @@
 
                     function stepFrame(frameId, direction, autoHighlightPodium) {
                         var frame = FrameService.frames[frameId];
-                        if (!frame || !frame.slide || !frame.slides || !frame.slides.length) {
+                        var sequence = FrameService.awardingSequence;
+                        if (
+                            !frame ||
+                            !frame.slides ||
+                            !frame.slides.length ||
+                            (sequence && direction > 0 && frame.queueComplete)
+                        ) {
+                            return;
+                        }
+                        if (!frame.slide) {
+                            if (sequence && direction > 0) {
+                                $scope.showSlide(frameId, frame.slides[0], null, autoHighlightPodium);
+                                QueueScroll.scrollToActiveInFrame(frameId);
+                            }
                             return;
                         }
                         var step = SlideStep.resolve(frame.slides, frame.slides.indexOf(frame.slide), direction);
@@ -23,12 +36,48 @@
                             return;
                         }
                         if (step.state) {
-                            $scope.toggleState(frameId, frame.slide, step.state, true);
+                            $scope.toggleState(frameId, frame.slide, step.state, true, autoHighlightPodium);
                         } else if (step.index < frame.slides.length) {
                             $scope.showSlide(frameId, frame.slides[step.index], step.initialState, autoHighlightPodium);
                             QueueScroll.scrollToActiveInFrame(frameId);
+                        } else if (sequence && direction > 0 && sequence.end === 'blank') {
+                            frame.queueComplete = true;
+                            frame.blankedFeeds = {};
+                            angular.forEach(FrameService.feedTypes, function (feed) {
+                                frame.blankedFeeds[feed.id] = true;
+                            });
+                            $scope.update(frameId);
+                            FrameState.clearAwardingHighlight(frameId);
                         }
                     }
+
+                    $scope.resetPodium = function (frameId) {
+                        var frame = FrameService.frames[frameId];
+                        if (!FrameService.awardingSequence) throw new Error('This project has no awarding sequence.');
+                        if (!frame) return;
+                        angular.forEach(frame.slides || [], function (item) {
+                            item.state = [];
+                            item.done = false;
+                        });
+                        frame.slide = undefined;
+                        frame.previewSlide = undefined;
+                        frame.previewState = undefined;
+                        frame.queueComplete = false;
+                        frame.blankedFeeds = {};
+                        angular.forEach(FrameService.feedTypes, function (feed) {
+                            frame.blankedFeeds[feed.id] = true;
+                        });
+                        $scope.update(frameId);
+                        FrameState.clearAwardingHighlight(frameId);
+                    };
+
+                    $scope.resetAllPodiums = function () {
+                        if (!FrameService.awardingSequence) throw new Error('This project has no awarding sequence.');
+                        angular.forEach(FrameService.frames, function (frame, id) {
+                            $scope.resetPodium(id);
+                        });
+                        FrameState.clearDynamicGroup(FrameService.awardingSequence.highlightGroup);
+                    };
 
                     $scope.prevSlideForFrame = function (frameId, autoHighlightPodium) {
                         stepFrame(frameId, -1, autoHighlightPodium);

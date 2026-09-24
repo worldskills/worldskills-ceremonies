@@ -12,6 +12,17 @@
                 >{{ rowFrameLabel }}</span
             >
             {{ rowLabel || rowSlide.label }}
+            <small class="text-muted" ng-if="rowSlide.kind === 'free'"> · Free slide</small>
+            <button
+                type="button"
+                class="btn btn-sm btn-white py-0 ml-1"
+                ng-if="rowSlide.kind === 'free' && editFreeSlide"
+                ng-click="editFreeSlide(rowSlide.slideId)"
+                title="Configure free slide"
+                aria-label="Configure free slide"
+            >
+                <i class="fa fa-cog" aria-hidden="true"></i>
+            </button>
         </span>
         <span
             ng-if="(workspaceCapabilities.editContext !== false && rowEditContext) || workspaceCapabilities.copyScript"

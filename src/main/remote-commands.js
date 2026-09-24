@@ -20,16 +20,27 @@ function validCommand(command, feedIds) {
                 command.frameIds === undefined &&
                 frame(command.frameId) &&
                 (command.autoHighlightPodium === undefined || typeof command.autoHighlightPodium === 'boolean') &&
-                ['previous', 'next', 'blank', 'live', 'show', 'preview', 'state', 'resetStates', 'context'].includes(
-                    command.action
-                ) &&
+                [
+                    'previous',
+                    'next',
+                    'blank',
+                    'live',
+                    'show',
+                    'preview',
+                    'state',
+                    'resetStates',
+                    'context',
+                    'reset',
+                ].includes(command.action) &&
                 (feed || command.feedType === 'all') &&
                 (!['show', 'preview', 'state', 'resetStates', 'context'].includes(command.action) ||
                     (integer(command.slideIndex, 0, 10000) &&
                         typeof command.slideId === 'string' &&
                         command.slideId.length <= 500)) &&
                 (command.action !== 'state' || (typeof command.state === 'string' && command.state.length <= 200)) &&
-                (command.action !== 'context' || command.context !== undefined)
+                (command.action !== 'context' || command.context !== undefined) &&
+                (command.resetScope === undefined ||
+                    (command.action === 'reset' && ['selected', 'all'].includes(command.resetScope)))
             );
         case 'continueLive':
             return frame(command.frameId);

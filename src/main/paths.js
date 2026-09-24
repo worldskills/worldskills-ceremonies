@@ -22,6 +22,9 @@ function projectFilePath(dir) {
 function orderingFilePath(dir) {
     return path.join(dir, 'ordering.json');
 }
+function slidesFilePath(dir) {
+    return path.join(dir, 'slides.json');
+}
 function templateDirPath(dir) {
     return path.join(dir, 'template');
 }
@@ -43,6 +46,7 @@ module.exports = {
     bundledDataDir,
     projectFilePath,
     orderingFilePath,
+    slidesFilePath,
     templateDirPath,
     translationsFilePath,
     projectDataDir,

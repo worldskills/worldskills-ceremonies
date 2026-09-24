@@ -129,6 +129,15 @@ body {
     flex-shrink: 0;
 }
 
+.awarding-toolbar {
+    flex-wrap: wrap;
+    padding: 8px 16px;
+}
+
+.awarding-toolbar .btn {
+    white-space: nowrap;
+}
+
 control-workspace,
 .control-workspace-shell {
     display: flex;

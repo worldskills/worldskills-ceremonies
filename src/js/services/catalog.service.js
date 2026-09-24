@@ -5,7 +5,15 @@
         .module('ceremoniesApp')
         .factory(
             'Catalog',
-            function ($filter, ResultFormat, Routing, SLIDE_KEYS, EXCEL_COLUMNS, ALBERT_VIDAL_AWARD_LABEL) {
+            function (
+                $filter,
+                ResultFormat,
+                Routing,
+                FrameService,
+                SLIDE_KEYS,
+                EXCEL_COLUMNS,
+                ALBERT_VIDAL_AWARD_LABEL
+            ) {
                 // Reveal names the templates hardcode; the data-driven ones are built per slide.
                 var CALLUP_STATES = ['Countries', 'Sponsors'];
                 var NAME_STATES = ['Name'];
@@ -120,6 +128,7 @@
                             var callupContent = Routing.content('callup', { sponsors: sortedSponsors(skill) });
                             var callupReveals = callupStates(callupContent);
                             var slideCallup = {
+                                kind: 'callup',
                                 label: skill.name.text + ' - Callup',
                                 template: 'skill_callup.html',
                                 states: callupReveals,
@@ -132,6 +141,7 @@
                                 },
                             };
                             var slideMedals = {
+                                kind: 'medals',
                                 label: skill.name.text + ' - Medals',
                                 template: 'skill_medals.html',
                                 states: states,
@@ -193,6 +203,7 @@
                             total = total || 1;
 
                             var slideMfe = {
+                                kind: 'mfe',
                                 label: skill.name.text + ' - Medal for Excellence',
                                 template: 'medal_for_excellence.html',
                                 states: NAME_STATES.slice(),
@@ -264,6 +275,7 @@
                                 return r.memberCode;
                             });
                             var slideBon = {
+                                kind: 'bestOfNation',
                                 label: 'Best of Nation ' + bon,
                                 template: 'best_of_nation.html',
                                 // One reveal step per member, in grid order — the code is the button label.
@@ -303,6 +315,7 @@
                               );
 
                     var slideAlbertVidal = {
+                        kind: 'albertVidal',
                         label: ALBERT_VIDAL_AWARD_LABEL,
                         template: 'albert_vidal_award.html',
                         states: NAME_STATES.slice(),
@@ -313,6 +326,24 @@
                         },
                     };
                     catalog[SLIDE_KEYS.ALBERT_VIDAL] = [slideAlbertVidal];
+
+                    if (FrameService.awardingSequence) {
+                        angular.forEach(catalog, function (slides, key) {
+                            var ordered = [];
+                            angular.forEach(FrameService.awardingSequence.slides, function (step) {
+                                angular.forEach(slides, function (slide) {
+                                    if (slide.kind !== step.kind) return;
+                                    if (step.reveals) {
+                                        slide.states = step.reveals.filter(function (name) {
+                                            return slide.states.indexOf(name) >= 0;
+                                        });
+                                    }
+                                    ordered.push(slide);
+                                });
+                            });
+                            catalog[key] = ordered;
+                        });
+                    }
 
                     return { slides: catalog, skippedRows: skippedRows };
                 }

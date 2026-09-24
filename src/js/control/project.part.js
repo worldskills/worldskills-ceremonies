@@ -19,13 +19,10 @@
                     if (!file) {
                         return;
                     }
-                    $scope.uploaded = true;
                     Excel.readRows(file)
                         .then(function (rows) {
-                            $scope.results = rows;
                             $scope.$apply(function () {
-                                if (!$scope.results || !$scope.results.length) {
-                                    $scope.uploaded = false;
+                                if (!rows || !rows.length) {
                                     $scope.addNotice(
                                         'error',
                                         'Import failed: no result rows were found in that file. Please import a valid CIS results spreadsheet (.xlsx).',
@@ -33,6 +30,32 @@
                                     );
                                     return;
                                 }
+                                if (
+                                    !['Skill Number', 'Medal', 'First Name', 'Last Name'].every(function (column) {
+                                        return Object.prototype.hasOwnProperty.call(rows[0], column);
+                                    })
+                                ) {
+                                    $scope.addNotice(
+                                        'error',
+                                        'Import failed: this is not a CIS results spreadsheet. Required columns: Skill Number, Medal, First Name, Last Name.',
+                                        'import'
+                                    );
+                                    return;
+                                }
+                                if (
+                                    !rows.some(function (row) {
+                                        return row['Skill Number'] && row['First Name'] && row['Last Name'];
+                                    })
+                                ) {
+                                    $scope.addNotice(
+                                        'error',
+                                        'Import failed: no rows contain a skill number and competitor name. Current results were kept.',
+                                        'import'
+                                    );
+                                    return;
+                                }
+                                $scope.results = rows;
+                                $scope.uploaded = true;
                                 $scope.buildScreens();
 
                                 var total = ($scope.results && $scope.results.length) || 0;
@@ -60,7 +83,6 @@
                         })
                         .catch(function (error) {
                             $scope.$apply(function () {
-                                $scope.uploaded = false;
                                 $scope.addNotice(
                                     'error',
                                     'Import failed: the file could not be read as a spreadsheet. Please import a valid CIS results file (.xlsx). (' +

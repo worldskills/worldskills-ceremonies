@@ -136,6 +136,57 @@ function normalizeRemoteConfig(remote) {
     return { enabled: config.enabled !== false, port: port, pin: pin };
 }
 
+function validateAwardingSequence(sequence, functionalities) {
+    if (sequence == null) return { ok: true };
+    if (
+        typeof sequence !== 'object' ||
+        Array.isArray(sequence) ||
+        typeof sequence.highlightGroup !== 'string' ||
+        !functionalities.some(
+            (item) => item.group === sequence.highlightGroup && item.scope === 'global' && item.frameId
+        ) ||
+        typeof sequence.autoHighlightPodium !== 'boolean' ||
+        !['blank', 'hold'].includes(sequence.end) ||
+        !Array.isArray(sequence.slides) ||
+        !sequence.slides.length ||
+        sequence.slides.length > ROUTING_KINDS.length
+    ) {
+        return {
+            ok: false,
+            error: 'Awarding sequence needs a configured global highlightGroup, autoHighlightPodium boolean, end (blank/hold), and slides.',
+        };
+    }
+    const kinds = new Set();
+    for (const step of sequence.slides) {
+        if (
+            !step ||
+            ROUTING_KINDS.indexOf(step.kind) < 0 ||
+            kinds.has(step.kind) ||
+            (typeof step.highlight !== 'boolean' &&
+                (typeof step.highlight !== 'string' || !step.highlight.trim() || step.highlight.length > 200)) ||
+            (step.reveals != null &&
+                (!Array.isArray(step.reveals) ||
+                    step.reveals.length > 200 ||
+                    step.reveals.some((name) => typeof name !== 'string' || !name.trim() || name.length > 200) ||
+                    new Set(step.reveals).size !== step.reveals.length)) ||
+            (typeof step.highlight === 'string' && step.reveals && !step.reveals.includes(step.highlight))
+        ) {
+            return {
+                ok: false,
+                error: 'Awarding slides need unique supported kinds, highlight (boolean or reveal name), and optional unique reveal names.',
+            };
+        }
+        kinds.add(step.kind);
+    }
+    const highlightedFrames = functionalities
+        .filter((item) => item.scope === 'global' && item.group === sequence.highlightGroup && item.frameId)
+        .map((item) => item.frameId);
+    if (new Set(highlightedFrames).size !== highlightedFrames.length) {
+        return { ok: false, error: 'Awarding highlightGroup must have at most one highlight per frame.' };
+    }
+    return { ok: true };
+}
+
 function validateProject(project) {
     if (
         !project ||
@@ -244,6 +295,8 @@ function validateProject(project) {
             ),
         ])
     );
+    const sequence = validateAwardingSequence(project.awardingSequence, project.dynamicFunctionalities);
+    if (!sequence.ok) return sequence;
     const gridState = project.gridConfig && project.gridConfig.dynamicState;
     if (
         gridState != null &&

@@ -2,26 +2,13 @@
   "version": 2,
   "name": "WorldSkills Competition 2026",
   "displayMode": "windows",
-  "dynamicFunctionalities": [
-    { "id": "highlight-red", "label": "Highlight Red podium on all screens", "group": "podium-highlight", "frameId": "a" },
-    { "id": "highlight-blue", "label": "Highlight Blue podium on all screens", "group": "podium-highlight", "frameId": "b" },
-    { "id": "highlight-yellow", "label": "Highlight Yellow podium on all screens", "group": "podium-highlight", "frameId": "c" },
-    { "id": "venue-wall", "label": "WSC2026 layout", "scope": "grid" }
-  ],
-  "dynamicFunctionalityGroups": {
-    "podium-highlight": {
-      "label": "Podium highlight",
-      "description": "Show one podium on all screens",
-      "clearLabel": "Clear highlight"
-    }
-  },
   "frames": [
     {
       "id": "a",
       "label": "Podium Red",
       "size": {
         "width": 589,
-        "height": 553
+        "height": 581
       },
       "position": {
         "monitor": 0,
@@ -30,29 +17,33 @@
         "fullscreen": false
       },
       "ordering": {
-        "includeAlbertVidal": true,
+        "includeAlbertVidal": false,
         "mode": "skills",
         "skillNumbers": [
-          "01",
-          "04",
-          "07",
-          "10",
-          "14",
-          "17",
           "20",
-          "23",
-          "26",
-          "29",
-          "32",
-          "35",
-          "38",
-          "41",
           "46",
-          "49",
-          "52",
+          "03",
+          "22",
+          "38",
+          "53",
+          "39",
+          "11",
+          "47",
+          "42",
+          "56",
+          "43",
+          "57",
+          "07",
+          "19",
+          "48",
+          "60",
           "55",
-          "58",
-          "62"
+          "50",
+          "28",
+          "44",
+          "14",
+          "36",
+          "61"
         ]
       },
       "color": "#D51067",
@@ -78,26 +69,28 @@
         "includeAlbertVidal": false,
         "mode": "skills",
         "skillNumbers": [
-          "02",
-          "05",
-          "08",
-          "12",
-          "15",
-          "18",
-          "21",
           "24",
-          "27",
+          "58",
+          "25",
+          "21",
+          "12",
+          "54",
+          "08",
+          "17",
           "30",
-          "33",
-          "36",
-          "39",
-          "42",
-          "47",
-          "50",
-          "53",
-          "56",
+          "29",
+          "32",
+          "23",
+          "06",
           "59",
-          "63"
+          "05",
+          "62",
+          "10",
+          "45",
+          "40",
+          "13",
+          "49",
+          "64"
         ],
         "sourceFile": null
       },
@@ -124,25 +117,24 @@
         "includeAlbertVidal": false,
         "mode": "skills",
         "skillNumbers": [
-          "03",
-          "06",
-          "09",
-          "13",
-          "16",
-          "19",
-          "22",
-          "25",
-          "28",
-          "31",
-          "34",
+          "26",
+          "18",
           "37",
-          "40",
-          "44",
-          "48",
-          "51",
-          "54",
-          "57",
-          "60"
+          "15",
+          "02",
+          "09",
+          "34",
+          "41",
+          "35",
+          "52",
+          "16",
+          "01",
+          "04",
+          "63",
+          "31",
+          "27",
+          "33",
+          "51"
         ],
         "sourceFile": null
       },
@@ -153,23 +145,89 @@
       }
     }
   ],
-  "skillOrder": [],
+  "skillOrder": [
+    "20",
+    "24",
+    "26",
+    "46",
+    "58",
+    "18",
+    "3",
+    "25",
+    "37",
+    "22",
+    "21",
+    "15",
+    "38",
+    "12",
+    "47",
+    "30",
+    "34",
+    "42",
+    "29",
+    "41",
+    "56",
+    "32",
+    "35",
+    "43",
+    "53",
+    "54",
+    "2",
+    "39",
+    "8",
+    "9",
+    "11",
+    "17",
+    "57",
+    "23",
+    "52",
+    "7",
+    "6",
+    "16",
+    "19",
+    "59",
+    "1",
+    "48",
+    "5",
+    "4",
+    "60",
+    "62",
+    "63",
+    "55",
+    "10",
+    "50",
+    "45",
+    "31",
+    "28",
+    "40",
+    "27",
+    "44",
+    "14",
+    "13",
+    "33",
+    "36",
+    "49",
+    "51",
+    "61",
+    "64"
+  ],
   "gridConfig": {
-    "dynamicState": ["venue-wall"],
-    "cols": 6,
+    "autoHighlightPodium": true,
+    "dynamicState": [],
+    "cols": 3,
     "frameWidth": 1100,
     "frameHeight": 500,
     "autoFit": false,
     "displayWidth": null,
     "displayHeight": null,
     "monitors": {
-      "main": null,
+      "main": 1,
       "secondary": null
     },
     "feed": "live",
-    "feedType": "secondary",
+    "feedType": "main",
     "splitContainers": false,
-    "fullscreen": true,
+    "fullscreen": false,
     "gap": 0
   },
   "feedTypes": [
@@ -190,6 +248,43 @@
       }
     }
   ],
+  "dynamicFunctionalities": [
+    {
+      "id": "highlight-red",
+      "label": "Highlight Red podium on all screens",
+      "group": "podium-highlight",
+      "scope": "global",
+      "frameId": "a"
+    },
+    {
+      "id": "highlight-blue",
+      "label": "Highlight Blue podium on all screens",
+      "group": "podium-highlight",
+      "scope": "global",
+      "frameId": "b"
+    },
+    {
+      "id": "highlight-yellow",
+      "label": "Highlight Yellow podium on all screens",
+      "group": "podium-highlight",
+      "scope": "global",
+      "frameId": "c"
+    },
+    {
+      "id": "venue-wall",
+      "label": "WSC2026 layout",
+      "group": null,
+      "scope": "grid",
+      "frameId": null
+    }
+  ],
+  "dynamicFunctionalityGroups": {
+    "podium-highlight": {
+      "label": "Podium highlight",
+      "description": "Show one podium on all screens",
+      "clearLabel": "Clear highlight"
+    }
+  },
   "routing": {
     "callup": {
       "base": [
@@ -255,5 +350,36 @@
     "enabled": true,
     "port": 17321,
     "pin": "173210"
+  },
+  "awardingSequence": {
+    "highlightGroup": "podium-highlight",
+    "autoHighlightPodium": true,
+    "end": "blank",
+    "slides": [
+      {
+        "kind": "callup",
+        "reveals": [
+          "Countries",
+          "Sponsors"
+        ],
+        "highlight": "Sponsors"
+      },
+      {
+        "kind": "medals",
+        "highlight": true
+      },
+      {
+        "kind": "mfe",
+        "highlight": true
+      },
+      {
+        "kind": "bestOfNation",
+        "highlight": true
+      },
+      {
+        "kind": "albertVidal",
+        "highlight": true
+      }
+    ]
   }
 }

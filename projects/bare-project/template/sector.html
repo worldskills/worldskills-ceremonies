@@ -1,0 +1,13 @@
+<div class="screen-content screen-content-sector">
+    <div class="screen-content-sector-texts">
+        <div class="screen-translation">
+            <span
+                    class="screen-translation-line"
+                    ng-repeat="l in languages"
+                    ng-class="{'screen-translation-primary': $index === 0}"
+                    translate="{{ context.name }}"
+                    translate-language="{{ l.lang_code }}"
+            ></span>
+        </div>
+    </div>
+</div>

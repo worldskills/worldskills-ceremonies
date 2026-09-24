@@ -225,6 +225,15 @@
                     throw new Error('The queue changed. Select the slide again.');
                 }
 
+                if (action === 'reset') {
+                    if (command.resetScope === 'all') {
+                        $scope.resetAllPodiums();
+                    } else {
+                        $scope.resetPodium(command.frameId);
+                    }
+                    return;
+                }
+
                 if (action === 'blank' || action === 'live') {
                     if (action === 'live' && !frame.slide) {
                         throw new Error('Select a Live slide first.');
@@ -239,12 +248,17 @@
                             $scope.resetFrame(command.frameId, feed.id);
                         } else {
                             delete frame.blankedFeeds[feed.id];
+                            frame.queueComplete = false;
                         }
                     });
 
                     $scope.update(command.frameId);
                     if (action === 'live' && command.autoHighlightPodium === true) {
-                        FrameState.highlightPodium(command.frameId);
+                        if (FrameService.awardingSequence) {
+                            FrameState.syncAwardingHighlight(command.frameId);
+                        } else {
+                            FrameState.highlightPodium(command.frameId);
+                        }
                     }
                     return;
                 }
@@ -268,9 +282,15 @@
                         if ((selected.states || []).indexOf(command.state) < 0) {
                             throw new Error('This state no longer exists.');
                         }
-                        $scope.toggleState(command.frameId, selected, command.state);
+                        $scope.toggleState(
+                            command.frameId,
+                            selected,
+                            command.state,
+                            false,
+                            command.autoHighlightPodium === true
+                        );
                     } else if (action === 'resetStates') {
-                        $scope.resetStates(command.frameId, selected);
+                        $scope.resetStates(command.frameId, selected, command.autoHighlightPodium === true);
                     } else {
                         selected.context = angular.copy(command.context);
                         $scope.updateContext(command.frameId, selected);
@@ -281,7 +301,16 @@
                 // Only previous/next are left here. With nothing live, Next starts the frame.
                 if (!frame.slide) {
                     if (action === 'next' && frame.slides.length) {
-                        $scope.showSlide(command.frameId, frame.slides[0], null, command.autoHighlightPodium === true);
+                        if (FrameService.awardingSequence) {
+                            $scope.nextSlideForFrame(command.frameId, command.autoHighlightPodium === true);
+                        } else {
+                            $scope.showSlide(
+                                command.frameId,
+                                frame.slides[0],
+                                null,
+                                command.autoHighlightPodium === true
+                            );
+                        }
                         return;
                     }
                     throw new Error('Select a Live slide first.');

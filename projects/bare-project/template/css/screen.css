@@ -338,7 +338,7 @@ body.has-bg-video .screen-empty-logo {
 
 .screen-grid .screen-medal-row .screen-flag {
     width: 100%;
-    height: auto;
+    height: min(100%, calc(var(--unit) * 1.8));
     aspect-ratio: 3 / 2;
 }
 
@@ -352,7 +352,7 @@ body.has-bg-video .screen-empty-logo {
 
 .screen-grid .screen-medal-for-excellence {
     --mfe-scale: clamp(1, calc(7 / var(--mfe-results, 7)), 2.5);
-    --flag-size: calc(var(--unit) * 1.8 * var(--mfe-scale));
+    --flag-size: calc(var(--unit) * 1.8);
     font-size: min(1.3rem, calc(1rem * var(--mfe-scale)));
     gap: calc(var(--unit) * 0.3);
     display: grid;
@@ -537,4 +537,22 @@ body.has-bg-video .screen-empty-logo {
 .screen-table-countries-very-dense .screen-translation-primary {
     flex-basis: calc(var(--unit) * 0.8);
     height: calc(var(--unit) * 0.8);
+}
+
+.screen-img-flag {
+    box-shadow: 1px 1px 8px 6px rgb(255 255 255 / 60%);
+}
+
+.screen-content-sector-texts {
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.screen-content-sector-texts .screen-translation {
+    align-self: unset !important;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.5em;
 }

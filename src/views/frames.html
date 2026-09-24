@@ -98,6 +98,7 @@
                 var cells = [];
                 var cellFrames = [];
                 var pendingViews = [];
+                var sourceRequestId = 0;
                 var dynamicStateKey = "ceremonator:dynamicState";
                 var mappingErrors = {};
 
@@ -130,8 +131,7 @@
                     return cell.originalId;
                 }
 
-                function updateCellSource(cell, state) {
-                    var id = sourceFor(cell, state);
+                function showCellSource(cell, id) {
                     var original = id === cell.originalId;
                     var frame = byId[id] || {};
                     cell.caption.textContent = original ? cell.label : frame.label || id;
@@ -139,16 +139,42 @@
                     cell.element.style.setProperty("--cell-accent", original ? cell.accent : frame.accent || "");
                     cell.views.forEach(function (iframe) {
                         var active = iframe.dataset.frameId === id;
+                        iframe.classList.remove("is-preparing");
                         iframe.classList.toggle("is-active", active);
                         iframe.setAttribute("aria-hidden", String(!active));
                         iframe.tabIndex = active ? 0 : -1;
                     });
-                    return id;
+                    cell.activeId = id;
+                    cell.nextId = null;
+                    cell.requestId = null;
+                }
+
+                function prepareView(iframe, requestId) {
+                    // Never inspect contentWindow before this iframe's own load.
+                    if (!iframe.__loaded) return;
+                    iframe.contentWindow.postMessage({ type: "grid-cell-prepare", requestId: requestId }, "*");
+                }
+
+                function updateCellSource(cell, state) {
+                    var id = sourceFor(cell, state);
+                    if (!cell.activeId || id === cell.activeId) {
+                        showCellSource(cell, id);
+                    } else if (id !== cell.nextId) {
+                        cell.nextId = id;
+                        cell.requestId = ++sourceRequestId;
+                        cell.views.forEach(function (iframe) {
+                            var preparing = iframe.dataset.frameId === id;
+                            // Render the incoming view underneath the current opaque screen.
+                            iframe.classList.toggle("is-preparing", preparing);
+                            if (preparing) prepareView(iframe, cell.requestId);
+                        });
+                    }
+                    return cell.activeId;
                 }
 
                 function applyDynamicSources() {
                     var state = readDynamicState();
-                    var ids = [...new Set(cells.map(cell => updateCellSource(cell, state)))];
+                    var ids = [...new Set(cells.map((cell) => updateCellSource(cell, state)))];
                     if (cells.length && window.ceremonator && window.ceremonator.grid) {
                         window.ceremonator.grid.sources(ids);
                     }
@@ -162,7 +188,8 @@
                 function reportCellSizes() {
                     cellFrames.forEach(function (iframe) {
                         if (!iframe.__loaded || !iframe.contentWindow) return;
-                        var box = iframe.getBoundingClientRect();
+                        // Hidden pooled views have no box; their cell keeps the output dimensions.
+                        var box = iframe.parentElement.getBoundingClientRect();
                         var w = Math.round(box.width);
                         var h = Math.round(box.height);
                         iframe.contentWindow.postMessage({ type: "grid-cell-size", width: w, height: h }, "*");
@@ -202,7 +229,11 @@
                         views: [],
                     };
                     cells.push(cell);
-                    var ids = [frameId].concat(Object.keys(mapping).map(function (key) { return mapping[key]; }));
+                    var ids = [frameId].concat(
+                        Object.keys(mapping).map(function (key) {
+                            return mapping[key];
+                        }),
+                    );
                     var fragment = document.createDocumentFragment();
                     Array.from(new Set(ids)).forEach(function (id) {
                         if (id !== frameId && !Object.prototype.hasOwnProperty.call(byId, id)) return;
@@ -226,20 +257,29 @@
                         iframe.className = "frame-cell-screen";
                         cell.views.push(iframe);
                         cellFrames.push(iframe);
-                        pendingViews.push(new Promise(function (resolve, reject) {
-                            var timer = setTimeout(function () {
-                                reject(new Error("Podium “" + id + "” did not finish preparing. Reload the Grid to retry."));
-                            }, 30000);
-                            iframe.__ready = function () {
-                                clearTimeout(timer);
-                                resolve();
-                            };
-                        }));
+                        pendingViews.push(
+                            new Promise(function (resolve, reject) {
+                                var timer = setTimeout(function () {
+                                    reject(
+                                        new Error(
+                                            "Podium “" + id + "” did not finish preparing. Reload the Grid to retry.",
+                                        ),
+                                    );
+                                }, 30000);
+                                iframe.__ready = function (requestId) {
+                                    clearTimeout(timer);
+                                    resolve();
+                                    if (cell.nextId === id && cell.requestId === requestId) {
+                                        showCellSource(cell, id);
+                                        applyDynamicSources();
+                                    }
+                                };
+                            }),
+                        );
                         iframe.addEventListener("load", function () {
                             iframe.__loaded = true;
                             reportCellSizes();
-                            // Never inspect contentWindow before this iframe's own load.
-                            iframe.contentWindow.postMessage({ type: "grid-cell-prepare" }, "*");
+                            prepareView(iframe, cell.nextId === id ? cell.requestId : undefined);
                         });
                         fragment.appendChild(iframe);
                     });
@@ -293,7 +333,7 @@
                     applyConditions();
                     expandEach();
                     Array.prototype.forEach.call(root.querySelectorAll("[data-frame]"), fillCell);
-                    // Opacity keeps every pooled document alive while the loading overlay covers startup.
+                    // Wait for every pooled document to finish preparing before revealing the Grid.
                     return Promise.all(pendingViews).then(function () {
                         loading.remove();
                         fitAndShow(applyDynamicSources());
@@ -340,7 +380,7 @@
                         var iframe = cellFrames.find(function (item) {
                             return item.__loaded && item.contentWindow === event.source;
                         });
-                        if (iframe) iframe.__ready();
+                        if (iframe) iframe.__ready(data.requestId);
                         return;
                     }
                     if (event.source === window || data.type !== "grid-cell-debug") return;

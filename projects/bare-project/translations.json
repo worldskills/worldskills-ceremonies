@@ -7,7 +7,14 @@
       "Silver": "银牌",
       "Bronze": "铜牌",
       "Albert Vidal Award": "阿尔伯特·维达大奖",
-      "Best of Nation": "代表团最佳选手奖"
+      "Best of Nation": "代表团最佳选手奖",
+      "Construction and Building Technology": "结构与建筑技术",
+      "Creative Arts and Fashion": "创意艺术与时尚",
+      "Information and Communication Technology": "息与通信技术",
+      "Manufacturing and Engineering Technology": "制造与工程技术",
+      "Social and Personal Services": "社会与个人服务",
+      "Transportation and Logistics": "运输与物流"
+
     }
   }
 }

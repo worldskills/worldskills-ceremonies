@@ -36,12 +36,70 @@
                 publishDynamicState();
             }
 
+            function clearHighlightsForSlide(slide) {
+                var group = FrameService.awardingSequence && FrameService.awardingSequence.highlightGroup;
+                if (!group || !slide || !slide.clearHighlights) return false;
+                clearDynamicGroup(group);
+                return true;
+            }
+
             function highlightPodium(frameId) {
                 var highlight = FrameService.dynamicFunctionalities.filter(function (item) {
                     return item.frameId === frameId && item.group && (item.scope || 'global') === 'global';
                 })[0];
                 if (highlight && FrameService.dynamicState.indexOf(highlight.id) < 0) {
                     setDynamicFunctionality(highlight.id, true);
+                }
+            }
+
+            function awardingHighlight(frameId) {
+                var sequence = FrameService.awardingSequence;
+                return (
+                    sequence &&
+                    FrameService.dynamicFunctionalities.filter(function (item) {
+                        return (
+                            item.frameId === frameId &&
+                            item.group === sequence.highlightGroup &&
+                            (item.scope || 'global') === 'global'
+                        );
+                    })[0]
+                );
+            }
+
+            function clearAwardingHighlight(frameId) {
+                var highlight = awardingHighlight(frameId);
+                if (highlight && FrameService.dynamicState.indexOf(highlight.id) >= 0) {
+                    clearDynamicGroup(highlight.group);
+                }
+            }
+
+            function syncAwardingHighlight(frameId) {
+                var sequence = FrameService.awardingSequence;
+                var slide = FrameService.frames[frameId].slide;
+                var highlight = awardingHighlight(frameId);
+                if (!sequence || !slide || !highlight) return;
+                var step = sequence.slides.filter(function (item) {
+                    return item.kind === slide.kind;
+                })[0];
+                if (!step) return;
+                var enabled =
+                    typeof step.highlight === 'string'
+                        ? (slide.state || []).indexOf(step.highlight) >= 0
+                        : step.highlight;
+                if (enabled) {
+                    if (FrameService.dynamicState.indexOf(highlight.id) < 0) {
+                        setDynamicFunctionality(highlight.id, true);
+                    }
+                } else if (
+                    FrameService.dynamicFunctionalities.some(function (item) {
+                        return (
+                            item.group === highlight.group &&
+                            (item.scope || 'global') === 'global' &&
+                            FrameService.dynamicState.indexOf(item.id) >= 0
+                        );
+                    })
+                ) {
+                    clearDynamicGroup(highlight.group);
                 }
             }
 
@@ -175,12 +233,15 @@
                             return outputs;
                         }, {}),
                         blankedFeeds: angular.copy(frame.blankedFeeds || {}),
+                        queueComplete: !!frame.queueComplete,
                         slideIndex: frame.slide ? frame.slides.indexOf(frame.slide) : -1,
                         previewSlideIndex: frame.previewSlide ? frame.slides.indexOf(frame.previewSlide) : -1,
                         previewState: frame.previewState || null,
                         slides: (frame.slides || []).map(function (slide) {
                             return {
                                 slideId: slide.slideId,
+                                template: slide.template,
+                                kind: slide.kind,
                                 label: slide.label,
                                 context: slide.context,
                                 state: slide.state || [],
@@ -205,6 +266,7 @@
                     frames: frames,
                     dynamicFunctionalityGroups: angular.copy(FrameService.dynamicFunctionalityGroups),
                     testMode: StorageKeys.testMode(),
+                    awardingSequence: angular.copy(FrameService.awardingSequence),
                 });
             }
 
@@ -237,6 +299,7 @@
             }
 
             function assembleFrame(frame, catalog) {
+                var prevSlideId = frame.slide ? frame.slide.slideId : null;
                 var prevLabel = frame.slide ? frame.slide.label : null;
                 var prevState = frame.slide ? angular.copy(frame.slide.state || []) : [];
                 var prevDone = frame.slide ? frame.slide.done || false : false;
@@ -254,19 +317,44 @@
                     }
                 });
 
-                var bestOfNation = catalog[SLIDE_KEYS.BEST_OF_NATION];
-                if (bestOfNation && bestOfNation.length > 0) {
-                    angular.forEach(bestOfNation, function (slide) {
+                var specialKinds = FrameService.awardingSequence
+                    ? FrameService.awardingSequence.slides
+                    : [{ kind: 'bestOfNation' }, { kind: 'albertVidal' }];
+                angular.forEach(specialKinds, function (step) {
+                    var special =
+                        step.kind === 'bestOfNation'
+                            ? catalog[SLIDE_KEYS.BEST_OF_NATION]
+                            : step.kind === 'albertVidal' && frame.ordering.includeAlbertVidal
+                              ? catalog[SLIDE_KEYS.ALBERT_VIDAL]
+                              : null;
+                    angular.forEach(special || [], function (slide) {
                         frame.slides.push(angular.copy(slide));
                     });
-                }
+                });
 
-                if (frame.ordering.includeAlbertVidal) {
-                    var albertVidal = catalog[SLIDE_KEYS.ALBERT_VIDAL];
-                    if (albertVidal && albertVidal.length > 0) {
-                        frame.slides.push(angular.copy(albertVidal[0]));
-                    }
-                }
+                angular.forEach(FrameService.freeSlides, function (definition) {
+                    if (
+                        window.CeremonatorFreeSlides.frameIds(definition).indexOf(frame.id) < 0 ||
+                        !FrameService.hasFeedType(definition.feedType)
+                    )
+                        return;
+                    var stateFeeds = {};
+                    angular.forEach(definition.states, function (state) {
+                        stateFeeds[state] = definition.feedType;
+                    });
+                    frame.slides.push({
+                        slideId: window.CeremonatorFreeSlides.slideId(definition, frame.id),
+                        kind: 'free',
+                        label: definition.name,
+                        template: definition.template,
+                        states: angular.copy(definition.states),
+                        context: angular.copy(definition.context),
+                        clearHighlights: !!definition.clearHighlights,
+                        baseFeedTypes: [definition.feedType],
+                        stateFeedTypes: stateFeeds,
+                        state: [],
+                    });
+                });
 
                 angular.forEach(frame.slides, function (slide, index) {
                     if (!slide.slideId) {
@@ -275,10 +363,10 @@
                     }
                 });
 
-                if (prevLabel) {
+                if (prevSlideId || prevLabel) {
                     var restored = null;
                     angular.forEach(frame.slides, function (s) {
-                        if (!restored && s.label === prevLabel) {
+                        if (!restored && (prevSlideId ? s.slideId === prevSlideId : s.label === prevLabel)) {
                             restored = s;
                         }
                     });
@@ -295,10 +383,14 @@
                 // previewState itself is untouched — it's a frame-level array, not tied to slide
                 // identity, so it survives the rebuild; only clear it if the pin itself is lost.
                 if (frame.previewSlide) {
+                    var prevPreviewId = frame.previewSlide.slideId;
                     var prevPreviewLabel = frame.previewSlide.label;
                     var restoredPreview = null;
                     angular.forEach(frame.slides, function (s) {
-                        if (!restoredPreview && s.label === prevPreviewLabel) {
+                        if (
+                            !restoredPreview &&
+                            (prevPreviewId ? s.slideId === prevPreviewId : s.label === prevPreviewLabel)
+                        ) {
                             restoredPreview = s;
                         }
                     });
@@ -313,6 +405,9 @@
 
             return {
                 highlightPodium: highlightPodium,
+                syncAwardingHighlight: syncAwardingHighlight,
+                clearAwardingHighlight: clearAwardingHighlight,
+                clearHighlightsForSlide: clearHighlightsForSlide,
                 setDynamicFunctionality: setDynamicFunctionality,
                 clearDynamicGroup: clearDynamicGroup,
                 clearDynamicState: clearDynamicState,

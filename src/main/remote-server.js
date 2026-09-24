@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const WebSocket = require('ws');
-const { randomUUID } = require('crypto');
+const { randomUUID, createHash } = require('crypto');
 const { validCommand } = require('./remote-commands');
 const { appRoot, bareProjectDir, bundledTemplateDir } = require('./paths');
 const projectStore = require('./project-store');
@@ -136,33 +136,69 @@ function dispatchCommand(ws, msg) {
     }
 }
 
-// Nothing this server hands out may be cached: the project's own files change between takes.
+// Session pages stay fresh; asset bodies use the browser's cache with validation.
 function noStore(mime, extra) {
     return Object.assign({ 'Content-Type': mime, 'Cache-Control': 'no-store' }, extra || {});
 }
 
-function serveFile(res, filePath) {
+function assetEtag(data) {
+    return '"' + createHash('sha256').update(data).digest('hex') + '"';
+}
+
+function assetHeaders(req, res, mime, etag, extra) {
+    const headers = Object.assign(
+        { 'Content-Type': mime, 'Cache-Control': 'private, no-cache', ETag: etag, 'Referrer-Policy': 'no-referrer' },
+        extra || {}
+    );
+    const matches = (req.headers['if-none-match'] || '').split(',').some((value) => {
+        return value.trim() === '*' || value.trim().replace(/^W\//, '') === etag.replace(/^W\//, '');
+    });
+    if (matches) {
+        res.writeHead(304, headers);
+        res.end();
+        return null;
+    }
+    return headers;
+}
+
+function serveFile(req, res, filePath) {
     fs.readFile(filePath, (err, data) => {
         if (err) {
-            res.writeHead(404);
+            res.writeHead(404, noStore('text/plain'));
             res.end('Not found');
             return;
         }
-        res.writeHead(200, noStore(MIME[path.extname(filePath)] || 'application/octet-stream'));
-        res.end(data);
+        const headers = assetHeaders(
+            req,
+            res,
+            MIME[path.extname(filePath)] || 'application/octet-stream',
+            assetEtag(data)
+        );
+        if (!headers) return;
+        headers['Content-Length'] = data.length;
+        res.writeHead(200, headers);
+        res.end(req.method === 'HEAD' ? undefined : data);
     });
 }
 
 function serveBinaryAsset(req, res, filePath, mime) {
-    const size = fs.statSync(filePath).size;
-    const headers = noStore(mime, { 'Referrer-Policy': 'no-referrer', 'Accept-Ranges': 'bytes' });
+    const stat = fs.statSync(filePath);
+    const size = stat.size;
+    const etag = 'W/' + assetEtag(filePath + ':' + size + ':' + stat.mtimeMs + ':' + stat.ctimeMs);
+    const headers = assetHeaders(req, res, mime, etag, {
+        'Accept-Ranges': 'bytes',
+        'Last-Modified': stat.mtime.toUTCString(),
+    });
+    if (!headers) return;
 
     let start = 0;
     let end = size - 1;
     let status = 200;
 
     // Safari media requests can probe only the first bytes before loading video.
-    if (req.headers.range && req.method !== 'HEAD') {
+    const ifRange = req.headers['if-range'];
+    const rangeCurrent = !ifRange || ifRange === headers['Last-Modified'];
+    if (req.headers.range && req.method !== 'HEAD' && rangeCurrent) {
         const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
         if (match && (match[1] || match[2])) {
             if (!match[1]) {
@@ -176,6 +212,7 @@ function serveBinaryAsset(req, res, filePath, mime) {
             }
 
             if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start > end || start >= size) {
+                headers['Cache-Control'] = 'no-store';
                 res.writeHead(
                     416,
                     Object.assign(headers, {
@@ -214,13 +251,13 @@ function serveOperatorAsset(req, res, asset) {
     const rel = path.posix.normalize(asset[3]);
 
     if (!assetSessions.has(token)) {
-        res.writeHead(401);
+        res.writeHead(401, noStore('text/plain'));
         res.end('Reconnect Operator');
         return;
     }
 
     if (host === 'project' && !rel.startsWith('data/') && rel !== 'translations.json') {
-        res.writeHead(403);
+        res.writeHead(403, noStore('text/plain'));
         res.end('Forbidden');
         return;
     }
@@ -255,13 +292,10 @@ function serveOperatorAsset(req, res, asset) {
                 const data = fs
                     .readFileSync(hit, 'utf8')
                     .replace(/wstemplate:\/\/(active|project)\//g, '/operator-assets/' + token + '/$1/');
-                res.writeHead(
-                    200,
-                    noStore(mime, {
-                        'Referrer-Policy': 'no-referrer',
-                        'Content-Length': Buffer.byteLength(data),
-                    })
-                );
+                const headers = assetHeaders(req, res, mime, assetEtag(data));
+                if (!headers) return;
+                headers['Content-Length'] = Buffer.byteLength(data);
+                res.writeHead(200, headers);
                 res.end(req.method === 'HEAD' ? undefined : data);
             } else {
                 serveBinaryAsset(req, res, hit, mime);
@@ -272,7 +306,7 @@ function serveOperatorAsset(req, res, asset) {
         }
     }
 
-    res.writeHead(404);
+    res.writeHead(404, noStore('text/plain'));
     res.end('Asset not found');
 }
 
@@ -318,7 +352,14 @@ function handleRequest(req, res) {
     }
 
     if (STATIC_FILES[urlPath]) {
-        serveFile(res, STATIC_FILES[urlPath]);
+        if (urlPath === '/' || urlPath === '/operator') {
+            fs.readFile(STATIC_FILES[urlPath], (err, data) => {
+                res.writeHead(err ? 404 : 200, noStore('text/html'));
+                res.end(req.method === 'HEAD' ? undefined : err ? 'Not found' : data);
+            });
+        } else {
+            serveFile(req, res, STATIC_FILES[urlPath]);
+        }
         return;
     }
 
@@ -338,7 +379,7 @@ function handleRequest(req, res) {
         const rel = urlPath.substring('/node_modules/font-awesome/fonts/'.length);
         const hit = resolveUnder(FONT_AWESOME_FONTS_DIR, rel);
         if (hit && fs.existsSync(hit)) {
-            serveFile(res, hit);
+            serveFile(req, res, hit);
             return;
         }
     }
@@ -361,6 +402,11 @@ function localLanUrls() {
 }
 
 function broadcastState(snapshot) {
+    if (snapshot && !Array.isArray(snapshot)) {
+        snapshot = Object.assign({}, snapshot, {
+            assetProjectId: assetEtag(projectStore.getActiveProjectDir() || appRoot),
+        });
+    }
     lastSnapshot = snapshot;
     if (!wss) {
         return;

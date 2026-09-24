@@ -104,9 +104,21 @@
                     <span>{{ frame.status }}</span>
                     <span class="ml-auto workspace-banner-position">{{ getSlidePosition(id) }}</span>
                 </div>
+                <div
+                    class="control-toolbar awarding-toolbar"
+                    ng-if="FrameService.awardingSequence && workspaceCapabilities.manageWindows"
+                >
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Reset podiums">
+                        <button class="btn btn-outline-secondary" ng-click="resetPodium(id)">Reset podium</button>
+                        <button class="btn btn-outline-secondary" ng-click="resetAllPodiums()">
+                            Reset all podiums
+                        </button>
+                    </div>
+                    <small class="text-muted w-100" ng-if="frame.queueComplete">Podium queue complete.</small>
+                </div>
             </div>
 
-            <div class="slide-list-area" ng-show="uploaded">
+            <div class="slide-list-area" ng-show="uploaded || FrameService.freeSlides.length">
                 <div ng-repeat="(id, frame) in screens" ng-if="id === FrameService.activeFrameId">
                     <div class="card mb-2" ng-show="frame.slides.length > 0">
                         <div class="list-group list-group-flush">

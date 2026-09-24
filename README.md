@@ -10,6 +10,8 @@ Everything the app needs to run a ceremony lives in a **project folder**:
 ```
 my-ceremony/
   project.json          # frames, sizes, ordering
+  ordering.json         # skill order and frame assignments
+  slides.json           # free slides, queue placement and sort order
   translations.json
   data/                  # skills.json, members.json, flags/*.png, sponsors/*
   template/              # slide html, grid.html, css, fonts, images — fully self-contained
@@ -42,7 +44,9 @@ It supports slide navigation, configurable grids, live screens and per-frame/fee
 against local or remote instances.
 
 ```
+
 npm start
+
 ```
 
 This launches the Electron app (via `electron-forge start`) straight into the project chooser.
@@ -52,6 +56,8 @@ display.
 To build a distributable package:
 
 ```
-npm run package   # unpacked app
-npm run make       # platform installers/zips
-```
+
+npm run package # unpacked app
+npm run make # platform installers/zips
+
+````

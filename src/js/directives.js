@@ -125,15 +125,23 @@
         return {
             restrict: 'A',
             link: function (scope, element, attrs) {
-                scope.$evalAsync(function () {
-                    var flags = element[0].querySelectorAll('.screen-img-flag');
+                var el = element[0];
+                var animationFrame = null;
+
+                function fit() {
+                    var flags = el.querySelectorAll('.screen-img-flag');
                     var results = scope.$eval(attrs.wsEqualAreaFlags) || [];
                     var targetArea = Infinity;
                     var i;
 
+                    function ratioFor(index) {
+                        var ratio = Number(results[index] && results[index].flagRatio);
+                        return ratio > 0 && isFinite(ratio) ? ratio : 1.5;
+                    }
+
                     for (i = 0; i < flags.length; i++) {
                         var flagArea = flags[i].parentElement;
-                        var ratio = Number(results[i] && results[i].flagRatio) || 1.5;
+                        var ratio = ratioFor(i);
                         targetArea = Math.min(
                             targetArea,
                             (flagArea.clientWidth * flagArea.clientWidth) / ratio,
@@ -141,11 +149,37 @@
                         );
                     }
 
+                    if (!isFinite(targetArea) || targetArea <= 0) {
+                        return;
+                    }
+
                     for (i = 0; i < flags.length; i++) {
-                        var flagRatio = Number(results[i] && results[i].flagRatio) || 1.5;
+                        var flagRatio = ratioFor(i);
                         var height = Math.sqrt(targetArea / flagRatio);
                         flags[i].style.width = height * flagRatio + 'px';
                         flags[i].style.height = height + 'px';
+                    }
+                }
+
+                function schedule() {
+                    if (animationFrame !== null) {
+                        return;
+                    }
+                    // ng-repeat must finish linking its rows before we measure them.
+                    animationFrame = window.requestAnimationFrame(function () {
+                        animationFrame = null;
+                        fit();
+                    });
+                }
+
+                scope.$watchCollection(attrs.wsEqualAreaFlags, schedule);
+                var resizeObserver = new ResizeObserver(schedule);
+                resizeObserver.observe(el);
+
+                scope.$on('$destroy', function () {
+                    resizeObserver.disconnect();
+                    if (animationFrame !== null) {
+                        window.cancelAnimationFrame(animationFrame);
                     }
                 });
             },

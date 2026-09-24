@@ -9,7 +9,7 @@
         <link href="../css/control.css" rel="stylesheet" />
         <link href="../css/dynamic-functionalities.css" rel="stylesheet" />
     </head>
-    <body ng-controller="ControlCtrl" ngf-drop="upload($file)">
+    <body ng-controller="ControlCtrl" ngf-drop="!freeSlideDialogOpen && upload($file)">
         <nav class="app-navbar navbar sticky-top navbar-expand-md ws-navbar-stripe navbar-dark ws-navbar-main">
             <div class="container-fluid">
                 <div class="navbar-brand app-navbar-brand">
@@ -472,7 +472,7 @@
                         </div>
                     </div>
                     <div class="text-muted p-3" ng-show="queueList.length === 0">
-                        Import results first to build the queue.
+                        Import results or add a free slide to build the queue.
                     </div>
                 </div>
 
@@ -712,6 +712,14 @@
                             ></select>
                         </div>
                         <div class="frame-card-actions" ng-click="$event.stopPropagation()">
+                            <button
+                                type="button"
+                                class="btn btn-outline-info btn-sm"
+                                ng-click="editFreeSlide(null, id)"
+                                title="Add a free slide to {{ frame.label }}"
+                            >
+                                <i class="fa fa-plus mr-1"></i>Add slide
+                            </button>
                             <span
                                 class="btn-group btn-group-sm"
                                 ng-repeat="outputFeed in FrameService.feedTypes track by outputFeed.id"
@@ -779,9 +787,196 @@
 
         <div
             class="modal-backdrop"
-            ng-show="gridConfigDialogOpen || remoteConfigDialogOpen || bestOfNationImportDialogOpen"
-            ng-class="{show: gridConfigDialogOpen || remoteConfigDialogOpen || bestOfNationImportDialogOpen}"
+            ng-show="gridConfigDialogOpen || remoteConfigDialogOpen || bestOfNationImportDialogOpen || freeSlideDialogOpen"
+            ng-class="{show: gridConfigDialogOpen || remoteConfigDialogOpen || bestOfNationImportDialogOpen || freeSlideDialogOpen}"
         ></div>
+
+        <div
+            class="modal dark-modal"
+            ng-show="freeSlideDialogOpen"
+            ng-class="{show: freeSlideDialogOpen}"
+            ng-click="freeSlideDialogOpen = false"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="free-slide-title"
+        >
+            <div
+                class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+                ng-click="$event.stopPropagation()"
+            >
+                <form class="modal-content" ng-submit="saveFreeSlide()">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="free-slide-title">Free Slide</h6>
+                        <button type="button" class="close" ng-click="freeSlideDialogOpen = false" aria-label="Close">
+                            &times;
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3" ng-if="FrameService.freeSlides.length">
+                            <div
+                                class="d-flex align-items-center mb-1"
+                                ng-repeat="definition in FrameService.freeSlides track by definition.id"
+                            >
+                                <span class="mr-auto"
+                                    >{{ definition.name }}
+                                    <small class="text-warning" ng-if="!isFreeSlideQueued(definition)">
+                                        — Waiting for anchor, frame or feed</small
+                                    >
+                                </span>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-info mr-1"
+                                    ng-click="editFreeSlide('free:' + definition.id)"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    ng-click="removeFreeSlide(definition)"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-info mt-2" ng-click="editFreeSlide()">
+                                Add another slide
+                            </button>
+                            <hr />
+                        </div>
+                        <div class="form-group">
+                            <label for="free-slide-name">Slide name</label>
+                            <input id="free-slide-name" class="form-control" ng-model="freeSlideDraft.name" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="free-slide-template">Template filename</label>
+                            <input
+                                id="free-slide-template"
+                                class="form-control"
+                                ng-model="freeSlideDraft.template"
+                                placeholder="welcome.html"
+                                required
+                            />
+                            <small class="text-muted">HTML file inside the project's template/ folder.</small>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Frames</label>
+                                <div class="form-control h-auto">
+                                    <label class="d-block mb-1" ng-repeat="(id, frame) in screens">
+                                        <input
+                                            type="checkbox"
+                                            ng-checked="freeSlideDraft.frameIds.indexOf(id) >= 0"
+                                            ng-click="toggleFreeSlideFrame(id)"
+                                        />
+                                        {{ frame.label }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="free-slide-feed">Output feed</label>
+                                <select
+                                    id="free-slide-feed"
+                                    class="form-control"
+                                    ng-model="freeSlideDraft.feedType"
+                                    ng-options="feed.id as feed.label for feed in FrameService.feedTypes"
+                                    required
+                                ></select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="free-slide-sort">Sort order</label>
+                                <input
+                                    id="free-slide-sort"
+                                    type="number"
+                                    step="any"
+                                    class="form-control"
+                                    ng-model="freeSlideDraft.sort"
+                                    required
+                                />
+                                <small class="text-muted">Lower numbers go first at the same queue position.</small>
+                            </div>
+                        </div>
+                        <div ng-repeat="frameId in freeSlideDraft.frameIds track by frameId">
+                            <label>{{ screens[frameId].label }} queue position</label>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <select
+                                        class="form-control"
+                                        ng-model="freeSlideDraft.placements[frameId].position"
+                                        aria-label="Queue position for {{ screens[frameId].label }}"
+                                    >
+                                        <option value="start">Queue start</option>
+                                        <option value="before">Before skill</option>
+                                        <option value="after">After skill</option>
+                                        <option value="end">Queue end</option>
+                                    </select>
+                                </div>
+                                <div
+                                    ng-if="freeSlideDraft.placements[frameId].position === 'before' || freeSlideDraft.placements[frameId].position === 'after'"
+                                    class="form-group col-md-4"
+                                >
+                                    <select
+                                        class="form-control"
+                                        ng-model="freeSlideDraft.placements[frameId].skillNumber"
+                                        ng-options="skill.number as (skill.number + ' — ' + skill.name.text) for skill in freeSlideSkillsForFrame(frameId)"
+                                        aria-label="Anchor skill for {{ screens[frameId].label }}"
+                                        required
+                                    >
+                                        <option value="">Choose skill</option>
+                                    </select>
+                                </div>
+                                <div
+                                    ng-if="freeSlideDraft.placements[frameId].position === 'before' || freeSlideDraft.placements[frameId].position === 'after'"
+                                    class="form-group col-md-4"
+                                >
+                                    <select
+                                        class="form-control"
+                                        ng-model="freeSlideDraft.placements[frameId].kind"
+                                        aria-label="Anchor slide type for {{ screens[frameId].label }}"
+                                    >
+                                        <option value="">Whole skill</option>
+                                        <option value="callup">Call-up</option>
+                                        <option value="medals">Medals</option>
+                                        <option value="mfe">Medal for Excellence</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="free-slide-states">States (JSON array)</label>
+                            <textarea
+                                id="free-slide-states"
+                                class="form-control text-monospace"
+                                rows="3"
+                                ng-model="freeSlideStatesText"
+                                spellcheck="false"
+                            ></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="free-slide-content">Content / context (JSON object)</label>
+                            <textarea
+                                id="free-slide-content"
+                                class="form-control text-monospace"
+                                rows="8"
+                                ng-model="freeSlideContentText"
+                                spellcheck="false"
+                            ></textarea>
+                        </div>
+                        <div class="alert alert-danger" role="alert" ng-if="freeSlideError">{{ freeSlideError }}</div>
+                        <small class="text-muted"
+                            >Use project Save to write slides and their placement to slides.json.</small
+                        >
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" ng-click="freeSlideDialogOpen = false">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm">Apply slide</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- Remote configuration dialog -->
         <div
@@ -1173,6 +1368,7 @@
         <script src="../js/control/control-workspace.js"></script>
         <script src="../js/control/dynamic-functionalities.js"></script>
         <script src="../js/app.js"></script>
+        <script src="../shared/free-slides.js"></script>
         <script src="../js/directives.js"></script>
         <script src="../js/services/result-format.service.js"></script>
         <script src="../js/services/excel.service.js"></script>

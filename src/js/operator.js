@@ -14,6 +14,7 @@
             var lastState = 0;
             var pending = {};
             var serial = 0;
+            var sequenceKey = null;
 
             $scope.auth = { pin: '' };
             $scope.status = 'Disconnected';
@@ -76,6 +77,10 @@
             };
 
             $scope.setChannel = function (channel) {
+                if ($scope.awardingSequence) {
+                    setMonitorChannel(channel);
+                    return;
+                }
                 var highlight = frameHighlight();
 
                 if (highlight) {
@@ -151,6 +156,9 @@
 
                 if (action === 'context') {
                     command.context = context;
+                }
+                if ($scope.awardingSequence && ['show', 'live', 'next', 'previous'].indexOf(action) >= 0) {
+                    setMonitorChannel('live');
                 }
 
                 sendCommand(command);
@@ -233,6 +241,7 @@
                         !highlight &&
                         item.frameId === $scope.frameId &&
                         item.group &&
+                        (!$scope.awardingSequence || item.group === $scope.awardingSequence.highlightGroup) &&
                         (item.scope || 'global') === 'global'
                     ) {
                         highlight = item;
@@ -243,7 +252,8 @@
 
             function setMonitorChannel(channel) {
                 $scope.channel = channel;
-                $scope.workspaceCapabilities.disableSlideLive = channel === 'preview' && !$scope.autoHighlightPodium;
+                $scope.workspaceCapabilities.disableSlideLive =
+                    !$scope.awardingSequence && channel === 'preview' && !$scope.autoHighlightPodium;
             }
 
             $scope.autoHighlightChanged = function () {
@@ -251,7 +261,7 @@
             };
 
             function syncHighlightChannel() {
-                if (frameHighlight()) {
+                if (!$scope.awardingSequence && frameHighlight()) {
                     setMonitorChannel($scope.isFrameHighlighted() ? 'live' : 'preview');
                 }
             }
@@ -300,10 +310,20 @@
             }
 
             function applySnapshot(snapshot) {
+                $scope.awardingSequence = snapshot.awardingSequence || null;
+                var nextSequenceKey = JSON.stringify($scope.awardingSequence);
+                if (nextSequenceKey !== sequenceKey) {
+                    sequenceKey = nextSequenceKey;
+                    $scope.autoHighlightPodium = !!(
+                        $scope.awardingSequence && $scope.awardingSequence.autoHighlightPodium
+                    );
+                    setMonitorChannel($scope.awardingSequence ? 'live' : $scope.channel);
+                }
                 reconcileFrames(snapshot.frames);
                 $scope.feeds = snapshot.feedTypes || [];
                 $scope.FrameService.feedTypes = $scope.feeds;
                 $scope.testMode = !!snapshot.testMode;
+                $scope.assetProjectId = snapshot.assetProjectId;
                 $scope.dynamicFunctionalities = snapshot.dynamicFunctionalities || [];
                 $scope.dynamicFunctionalityGroups = snapshot.dynamicFunctionalityGroups || {};
                 $scope.dynamicState = snapshot.dynamicState || [];
@@ -664,6 +684,7 @@
             var ready = false;
             var timer;
             var observer;
+            var loadedSession;
 
             function scale() {
                 var size = scope.feed.gridSize || (scope.frame || {}).size || {};
@@ -700,12 +721,37 @@
                         '/operator-assets/' + scope.token + '/$1/'
                     )
                 );
+                var templates = {};
+                var images = {};
+                var assetBase = '/operator-assets/' + encodeURIComponent(scope.token) + '/';
+                templates[payload.template] = true;
+                images[assetBase + 'project/data/flags/_placeholder.svg'] = true;
+                angular.forEach((frame && frame.slides) || [], function (slide) {
+                    if (slide.template) templates[assetBase + 'active/' + slide.template] = true;
+                    angular.forEach((slide.context || {}).results || [], function (result) {
+                        if (result.memberCode) {
+                            images[assetBase + 'project/data/flags/' + encodeURIComponent(result.memberCode) + '.png'] =
+                                true;
+                        }
+                    });
+                    angular.forEach(slide.feedContent || {}, function (content) {
+                        if (content.template) templates[assetBase + 'active/' + content.template] = true;
+                        angular.forEach((content.context || {}).sponsors || [], function (sponsor) {
+                            if (sponsor.logo && sponsor.logo.local) {
+                                images[assetBase + 'project/data/' + encodeURI(sponsor.logo.local)] = true;
+                            }
+                        });
+                    });
+                });
                 iframe.contentWindow.postMessage(
                     {
                         type: 'operator-feed-state',
                         payload: payload,
                         languages: scope.languages,
                         testMode: scope.testMode,
+                        frameId: scope.frameId,
+                        channel: scope.channel,
+                        assets: { templates: Object.keys(templates), images: Object.keys(images) },
                     },
                     location.origin
                 );
@@ -743,11 +789,18 @@
             iframe.tabIndex = -1;
             element[0].appendChild(iframe);
 
-            scope.$watchGroup(['token', 'frameId', 'channel'], function () {
+            scope.$watchGroup(['token', 'assetProjectId', 'frameId', 'channel'], function () {
                 if (!scope.token || !scope.frameId) {
                     publish();
                     return;
                 }
+
+                var session = scope.token + ':' + (scope.assetProjectId || '');
+                if (loadedSession === session) {
+                    publish();
+                    return;
+                }
+                loadedSession = session;
 
                 ready = false;
                 $timeout.cancel(timer);
@@ -770,6 +823,7 @@
             });
 
             scope.$watch('frame.outputs[feed.id][channel]', publish, true);
+            scope.$watch('frame.slides', publish, true);
             scope.$watch('testMode', publish);
             scope.$watchGroup(
                 ['feed.gridSize.width', 'feed.gridSize.height', 'frame.size.width', 'frame.size.height'],

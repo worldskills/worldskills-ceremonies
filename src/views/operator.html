@@ -20,7 +20,7 @@
             <div
                 class="alert podium-warning"
                 role="alert"
-                ng-if="authenticated && ready && frame && hasFrameHighlight() && !isFrameHighlighted()"
+                ng-if="authenticated && ready && frame && !awardingSequence && hasFrameHighlight() && !isFrameHighlighted()"
             >
                 {{ frame.label }} is not highlighted on the Grid. You are in Preview; select Live to show this podium on
                 all screens.
@@ -144,6 +144,7 @@
                             }}</span
                         >
                     </div>
+                    <p class="hint" ng-if="awardingSequence && frame.queueComplete">Podium queue complete.</p>
                     <div class="queue" id="operator-queue" operator-queue>
                         <p class="empty" ng-if="!frame.slides.length">
                             No slides assigned. Import and assign slides in the control panel.
@@ -178,7 +179,7 @@
                             ><button
                                 ng-class="{selected: channel === 'preview'}"
                                 ng-click="setChannel('preview')"
-                                ng-disabled="!ready || !frame || (hasFrameHighlight() && isFrameHighlighted())"
+                                ng-disabled="!ready || !frame || (!awardingSequence && hasFrameHighlight() && isFrameHighlighted())"
                                 aria-pressed="{{ channel === 'preview' }}"
                             >
                                 Preview
@@ -193,7 +194,7 @@
                             ><button
                                 class="next"
                                 ng-click="command('next')"
-                                ng-disabled="!ready || !frame.slides.length"
+                                ng-disabled="!ready || !frame.slides.length || frame.queueComplete"
                             >
                                 Next →
                             </button>

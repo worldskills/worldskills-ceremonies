@@ -64,10 +64,16 @@
 
     css.rel = 'stylesheet';
     css.href = base + 'active/css/screen.css';
+    function stylesDone() {
+        window.operatorFeed.stylesLoaded = true;
+        if (window.operatorFeed.resolveStylesReady) window.operatorFeed.resolveStylesReady();
+    }
     css.onerror = function () {
+        stylesDone();
         tell('operator-feed-error', 'stylesheet', 'Feed stylesheet could not load.');
     };
     css.onload = function () {
+        stylesDone();
         tell('operator-feed-recovered', 'stylesheet');
     };
     // Must land before screen.html's inline <style>, where the desktop window's own
@@ -83,7 +89,14 @@
             return;
         }
         if (window.operatorFeed.receive) {
-            window.operatorFeed.receive(event.data.payload, event.data.languages, event.data.testMode);
+            window.operatorFeed.receive(
+                event.data.payload,
+                event.data.languages,
+                event.data.testMode,
+                event.data.assets,
+                event.data.frameId,
+                event.data.channel
+            );
         }
     });
 
@@ -111,7 +124,72 @@
             $provide.constant('TEMPLATE_BASE', base + 'active/');
             $provide.constant('DATA_BASE', base + 'project/data/');
         })
-        .run(function ($rootScope) {
+        .run(function ($rootScope, $q, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES) {
+            var templates = {};
+            var images = {};
+            var stylesReady = $q.defer();
+            window.operatorFeed.resolveStylesReady = stylesReady.resolve;
+            if (window.operatorFeed.stylesLoaded) stylesReady.resolve();
+            var fontsReady = stylesReady.promise.then(function () {
+                var fonts = [];
+                if (document.fonts && document.fonts.forEach) {
+                    document.fonts.forEach(function (font) {
+                        fonts.push($q.when(font.load()).catch(angular.noop));
+                    });
+                }
+                return $q.all(fonts);
+            });
+
+            window.operatorFeed.preload = function (assets) {
+                assets = assets || {};
+                var jobs = [fontsReady];
+                var urls = SCREEN_TEMPLATES.map(function (name) {
+                    return TEMPLATE_BASE + name;
+                }).concat(assets.templates || []);
+                angular.forEach(urls, function (url) {
+                    if (!templates[url]) {
+                        var category = 'template-preload:' + safeSource(url);
+                        templates[url] = $templateRequest(url, true).then(
+                            function () {
+                                tell('operator-feed-recovered', category);
+                            },
+                            function () {
+                                delete templates[url];
+                                tell(
+                                    'operator-feed-error',
+                                    category,
+                                    'Could not preload template ' + safeSource(url) + '.'
+                                );
+                            }
+                        );
+                    }
+                    jobs.push(templates[url]);
+                });
+                angular.forEach(assets.images || [], function (url) {
+                    if (!images[url]) {
+                        var img = new Image();
+                        var promise = $q(function (resolve) {
+                            var timer = window.setTimeout(failed, 15000);
+                            function failed() {
+                                window.clearTimeout(timer);
+                                if (images[url] && images[url].image === img) delete images[url];
+                                resolve();
+                            }
+                            img.onerror = failed;
+                            img.onload = function () {
+                                window.clearTimeout(timer);
+                                if (img.decode) $q.when(img.decode()).then(resolve, resolve);
+                                else resolve();
+                            };
+                            img.src = url;
+                        });
+                        images[url] = { image: img, promise: promise };
+                    }
+                    jobs.push(images[url].promise);
+                });
+                return $q.all(jobs);
+            };
+
             $rootScope.$on('$includeContentError', function () {
                 tell('operator-feed-error', 'template', 'The slide template could not load.');
             });

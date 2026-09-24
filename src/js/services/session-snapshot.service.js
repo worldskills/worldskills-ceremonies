@@ -80,6 +80,12 @@
                         (frame.ordering.skillNumbers || []).join(','),
                         frame.ordering.includeAlbertVidal ? 1 : 0,
                         angular.toJson(frame.blankedFeeds || {}),
+                        frame.queueComplete ? 1 : 0,
+                        slides
+                            .map(function (item) {
+                                return item.done ? 1 : 0;
+                            })
+                            .join(''),
                     ].join(':')
                 );
             });
@@ -93,9 +99,11 @@
                 var index = slides.indexOf(frame.slide);
                 runtime[id] = {
                     slideIndex: index,
+                    slideId: index >= 0 ? slides[index].slideId : null,
                     slideLabel: index >= 0 ? slides[index].label : null,
                     state: frame.slide && frame.slide.state ? angular.copy(frame.slide.state) : [],
                     blankedFeeds: angular.copy(frame.blankedFeeds || {}),
+                    queueComplete: !!frame.queueComplete,
                     done: slides.map(function (slide) {
                         return !!slide.done;
                     }),
@@ -104,7 +112,7 @@
             return runtime;
         };
 
-        // Index is normally reliable (catalog rebuild is deterministic); label is a cross-check for when it isn't (spreadsheet changed since save).
+        // Stable IDs survive free-slide renames/reordering; older snapshots retain index/label matching.
         service.restoreRuntime = function (runtime) {
             angular.forEach(FrameService.frames, function (frame, id) {
                 var saved = runtime && runtime[id];
@@ -115,6 +123,7 @@
                 // A blank state is meaningful even if a catalog has no slides yet,
                 // or if its saved slide disappeared after a data refresh.
                 frame.blankedFeeds = angular.copy(saved.blankedFeeds || {});
+                frame.queueComplete = !!saved.queueComplete;
                 if (!slides.length) {
                     return;
                 }
@@ -127,7 +136,11 @@
 
                 var slide = null;
                 var atIndex = saved.slideIndex >= 0 ? slides[saved.slideIndex] : null;
-                if (atIndex && (!saved.slideLabel || atIndex.label === saved.slideLabel)) {
+                if (saved.slideId) {
+                    angular.forEach(slides, function (candidate) {
+                        if (candidate.slideId === saved.slideId) slide = candidate;
+                    });
+                } else if (atIndex && (!saved.slideLabel || atIndex.label === saved.slideLabel)) {
                     slide = atIndex;
                 } else if (saved.slideLabel) {
                     angular.forEach(slides, function (candidate) {

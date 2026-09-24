@@ -11,10 +11,12 @@
             frames: SCREENS,
             activeFrameId: Object.keys(SCREENS)[0],
             skillOrder: [],
+            freeSlides: [],
             feedTypes: [angular.copy(FALLBACK_FEED)],
             dynamicFunctionalities: [],
             dynamicFunctionalityGroups: {},
             dynamicState: [],
+            awardingSequence: null,
         };
 
         function skillNumberValue(number) {
@@ -274,6 +276,7 @@
                 displayMode: displayMode || 'windows',
                 frames: service.serializeForProject(),
                 skillOrder: service.skillOrder || [],
+                freeSlides: angular.copy(service.freeSlides),
                 gridConfig: gridConfig || null,
                 feedTypes: angular.copy(service.feedTypes),
                 dynamicFunctionalities: angular.copy(service.dynamicFunctionalities),
@@ -283,6 +286,9 @@
                 bestOfNationGroupSize: bestOfNationGroupSize || 5,
                 remote: remoteConfig || null,
             };
+            if (service.awardingSequence) {
+                project.awardingSequence = angular.copy(service.awardingSequence);
+            }
             return window.ceremonator.project.saveCurrent(project);
         };
 

@@ -5,7 +5,7 @@
         .module('ceremoniesApp')
         .controller(
             'ScreenCtrl',
-            function ($scope, $rootScope, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
+            function ($scope, $rootScope, $q, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
                 $scope.FEED = FEED;
                 $scope.languages = [];
                 $scope.sponsorName = function (sponsor) {
@@ -73,7 +73,9 @@
                     $scope.render();
                 };
 
+                var renderRevision = 0;
                 $scope.render = function () {
+                    renderRevision++;
                     var data = null;
                     try {
                         data = window.operatorFeed
@@ -203,15 +205,24 @@
                 }
 
                 if (window.operatorFeed) {
-                    window.operatorFeed.receive = function (data, languages, testMode) {
-                        $scope.$evalAsync(function () {
-                            window.operatorFeed.data = data;
-                            $scope.languages = languages || [{ lang_code: 'en' }];
-                            $scope.testMode = !!testMode;
-                            $scope.render();
+                    var preloadRevision = 0;
+                    window.operatorFeed.receive = function (data, languages, testMode, assets, frameId, channel) {
+                        var revision = ++preloadRevision;
+                        $q.when(window.operatorFeed.preload(assets)).then(function () {
+                            if (revision !== preloadRevision) return;
+                            $scope.$evalAsync(function () {
+                                window.operatorFeed.data = data;
+                                $scope.screen = frameId || $scope.screen;
+                                $scope.feed = channel === FEED.PREVIEW ? FEED.PREVIEW : FEED.LIVE;
+                                $scope.languages = languages || [{ lang_code: 'en' }];
+                                $scope.testMode = !!testMode;
+                                $scope.render();
+                            });
                         });
                     };
-                    window.parent.postMessage({ type: 'operator-feed-ready' }, window.location.origin);
+                    window.operatorFeed.preload().then(function () {
+                        window.parent.postMessage({ type: 'operator-feed-ready' }, window.location.origin);
+                    });
                 }
 
                 window.addEventListener('storage', function (e) {
@@ -268,26 +279,50 @@
                     if (source === $scope.template) loadedTemplate = source;
                 });
 
-                function prepareGridCell() {
+                var gridPreparation = 0;
+                function prepareGridCell(requestId) {
+                    var preparation = ++gridPreparation;
                     var deadline = Date.now() + 30000;
+                    function prepared() {
+                        if (preparation === gridPreparation) {
+                            window.parent.postMessage({ type: 'grid-cell-ready', requestId: requestId }, '*');
+                        }
+                    }
                     function ready() {
+                        if (preparation !== gridPreparation) return;
                         var video = document.querySelector('video.screen-bg-video');
                         var imagesReady = Array.prototype.every.call(document.images, function (img) {
                             return img.complete;
                         });
                         var videoReady =
-                            !$scope.frame.video ||
-                            (video && (video.error || (video.readyState >= 2 && !video.paused)));
+                            !$scope.frame.video || (video && (video.error || (video.readyState >= 2 && !video.paused)));
                         if (
-                            loadedTemplate === $scope.template && imagesReady && videoReady &&
+                            loadedTemplate === $scope.template &&
+                            imagesReady &&
+                            videoReady &&
                             (!document.fonts || document.fonts.status === 'loaded')
                         ) {
-                            window.parent.postMessage({ type: 'grid-cell-ready' }, '*');
+                            if (requestId) {
+                                var revision = renderRevision;
+                                // Fit directives run on the first frame; reveal after the next paint.
+                                window.requestAnimationFrame(function () {
+                                    window.requestAnimationFrame(function () {
+                                        if (revision !== renderRevision) ready();
+                                        else prepared();
+                                    });
+                                });
+                            } else {
+                                prepared();
+                            }
                         } else if (Date.now() < deadline) {
                             window.setTimeout(ready, 50);
                         }
                     }
-                    ready();
+                    $scope.$evalAsync(function () {
+                        $scope.render();
+                        // Read asset readiness after Angular has updated the template and ng-src.
+                        window.setTimeout(ready, 0);
+                    });
                 }
 
                 window.addEventListener('message', function (event) {
@@ -300,7 +335,7 @@
                             $scope.frameSize = data.width + '×' + data.height;
                         });
                     } else if (data.type === 'grid-cell-prepare') {
-                        prepareGridCell();
+                        prepareGridCell(data.requestId);
                     }
                 });
 
@@ -325,9 +360,11 @@
                     );
                 });
 
-                angular.forEach(SCREEN_TEMPLATES, function (name) {
-                    $templateRequest(TEMPLATE_BASE + name, true).catch(angular.noop);
-                });
+                if (!window.operatorFeed) {
+                    angular.forEach(SCREEN_TEMPLATES, function (name) {
+                        $templateRequest(TEMPLATE_BASE + name, true).catch(angular.noop);
+                    });
+                }
             }
         );
 })();
