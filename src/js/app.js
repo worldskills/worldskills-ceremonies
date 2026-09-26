@@ -50,6 +50,7 @@
         'empty.html',
         'skill_callup.html',
         'skill_medals.html',
+        'skill_medals_overlay.html',
         'medal_for_excellence.html',
         'best_of_nation.html',
         'albert_vidal_award.html',

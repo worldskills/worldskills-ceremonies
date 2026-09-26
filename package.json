@@ -7,6 +7,7 @@
   "scripts": {
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "export:slides": "electron bin/export-slides.js",
     "streamdeck:build": "node plugins/streamdeck/build.js",
     "start": "electron-forge start",
     "package": "electron-forge package",

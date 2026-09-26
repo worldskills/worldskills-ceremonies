@@ -385,13 +385,13 @@
                     }
                 }
 
-                function applyAwardingHighlight(screen, slide, autoHighlightPodium) {
+                function applyAwardingHighlight(screen, slide, autoHighlightPodium, clearOnly) {
                     if (!FrameService.awardingSequence) return;
                     if (autoHighlightPodium === undefined) {
                         autoHighlightPodium = $scope.gridConfig.autoHighlightPodium;
                     }
                     if (autoHighlightPodium && FrameService.frames[screen].slide === slide) {
-                        FrameState.syncAwardingHighlight(screen);
+                        FrameState.syncAwardingHighlight(screen, clearOnly);
                     }
                 }
 
@@ -417,6 +417,10 @@
                             '”.',
                         screen
                     );
+                    var syncsHighlight = live || frame.previewSlide !== slide;
+                    if (syncsHighlight) {
+                        applyAwardingHighlight(screen, slide, autoHighlightPodium, true);
+                    }
                     if (live) {
                         frame.blankedFeeds = {};
                         frame.queueComplete = false;
@@ -424,7 +428,7 @@
                     } else {
                         publishAfterEdit(screen, slide);
                     }
-                    if (live || frame.previewSlide !== slide) {
+                    if (syncsHighlight) {
                         applyAwardingHighlight(screen, slide, autoHighlightPodium);
                     }
                 };
@@ -444,6 +448,9 @@
                             'Reset all states for slide “' + (slide.label || 'Untitled') + '”.',
                             screen
                         );
+                    }
+                    if (frame.previewSlide !== slide) {
+                        applyAwardingHighlight(screen, slide, autoHighlightPodium, true);
                     }
                     publishAfterEdit(screen, slide);
                     if (frame.previewSlide !== slide) {
@@ -540,6 +547,9 @@
                             );
                         }
 
+                        if (autoHighlightPodium && !clearedHighlights && FrameService.awardingSequence) {
+                            FrameState.syncAwardingHighlight(screen, true);
+                        }
                         $scope.update(screen);
                     }
 

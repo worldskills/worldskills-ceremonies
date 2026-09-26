@@ -1031,6 +1031,18 @@
         },
         "sort": 0,
         "links": []
+      },
+      {
+        "id": 514,
+        "name": "JCCO",
+        "url": "",
+        "logo": {
+          "id": 119594,
+          "local": "sponsors/JCCO.png",
+          "backgroundColor": "#ffffff"
+        },
+        "sort": 0,
+        "links": []
       }
     ]
   },

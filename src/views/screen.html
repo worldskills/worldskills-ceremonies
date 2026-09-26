@@ -39,6 +39,21 @@
             body.screen-slide-background-failed .screen-slide-background {
                 display: none;
             }
+            html.screen-export,
+            body.export,
+            body.export .screen-content {
+                background: transparent !important;
+                background-image: none !important;
+            }
+            body.export .screen-bg-video,
+            body.export .screen-slide-background,
+            body.export .screen-preview-mark,
+            body.export .screen-test-mark {
+                display: none !important;
+            }
+            html.screen-export.screen-export-key body.export .screen {
+                filter: grayscale(1);
+            }
             .screen-preview-mark {
                 position: fixed;
                 inset: 0;
@@ -101,7 +116,7 @@
             }
         </style>
     </head>
-    <body ng-class="{'preview': preview}" style="margin: 0">
+    <body ng-class="{'preview': preview, 'export': exportMode}" style="margin: 0">
         <video
             class="screen-bg-video"
             ng-if="frame.video"

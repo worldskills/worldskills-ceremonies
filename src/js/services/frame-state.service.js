@@ -73,7 +73,9 @@
                 }
             }
 
-            function syncAwardingHighlight(frameId) {
+            // clearOnly: run before publishing a slide, so the grid restores the original
+            // podium before the highlighted source receives its next slide.
+            function syncAwardingHighlight(frameId, clearOnly) {
                 var sequence = FrameService.awardingSequence;
                 var slide = FrameService.frames[frameId].slide;
                 var highlight = awardingHighlight(frameId);
@@ -87,7 +89,7 @@
                         ? (slide.state || []).indexOf(step.highlight) >= 0
                         : step.highlight;
                 if (enabled) {
-                    if (FrameService.dynamicState.indexOf(highlight.id) < 0) {
+                    if (!clearOnly && FrameService.dynamicState.indexOf(highlight.id) < 0) {
                         setDynamicFunctionality(highlight.id, true);
                     }
                 } else if (

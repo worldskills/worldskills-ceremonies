@@ -8,6 +8,7 @@
             function ($scope, $rootScope, $q, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
                 $scope.FEED = FEED;
                 $scope.languages = [];
+                var languagesReady = false;
                 $scope.sponsorName = function (sponsor) {
                     sponsor = sponsor || {};
                     var name = sponsor.name || sponsor.title || sponsor.partnerName || '';
@@ -85,20 +86,25 @@
                 };
 
                 var renderRevision = 0;
+                var exportData = null;
                 $scope.render = function () {
                     renderRevision++;
                     var data = null;
                     try {
-                        data = window.operatorFeed
-                            ? window.operatorFeed.data
-                            : angular.fromJson(window.localStorage.getItem($scope.storageKey()));
+                        data = exportData
+                            ? exportData
+                            : window.operatorFeed
+                              ? window.operatorFeed.data
+                              : angular.fromJson(window.localStorage.getItem($scope.storageKey()));
                     } catch (_error) {
                         data = null;
                     }
 
-                    $scope.dynamicState = window.operatorFeed
+                    $scope.dynamicState = exportData
                         ? (data && data.dynamicState) || []
-                        : StorageKeys.dynamicState().concat(gridState);
+                        : window.operatorFeed
+                          ? (data && data.dynamicState) || []
+                          : StorageKeys.dynamicState().concat(gridState);
 
                     if (!data) {
                         $scope.template = TEMPLATE_BASE + 'empty.html';
@@ -153,7 +159,7 @@
                               }
                             : null;
                     $scope.frame = {
-                        id: $scope.screen,
+                        id: data.frameId || $scope.screen,
                         label: data.frameLabel || $scope.screen,
                         color: data.accent || '',
                         video: data.video || '',
@@ -195,6 +201,8 @@
                     var preview = params.get('preview');
                     var feed = params.get('feed');
                     var feedType = params.get('feedType');
+                    $scope.exportMode = params.get('export') === '1';
+                    document.documentElement.classList.toggle('screen-export', $scope.exportMode);
                     var testMode = params.get('testMode') === '1' || StorageKeys.testMode();
                     var testIdx = parseInt(params.get('testIdx'), 10) || 0;
                     var gridCols = parseInt(params.get('gridCols'), 10) || 0;
@@ -229,12 +237,24 @@
                 $scope.loadScreen();
 
                 if (window.ceremonator && window.ceremonator.project && window.ceremonator.project.current) {
-                    window.ceremonator.project.current().then(function (result) {
-                        var configured = result && result.project && result.project.languages;
-                        $scope.$evalAsync(function () {
-                            $scope.languages = configured && configured.length ? configured : [{ lang_code: 'en' }];
-                        });
-                    });
+                    window.ceremonator.project.current().then(
+                        function (result) {
+                            var configured = result && result.project && result.project.languages;
+                            $scope.$evalAsync(function () {
+                                $scope.languages = configured && configured.length ? configured : [{ lang_code: 'en' }];
+                                languagesReady = true;
+                            });
+                        },
+                        function () {
+                            $scope.$evalAsync(function () {
+                                $scope.languages = [{ lang_code: 'en' }];
+                                languagesReady = true;
+                            });
+                        }
+                    );
+                } else {
+                    $scope.languages = [{ lang_code: 'en' }];
+                    languagesReady = true;
                 }
 
                 if (window.operatorFeed) {
@@ -248,6 +268,7 @@
                                 $scope.screen = frameId || $scope.screen;
                                 $scope.feed = channel === FEED.PREVIEW ? FEED.PREVIEW : FEED.LIVE;
                                 $scope.languages = languages || [{ lang_code: 'en' }];
+                                languagesReady = true;
                                 $scope.testMode = !!testMode;
                                 $scope.render();
                             });
@@ -314,17 +335,10 @@
                     if (source === $scope.template) loadedTemplate = source;
                 });
 
-                var gridPreparation = 0;
-                function prepareGridCell(requestId) {
-                    var preparation = ++gridPreparation;
+                function waitUntilRendered(isCurrent, ready, timedOut) {
                     var deadline = Date.now() + 30000;
-                    function prepared() {
-                        if (preparation === gridPreparation) {
-                            window.parent.postMessage({ type: 'grid-cell-ready', requestId: requestId }, '*');
-                        }
-                    }
-                    function ready() {
-                        if (preparation !== gridPreparation) return;
+                    function check() {
+                        if (!isCurrent()) return;
                         var imagesReady = Array.prototype.every.call(document.images, function (img) {
                             return img.complete;
                         });
@@ -334,33 +348,98 @@
                                 return video.error || (video.readyState >= 2 && !video.paused);
                             }
                         );
+                        var translationsReady = Array.prototype.every.call(
+                            document.querySelectorAll('[translate]'),
+                            function (node) {
+                                return !!node.textContent.trim();
+                            }
+                        );
+                        function fittingReady() {
+                            return Array.prototype.every.call(
+                                document.querySelectorAll('[ws-fit], [ws-equal-area-flags]'),
+                                function (node) {
+                                    return node.style.visibility !== 'hidden';
+                                }
+                            );
+                        }
                         if (
                             loadedTemplate === $scope.template &&
+                            languagesReady &&
                             imagesReady &&
                             videosReady &&
+                            translationsReady &&
+                            fittingReady() &&
                             (!document.fonts || document.fonts.status === 'loaded')
                         ) {
-                            if (requestId) {
-                                var revision = renderRevision;
-                                // Fit directives run on the first frame; reveal after the next paint.
+                            var revision = renderRevision;
+                            // Fit directives run on the first frame; capture after the next paint.
+                            window.requestAnimationFrame(function () {
                                 window.requestAnimationFrame(function () {
-                                    window.requestAnimationFrame(function () {
-                                        if (revision !== renderRevision) ready();
-                                        else prepared();
-                                    });
+                                    if (revision !== renderRevision || !fittingReady()) check();
+                                    else ready();
                                 });
-                            } else {
-                                prepared();
-                            }
+                            });
                         } else if (Date.now() < deadline) {
-                            window.setTimeout(ready, 50);
+                            window.setTimeout(check, 50);
+                        } else if (timedOut) {
+                            timedOut();
+                        }
+                    }
+                    check();
+                }
+
+                var gridPreparation = 0;
+                function prepareGridCell(requestId) {
+                    var preparation = ++gridPreparation;
+                    function prepared() {
+                        if (preparation === gridPreparation) {
+                            window.parent.postMessage({ type: 'grid-cell-ready', requestId: requestId }, '*');
                         }
                     }
                     $scope.$evalAsync(function () {
                         $scope.render();
                         // Read asset readiness after Angular has updated the template and ng-src.
-                        window.setTimeout(ready, 0);
+                        window.setTimeout(function () {
+                            waitUntilRendered(function () {
+                                return preparation === gridPreparation;
+                            }, prepared);
+                        }, 0);
                     });
+                }
+
+                if ($scope.exportMode) {
+                    window.__ceremonatorSetExportKey = function (enabled) {
+                        document.documentElement.classList.toggle('screen-export-key', enabled === true);
+                        return new Promise(function (resolve) {
+                            window.requestAnimationFrame(function () {
+                                window.requestAnimationFrame(resolve);
+                            });
+                        });
+                    };
+                    window.__ceremonatorRenderExport = function (payload) {
+                        return new Promise(function (resolve, reject) {
+                            if (!payload || !payload.template) {
+                                reject(new Error('Invalid export payload.'));
+                                return;
+                            }
+                            $scope.$evalAsync(function () {
+                                exportData = payload;
+                                $scope.render();
+                                var revision = renderRevision;
+                                window.setTimeout(function () {
+                                    waitUntilRendered(
+                                        function () {
+                                            return revision === renderRevision;
+                                        },
+                                        resolve,
+                                        function () {
+                                            reject(new Error('Timed out waiting for slide assets and layout.'));
+                                        }
+                                    );
+                                }, 0);
+                            });
+                        });
+                    };
                 }
 
                 window.addEventListener('message', function (event) {

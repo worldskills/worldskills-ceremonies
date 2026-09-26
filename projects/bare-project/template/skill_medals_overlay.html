@@ -1,0 +1,242 @@
+<style>
+    .screen-medals-overlay {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        color: #fff;
+        font-family: "FrutigerLTW04", Frutiger, Arial, sans-serif;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+    }
+
+    .screen-medals-overlay-art {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .screen-medals-overlay-legend {
+        position: absolute;
+        left: 16.5vw;
+        top: 69.2vh;
+        width: 30.25vw;
+        height: 13vh;
+        padding: 0.35vh 0.7vw;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        font-size: 2.2vh;
+        line-height: 1.05;
+    }
+
+    .screen-medals-overlay-wide .screen-medals-overlay-legend {
+        top: 76vh;
+        width: 78vw;
+        height: 14vh;
+    }
+
+    .screen-medals-overlay-title {
+        flex: 0 0 22%;
+        min-height: 0;
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 0.86em;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .screen-medals-overlay-title .screen-translation {
+        display: inline;
+        align-self: auto;
+    }
+
+    .screen-medals-overlay-title > span,
+    .screen-medals-overlay-title .screen-translation-line {
+        display: inline;
+        margin-right: 0.35em;
+        vertical-align: baseline;
+    }
+
+    .screen-medals-overlay-results {
+        flex: 1 1 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.08em;
+        overflow: hidden;
+        font-size: 0.7em;
+    }
+
+    .screen-medals-overlay-result {
+        flex: 1 1 0;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 4.2em 2em minmax(0, 1fr);
+        align-items: center;
+        column-gap: 0.35em;
+        overflow: hidden;
+    }
+
+    .screen-medals-overlay-medal,
+    .screen-medals-overlay-flag,
+    .screen-medals-overlay-competitors {
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .screen-medals-overlay-flag-box {
+        width: 2em;
+        height: 1.1em;
+    }
+
+    .screen-medals-overlay-flag {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    html.screen-export-key .screen-medals-overlay-flag-box {
+        background: #fff;
+    }
+
+    html.screen-export-key .screen-medals-overlay-flag {
+        visibility: hidden;
+    }
+
+    .screen-medals-overlay-competitors {
+        height: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-content: center;
+        align-items: center;
+        justify-content: flex-start;
+        line-height: 1;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .screen-medals-overlay-competitor {
+        display: block;
+        white-space: nowrap;
+    }
+
+    .screen-best-of-nation-overlay-title {
+        flex: 0 0 22%;
+        font-size: 0.86em;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .screen-best-of-nation-overlay-results {
+        flex: 1 1 0;
+        min-height: 0;
+        display: flex;
+        gap: 16px;
+        overflow: hidden;
+        font-size: 0.8em;
+    }
+
+    .screen-best-of-nation-overlay-result {
+        flex: 1 1 0;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 2.4em minmax(0, 1fr);
+        align-items: center;
+        gap: 0.4em;
+        overflow: hidden;
+    }
+
+    .screen-best-of-nation-overlay-result .screen-medals-overlay-flag-box {
+        width: 2.4em;
+        height: 1.35em;
+    }
+
+    .screen-best-of-nation-overlay-competitors {
+        min-width: 0;
+        overflow: hidden;
+        line-height: 1.05;
+        text-transform: uppercase;
+    }
+
+    .screen-best-of-nation-overlay-competitor {
+        display: block;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="screen-medals-overlay" ng-class="{'screen-medals-overlay-wide': !context.skill || context.wideOverlay}">
+    <img
+        class="screen-medals-overlay-art"
+        ng-src="wstemplate://active/images/{{ !context.skill || context.wideOverlay ? 'medals-overlay-wide.png' : 'medals-overlay-compact.png' }}"
+        alt=""
+    />
+    <div class="screen-medals-overlay-legend" ng-if="context.skill">
+        <div class="screen-medals-overlay-title" ws-fit>
+            <span>{{ context.skill.number }}</span>
+            <div class="screen-translation">
+                <span
+                    class="screen-translation-line"
+                    ng-repeat="l in languages"
+                    ng-class="{'screen-translation-primary': $index === 0}"
+                    translate="{{ context.skill.name }}"
+                    translate-language="{{ l.lang_code }}"
+                ></span>
+            </div>
+        </div>
+        <div class="screen-medals-overlay-results">
+            <div
+                class="screen-medals-overlay-result screen-medal-{{ result.medal }}"
+                ng-repeat="result in context.results"
+            >
+                <div class="screen-medals-overlay-medal" ws-fit translate="{{ result.medal }}"></div>
+                <div class="screen-medals-overlay-flag-box">
+                    <img
+                        class="screen-medals-overlay-flag"
+                        ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
+                        onerror="
+                            this.onerror = null;
+                            this.src = 'wstemplate://project/data/flags/_placeholder.svg';
+                        "
+                        alt=""
+                    />
+                </div>
+                <div class="screen-medals-overlay-competitors" ws-fit>
+                    <span
+                        class="screen-medals-overlay-competitor"
+                        ng-repeat="competitor in result.competitors track by $index"
+                        >{{ competitor }}</span
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="screen-medals-overlay-legend" ng-if="!context.skill">
+        <div class="screen-best-of-nation-overlay-title" translate="Best of Nation"></div>
+        <div class="screen-best-of-nation-overlay-results">
+            <div class="screen-best-of-nation-overlay-result" ng-repeat="result in context.results">
+                <div class="screen-medals-overlay-flag-box">
+                    <img
+                        class="screen-medals-overlay-flag"
+                        ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
+                        onerror="
+                            this.onerror = null;
+                            this.src = 'wstemplate://project/data/flags/_placeholder.svg';
+                        "
+                        alt=""
+                    />
+                </div>
+                <div class="screen-best-of-nation-overlay-competitors" ws-fit>
+                    <span
+                        class="screen-best-of-nation-overlay-competitor"
+                        ng-repeat="competitor in result.competitors track by $index"
+                        >{{ competitor }}</span
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

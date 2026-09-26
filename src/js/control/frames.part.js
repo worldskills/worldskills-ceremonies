@@ -58,8 +58,8 @@
                             angular.forEach(FrameService.feedTypes, function (feed) {
                                 frame.blankedFeeds[feed.id] = true;
                             });
-                            $scope.update(frameId);
                             FrameState.clearAwardingHighlight(frameId);
+                            $scope.update(frameId);
                         }
                     }
 
@@ -79,8 +79,8 @@
                         angular.forEach(FrameService.feedTypes, function (feed) {
                             frame.blankedFeeds[feed.id] = true;
                         });
-                        $scope.update(frameId);
                         FrameState.clearAwardingHighlight(frameId);
+                        $scope.update(frameId);
                     };
 
                     $scope.resetAllPodiums = function () {

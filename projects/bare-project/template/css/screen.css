@@ -571,7 +571,7 @@ body.has-bg-video .screen-empty-logo {
 }
 
 .screen-img-flag {
-    box-shadow: 1px 1px 8px 6px rgb(255 255 255 / 60%);
+    filter: drop-shadow(1px 1px 4px rgb(255 255 255 / 60%)) drop-shadow(0 0 4px rgb(255 255 255 / 60%));
 }
 
 .screen-content-sector-texts {

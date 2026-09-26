@@ -32,7 +32,9 @@
                                 // A missing member code must not merge unrelated winners; Map also makes
                                 // prototype-like codes such as "__proto__" safe.
                                 var memberCode = result[EXCEL_COLUMNS.MEMBER];
-                                var key = memberCode ? String(memberCode) : '__missing__' + accumulator.size;
+                                var key = memberCode
+                                    ? String(memberCode) + '\u0000' + (resultSimplified.medal || '')
+                                    : '__missing__' + accumulator.size;
                                 resultSimplified.flagRatio = flagRatios.get(key) || 1.5;
                                 if (!accumulator.has(key)) {
                                     resultSimplified.competitors = [];
