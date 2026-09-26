@@ -4,34 +4,108 @@
     }
 </style>
 <div class="frames-grid" data-frame-states='{"highlight-red":"a","highlight-blue":"b","highlight-yellow":"c"}'>
+    <!-- A one-column output follows the active podium highlight. -->
+    <div class="frame-cell" data-frame="a" data-when-cols="1" data-when-state="!venue-wall"></div>
     <!-- Rehearsal multiview: one cell per selected frame, no duplication. -->
-    <div class="frame-cell" data-frame-each data-when-state="!venue-wall"></div>
+    <div class="frame-cell" data-frame-each data-when-cols="!1" data-when-state="!venue-wall"></div>
 
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="a"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="a"
+        data-container="bon-first"
+    ></div>
     <!-- W1  Red     -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="a"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="a"
+        data-container="bon-second"
+    ></div>
     <!-- W2  Red    -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="c"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="c"
+        data-container="bon-first"
+    ></div>
     <!-- W3  Yellow -->
 
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="c"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="c"
+        data-container="bon-second"
+    ></div>
     <!-- W4  Yellow -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="b"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="b"
+        data-container="bon-first"
+    ></div>
     <!-- W5  Blue   -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="b"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="b"
+        data-container="bon-second"
+    ></div>
     <!-- W6  Blue   -->
 
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="b"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="b"
+        data-container="bon-first"
+    ></div>
     <!-- W7  Blue   -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="b"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="b"
+        data-container="bon-second"
+    ></div>
     <!-- W8  Blue   -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="c"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="c"
+        data-container="bon-first"
+    ></div>
     <!-- W9  Yellow -->
 
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="c"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="c"
+        data-container="bon-second"
+    ></div>
     <!-- W10 Yellow -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="a"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="a"
+        data-container="bon-first"
+    ></div>
     <!-- W11 Red    -->
-    <div class="frame-cell" data-when-state="venue-wall" data-test-prefix="W" data-frame="a"></div>
+    <div
+        class="frame-cell"
+        data-when-state="venue-wall"
+        data-test-prefix="W"
+        data-frame="a"
+        data-container="bon-second"
+    ></div>
     <!-- W12 Red    -->
 </div>

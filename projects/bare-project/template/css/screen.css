@@ -69,6 +69,13 @@ body.preview .screen-content {
     align-items: center;
     justify-content: center;
 }
+
+.screen-content-best-of-nation {
+    width: 100vw;
+    height: 100vh;
+    margin: 6vh auto;
+}
+
 .screen-blank {
     background: #000;
 }
@@ -93,8 +100,8 @@ body.preview .screen-content {
 }
 .screen-partner img {
     display: block;
-    width: 86%;
-    height: 72%;
+    width: 60%;
+    height: 40%;
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
@@ -244,7 +251,31 @@ body.has-bg-video .screen-empty-logo {
 
 .screen-grid.screen-skill-medal-for-excellence,
 .screen-grid.screen-skill-best-of-nation-nation {
-    padding: calc(var(--unit) * 0.15) var(--grid-gap-x) var(--bottom-bar-inset);
+    padding: calc(var(--unit) * 0.1) var(--grid-gap-x) var(--bottom-bar-inset);
+}
+
+.screen-skill-best-of-nation-nation {
+    --flag-h: calc(var(--unit) * 1.9);
+    font-size: 1rem;
+    justify-items: center;
+}
+
+.screen-grid .screen-best-of-nation {
+    width: 60%;
+}
+
+.screen-grid .screen-best-of-nation .screen-competitors {
+    flex: 1;
+    text-align: left;
+}
+
+.screen-grid .screen-best-of-nation .screen-flag img {
+    object-position: left center;
+}
+
+.screen-container-bon-first .screen-best-of-nation:nth-child(n + 4),
+.screen-container-bon-second .screen-best-of-nation:nth-child(-n + 3) {
+    display: none;
 }
 
 .screen-grid.screen-skill-medals-medals {

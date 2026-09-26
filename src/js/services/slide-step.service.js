@@ -1,9 +1,8 @@
 (function () {
     'use strict';
 
-    // The reveal rules behind Prev/Next, shared by the frame stepper (frames.part.js)
-    // and both queue steppers (queue.part.js) so all three agree on what a key press does.
-    angular.module('ceremoniesApp').factory('SlideStep', function () {
+    // The reveal rules behind Prev/Next, shared by Control, Remote and Operator.
+    var SlideStep = (function () {
         function isRevealed(slide, state) {
             return ((slide && slide.state) || []).indexOf(state) >= 0;
         }
@@ -46,5 +45,24 @@
         }
 
         return { resolve: resolve };
+    })();
+
+    angular.module('ceremoniesControlWorkspace').factory('SlideStep', function () {
+        return SlideStep;
     });
+
+    var MESSAGE = 'Are you sure? This action will change all frames to that slide';
+
+    function allowSlide(slide) {
+        return !slide || !slide.confirmBeforeLive || window.confirm(MESSAGE);
+    }
+
+    function allowStep(frame, direction) {
+        if (!frame) return true;
+        var slides = frame.slides || [];
+        var step = SlideStep.resolve(slides, frame.slide ? slides.indexOf(frame.slide) : -1, direction);
+        return !step || !!step.state || step.index >= slides.length || allowSlide(slides[step.index]);
+    }
+
+    window.CeremonatorLiveConfirm = { allowSlide: allowSlide, allowStep: allowStep };
 })();

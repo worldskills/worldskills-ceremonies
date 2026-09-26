@@ -14,6 +14,7 @@
                 FrameService,
                 FrameState,
                 Catalog,
+                Scripts,
                 DebugLog,
                 Notices,
                 Routing,
@@ -85,6 +86,8 @@
                 $scope.results = [];
 
                 $scope.resultsBestOfNations = [];
+                $scope.scriptTranslations = {};
+                $scope.scriptConfig = {};
                 // Loaded from project, 5 by default
                 $scope.bestOfNationGroupSize = 5;
 
@@ -142,50 +145,113 @@
                     return $q.all([skillsLoaded, membersLoaded]);
                 };
 
+                function scriptOptions() {
+                    return {
+                        skills: $scope.skills,
+                        members: $scope.members,
+                        languages: $scope.languages,
+                        translations: $scope.scriptTranslations,
+                        scripts: $scope.scriptConfig,
+                    };
+                }
+
+                $scope.applyScripts = function () {
+                    Scripts.applyFrames(FrameService.frames, scriptOptions());
+                };
+
+                $scope.setScriptTranslations = function (translations) {
+                    $scope.scriptTranslations = angular.copy(translations || {});
+                    Scripts.applyCatalog($scope.catalog, scriptOptions());
+                    $scope.applyScripts();
+                };
+
+                $scope.loadScriptTranslations = function () {
+                    var project = window.ceremonator && window.ceremonator.project;
+                    if (!project || !project.readTranslations) {
+                        $scope.setScriptTranslations({});
+                        return $q.resolve();
+                    }
+                    return $q.when(project.readTranslations()).then(
+                        function (result) {
+                            $scope.setScriptTranslations((result && result.ok && result.languages) || {});
+                        },
+                        function () {
+                            $scope.setScriptTranslations({});
+                        }
+                    );
+                };
+
+                $scope.loadScriptConfig = function () {
+                    var project = window.ceremonator && window.ceremonator.project;
+                    if (!project || !project.readScripts) {
+                        $scope.scriptConfig = {};
+                        return $q.resolve();
+                    }
+                    return $q.when(project.readScripts()).then(
+                        function (result) {
+                            $scope.scriptConfig = angular.copy((result && result.ok && result.scripts) || {});
+                            if (!result || !result.ok) {
+                                $scope.addNotice(
+                                    'warning',
+                                    (result && result.error) || 'Project scripts could not be loaded.',
+                                    'project-scripts'
+                                );
+                            }
+                        },
+                        function () {
+                            $scope.scriptConfig = {};
+                            $scope.addNotice('warning', 'Project scripts could not be loaded.', 'project-scripts');
+                        }
+                    );
+                };
+
+                var gridConfigDefaults;
+                function applyProjectConfig(result) {
+                    if (!result || !result.project) {
+                        return;
+                    }
+                    if (result.orderingWarning) {
+                        $scope.addNotice('warning', result.orderingWarning, 'ordering-corrupt');
+                    }
+
+                    var project = result.project;
+                    $scope.projectName = project.name;
+                    $scope.displayMode = project.displayMode;
+                    $scope.bestOfNationGroupSize = project.bestOfNationGroupSize || 5;
+                    $scope.languages =
+                        project.languages && project.languages.length ? project.languages : [{ lang_code: 'en' }];
+                    $scope.remoteConfig = angular.copy(project.remote || {});
+
+                    FrameService.setFeedTypes(project.feedTypes);
+                    FrameService.freeSlides = angular.copy(project.freeSlides || []);
+                    FrameService.dynamicFunctionalities = angular.copy(project.dynamicFunctionalities || []);
+                    FrameService.dynamicFunctionalityGroups = angular.copy(project.dynamicFunctionalityGroups || {});
+                    Routing.set(project.routing);
+                    FrameService.awardingSequence = angular.copy(project.awardingSequence || null);
+
+                    if (!gridConfigDefaults) {
+                        gridConfigDefaults = angular.copy($scope.gridConfig);
+                    }
+                    var gridDefaults = angular.copy(gridConfigDefaults);
+                    if (FrameService.awardingSequence) {
+                        gridDefaults.autoHighlightPodium = FrameService.awardingSequence.autoHighlightPodium;
+                    }
+                    $scope.gridConfig = angular.extend(gridDefaults, project.gridConfig || {});
+
+                    FrameService.setSkillOrder(project.skillOrder);
+                    if (project.frames) {
+                        FrameService.loadFromProject(project.frames);
+                    }
+                }
+                $scope.applyProjectConfig = applyProjectConfig;
+
                 function loadProjectConfig() {
                     if (!window.ceremonator || !window.ceremonator.project || !window.ceremonator.project.current) {
                         return $q.resolve();
                     }
 
                     // $q.when bridges the preload promise into the digest, so no $apply.
-                    return $q.when(window.ceremonator.project.current()).then(function (result) {
-                        if (!result || !result.project) {
-                            return;
-                        }
-                        if (result.orderingWarning) {
-                            $scope.addNotice('warning', result.orderingWarning, 'ordering-corrupt');
-                        }
-
-                        var project = result.project;
-                        $scope.projectName = project.name;
-                        $scope.displayMode = project.displayMode;
-                        $scope.bestOfNationGroupSize = project.bestOfNationGroupSize || $scope.bestOfNationGroupSize;
-                        $scope.languages =
-                            project.languages && project.languages.length ? project.languages : [{ lang_code: 'en' }];
-                        $scope.remoteConfig = angular.extend({}, $scope.remoteConfig, project.remote || {});
-
-                        FrameService.setFeedTypes(project.feedTypes);
-                        FrameService.freeSlides = angular.copy(project.freeSlides || []);
-                        FrameService.dynamicFunctionalities = angular.copy(project.dynamicFunctionalities || []);
-                        FrameService.dynamicFunctionalityGroups = angular.copy(
-                            project.dynamicFunctionalityGroups || {}
-                        );
-                        Routing.set(project.routing);
-                        FrameService.awardingSequence = angular.copy(project.awardingSequence || null);
-                        if (FrameService.awardingSequence) {
-                            $scope.gridConfig.autoHighlightPodium = FrameService.awardingSequence.autoHighlightPodium;
-                        }
-
-                        if (project.gridConfig) {
-                            $scope.gridConfig = angular.extend({}, $scope.gridConfig, project.gridConfig);
-                        }
-
-                        FrameService.setSkillOrder(project.skillOrder);
-
-                        if (project.frames) {
-                            FrameService.loadFromProject(project.frames);
-                        }
-                    });
+                    return $q.when(window.ceremonator.project.current()).then(applyProjectConfig);
                 }
 
                 $scope.buildCatalog = function () {
@@ -196,6 +262,7 @@
                         bestOfNation: $scope.resultsBestOfNations,
                         bestOfNationGroupSize: $scope.bestOfNationGroupSize,
                     });
+                    Scripts.applyCatalog(result.slides, scriptOptions());
 
                     $scope.lastImportSkipped = result.skippedRows;
 
@@ -242,6 +309,7 @@
                     angular.forEach(FrameService.frames, function (frame, id) {
                         FrameService.frames[id] = $scope.assembleFrame(frame, $scope.catalog);
                     });
+                    $scope.applyScripts();
 
                     $scope.rebuildCatalogSkillList();
                     $scope.albertVidalFrame = $scope.getAlbertVidalFrame() || '';
@@ -280,6 +348,7 @@
                             }
                         });
                     }
+                    $scope.applyScripts();
                     $scope.rebuildCatalogSkillList();
                     $scope.albertVidalFrame = $scope.getAlbertVidalFrame() || '';
                     $scope.buildQueueList();
@@ -424,7 +493,7 @@
                     publishAfterEdit(screen, slide);
                 };
 
-                $scope.showSlide = function (screen, slide, initialState, autoHighlightPodium) {
+                function showSlideOnFrame(screen, slide, initialState, autoHighlightPodium) {
                     var frame = FrameService.frames[screen];
                     var wasPreviewing = frame.previewSlide === slide;
                     var sameSlide = frame.slide === slide;
@@ -481,6 +550,31 @@
                             FrameState.highlightPodium(screen);
                         }
                     }
+                }
+
+                $scope.showSlide = function (screen, slide, initialState, autoHighlightPodium, confirmationHandled) {
+                    var definition = null;
+                    if (slide.kind === 'free') {
+                        definition = FrameService.freeSlides.filter(function (candidate) {
+                            return window.CeremonatorFreeSlides.frameIds(candidate).some(function (frameId) {
+                                return window.CeremonatorFreeSlides.slideId(candidate, frameId) === slide.slideId;
+                            });
+                        })[0];
+                    }
+                    if (!confirmationHandled && !window.CeremonatorLiveConfirm.allowSlide(slide)) return;
+                    var synchronized = definition && definition.synchronized === true ? definition : null;
+                    if (!synchronized) {
+                        showSlideOnFrame(screen, slide, initialState, autoHighlightPodium);
+                        return;
+                    }
+                    angular.forEach(window.CeremonatorFreeSlides.frameIds(synchronized), function (frameId) {
+                        var siblingId = window.CeremonatorFreeSlides.slideId(synchronized, frameId);
+                        var frame = FrameService.frames[frameId];
+                        var sibling = ((frame && frame.slides) || []).filter(function (candidate) {
+                            return candidate.slideId === siblingId;
+                        })[0];
+                        if (sibling) showSlideOnFrame(frameId, sibling, initialState, false);
+                    });
                 };
 
                 $scope.previewSlide = function ($event, screen, slide) {
@@ -509,6 +603,64 @@
                     angular.forEach(FrameService.frames, function (config, screen) {
                         FrameState.clear(screen);
                     });
+                };
+
+                $scope.hasScripts = function (frameId) {
+                    if (frameId) return Scripts.hasScripts(FrameService.frames[frameId]);
+                    return Object.keys(FrameService.frames).some(function (id) {
+                        return Scripts.hasScripts(FrameService.frames[id]);
+                    });
+                };
+
+                $scope.exportScripts = function (frameId) {
+                    $scope.scriptMenuOpen = false;
+                    if ($scope.scriptExporting) return;
+                    var content = frameId
+                        ? Scripts.exportText(FrameService.frames, [frameId])
+                        : Scripts.exportQueueText($scope.queueList);
+                    if (!content) {
+                        $scope.addNotice('warning', 'There are no slide scripts to export.', 'script-export');
+                        return;
+                    }
+                    var project = window.ceremonator && window.ceremonator.project;
+                    if (!project || !project.exportScripts) {
+                        $scope.addNotice('error', 'Script export is unavailable.', 'script-export');
+                        return;
+                    }
+                    var scopeName = frameId ? FrameService.frames[frameId].label : 'All frames';
+                    $scope.scriptExporting = true;
+                    return $q
+                        .when(
+                            project.exportScripts({
+                                filename: ($scope.projectName || 'Ceremony') + ' - Scripts - ' + scopeName + '.txt',
+                                content: content + '\n',
+                            })
+                        )
+                        .then(function (result) {
+                            if (result && result.ok) {
+                                $scope.addNotice(
+                                    'info',
+                                    'Exported scripts to ' + result.filePath + '.',
+                                    'script-export'
+                                );
+                            } else if (!result || !result.canceled) {
+                                $scope.addNotice(
+                                    'error',
+                                    'Script export failed: ' + ((result && result.error) || 'unknown error'),
+                                    'script-export'
+                                );
+                            }
+                        })
+                        .catch(function (error) {
+                            $scope.addNotice(
+                                'error',
+                                'Script export failed: ' + (error && error.message ? error.message : 'unknown error'),
+                                'script-export'
+                            );
+                        })
+                        .finally(function () {
+                            $scope.scriptExporting = false;
+                        });
                 };
 
                 $scope.copyPaste = function ($event, text) {
@@ -544,6 +696,8 @@
                 $scope
                     .loadCatalogs()
                     .then(loadProjectConfig)
+                    .then($scope.loadScriptTranslations)
+                    .then($scope.loadScriptConfig)
                     .then($scope.restoreDevSession)
                     .then(function (restored) {
                         if (!restored) {
@@ -633,6 +787,7 @@
                         $scope.projectMenuOpen ||
                         $scope.importMenuOpen ||
                         $scope.feedMenuOpen ||
+                        $scope.scriptMenuOpen ||
                         $scope.windowsManagerOpen ||
                         $scope.gridConfigDialogOpen ||
                         $scope.remoteConfigDialogOpen ||

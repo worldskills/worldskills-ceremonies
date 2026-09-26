@@ -101,7 +101,7 @@
 
     ceremoniesApp.config(function ($translateProvider) {
         $translateProvider.useLoader('TranslationsLoader');
-        $translateProvider.preferredLanguage('en'); // IDs are English, so the 'en' table is empty
+        $translateProvider.preferredLanguage('en');
         $translateProvider.useSanitizeValueStrategy(null); // trusted content; set explicitly to silence the 2.x startup warning
     });
 })();

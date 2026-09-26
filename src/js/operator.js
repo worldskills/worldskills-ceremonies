@@ -140,6 +140,14 @@
                     return;
                 }
 
+                if (
+                    (action === 'show' && !window.CeremonatorLiveConfirm.allowSlide($scope.frame.slides[index])) ||
+                    (action === 'previous' && !window.CeremonatorLiveConfirm.allowStep($scope.frame, -1)) ||
+                    (action === 'next' && !window.CeremonatorLiveConfirm.allowStep($scope.frame, 1))
+                ) {
+                    return;
+                }
+
                 var command = {
                     name: 'operator',
                     frameId: $scope.frameId,
@@ -147,6 +155,10 @@
                     feedType: feed || 'all',
                     autoHighlightPodium: $scope.autoHighlightPodium,
                 };
+
+                if (['show', 'previous', 'next'].indexOf(action) >= 0) {
+                    command.confirmationHandled = true;
+                }
 
                 if (index != null) {
                     command.slideIndex = index;

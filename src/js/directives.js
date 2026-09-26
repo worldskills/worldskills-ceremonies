@@ -35,7 +35,10 @@
             restrict: 'A',
             link: function (scope, element, attrs) {
                 var el = element[0];
+                var visibility = el.style.visibility;
                 var queued = false;
+                var fittedWidth;
+                var fittedHeight;
                 var burst = 0;
                 var burstAt = 0;
 
@@ -78,6 +81,9 @@
                 }
 
                 function schedule() {
+                    // ResizeObserver runs after layout. Hide now so the browser
+                    // never paints the old size before the next-frame fit.
+                    el.style.visibility = 'hidden';
                     if (queued) {
                         return;
                     }
@@ -90,16 +96,27 @@
                             burstAt = now;
                         }
                         if (++burst > BURST_LIMIT) {
+                            el.style.visibility = visibility;
                             return;
                         }
-                        fit();
+                        try {
+                            fit();
+                        } finally {
+                            fittedWidth = el.clientWidth;
+                            fittedHeight = el.clientHeight;
+                            el.style.visibility = visibility;
+                        }
                     });
                 }
 
                 // ng-repeat rendering, async `translate` text, web-font swap and
                 // grid-view cell resizing all land here without this directive
                 // needing to know about any of them.
-                var resizeObserver = new ResizeObserver(schedule);
+                var resizeObserver = new ResizeObserver(function () {
+                    if (el.clientWidth !== fittedWidth || el.clientHeight !== fittedHeight) {
+                        schedule();
+                    }
+                });
                 resizeObserver.observe(el);
 
                 var mutationObserver = new MutationObserver(schedule);
@@ -126,7 +143,10 @@
             restrict: 'A',
             link: function (scope, element, attrs) {
                 var el = element[0];
+                var visibility = el.style.visibility;
                 var animationFrame = null;
+                var fittedWidth;
+                var fittedHeight;
 
                 function fit() {
                     var flags = el.querySelectorAll('.screen-img-flag');
@@ -162,18 +182,29 @@
                 }
 
                 function schedule() {
+                    el.style.visibility = 'hidden';
                     if (animationFrame !== null) {
                         return;
                     }
                     // ng-repeat must finish linking its rows before we measure them.
                     animationFrame = window.requestAnimationFrame(function () {
                         animationFrame = null;
-                        fit();
+                        try {
+                            fit();
+                        } finally {
+                            fittedWidth = el.clientWidth;
+                            fittedHeight = el.clientHeight;
+                            el.style.visibility = visibility;
+                        }
                     });
                 }
 
                 scope.$watchCollection(attrs.wsEqualAreaFlags, schedule);
-                var resizeObserver = new ResizeObserver(schedule);
+                var resizeObserver = new ResizeObserver(function () {
+                    if (el.clientWidth !== fittedWidth || el.clientHeight !== fittedHeight) {
+                        schedule();
+                    }
+                });
                 resizeObserver.observe(el);
 
                 scope.$on('$destroy', function () {

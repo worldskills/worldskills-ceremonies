@@ -73,6 +73,7 @@ const STATIC_FILES = {
     'services/translations-loader.service.js',
     'services/storage-keys.service.js',
     'services/remote-transport.service.js',
+    'services/slide-step.service.js',
 ].forEach((name) => {
     STATIC_FILES['/js/' + name] = path.join(appRoot, 'src/js', name);
 });
@@ -452,6 +453,9 @@ function validAction(action) {
         return false;
     }
     if (action.feedType != null && !projectStore.isFeedId(action.feedType)) {
+        return false;
+    }
+    if (action.confirmationHandled != null && typeof action.confirmationHandled !== 'boolean') {
         return false;
     }
     return true;

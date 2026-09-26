@@ -11,6 +11,8 @@
                 $scope.skillsSelectedSlides = [];
                 $scope.queueList = [];
                 $scope.queueByFrame = {};
+                $scope.queueVisibleList = [];
+                $scope.queueVisibleByFrame = {};
                 $scope.freeSlideDialogOpen = false;
 
                 $scope.editFreeSlide = function (slideId, frameId) {
@@ -25,6 +27,9 @@
                               id: 'slide-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
                               name: '',
                               template: '',
+                              background: {},
+                              synchronized: false,
+                              confirmBeforeLive: false,
                               states: [],
                               context: {},
                               frameIds: [frameId || FrameService.activeFrameId],
@@ -35,14 +40,19 @@
                     $scope.freeSlideDraft.frameIds = window.CeremonatorFreeSlides.frameIds($scope.freeSlideDraft);
                     delete $scope.freeSlideDraft.frameId;
                     if (!$scope.freeSlideDraft.placements) $scope.freeSlideDraft.placements = {};
+                    if (!$scope.freeSlideDraft.background) $scope.freeSlideDraft.background = {};
                     angular.forEach($scope.freeSlideDraft.frameIds, function (id) {
                         if (!$scope.freeSlideDraft.placements[id]) {
                             $scope.freeSlideDraft.placements[id] = angular.copy(
                                 $scope.freeSlideDraft.placement || { position: 'end', skillNumber: '', kind: '' }
                             );
                         }
+                        if (!$scope.freeSlideDraft.background[id]) {
+                            $scope.freeSlideDraft.background[id] = { type: '', filename: '' };
+                        }
                     });
                     delete $scope.freeSlideDraft.placement;
+                    delete $scope.freeSlideDraft.video;
                     $scope.freeSlideStatesText = angular.toJson($scope.freeSlideDraft.states, true);
                     $scope.freeSlideContentText = angular.toJson($scope.freeSlideDraft.context, true);
                     $scope.freeSlideError = null;
@@ -69,6 +79,9 @@
                                 skillNumber: '',
                                 kind: '',
                             };
+                        }
+                        if (!$scope.freeSlideDraft.background[frameId]) {
+                            $scope.freeSlideDraft.background[frameId] = { type: '', filename: '' };
                         }
                     } else frames.splice(index, 1);
                 };
@@ -115,6 +128,7 @@
                         }
                         $scope.update(id);
                     });
+                    $scope.applyScripts();
                     if ($scope.skillsSelectedSkill) {
                         $scope.skillsSelectedSlides = $scope.getSkillQueueSlides($scope.skillsSelectedSkill.number);
                     }
@@ -132,8 +146,17 @@
                     }
                     draft.name = (draft.name || '').trim();
                     draft.template = (draft.template || '').trim();
+                    if (!draft.synchronized) delete draft.confirmBeforeLive;
                     angular.forEach(Object.keys(draft.placements), function (frameId) {
                         if (draft.frameIds.indexOf(frameId) < 0) delete draft.placements[frameId];
+                    });
+                    angular.forEach(Object.keys(draft.background), function (frameId) {
+                        var background = draft.background[frameId];
+                        if (draft.frameIds.indexOf(frameId) < 0 || !background.type) {
+                            delete draft.background[frameId];
+                            return;
+                        }
+                        background.filename = (background.filename || '').trim();
                     });
                     $scope.freeSlideError = window.CeremonatorFreeSlides.validate([draft]);
                     if (
@@ -182,6 +205,15 @@
                     var built = Queue.buildQueueList($scope.catalog, $scope.skills, $scope.albertVidalFrame);
                     $scope.queueList = built.list;
                     $scope.queueByFrame = built.byFrame;
+                    $scope.queueVisibleList = built.list.filter(function (item) {
+                        return item.slide.kind !== 'free';
+                    });
+                    $scope.queueVisibleByFrame = {};
+                    angular.forEach(built.byFrame, function (items, frameId) {
+                        $scope.queueVisibleByFrame[frameId] = items.filter(function (item) {
+                            return item.slide.kind !== 'free';
+                        });
+                    });
                 };
 
                 $scope.moveSkillToFrame = function (skillNumber, toFrameId) {
@@ -329,10 +361,10 @@
                     $scope.showSlide(item.frameId, item.slide);
                     QueueScroll.scrollQueueLookahead($scope.queueLayout, {
                         listIdx: listIdx,
-                        listLength: $scope.queueList.length,
+                        listLength: $scope.queueVisibleList.length,
                         frameIdx: frameIdx,
                         frameId: frameId,
-                        frameItems: $scope.queueByFrame[frameId] || [],
+                        frameItems: $scope.queueVisibleByFrame[frameId] || [],
                     });
                 };
 
@@ -343,7 +375,7 @@
                     }
                     $scope.setActiveFrame(item.frameId);
                     $scope.showSlide(item.frameId, item.slide, initialState);
-                    QueueScroll.scrollQueueListToIndex(idx);
+                    QueueScroll.scrollQueueListToIndex($scope.queueVisibleList.indexOf(item));
                 };
 
                 function stepQueue(direction) {

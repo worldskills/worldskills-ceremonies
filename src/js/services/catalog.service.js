@@ -154,27 +154,6 @@
                                 },
                             };
 
-                            // Create script:
-                            var scriptMedals = 'And here are the Medallists for ' + skill.name.text + ':\n\n';
-                            var scriptMedalsResults = {};
-                            angular.forEach(slideMedals.context.results.slice().reverse(), function (result) {
-                                if (typeof scriptMedalsResults[result.medal] == 'undefined') {
-                                    scriptMedalsResults[result.medal] = [];
-                                }
-                                scriptMedalsResults[result.medal].push(result);
-                            });
-
-                            for (var medal in scriptMedalsResults) {
-                                scriptMedals += 'The ' + medal + ' medal goes to:\n';
-                                angular.forEach(scriptMedalsResults[medal], function (result) {
-                                    scriptMedals += result.competitors.join(' and ');
-                                    scriptMedals += ', ' + result.member + '\n';
-                                });
-                                scriptMedals += '\n';
-                            }
-                            scriptMedals += 'Congratulations to all of you!';
-                            slideMedals.script = scriptMedals;
-
                             if (!catalog[skill.number]) {
                                 catalog[skill.number] = [];
                             }
@@ -216,16 +195,6 @@
                                     total: total,
                                 },
                             };
-
-                            // Create script:
-
-                            var script = 'And the Medal(s) for Excellence for ' + skill.name.text + ' go to:\n\n';
-                            angular.forEach(slideMfe.context.results, function (result, i) {
-                                script += result.competitors.join(' and ');
-                                script += ', ' + result.member + '\n';
-                            });
-                            script += '\nCongratulations!';
-                            slideMfe.script = script;
 
                             if (!catalog[skill.number]) {
                                 catalog[skill.number] = [];

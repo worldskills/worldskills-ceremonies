@@ -52,10 +52,16 @@
         }
 
         function addToTable(table, name, key) {
-            if (!name || !name.text || !name.translations || !key) {
+            if (!name || !name.text || !key) {
                 return;
             }
-            angular.forEach(name.translations, function (text, lang) {
+            var primaryLanguage = name.lang_code || 'en';
+            if (!table[primaryLanguage]) {
+                table[primaryLanguage] = {};
+            }
+            table[primaryLanguage][key] = name.text;
+
+            angular.forEach(name.translations || {}, function (text, lang) {
                 if (!table[lang]) {
                     table[lang] = {};
                 }

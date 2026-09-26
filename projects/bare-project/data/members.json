@@ -1,5 +1,16 @@
 [
   {
+    "code": "DZ",
+    "name": {
+      "lang_code": "en",
+      "text": "Algeria",
+      "translations": {
+        "zh_CN": "阿尔及利亚"
+      }
+    },
+    "flagRatio": 1.59915611814346
+  },
+  {
     "code": "AR",
     "name": {
       "lang_code": "en",
@@ -126,7 +137,7 @@
       "lang_code": "en",
       "text": "Brunei Darussalam",
       "translations": {
-        "zh_CN": "文莱达鲁萨兰国"
+        "zh_CN": "文莱"
       }
     },
     "flagRatio": 2
@@ -149,17 +160,6 @@
       "text": "Chile",
       "translations": {
         "zh_CN": "智利"
-      }
-    },
-    "flagRatio": 1.5010224948875255
-  },
-  {
-    "code": "CN",
-    "name": {
-      "lang_code": "en",
-      "text": "China",
-      "translations": {
-        "zh_CN": "中国"
       }
     },
     "flagRatio": 1.5010224948875255
@@ -522,7 +522,7 @@
       "lang_code": "en",
       "text": "Principality of Liechtenstein",
       "translations": {
-        "zh_CN": "列支敦士登公国"
+        "zh_CN": "列支敦士登"
       }
     },
     "flagRatio": 1.668103448275862
@@ -577,7 +577,7 @@
       "lang_code": "en",
       "text": "Mongolia",
       "translations": {
-        "zh_CN": "蒙古"
+        "zh_CN": "蒙古国"
       }
     },
     "flagRatio": 2
@@ -896,7 +896,7 @@
       "lang_code": "en",
       "text": "United Arab Emirates",
       "translations": {
-        "zh_CN": "阿拉伯联合酋长国"
+        "zh_CN": "阿联酋"
       }
     },
     "flagRatio": 2
@@ -918,7 +918,7 @@
       "lang_code": "en",
       "text": "United States of America",
       "translations": {
-        "zh_CN": "美利坚合众国"
+        "zh_CN": "美国"
       }
     },
     "flagRatio": 1.9011494252873564
@@ -963,6 +963,17 @@
       "text": "Zambia",
       "translations": {
         "zh_CN": "赞比亚"
+      }
+    },
+    "flagRatio": 1.5010224948875255
+  },
+  {
+    "code": "CN",
+    "name": {
+      "lang_code": "en",
+      "text": "China",
+      "translations": {
+        "zh_CN": "中国"
       }
     },
     "flagRatio": 1.5010224948875255

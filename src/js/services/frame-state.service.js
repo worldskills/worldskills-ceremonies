@@ -131,7 +131,9 @@
 
             function createStoragePayload(frame, slide, frameId, stateOverride, feedType) {
                 var state = stateOverride || (slide && slide.state) || [];
+                var kind = (slide && slide.kind) || '';
                 var isActive = activeForFeed(slide, feedType, state);
+                var background = isActive && slide ? angular.copy(slide.background || null) : null;
                 if (!isActive) {
                     slide = undefined;
                 }
@@ -152,6 +154,8 @@
                     template: TEMPLATE_BASE + (content ? content.template : slide ? slide.template : 'empty.html'),
                     context: (content && content.context) || (slide && slide.context) || {},
                     state: filteredState,
+                    kind: kind,
+                    background: background,
                     dynamicState: angular.copy(FrameService.dynamicState),
                     label: (slide && slide.label) || '',
                     frameLabel: frame.label || frameId,
@@ -249,6 +253,7 @@
                                 baseFeedTypes: slide.baseFeedTypes,
                                 stateFeedTypes: slide.stateFeedTypes,
                                 feedContent: slide.feedContent,
+                                confirmBeforeLive: !!slide.confirmBeforeLive,
                                 done: !!slide.done,
                             };
                         }),
@@ -320,6 +325,8 @@
                 var specialKinds = FrameService.awardingSequence
                     ? FrameService.awardingSequence.slides
                     : [{ kind: 'bestOfNation' }, { kind: 'albertVidal' }];
+                var frameIds = Object.keys(FrameService.frames);
+                var frameIndex = frameIds.indexOf(frame.id);
                 angular.forEach(specialKinds, function (step) {
                     var special =
                         step.kind === 'bestOfNation'
@@ -327,8 +334,15 @@
                             : step.kind === 'albertVidal' && frame.ordering.includeAlbertVidal
                               ? catalog[SLIDE_KEYS.ALBERT_VIDAL]
                               : null;
-                    angular.forEach(special || [], function (slide) {
-                        frame.slides.push(angular.copy(slide));
+                    angular.forEach(special || [], function (slide, index) {
+                        if (
+                            step.kind !== 'bestOfNation' ||
+                            (step.frameId
+                                ? step.frameId === frame.id
+                                : frameIndex < 0 || index % frameIds.length === frameIndex)
+                        ) {
+                            frame.slides.push(angular.copy(slide));
+                        }
                     });
                 });
 
@@ -347,9 +361,11 @@
                         kind: 'free',
                         label: definition.name,
                         template: definition.template,
+                        background: angular.copy((definition.background && definition.background[frame.id]) || null),
                         states: angular.copy(definition.states),
                         context: angular.copy(definition.context),
                         clearHighlights: !!definition.clearHighlights,
+                        confirmBeforeLive: !!definition.confirmBeforeLive,
                         baseFeedTypes: [definition.feedType],
                         stateFeedTypes: stateFeeds,
                         state: [],

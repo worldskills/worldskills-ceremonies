@@ -31,6 +31,9 @@ function templateDirPath(dir) {
 function translationsFilePath(dir) {
     return path.join(dir, 'translations.json');
 }
+function scriptsFilePath(dir) {
+    return path.join(dir, 'scripts.json');
+}
 function projectDataDir(dir) {
     return path.join(dir, 'data');
 }
@@ -49,5 +52,6 @@ module.exports = {
     slidesFilePath,
     templateDirPath,
     translationsFilePath,
+    scriptsFilePath,
     projectDataDir,
 };

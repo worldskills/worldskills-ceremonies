@@ -8,6 +8,11 @@ const DEFAULT_FEED_ID = 'main';
 const MAX_FEEDS = 6;
 
 const ROUTING_KINDS = ['callup', 'medals', 'mfe', 'bestOfNation', 'albertVidal'];
+const FEED_VIDEO_KINDS = new Set(['default', 'free'].concat(ROUTING_KINDS));
+
+function validVideoFilename(value) {
+    return typeof value === 'string' && value.length <= 200 && !/[\\/]/.test(value);
+}
 
 function defaultRouting(feedTypes) {
     const audience = feedTypes[0].id;
@@ -136,7 +141,7 @@ function normalizeRemoteConfig(remote) {
     return { enabled: config.enabled !== false, port: port, pin: pin };
 }
 
-function validateAwardingSequence(sequence, functionalities) {
+function validateAwardingSequence(sequence, functionalities, frameIds) {
     if (sequence == null) return { ok: true };
     if (
         typeof sequence !== 'object' ||
@@ -169,11 +174,13 @@ function validateAwardingSequence(sequence, functionalities) {
                     step.reveals.length > 200 ||
                     step.reveals.some((name) => typeof name !== 'string' || !name.trim() || name.length > 200) ||
                     new Set(step.reveals).size !== step.reveals.length)) ||
+            (step.frameId != null &&
+                (step.kind !== 'bestOfNation' || typeof step.frameId !== 'string' || !frameIds.has(step.frameId))) ||
             (typeof step.highlight === 'string' && step.reveals && !step.reveals.includes(step.highlight))
         ) {
             return {
                 ok: false,
-                error: 'Awarding slides need unique supported kinds, highlight (boolean or reveal name), and optional unique reveal names.',
+                error: 'Awarding slides need unique supported kinds, highlight (boolean or reveal name), optional unique reveal names, and an existing Best of Nation frameId when set.',
             };
         }
         kinds.add(step.kind);
@@ -295,7 +302,7 @@ function validateProject(project) {
             ),
         ])
     );
-    const sequence = validateAwardingSequence(project.awardingSequence, project.dynamicFunctionalities);
+    const sequence = validateAwardingSequence(project.awardingSequence, project.dynamicFunctionalities, ids);
     if (!sequence.ok) return sequence;
     const gridState = project.gridConfig && project.gridConfig.dynamicState;
     if (
@@ -338,6 +345,20 @@ function validateProject(project) {
         if (feed.label != null && (typeof feed.label !== 'string' || feed.label.length > 40)) {
             return { ok: false, error: 'Output feed "' + feed.id + '" has an unusable label.' };
         }
+        if (feed.video != null) {
+            const videos = feed.video;
+            const validMap =
+                videos &&
+                typeof videos === 'object' &&
+                !Array.isArray(videos) &&
+                Object.keys(videos).every((kind) => FEED_VIDEO_KINDS.has(kind) && validVideoFilename(videos[kind]));
+            if (!validVideoFilename(videos) && !validMap) {
+                return {
+                    ok: false,
+                    error: 'Output feed "' + feed.id + '" has an unusable video filename or slide-kind map.',
+                };
+            }
+        }
         if (
             !size ||
             !Number.isFinite(size.width) ||
@@ -352,11 +373,17 @@ function validateProject(project) {
         feedIds.add(feed.id);
     }
 
-    project.feedTypes = configuredFeeds.map((feed) => ({
-        id: feed.id,
-        label: feed.label || feed.id,
-        gridSize: { width: feed.gridSize.width, height: feed.gridSize.height },
-    }));
+    project.feedTypes = configuredFeeds.map((feed) => {
+        const normalized = {
+            id: feed.id,
+            label: feed.label || feed.id,
+            gridSize: { width: feed.gridSize.width, height: feed.gridSize.height },
+        };
+        if (feed.video != null) {
+            normalized.video = typeof feed.video === 'string' ? feed.video : Object.assign({}, feed.video);
+        }
+        return normalized;
+    });
 
     const routing = normalizeRouting(project.routing, project.feedTypes);
     if (!routing.ok) {

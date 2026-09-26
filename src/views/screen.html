@@ -9,7 +9,20 @@
             body {
                 background-color: var(--frame-accent, #000);
             }
-            .screen-bg-video {
+            body.grid-feed-bg {
+                background-color: transparent;
+            }
+            body.grid-feed-bg .screen-empty-logo {
+                background-color: transparent;
+            }
+            body.grid-feed-bg .screen-bg-video {
+                display: none;
+            }
+            body.has-slide-background:not(.screen-slide-background-failed) .screen-bg-video {
+                display: none;
+            }
+            .screen-bg-video,
+            .screen-slide-background {
                 position: fixed;
                 inset: 0;
                 width: 100%;
@@ -21,6 +34,9 @@
                 display: none;
             }
             body.screen-bg-video-failed .screen-bg-video {
+                display: none;
+            }
+            body.screen-slide-background-failed .screen-slide-background {
                 display: none;
             }
             .screen-preview-mark {
@@ -95,6 +111,21 @@
             muted
             playsinline
         ></video>
+        <video
+            class="screen-slide-background"
+            ng-if="slideBackground.type === 'video'"
+            ng-src="{{ slideBackground.src }}"
+            autoplay
+            loop
+            muted
+            playsinline
+        ></video>
+        <img
+            class="screen-slide-background"
+            ng-if="slideBackground.type === 'image'"
+            ng-src="{{ slideBackground.src }}"
+            alt=""
+        />
 
         <div class="screen screen-{{ screen }}" ng-class="states" ng-show="!!screen" ng-cloak>
             <div ng-include="template"></div>

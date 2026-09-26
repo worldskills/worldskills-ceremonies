@@ -13,7 +13,7 @@
                         FrameService.setActiveFrame(id);
                     };
 
-                    function stepFrame(frameId, direction, autoHighlightPodium) {
+                    function stepFrame(frameId, direction, autoHighlightPodium, confirmationHandled) {
                         var frame = FrameService.frames[frameId];
                         var sequence = FrameService.awardingSequence;
                         if (
@@ -26,7 +26,13 @@
                         }
                         if (!frame.slide) {
                             if (sequence && direction > 0) {
-                                $scope.showSlide(frameId, frame.slides[0], null, autoHighlightPodium);
+                                $scope.showSlide(
+                                    frameId,
+                                    frame.slides[0],
+                                    null,
+                                    autoHighlightPodium,
+                                    confirmationHandled
+                                );
                                 QueueScroll.scrollToActiveInFrame(frameId);
                             }
                             return;
@@ -38,7 +44,13 @@
                         if (step.state) {
                             $scope.toggleState(frameId, frame.slide, step.state, true, autoHighlightPodium);
                         } else if (step.index < frame.slides.length) {
-                            $scope.showSlide(frameId, frame.slides[step.index], step.initialState, autoHighlightPodium);
+                            $scope.showSlide(
+                                frameId,
+                                frame.slides[step.index],
+                                step.initialState,
+                                autoHighlightPodium,
+                                confirmationHandled
+                            );
                             QueueScroll.scrollToActiveInFrame(frameId);
                         } else if (sequence && direction > 0 && sequence.end === 'blank') {
                             frame.queueComplete = true;
@@ -79,12 +91,12 @@
                         FrameState.clearDynamicGroup(FrameService.awardingSequence.highlightGroup);
                     };
 
-                    $scope.prevSlideForFrame = function (frameId, autoHighlightPodium) {
-                        stepFrame(frameId, -1, autoHighlightPodium);
+                    $scope.prevSlideForFrame = function (frameId, autoHighlightPodium, confirmationHandled) {
+                        stepFrame(frameId, -1, autoHighlightPodium, confirmationHandled);
                     };
 
-                    $scope.nextSlideForFrame = function (frameId, autoHighlightPodium) {
-                        stepFrame(frameId, 1, autoHighlightPodium);
+                    $scope.nextSlideForFrame = function (frameId, autoHighlightPodium, confirmationHandled) {
+                        stepFrame(frameId, 1, autoHighlightPodium, confirmationHandled);
                     };
 
                     $scope.prevSlide = function () {

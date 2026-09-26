@@ -4,10 +4,12 @@ const { dialog } = require('electron');
 const {
     bundledTemplateDir,
     bundledDataDir,
+    bareProjectDir,
     projectFilePath,
     orderingFilePath,
     slidesFilePath,
     templateDirPath,
+    scriptsFilePath,
     projectDataDir,
 } = require('./paths');
 const { readJson, writeJson } = require('./json-store');
@@ -180,6 +182,12 @@ function copyDefaultData(dir) {
 
     if (!fs.existsSync(sponsorsDest) && fs.existsSync(sponsorsSrc)) {
         fs.cpSync(sponsorsSrc, sponsorsDest, { recursive: true });
+    }
+
+    const scriptsDest = scriptsFilePath(dir);
+    const scriptsSrc = scriptsFilePath(bareProjectDir);
+    if (!fs.existsSync(scriptsDest) && fs.existsSync(scriptsSrc)) {
+        fs.copyFileSync(scriptsSrc, scriptsDest);
     }
 }
 

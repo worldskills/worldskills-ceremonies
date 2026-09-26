@@ -14,10 +14,10 @@
                     $scope.resetFrame(action.frameId, action.feedType);
                 },
                 prevSlideForFrame: function (action) {
-                    $scope.prevSlideForFrame(action.frameId);
+                    $scope.prevSlideForFrame(action.frameId, false, action.confirmationHandled === true);
                 },
                 nextSlideForFrame: function (action) {
-                    $scope.nextSlideForFrame(action.frameId);
+                    $scope.nextSlideForFrame(action.frameId, false, action.confirmationHandled === true);
                 },
             };
 
@@ -29,7 +29,7 @@
             // before dispatch — a tablet's slideIndex is only valid against the snapshot it last saw.
             var SLIDE_ACTIONS = {
                 showSlide: function (action, slide) {
-                    $scope.showSlide(action.frameId, slide);
+                    $scope.showSlide(action.frameId, slide, null, false, action.confirmationHandled === true);
                 },
                 previewSlide: function (action, slide) {
                     $scope.previewSlide(null, action.frameId, slide);
@@ -264,7 +264,13 @@
                 }
 
                 if (action === 'show') {
-                    $scope.showSlide(command.frameId, selected, null, command.autoHighlightPodium === true);
+                    $scope.showSlide(
+                        command.frameId,
+                        selected,
+                        null,
+                        command.autoHighlightPodium === true,
+                        command.confirmationHandled === true
+                    );
                     return;
                 }
 
@@ -308,7 +314,8 @@
                                 command.frameId,
                                 frame.slides[0],
                                 null,
-                                command.autoHighlightPodium === true
+                                command.autoHighlightPodium === true,
+                                command.confirmationHandled === true
                             );
                         }
                         return;
@@ -318,7 +325,8 @@
 
                 $scope[action === 'previous' ? 'prevSlideForFrame' : 'nextSlideForFrame'](
                     command.frameId,
-                    command.autoHighlightPodium === true
+                    command.autoHighlightPodium === true,
+                    command.confirmationHandled === true
                 );
             }
 

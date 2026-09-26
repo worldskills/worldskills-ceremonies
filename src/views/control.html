@@ -189,6 +189,37 @@
                         <i class="fa fa-list-ol mr-1"></i> Queue
                     </button>
 
+                    <div class="position-relative" ng-show="hasScripts()">
+                        <button
+                            class="btn btn-white btn-sm"
+                            ng-click="scriptMenuOpen = !scriptMenuOpen"
+                            ng-disabled="scriptExporting"
+                            title="Export announcer scripts"
+                        >
+                            <i class="fa fa-file-text-o mr-1"></i>
+                            {{ scriptExporting ? 'Exporting…' : 'Scripts' }}
+                            <i class="fa fa-caret-down ml-1"></i>
+                        </button>
+                        <div
+                            class="dropdown-menu dropdown-menu-right"
+                            ng-class="{show: scriptMenuOpen}"
+                            ng-click="scriptMenuOpen = false"
+                        >
+                            <button
+                                class="dropdown-item"
+                                ng-repeat="(id, frame) in screens"
+                                ng-click="exportScripts(id)"
+                                ng-disabled="!hasScripts(id)"
+                            >
+                                <i class="fa fa-file-text-o mr-2"></i> Export {{ frame.label }}
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" ng-click="exportScripts()">
+                                <i class="fa fa-files-o mr-2"></i> Export all frames
+                            </button>
+                        </div>
+                    </div>
+
                     <button
                         class="btn btn-white btn-sm"
                         ng-class="{'btn-active-mode': windowsManagerOpen}"
@@ -211,6 +242,10 @@
                         >
                             <button class="dropdown-item" ng-click="saveProject()">
                                 <i class="fa fa-save mr-2"></i> Save project
+                            </button>
+                            <button class="dropdown-item" ng-click="reloadProject()" ng-disabled="projectReloading">
+                                <i class="fa fa-refresh mr-2"></i>
+                                {{ projectReloading ? 'Reloading project…' : 'Reload project' }}
                             </button>
                         </div>
                     </div>
@@ -392,7 +427,10 @@
                     </div>
                     <div class="queue-toolbar-actions">
                         <!-- Prev/Next through the whole queue, across all frames (list layout) -->
-                        <div class="queue-toolbar-navigation" ng-show="queueLayout === 'list' && queueList.length">
+                        <div
+                            class="queue-toolbar-navigation"
+                            ng-show="queueLayout === 'list' && queueVisibleList.length"
+                        >
                             <span
                                 class="queue-frame-chip mr-2"
                                 ng-show="screens[FrameService.activeFrameId]"
@@ -458,10 +496,10 @@
 
                 <!-- ── Pure list ── -->
                 <div class="slide-list-area" ng-show="queueLayout === 'list'">
-                    <div class="card mb-2" ng-show="queueList.length > 0">
+                    <div class="card mb-2" ng-show="queueVisibleList.length > 0">
                         <div class="list-group list-group-flush">
                             <slide-row
-                                ng-repeat="item in queueList"
+                                ng-repeat="item in queueVisibleList"
                                 frame-id="item.frameId"
                                 slide="item.slide"
                                 show-badge="true"
@@ -471,8 +509,8 @@
                             ></slide-row>
                         </div>
                     </div>
-                    <div class="text-muted p-3" ng-show="queueList.length === 0">
-                        Import results or add a free slide to build the queue.
+                    <div class="text-muted p-3" ng-show="queueVisibleList.length === 0">
+                        Import results to build the slide queue.
                     </div>
                 </div>
 
@@ -660,7 +698,7 @@
                             </div>
                             <div class="list-group list-group-flush queue-frame-card-body">
                                 <slide-row
-                                    ng-repeat="item in queueByFrame[id]"
+                                    ng-repeat="item in queueVisibleByFrame[id]"
                                     frame-id="id"
                                     slide="item.slide"
                                     on-live="showSlideFromQueue(item, null, $index, id)"
@@ -669,7 +707,7 @@
                             <div
                                 class="p-3 text-muted"
                                 style="font-size: 13px"
-                                ng-show="!queueByFrame[id] || queueByFrame[id].length === 0"
+                                ng-show="!queueVisibleByFrame[id] || queueVisibleByFrame[id].length === 0"
                             >
                                 No slides assigned to this frame.
                             </div>
@@ -781,8 +819,8 @@
 
         <div
             class="dropdown-backdrop"
-            ng-show="projectMenuOpen || feedMenuOpen || importMenuOpen || jumpMenuOpen"
-            ng-click="projectMenuOpen = feedMenuOpen = importMenuOpen = jumpMenuOpen = false"
+            ng-show="projectMenuOpen || feedMenuOpen || importMenuOpen || scriptMenuOpen || jumpMenuOpen"
+            ng-click="projectMenuOpen = feedMenuOpen = importMenuOpen = scriptMenuOpen = jumpMenuOpen = false"
         ></div>
 
         <div
@@ -896,6 +934,18 @@
                                 />
                                 <small class="text-muted">Lower numbers go first at the same queue position.</small>
                             </div>
+                            <div class="form-group col-md-6 d-flex align-items-center">
+                                <div>
+                                    <label class="mb-0 d-block">
+                                        <input type="checkbox" ng-model="freeSlideDraft.synchronized" />
+                                        Show together on all selected frames
+                                    </label>
+                                    <label class="mb-0 mt-2 d-block" ng-show="freeSlideDraft.synchronized">
+                                        <input type="checkbox" ng-model="freeSlideDraft.confirmBeforeLive" />
+                                        Confirm before showing live
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div ng-repeat="frameId in freeSlideDraft.frameIds track by frameId">
                             <label>{{ screens[frameId].label }} queue position</label>
@@ -907,6 +957,7 @@
                                         aria-label="Queue position for {{ screens[frameId].label }}"
                                     >
                                         <option value="start">Queue start</option>
+                                        <option value="afterSkills">After skills / before Best of Nation</option>
                                         <option value="before">Before skill</option>
                                         <option value="after">After skill</option>
                                         <option value="end">Queue end</option>
@@ -940,6 +991,34 @@
                                         <option value="medals">Medals</option>
                                         <option value="mfe">Medal for Excellence</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="free-slide-background-type-{{ frameId }}">Background</label>
+                                    <select
+                                        id="free-slide-background-type-{{ frameId }}"
+                                        class="form-control"
+                                        ng-model="freeSlideDraft.background[frameId].type"
+                                    >
+                                        <option value="">Default</option>
+                                        <option value="video">Video</option>
+                                        <option value="image">Image</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-8" ng-if="freeSlideDraft.background[frameId].type">
+                                    <label for="free-slide-background-file-{{ frameId }}">Filename</label>
+                                    <input
+                                        id="free-slide-background-file-{{ frameId }}"
+                                        class="form-control"
+                                        ng-model="freeSlideDraft.background[frameId].filename"
+                                        placeholder="background.{{ freeSlideDraft.background[frameId].type === 'video' ? 'mp4' : 'png' }}"
+                                        required
+                                    />
+                                    <small class="text-muted">
+                                        From template/{{ freeSlideDraft.background[frameId].type === 'video' ? 'videos'
+                                        : 'images' }}/.
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -1379,6 +1458,7 @@
         <script src="../js/services/frame.service.js"></script>
         <script src="../js/services/frame-state.service.js"></script>
         <script src="../js/services/catalog.service.js"></script>
+        <script src="../js/services/scripts.service.js"></script>
         <script src="../js/services/queue.service.js"></script>
         <script src="../js/services/queue-scroll.service.js"></script>
         <script src="../js/services/slide-step.service.js"></script>

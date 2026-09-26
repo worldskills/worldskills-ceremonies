@@ -107,6 +107,16 @@
                         var placement = window.CeremonatorFreeSlides.placementFor(definition, targetFrameId);
                         var index =
                             placement.position === 'start' ? 0 : placement.position === 'end' ? list.length : -1;
+                        if (placement.position === 'afterSkills') {
+                            index = list.length;
+                            angular.forEach(list, function (item, i) {
+                                if (
+                                    index === list.length &&
+                                    (item.slide.kind === 'bestOfNation' || item.slide.kind === 'albertVidal')
+                                )
+                                    index = i;
+                            });
+                        }
                         if (index < 0) {
                             angular.forEach(list, function (item, i) {
                                 var skill = item.slide.context && item.slide.context.skill;
@@ -216,18 +226,29 @@
                 }
             }
 
-            // assembleFrame already puts the special awards in the project's sequence order.
-            var specialFrame = FrameService.frames[albertVidalFrame];
-            if (specialFrame && specialFrame.slides) {
-                angular.forEach(specialFrame.slides, function (slide) {
-                    if (
-                        slide.kind !== 'free' &&
-                        (slide.template === 'best_of_nation.html' || slide.label === ALBERT_VIDAL_AWARD_LABEL)
-                    ) {
-                        list.push({ slide: slide, frameId: albertVidalFrame, frame: specialFrame });
-                    }
-                });
-            }
+            var specialKinds = FrameService.awardingSequence
+                ? FrameService.awardingSequence.slides
+                : [{ kind: 'bestOfNation' }, { kind: 'albertVidal' }];
+            angular.forEach(specialKinds, function (step) {
+                if (step.kind === 'bestOfNation') {
+                    angular.forEach(catalog[SLIDE_KEYS.BEST_OF_NATION] || [], function (catalogSlide) {
+                        angular.forEach(FrameService.frames, function (frame, frameId) {
+                            angular.forEach(frame.slides || [], function (slide) {
+                                if (slide.kind !== 'free' && slide.label === catalogSlide.label) {
+                                    list.push({ slide: slide, frameId: frameId, frame: frame });
+                                }
+                            });
+                        });
+                    });
+                } else if (step.kind === 'albertVidal') {
+                    var specialFrame = FrameService.frames[albertVidalFrame];
+                    angular.forEach((specialFrame && specialFrame.slides) || [], function (slide) {
+                        if (slide.kind !== 'free' && slide.label === ALBERT_VIDAL_AWARD_LABEL) {
+                            list.push({ slide: slide, frameId: albertVidalFrame, frame: specialFrame });
+                        }
+                    });
+                }
+            });
 
             list = insertFreeSlides(list);
 

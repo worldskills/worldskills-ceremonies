@@ -43,7 +43,9 @@
         };
 
         $scope.showSlide = function (frameId, slide) {
-            sendSlideAction('showSlide', frameId, slide);
+            if (window.CeremonatorLiveConfirm.allowSlide(slide)) {
+                sendSlideAction('showSlide', frameId, slide, { confirmationHandled: true });
+            }
         };
 
         $scope.previewSlide = function ($event, frameId, slide) {
@@ -77,14 +79,24 @@
         };
 
         $scope.prevSlide = function () {
-            if ($scope.FrameService.activeFrameId) {
-                RemoteTransport.send({ name: 'prevSlideForFrame', frameId: $scope.FrameService.activeFrameId });
+            var frame = currentFrame();
+            if (frame && window.CeremonatorLiveConfirm.allowStep(frame, -1)) {
+                RemoteTransport.send({
+                    name: 'prevSlideForFrame',
+                    frameId: $scope.FrameService.activeFrameId,
+                    confirmationHandled: true,
+                });
             }
         };
 
         $scope.nextSlide = function () {
-            if ($scope.FrameService.activeFrameId) {
-                RemoteTransport.send({ name: 'nextSlideForFrame', frameId: $scope.FrameService.activeFrameId });
+            var frame = currentFrame();
+            if (frame && window.CeremonatorLiveConfirm.allowStep(frame, 1)) {
+                RemoteTransport.send({
+                    name: 'nextSlideForFrame',
+                    frameId: $scope.FrameService.activeFrameId,
+                    confirmationHandled: true,
+                });
             }
         };
 

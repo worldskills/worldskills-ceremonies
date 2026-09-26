@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "languages": ["zh_CN"],
+  "templates": {
+    "callup": "And then: For No.{{skillNumber}} {{skill}}, the medal winners are: {{members}}",
+    "medals": "No.{{skillNumber}} {{skill}} {{skill.zh_CN}}项目\nPresenter: ***\n{{#bronze}}{{bronze}}{{/bronze}}{{#silver}}{{silver}}{{/silver}}{{#gold}}{{gold}}{{/gold}}Presentation & Group Photo",
+    "mfe": "Turn to the screen and congratulate the Excellence Medalists\nMedalists: Please follow our volunteers to the Avenue of Skill Dreams for glory parade and the Winner’s Circle for interviews."
+  },
+  "medalLines": {
+    "bronze": {
+      "default": "Bronze medal: {{competitors}} from {{member}}\n",
+      "zh_CN": "铜牌的获得者来自{{member.zh_CN}}！"
+    },
+    "silver": {
+      "default": "Silver medal: {{competitors}} from {{member}}\n",
+      "zh_CN": "银牌的获得者来自{{member.zh_CN}}！"
+    },
+    "gold": {
+      "default": "Gold medal: {{competitors}} from {{member}}\n",
+      "zh_CN": "金牌的获得者来自{{member.zh_CN}}！"
+    }
+  },
+  "separators": {
+    "members": { "default": ", ", "zh_CN": "、" },
+    "competitors": { "default": " and ", "zh_CN": "、" }
+  }
+}

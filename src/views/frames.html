@@ -41,6 +41,7 @@
                 // maxW/maxH are the wall's own resolution, not an available maximum.
                 var pinned = params.get("pinned") === "1";
                 var autoFit = params.get("autoFit") === "1";
+                var feedVideo = "";
 
                 if (fullscreen) document.body.classList.add("grid-fullscreen");
                 if (autoFit) document.body.classList.add("grid-autofit");
@@ -101,6 +102,48 @@
                 var sourceRequestId = 0;
                 var dynamicStateKey = "ceremonator:dynamicState";
                 var mappingErrors = {};
+                var gridVideo;
+                var currentVideo = "";
+
+                function selectedFeedVideo() {
+                    var active = cellFrames.filter(function (iframe) {
+                        return iframe.classList.contains("is-active");
+                    });
+                    if (typeof feedVideo === "string") return feedVideo;
+                    if (!feedVideo || typeof feedVideo !== "object") return "";
+                    var activeKinds = new Set(
+                        active.map(function (iframe) {
+                            return iframe.dataset.slideKind;
+                        }),
+                    );
+                    var kind = Object.keys(feedVideo).find(function (name) {
+                        return name !== "default" && activeKinds.has(name);
+                    });
+                    return (kind && feedVideo[kind]) || feedVideo.default || "";
+                }
+
+                function applyFeedVideo() {
+                    var filename = selectedFeedVideo();
+                    if (gridVideo && filename !== currentVideo) {
+                        currentVideo = filename;
+                        gridVideo.hidden = !filename;
+                        if (filename) {
+                            gridVideo.src = "wstemplate://active/videos/" + filename;
+                            gridVideo.play().catch(function () {});
+                        } else {
+                            gridVideo.removeAttribute("src");
+                            gridVideo.load();
+                        }
+                    }
+                    cellFrames.forEach(function (iframe) {
+                        if (iframe.__loaded && iframe.contentWindow) {
+                            iframe.contentWindow.postMessage(
+                                { type: "grid-feed-background", enabled: !!filename },
+                                "*",
+                            );
+                        }
+                    });
+                }
 
                 function readDynamicState() {
                     try {
@@ -147,6 +190,7 @@
                     cell.activeId = id;
                     cell.nextId = null;
                     cell.requestId = null;
+                    applyFeedVideo();
                 }
 
                 function prepareView(iframe, requestId) {
@@ -157,7 +201,9 @@
 
                 function updateCellSource(cell, state) {
                     var id = sourceFor(cell, state);
-                    if (!cell.activeId || id === cell.activeId) {
+                    // Pooled originals stay loaded and in sync while hidden. Restore them
+                    // immediately so the old highlighted source cannot receive the next slide.
+                    if (!cell.activeId || id === cell.activeId || id === cell.originalId) {
                         showCellSource(cell, id);
                     } else if (id !== cell.nextId) {
                         cell.nextId = id;
@@ -279,6 +325,7 @@
                         iframe.addEventListener("load", function () {
                             iframe.__loaded = true;
                             reportCellSizes();
+                            applyFeedVideo();
                             prepareView(iframe, cell.nextId === id ? cell.requestId : undefined);
                         });
                         fragment.appendChild(iframe);
@@ -330,6 +377,14 @@
                 function build(html) {
                     // innerHTML does not execute <script>, deliberately — grid templates are declarative.
                     root.innerHTML = html;
+                    gridVideo = document.createElement("video");
+                    gridVideo.className = "grid-bg-video";
+                    gridVideo.autoplay = true;
+                    gridVideo.loop = true;
+                    gridVideo.muted = true;
+                    gridVideo.playsInline = true;
+                    gridVideo.hidden = true;
+                    root.insertBefore(gridVideo, root.firstChild);
                     applyConditions();
                     expandEach();
                     Array.prototype.forEach.call(root.querySelectorAll("[data-frame]"), fillCell);
@@ -362,6 +417,10 @@
                                     byId[frame.id] = { frameId: frame.id, label: frame.label, accent: frame.color };
                                 }
                             });
+                            var selectedFeed = ((project && project.feedTypes) || []).find(function (item) {
+                                return item.id === feedType;
+                            });
+                            feedVideo = (selectedFeed && selectedFeed.video) || "";
                             var html = results[0];
                             if (html) return build(html);
                             else fail("file not found");
@@ -381,6 +440,16 @@
                             return item.__loaded && item.contentWindow === event.source;
                         });
                         if (iframe) iframe.__ready(data.requestId);
+                        return;
+                    }
+                    if (data.type === "grid-cell-state") {
+                        var stateIframe = cellFrames.find(function (item) {
+                            return item.contentWindow === event.source;
+                        });
+                        if (stateIframe) {
+                            stateIframe.dataset.slideKind = typeof data.kind === "string" ? data.kind : "";
+                            applyFeedVideo();
+                        }
                         return;
                     }
                     if (event.source === window || data.type !== "grid-cell-debug") return;

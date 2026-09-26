@@ -10,6 +10,7 @@ const {
     projectFilePath,
     templateDirPath,
     translationsFilePath,
+    scriptsFilePath,
     projectDataDir,
     appRoot,
     projectsRootDir,
@@ -242,6 +243,18 @@ function registerProjectIpc() {
         return { ok: true, languages: (data && data.languages) || {} };
     });
 
+    ipcMain.handle('project:readScripts', () => {
+        const activeProjectDir = projectStore.getActiveProjectDir();
+        if (!activeProjectDir) {
+            return { ok: false, scripts: {} };
+        }
+        const data = readJson(scriptsFilePath(activeProjectDir), null);
+        if (!data || data.version !== 1 || typeof data.templates !== 'object') {
+            return { ok: false, scripts: {}, error: 'Invalid scripts.json.' };
+        }
+        return { ok: true, scripts: data };
+    });
+
     ipcMain.handle('project:writeTranslations', (_event, languages) => {
         const activeProjectDir = projectStore.getActiveProjectDir();
         if (!activeProjectDir) {
@@ -250,6 +263,30 @@ function registerProjectIpc() {
         try {
             writeJson(translationsFilePath(activeProjectDir), { version: 1, languages: languages || {} });
             return { ok: true };
+        } catch (e) {
+            return { ok: false, error: e.message };
+        }
+    });
+
+    ipcMain.handle('project:exportScripts', async (_event, options) => {
+        const activeProjectDir = projectStore.getActiveProjectDir();
+        const content = options && options.content;
+        if (!activeProjectDir || typeof content !== 'string' || !content.trim()) {
+            return { ok: false, error: 'No script content to export.' };
+        }
+        let filename = String(options.filename || 'Ceremony scripts.txt')
+            .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+            .trim();
+        if (!filename.toLowerCase().endsWith('.txt')) filename += '.txt';
+        const result = await dialog.showSaveDialog({
+            title: 'Export scripts',
+            defaultPath: path.join(activeProjectDir, filename),
+            filters: [{ name: 'Text files', extensions: ['txt'] }],
+        });
+        if (result.canceled || !result.filePath) return { canceled: true };
+        try {
+            fs.writeFileSync(result.filePath, content, 'utf8');
+            return { ok: true, filePath: result.filePath };
         } catch (e) {
             return { ok: false, error: e.message };
         }

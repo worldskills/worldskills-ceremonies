@@ -43,7 +43,9 @@ const fullApi = {
         current: () => ipcRenderer.invoke('project:current'),
         saveCurrent: (project) => ipcRenderer.invoke('project:saveCurrent', project),
         readTranslations: () => ipcRenderer.invoke('project:readTranslations'),
+        readScripts: () => ipcRenderer.invoke('project:readScripts'),
         writeTranslations: (languages) => ipcRenderer.invoke('project:writeTranslations', languages),
+        exportScripts: (options) => ipcRenderer.invoke('project:exportScripts', options),
         setDirty: (dirty) => ipcRenderer.send('project:setDirty', !!dirty),
     },
     dev: {

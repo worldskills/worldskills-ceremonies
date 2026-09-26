@@ -20,6 +20,7 @@ function validCommand(command, feedIds) {
                 command.frameIds === undefined &&
                 frame(command.frameId) &&
                 (command.autoHighlightPodium === undefined || typeof command.autoHighlightPodium === 'boolean') &&
+                (command.confirmationHandled === undefined || typeof command.confirmationHandled === 'boolean') &&
                 [
                     'previous',
                     'next',

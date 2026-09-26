@@ -21,7 +21,14 @@
       "id": "slide-mu7oqkvx-ooxrqw",
       "name": "Construction and Building Technology",
       "template": "sector.html",
+      "synchronized": true,
+      "confirmBeforeLive": true,
       "states": [],
+      "background": {
+        "a": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "b": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "c": { "type": "video", "filename": "w-screen-sectors.mp4" }
+      },
       "context": { "name": "Construction and Building Technology" },
       "frameIds": ["a", "b", "c"],
       "feedType": "main",
@@ -31,6 +38,24 @@
         "c": { "position": "start", "skillNumber": "", "kind": "" }
       },
       "sort": 1
+    },
+    {
+      "id": "blank-after-construction-sector",
+      "name": "Blank",
+      "template": "empty.html",
+      "synchronized": true,
+      "confirmBeforeLive": true,
+      "clearHighlights": true,
+      "states": [],
+      "context": {},
+      "frameIds": ["a", "b", "c"],
+      "feedType": "main",
+      "placements": {
+        "a": { "position": "start", "skillNumber": "", "kind": "" },
+        "b": { "position": "start", "skillNumber": "", "kind": "" },
+        "c": { "position": "start", "skillNumber": "", "kind": "" }
+      },
+      "sort": 2
     },
     {
       "id": "blank-social-sector",
@@ -52,7 +77,15 @@
       "id": "sector-social-personal-services",
       "name": "Social and Personal Services",
       "template": "sector.html",
+      "synchronized": true,
+      "confirmBeforeLive": true,
+      "clearHighlights": true,
       "states": [],
+      "background": {
+        "a": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "b": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "c": { "type": "video", "filename": "w-screen-sectors.mp4" }
+      },
       "context": { "name": "Social and Personal Services" },
       "frameIds": ["a", "b", "c"],
       "feedType": "main",
@@ -62,6 +95,24 @@
         "c": { "position": "after", "skillNumber": "15", "kind": "" }
       },
       "sort": 1
+    },
+    {
+      "id": "blank-after-social-sector",
+      "name": "Blank",
+      "template": "empty.html",
+      "synchronized": true,
+      "confirmBeforeLive": true,
+      "clearHighlights": true,
+      "states": [],
+      "context": {},
+      "frameIds": ["a", "b", "c"],
+      "feedType": "main",
+      "placements": {
+        "a": { "position": "after", "skillNumber": "38", "kind": "" },
+        "b": { "position": "after", "skillNumber": "12", "kind": "" },
+        "c": { "position": "after", "skillNumber": "15", "kind": "" }
+      },
+      "sort": 2
     },
     {
       "id": "blank-information-sector",
@@ -83,6 +134,14 @@
       "id": "sector-information-communication-technology",
       "name": "Information and Communication Technology",
       "template": "sector.html",
+      "background": {
+        "a": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "b": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "c": { "type": "video", "filename": "w-screen-sectors.mp4" }
+      },
+      "synchronized": true,
+      "confirmBeforeLive": true,
+      "clearHighlights": true,
       "states": [],
       "context": { "name": "Information and Communication Technology" },
       "frameIds": ["a", "b", "c"],
@@ -93,6 +152,24 @@
         "c": { "position": "after", "skillNumber": "35", "kind": "" }
       },
       "sort": 1
+    },
+    {
+      "id": "blank-after-information-sector",
+      "name": "Blank",
+      "template": "empty.html",
+      "synchronized": true,
+      "confirmBeforeLive": true,
+      "clearHighlights": true,
+      "states": [],
+      "context": {},
+      "frameIds": ["a", "b", "c"],
+      "feedType": "main",
+      "placements": {
+        "a": { "position": "after", "skillNumber": "43", "kind": "" },
+        "b": { "position": "after", "skillNumber": "32", "kind": "" },
+        "c": { "position": "after", "skillNumber": "35", "kind": "" }
+      },
+      "sort": 2
     },
     {
       "id": "blank-manufacturing-sector",
@@ -114,6 +191,14 @@
       "id": "sector-manufacturing-engineering-technology",
       "name": "Manufacturing and Engineering Technology",
       "template": "sector.html",
+      "background": {
+        "a": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "b": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "c": { "type": "video", "filename": "w-screen-sectors.mp4" }
+      },
+      "synchronized": true,
+      "confirmBeforeLive": true,
+      "clearHighlights": true,
       "states": [],
       "context": { "name": "Manufacturing and Engineering Technology" },
       "frameIds": ["a", "b", "c"],
@@ -124,6 +209,24 @@
         "c": { "position": "after", "skillNumber": "09", "kind": "" }
       },
       "sort": 1
+    },
+    {
+      "id": "blank-after-manufacturing-sector",
+      "name": "Blank",
+      "template": "empty.html",
+      "synchronized": true,
+      "clearHighlights": true,
+      "confirmBeforeLive": true,
+      "states": [],
+      "context": {},
+      "frameIds": ["a", "b", "c"],
+      "feedType": "main",
+      "placements": {
+        "a": { "position": "after", "skillNumber": "11", "kind": "" },
+        "b": { "position": "after", "skillNumber": "17", "kind": "" },
+        "c": { "position": "after", "skillNumber": "09", "kind": "" }
+      },
+      "sort": 2
     },
     {
       "id": "blank-creative-sector",
@@ -145,6 +248,13 @@
       "id": "sector-creative-arts-fashion",
       "name": "Creative Arts and Fashion",
       "template": "sector.html",
+      "background": {
+        "a": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "b": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "c": { "type": "video", "filename": "w-screen-sectors.mp4" }
+      },
+      "synchronized": true,
+      "confirmBeforeLive": true,
       "states": [],
       "context": { "name": "Creative Arts and Fashion" },
       "frameIds": ["a", "b", "c"],
@@ -155,6 +265,24 @@
         "c": { "position": "after", "skillNumber": "63", "kind": "" }
       },
       "sort": 1
+    },
+    {
+      "id": "blank-after-creative-sector",
+      "name": "Blank",
+      "template": "empty.html",
+      "synchronized": true,
+      "clearHighlights": true,
+      "confirmBeforeLive": true,
+      "states": [],
+      "context": {},
+      "frameIds": ["a", "b", "c"],
+      "feedType": "main",
+      "placements": {
+        "a": { "position": "after", "skillNumber": "55", "kind": "" },
+        "b": { "position": "after", "skillNumber": "10", "kind": "" },
+        "c": { "position": "after", "skillNumber": "63", "kind": "" }
+      },
+      "sort": 2
     },
     {
       "id": "blank-transportation-sector",
@@ -176,6 +304,13 @@
       "id": "sector-transportation-logistics",
       "name": "Transportation and Logistics",
       "template": "sector.html",
+      "background": {
+        "a": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "b": { "type": "video", "filename": "w-screen-sectors.mp4" },
+        "c": { "type": "video", "filename": "w-screen-sectors.mp4" }
+      },
+      "synchronized": true,
+      "confirmBeforeLive": true,
       "states": [],
       "context": { "name": "Transportation and Logistics" },
       "frameIds": ["a", "b", "c"],
@@ -186,6 +321,40 @@
         "c": { "position": "after", "skillNumber": "27", "kind": "" }
       },
       "sort": 1
+    },
+    {
+      "id": "blank-after-transportation-sector",
+      "name": "Blank",
+      "template": "empty.html",
+      "synchronized": true,
+      "clearHighlights": true,
+      "confirmBeforeLive": true,
+      "states": [],
+      "context": {},
+      "frameIds": ["a", "b", "c"],
+      "feedType": "main",
+      "placements": {
+        "a": { "position": "after", "skillNumber": "44", "kind": "" },
+        "b": { "position": "after", "skillNumber": "40", "kind": "" },
+        "c": { "position": "after", "skillNumber": "27", "kind": "" }
+      },
+      "sort": 2
+    },
+    {
+      "id": "blank-after-skills",
+      "name": "Blank",
+      "template": "empty.html",
+      "clearHighlights": true,
+      "states": [],
+      "context": {},
+      "frameIds": ["a", "b", "c"],
+      "feedType": "main",
+      "placements": {
+        "a": { "position": "afterSkills", "skillNumber": "", "kind": "" },
+        "b": { "position": "afterSkills", "skillNumber": "", "kind": "" },
+        "c": { "position": "afterSkills", "skillNumber": "", "kind": "" }
+      },
+      "sort": 0
     }
   ]
 }

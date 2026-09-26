@@ -45,6 +45,12 @@
             if (typeof slide.clearHighlights !== 'undefined' && typeof slide.clearHighlights !== 'boolean') {
                 return 'Clear highlights must be true or false.';
             }
+            if (typeof slide.synchronized !== 'undefined' && typeof slide.synchronized !== 'boolean') {
+                return 'Synchronized must be true or false.';
+            }
+            if (typeof slide.confirmBeforeLive !== 'undefined' && typeof slide.confirmBeforeLive !== 'boolean') {
+                return 'Live confirmation must be true or false.';
+            }
             var frames = frameIds(slide);
             if (
                 !frames.length ||
@@ -59,14 +65,37 @@
                 !/^[a-zA-Z0-9_-]+$/.test(slide.feedType)
             )
                 return 'At least one destination frame and an output feed are required.';
+            if (typeof slide.background !== 'undefined') {
+                if (!slide.background || typeof slide.background !== 'object' || Array.isArray(slide.background)) {
+                    return 'Background must be an object keyed by frame ID.';
+                }
+                var backgroundFrames = Object.keys(slide.background);
+                for (var b = 0; b < backgroundFrames.length; b++) {
+                    var backgroundFrame = backgroundFrames[b];
+                    var background = slide.background[backgroundFrame];
+                    if (
+                        frames.indexOf(backgroundFrame) < 0 ||
+                        !background ||
+                        typeof background !== 'object' ||
+                        Array.isArray(background) ||
+                        ['video', 'image'].indexOf(background.type) < 0 ||
+                        typeof background.filename !== 'string' ||
+                        !background.filename ||
+                        background.filename.length > 200 ||
+                        /[\\/]/.test(background.filename)
+                    ) {
+                        return 'Each background needs a selected frame, type (video/image), and filename.';
+                    }
+                }
+            }
             if (typeof slide.sort !== 'number' || !isFinite(slide.sort)) return 'Sort must be a finite number.';
             if (slide.placements && (typeof slide.placements !== 'object' || Array.isArray(slide.placements))) {
                 return 'Frame placements must be an object.';
             }
             for (var j = 0; j < frames.length; j++) {
                 var placement = placementFor(slide, frames[j]);
-                if (!placement || ['start', 'end', 'before', 'after'].indexOf(placement.position) < 0) {
-                    return 'Choose queue start/end or before/after a skill for every frame.';
+                if (!placement || ['start', 'afterSkills', 'end', 'before', 'after'].indexOf(placement.position) < 0) {
+                    return 'Choose queue start, after skills, queue end, or before/after a skill for every frame.';
                 }
                 if (placement.position === 'before' || placement.position === 'after') {
                     if (typeof placement.skillNumber !== 'string' || !/^\d+$/.test(placement.skillNumber)) {

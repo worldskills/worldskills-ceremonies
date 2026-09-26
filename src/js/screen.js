@@ -44,6 +44,17 @@
                 function measureFrame() {
                     $scope.frameSize = window.innerWidth + '×' + window.innerHeight;
                 }
+                function reportGridState(kind) {
+                    if ($scope.gridCols && window.parent !== window) {
+                        window.parent.postMessage(
+                            {
+                                type: 'grid-cell-state',
+                                kind: kind || '',
+                            },
+                            '*'
+                        );
+                    }
+                }
                 measureFrame();
 
                 $scope.enableFullscreen = function () {
@@ -95,6 +106,7 @@
                         $scope.states = [];
                         $scope.state = [];
                         $scope.slideLabel = '';
+                        $scope.slideBackground = null;
                         $scope.frame = {
                             id: $scope.screen,
                             label: $scope.screen,
@@ -108,10 +120,16 @@
                         };
                         document.body.dataset.frame = $scope.frame.id;
                         document.body.dataset.frameLabel = $scope.frame.label;
-                        document.body.classList.remove('has-bg-video', 'screen-bg-video-failed');
+                        document.body.classList.remove(
+                            'has-bg-video',
+                            'has-slide-background',
+                            'screen-bg-video-failed',
+                            'screen-slide-background-failed'
+                        );
                         document.documentElement.style.removeProperty('--frame-accent');
                         document.title =
                             'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.screen;
+                        reportGridState('');
                         return;
                     }
 
@@ -120,6 +138,20 @@
                     }
 
                     $scope.testMode = !!data.testMode;
+                    var background = data.background;
+                    $scope.slideBackground =
+                        background &&
+                        (background.type === 'video' || background.type === 'image') &&
+                        typeof background.filename === 'string' &&
+                        background.filename
+                            ? {
+                                  type: background.type,
+                                  src:
+                                      TEMPLATE_BASE +
+                                      (background.type === 'video' ? 'videos/' : 'images/') +
+                                      background.filename,
+                              }
+                            : null;
                     $scope.frame = {
                         id: $scope.screen,
                         label: data.frameLabel || $scope.screen,
@@ -133,10 +165,10 @@
                     };
                     document.body.dataset.frame = $scope.frame.id;
                     document.body.dataset.frameLabel = $scope.frame.label;
-                    // Lets a template's own opaque background step aside for the persistent bg video,
-                    // which now sits behind .screen-content instead of inside it.
-                    document.body.classList.toggle('has-bg-video', !!$scope.frame.video);
-                    document.body.classList.remove('screen-bg-video-failed');
+                    // Lets the template step aside for frame- or slide-level media behind .screen-content.
+                    document.body.classList.toggle('has-bg-video', !!$scope.frame.video || !!$scope.slideBackground);
+                    document.body.classList.toggle('has-slide-background', !!$scope.slideBackground);
+                    document.body.classList.remove('screen-bg-video-failed', 'screen-slide-background-failed');
                     document.title =
                         'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.frame.label;
 
@@ -154,6 +186,7 @@
                     $scope.template = data.template;
                     $scope.context = data.context;
                     $scope.slideLabel = data.label || '';
+                    reportGridState(data.kind);
                 };
 
                 $scope.loadScreen = function () {
@@ -253,6 +286,8 @@
                         var reason = target.error && target.error.message ? ' (' + target.error.message + ')' : '';
                         if (target.classList.contains('screen-bg-video')) {
                             document.body.classList.add('screen-bg-video-failed');
+                        } else if (target.classList.contains('screen-slide-background')) {
+                            document.body.classList.add('screen-slide-background-failed');
                         }
                         reportDebug(
                             type,
@@ -290,16 +325,19 @@
                     }
                     function ready() {
                         if (preparation !== gridPreparation) return;
-                        var video = document.querySelector('video.screen-bg-video');
                         var imagesReady = Array.prototype.every.call(document.images, function (img) {
                             return img.complete;
                         });
-                        var videoReady =
-                            !$scope.frame.video || (video && (video.error || (video.readyState >= 2 && !video.paused)));
+                        var videosReady = Array.prototype.every.call(
+                            document.querySelectorAll('video'),
+                            function (video) {
+                                return video.error || (video.readyState >= 2 && !video.paused);
+                            }
+                        );
                         if (
                             loadedTemplate === $scope.template &&
                             imagesReady &&
-                            videoReady &&
+                            videosReady &&
                             (!document.fonts || document.fonts.status === 'loaded')
                         ) {
                             if (requestId) {
@@ -336,6 +374,8 @@
                         });
                     } else if (data.type === 'grid-cell-prepare') {
                         prepareGridCell(data.requestId);
+                    } else if (data.type === 'grid-feed-background') {
+                        document.body.classList.toggle('grid-feed-bg', data.enabled === true);
                     }
                 });
 

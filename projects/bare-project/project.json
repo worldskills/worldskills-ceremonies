@@ -237,6 +237,9 @@
       "gridSize": {
         "width": 1100,
         "height": 500
+      },
+      "video": {
+        "bestOfNation": "w-screen-bon.mp4"
       }
     },
     {
@@ -245,6 +248,15 @@
       "gridSize": {
         "width": 800,
         "height": 500
+      },
+      "video": {
+        "default": "z-screen-sponsors.mp4",
+        "free": "z-screen-sponsors.mp4",
+        "bestOfNation": "z-screen-bon.mp4",
+        "callup": "z-screen-sponsors.mp4",
+        "medals": "z-screen-sponsors.mp4",
+        "mfe": "z-screen-sponsors.mp4",
+        "albertVidal": "z-screen-sponsors.mp4"
       }
     }
   ],
@@ -321,9 +333,7 @@
       }
     },
     "bestOfNation": {
-      "base": [
-        "secondary"
-      ],
+      "base": ["main", "secondary"],
       "stateFeed": "secondary",
       "states": {},
       "content": {}
@@ -345,7 +355,7 @@
       "lang_code": "zh_CN"
     }
   ],
-  "bestOfNationGroupSize": 5,
+  "bestOfNationGroupSize": 6,
   "remote": {
     "enabled": true,
     "port": 17321,
@@ -374,6 +384,7 @@
       },
       {
         "kind": "bestOfNation",
+        "frameId": "a",
         "highlight": true
       },
       {
