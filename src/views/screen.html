@@ -15,13 +15,8 @@
             body.grid-feed-bg .screen-empty-logo {
                 background-color: transparent;
             }
-            body.grid-feed-bg .screen-bg-video {
-                display: none;
-            }
-            body.has-slide-background:not(.screen-slide-background-failed) .screen-bg-video {
-                display: none;
-            }
-            .screen-bg-video,
+            /* One persistent <video> per URL (AssetCache); screen.js picks the visible one. */
+            .screen-pooled-video,
             .screen-slide-background {
                 position: fixed;
                 inset: 0;
@@ -30,10 +25,10 @@
                 object-fit: cover;
                 z-index: -1;
             }
-            .screen-content .screen-bg-video {
-                display: none;
+            .screen-pooled-video:not(.is-active) {
+                visibility: hidden;
             }
-            body.screen-bg-video-failed .screen-bg-video {
+            .screen-content .screen-bg-video {
                 display: none;
             }
             body.screen-slide-background-failed .screen-slide-background {
@@ -45,7 +40,7 @@
                 background: transparent !important;
                 background-image: none !important;
             }
-            body.export .screen-bg-video,
+            body.export .screen-pooled-video,
             body.export .screen-slide-background,
             body.export .screen-preview-mark,
             body.export .screen-test-mark {
@@ -117,24 +112,6 @@
         </style>
     </head>
     <body ng-class="{'preview': preview, 'export': exportMode}" style="margin: 0">
-        <video
-            class="screen-bg-video"
-            ng-if="frame.video"
-            ng-src="{{ frame.video }}"
-            autoplay
-            loop
-            muted
-            playsinline
-        ></video>
-        <video
-            class="screen-slide-background"
-            ng-if="slideBackground.type === 'video'"
-            ng-src="{{ slideBackground.src }}"
-            autoplay
-            loop
-            muted
-            playsinline
-        ></video>
         <img
             class="screen-slide-background"
             ng-if="slideBackground.type === 'image'"
@@ -174,6 +151,7 @@
         <script src="../js/directives.js"></script>
         <script src="../js/services/translations-loader.service.js"></script>
         <script src="../js/services/storage-keys.service.js"></script>
+        <script src="../js/services/asset-cache.service.js"></script>
         <script src="../js/screen.js"></script>
     </body>
 </html>

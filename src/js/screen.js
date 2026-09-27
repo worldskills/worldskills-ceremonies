@@ -5,7 +5,17 @@
         .module('ceremoniesApp')
         .controller(
             'ScreenCtrl',
-            function ($scope, $rootScope, $q, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, FEED, StorageKeys) {
+            function (
+                $scope,
+                $rootScope,
+                $q,
+                $templateRequest,
+                TEMPLATE_BASE,
+                SCREEN_TEMPLATES,
+                FEED,
+                StorageKeys,
+                AssetCache
+            ) {
                 $scope.FEED = FEED;
                 $scope.languages = [];
                 var languagesReady = false;
@@ -87,6 +97,35 @@
 
                 var renderRevision = 0;
                 var exportData = null;
+
+                // Same priority the old ng-if pair had: a free slide's background video, then the
+                // frame video (suppressed while the Grid paints a shared feed video), then the colour.
+                function applyVideo() {
+                    var bg = $scope.slideBackground;
+                    var frameVideo = ($scope.frame && $scope.frame.video) || '';
+                    var src = '';
+                    if ($scope.exportMode) {
+                        src = '';
+                    } else if (bg && bg.type === 'video' && !AssetCache.failed(bg.src)) {
+                        src = bg.src;
+                    } else if (
+                        frameVideo &&
+                        !AssetCache.failed(frameVideo) &&
+                        !document.body.classList.contains('grid-feed-bg')
+                    ) {
+                        src = frameVideo;
+                    }
+                    AssetCache.showVideo(src);
+                }
+
+                function preloadShowAssets() {
+                    if ($scope.exportMode || window.operatorFeed || !$scope.screen) return;
+                    var assets = StorageKeys.assets();
+                    AssetCache.preload({
+                        images: assets.images,
+                        videos: ((assets.videos || {})[$scope.screen] || {})[$scope.feedType],
+                    });
+                }
                 $scope.render = function () {
                     renderRevision++;
                     var data = null;
@@ -129,12 +168,12 @@
                         document.body.classList.remove(
                             'has-bg-video',
                             'has-slide-background',
-                            'screen-bg-video-failed',
                             'screen-slide-background-failed'
                         );
                         document.documentElement.style.removeProperty('--frame-accent');
                         document.title =
                             'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.screen;
+                        applyVideo();
                         reportGridState('');
                         return;
                     }
@@ -174,7 +213,8 @@
                     // Lets the template step aside for frame- or slide-level media behind .screen-content.
                     document.body.classList.toggle('has-bg-video', !!$scope.frame.video || !!$scope.slideBackground);
                     document.body.classList.toggle('has-slide-background', !!$scope.slideBackground);
-                    document.body.classList.remove('screen-bg-video-failed', 'screen-slide-background-failed');
+                    document.body.classList.remove('screen-slide-background-failed');
+                    applyVideo();
                     document.title =
                         'Ceremonies ' + ($scope.feed === FEED.PREVIEW ? 'Preview ' : '') + $scope.frame.label;
 
@@ -225,6 +265,7 @@
                         $scope.testIdx = testIdx;
                         $scope.gridCols = gridCols;
                         $scope.setScreen(screen, preview, feed, feedType);
+                        preloadShowAssets();
                     }
                 };
 
@@ -282,6 +323,8 @@
                 window.addEventListener('storage', function (e) {
                     if (e.key === $scope.storageKey()) {
                         $scope.$evalAsync($scope.render);
+                    } else if (e.key === StorageKeys.ASSETS_KEY) {
+                        preloadShowAssets();
                     } else if (e.key === StorageKeys.DYNAMIC_STATE_KEY) {
                         $scope.$evalAsync(function () {
                             $scope.dynamicState = StorageKeys.dynamicState().concat(gridState);
@@ -305,8 +348,10 @@
                         var source = target.currentSrc || target.src || target.href || 'unknown asset';
                         var type = target.tagName === 'VIDEO' ? 'video-failure' : 'load-failure';
                         var reason = target.error && target.error.message ? ' (' + target.error.message + ')' : '';
-                        if (target.classList.contains('screen-bg-video')) {
-                            document.body.classList.add('screen-bg-video-failed');
+                        if (target.classList.contains('screen-pooled-video')) {
+                            // A broken video must not paint a black box over the frame colour.
+                            target.__failed = true;
+                            $scope.$evalAsync(applyVideo);
                         } else if (target.classList.contains('screen-slide-background')) {
                             document.body.classList.add('screen-slide-background-failed');
                         }
@@ -342,8 +387,9 @@
                         var imagesReady = Array.prototype.every.call(document.images, function (img) {
                             return img.complete;
                         });
+                        // Idle pooled videos are paused on purpose; only the visible one counts.
                         var videosReady = Array.prototype.every.call(
-                            document.querySelectorAll('video'),
+                            document.querySelectorAll('video:not(.screen-pooled-video), video.is-active'),
                             function (video) {
                                 return video.error || (video.readyState >= 2 && !video.paused);
                             }
@@ -455,6 +501,7 @@
                         prepareGridCell(data.requestId);
                     } else if (data.type === 'grid-feed-background') {
                         document.body.classList.toggle('grid-feed-bg', data.enabled === true);
+                        $scope.$evalAsync(applyVideo);
                     }
                 });
 

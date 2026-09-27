@@ -66,6 +66,9 @@
 
                 if (window.ceremonator) {
                     window.ceremonator.outputs.onChanged(function () {
+                        // The session's window list is read in main at save time, but nothing in
+                        // the fingerprint changes when an output opens/closes, so save explicitly.
+                        $scope.$evalAsync(SessionSnapshot.schedule);
                         if ($scope.windowsManagerOpen) {
                             refreshOpenOutputs();
                         }

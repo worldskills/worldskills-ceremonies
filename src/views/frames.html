@@ -102,7 +102,10 @@
                 var sourceRequestId = 0;
                 var dynamicStateKey = "ceremonator:dynamicState";
                 var mappingErrors = {};
-                var gridVideo;
+                // One element per configured feed video, created up front and only shown/hidden:
+                // re-pointing a single element's src restarted the decode (a black flash) on every
+                // slide-kind change, e.g. whenever a podium highlight swapped cell sources.
+                var gridVideos = null;
                 var currentVideo = "";
 
                 function selectedFeedVideo() {
@@ -124,16 +127,16 @@
 
                 function applyFeedVideo() {
                     var filename = selectedFeedVideo();
-                    if (gridVideo && filename !== currentVideo) {
+                    if (gridVideos && filename !== currentVideo) {
                         currentVideo = filename;
-                        gridVideo.hidden = !filename;
-                        if (filename) {
-                            gridVideo.src = "wstemplate://active/videos/" + filename;
-                            gridVideo.play().catch(function () {});
-                        } else {
-                            gridVideo.removeAttribute("src");
-                            gridVideo.load();
-                        }
+                        if (filename) gridVideoFor(filename);
+                        Object.keys(gridVideos).forEach(function (name) {
+                            var video = gridVideos[name];
+                            var active = name === filename;
+                            video.classList.toggle("is-idle", !active);
+                            if (active) video.play().catch(function () {});
+                            else video.pause();
+                        });
                     }
                     cellFrames.forEach(function (iframe) {
                         if (iframe.__loaded && iframe.contentWindow) {
@@ -143,6 +146,21 @@
                             );
                         }
                     });
+                }
+
+                function gridVideoFor(filename) {
+                    if (!gridVideos[filename]) {
+                        var video = document.createElement("video");
+                        video.className = "grid-bg-video is-idle";
+                        video.loop = true;
+                        video.muted = true;
+                        video.playsInline = true;
+                        video.preload = "auto";
+                        video.src = "wstemplate://active/videos/" + filename;
+                        root.insertBefore(video, root.firstChild);
+                        gridVideos[filename] = video;
+                    }
+                    return gridVideos[filename];
                 }
 
                 function readDynamicState() {
@@ -377,14 +395,12 @@
                 function build(html) {
                     // innerHTML does not execute <script>, deliberately — grid templates are declarative.
                     root.innerHTML = html;
-                    gridVideo = document.createElement("video");
-                    gridVideo.className = "grid-bg-video";
-                    gridVideo.autoplay = true;
-                    gridVideo.loop = true;
-                    gridVideo.muted = true;
-                    gridVideo.playsInline = true;
-                    gridVideo.hidden = true;
-                    root.insertBefore(gridVideo, root.firstChild);
+                    gridVideos = {};
+                    (typeof feedVideo === "string" ? [feedVideo] : Object.values(feedVideo || {}))
+                        .filter(function (name) {
+                            return typeof name === "string" && name;
+                        })
+                        .forEach(gridVideoFor);
                     applyConditions();
                     expandEach();
                     Array.prototype.forEach.call(root.querySelectorAll("[data-frame]"), fillCell);

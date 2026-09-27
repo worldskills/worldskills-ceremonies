@@ -6,6 +6,8 @@
         // and its `storage` events are how already-open outputs hear the control panel flip it.
         var TEST_MODE_KEY = 'ceremonator:testMode';
         var DYNAMIC_STATE_KEY = 'ceremonator:dynamicState';
+        // Every flag/logo/video the show can use, written by FrameState, preloaded by each output.
+        var ASSETS_KEY = 'ceremonator:assets';
 
         function dynamicState() {
             try {
@@ -13,6 +15,14 @@
                 return angular.isArray(state) ? state : [];
             } catch (_error) {
                 return [];
+            }
+        }
+
+        function assets() {
+            try {
+                return angular.fromJson(window.localStorage.getItem(ASSETS_KEY)) || {};
+            } catch (_error) {
+                return {};
             }
         }
 
@@ -40,6 +50,8 @@
             TEST_MODE_KEY: TEST_MODE_KEY,
             DYNAMIC_STATE_KEY: DYNAMIC_STATE_KEY,
             dynamicState: dynamicState,
+            ASSETS_KEY: ASSETS_KEY,
+            assets: assets,
             testMode: testMode,
             setTestMode: setTestMode,
         };

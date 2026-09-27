@@ -229,7 +229,7 @@ function trackWindowedBounds(win) {
     return state;
 }
 
-// Guards every close path now that the native title bar (M1 fix) gives a real close button; win.__forceClose (set by closeFrameWindow) skips the dialog for already-confirmed closes.
+// Guards every close path now that the native title bar (M1 fix) gives a real close button.
 function guardLiveClose(win, req, boundsState) {
     win.on('close', (event) => {
         if (

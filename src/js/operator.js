@@ -336,6 +336,7 @@
                 $scope.FrameService.feedTypes = $scope.feeds;
                 $scope.testMode = !!snapshot.testMode;
                 $scope.assetProjectId = snapshot.assetProjectId;
+                $scope.assets = snapshot.assets || {};
                 $scope.dynamicFunctionalities = snapshot.dynamicFunctionalities || [];
                 $scope.dynamicFunctionalityGroups = snapshot.dynamicFunctionalityGroups || {};
                 $scope.dynamicState = snapshot.dynamicState || [];
@@ -727,32 +728,25 @@
 
                 // The monitor is a browser page: rewrite the desktop's wstemplate:// URLs
                 // onto this session's asset route before handing the payload over.
-                payload = JSON.parse(
-                    JSON.stringify(payload).replace(
-                        /wstemplate:\/\/(active|project)\//g,
-                        '/operator-assets/' + scope.token + '/$1/'
-                    )
-                );
+                function toAssetRoute(value) {
+                    return JSON.parse(
+                        JSON.stringify(value).replace(
+                            /wstemplate:\/\/(active|project)\//g,
+                            '/operator-assets/' + scope.token + '/$1/'
+                        )
+                    );
+                }
+                payload = toAssetRoute(payload);
+                // The control panel's show-wide list (FrameState.collectAssets), so switching
+                // frames or channels here never meets an uncached flag, logo or video.
+                var assets = toAssetRoute(scope.assets || {});
                 var templates = {};
-                var images = {};
                 var assetBase = '/operator-assets/' + encodeURIComponent(scope.token) + '/';
                 templates[payload.template] = true;
-                images[assetBase + 'project/data/flags/_placeholder.svg'] = true;
                 angular.forEach((frame && frame.slides) || [], function (slide) {
                     if (slide.template) templates[assetBase + 'active/' + slide.template] = true;
-                    angular.forEach((slide.context || {}).results || [], function (result) {
-                        if (result.memberCode) {
-                            images[assetBase + 'project/data/flags/' + encodeURIComponent(result.memberCode) + '.png'] =
-                                true;
-                        }
-                    });
                     angular.forEach(slide.feedContent || {}, function (content) {
                         if (content.template) templates[assetBase + 'active/' + content.template] = true;
-                        angular.forEach((content.context || {}).sponsors || [], function (sponsor) {
-                            if (sponsor.logo && sponsor.logo.local) {
-                                images[assetBase + 'project/data/' + encodeURI(sponsor.logo.local)] = true;
-                            }
-                        });
                     });
                 });
                 iframe.contentWindow.postMessage(
@@ -763,7 +757,11 @@
                         testMode: scope.testMode,
                         frameId: scope.frameId,
                         channel: scope.channel,
-                        assets: { templates: Object.keys(templates), images: Object.keys(images) },
+                        assets: {
+                            templates: Object.keys(templates),
+                            images: assets.images || [],
+                            videos: ((assets.videos || {})[scope.frameId] || {})[scope.feed.id] || [],
+                        },
                     },
                     location.origin
                 );

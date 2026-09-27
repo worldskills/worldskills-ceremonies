@@ -252,11 +252,7 @@
                         }
                     });
 
-                    if (
-                        action === 'live' &&
-                        command.autoHighlightPodium === true &&
-                        FrameService.awardingSequence
-                    ) {
+                    if (action === 'live' && command.autoHighlightPodium === true && FrameService.awardingSequence) {
                         FrameState.syncAwardingHighlight(command.frameId, true);
                     }
                     $scope.update(command.frameId);

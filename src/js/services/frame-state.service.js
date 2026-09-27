@@ -3,9 +3,68 @@
 
     angular
         .module('ceremoniesApp')
-        .factory('FrameState', function (FrameService, TEMPLATE_BASE, SLIDE_KEYS, StorageKeys, FEED) {
+        .factory('FrameState', function (FrameService, TEMPLATE_BASE, DATA_BASE, SLIDE_KEYS, StorageKeys, FEED) {
             var screenKey = StorageKeys.screenKey;
             var previewKey = StorageKeys.previewKey;
+            var publishedAssets = '';
+
+            // URLs must match what the templates/screen.js build, so the preloaded copy is reused.
+            function collectAssets() {
+                var images = {};
+                var videos = {};
+                images[DATA_BASE + 'flags/_placeholder.svg'] = true;
+                function addContext(context) {
+                    angular.forEach((context && context.results) || [], function (result) {
+                        if (result && result.memberCode)
+                            images[DATA_BASE + 'flags/' + result.memberCode + '.png'] = true;
+                    });
+                    angular.forEach((context && context.sponsors) || [], function (sponsor) {
+                        if (sponsor && sponsor.logo && sponsor.logo.local)
+                            images[DATA_BASE + sponsor.logo.local] = true;
+                    });
+                }
+                angular.forEach(FrameService.frames, function (frame, frameId) {
+                    angular.forEach(frame.slides || [], function (slide) {
+                        addContext(slide.context);
+                        angular.forEach(slide.feedContent || {}, function (content) {
+                            addContext(content && content.context);
+                        });
+                        var bg = slide.background;
+                        if (bg && bg.type === 'image' && bg.filename)
+                            images[TEMPLATE_BASE + 'images/' + bg.filename] = true;
+                    });
+                    videos[frameId] = {};
+                    angular.forEach(FrameService.feedTypes, function (feed) {
+                        var list = {};
+                        var frameVideo = videoFor(frame, feed.id);
+                        if (frameVideo) list[TEMPLATE_BASE + 'videos/' + frameVideo] = true;
+                        angular.forEach(frame.slides || [], function (slide) {
+                            var bg = slide.background;
+                            if (
+                                bg &&
+                                bg.type === 'video' &&
+                                bg.filename &&
+                                activeForFeed(slide, feed.id, slide.states)
+                            ) {
+                                list[TEMPLATE_BASE + 'videos/' + bg.filename] = true;
+                            }
+                        });
+                        videos[frameId][feed.id] = Object.keys(list);
+                    });
+                });
+                return { images: Object.keys(images), videos: videos };
+            }
+
+            // Written only on change: every write wakes every output's storage listener.
+            function publishAssets() {
+                var assets = collectAssets();
+                var json = angular.toJson(assets);
+                if (json !== publishedAssets) {
+                    publishedAssets = json;
+                    window.localStorage.setItem(StorageKeys.ASSETS_KEY, json);
+                }
+                return assets;
+            }
 
             function publishDynamicState() {
                 window.localStorage.setItem(StorageKeys.DYNAMIC_STATE_KEY, angular.toJson(FrameService.dynamicState));
@@ -211,7 +270,9 @@
                 syncRemote();
             }
 
+            // Every publish path ends here, so this is also where the preload list is refreshed.
             function syncRemote() {
+                var assets = publishAssets();
                 if (!window.ceremonator || !window.ceremonator.remote) {
                     return;
                 }
@@ -274,6 +335,7 @@
                     dynamicFunctionalityGroups: angular.copy(FrameService.dynamicFunctionalityGroups),
                     testMode: StorageKeys.testMode(),
                     awardingSequence: angular.copy(FrameService.awardingSequence),
+                    assets: assets,
                 });
             }
 

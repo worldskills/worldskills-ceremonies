@@ -1803,7 +1803,8 @@
               "description": null
             }
           ],
-          "local": "sponsors/119566.png"
+          "local": "sponsors/119566.png",
+          "backgroundColor": "#ffffff"
         },
         "sort": 0,
         "links": []

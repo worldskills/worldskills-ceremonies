@@ -211,15 +211,14 @@ function openGridWindow(config) {
         ].join('&'),
     });
 
-    attachCloseShortcuts(win, { escapeLeavesFullscreen: true, forceCloseOnShift: true });
+    const closePrompt = {
+        title: 'Close grid view?',
+        message: 'This closes the grid view. Any frame with its own independent live window is unaffected.',
+    };
+    attachCloseShortcuts(win, { escapeLeavesFullscreen: true, forceCloseOnShift: true, confirm: closePrompt });
 
     win.on('close', (event) => {
-        if (
-            !confirmClose(win, {
-                title: 'Close grid view?',
-                message: 'This closes the grid view. Any frame with its own independent live window is unaffected.',
-            })
-        ) {
+        if (!confirmClose(win, closePrompt)) {
             event.preventDefault();
         }
     });

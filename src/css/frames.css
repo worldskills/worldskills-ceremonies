@@ -36,6 +36,11 @@ body.grid-autofit {
     object-fit: cover;
 }
 
+/* Hidden, not display:none, so the paused video keeps its decoded frame ready. */
+.grid-bg-video.is-idle {
+    visibility: hidden;
+}
+
 .frames-grid {
     position: relative;
     display: grid;

@@ -72,6 +72,7 @@ const STATIC_FILES = {
     'screen.js',
     'services/translations-loader.service.js',
     'services/storage-keys.service.js',
+    'services/asset-cache.service.js',
     'services/remote-transport.service.js',
     'services/slide-step.service.js',
 ].forEach((name) => {

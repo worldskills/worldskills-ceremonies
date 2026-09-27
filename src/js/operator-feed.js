@@ -124,9 +124,8 @@
             $provide.constant('TEMPLATE_BASE', base + 'active/');
             $provide.constant('DATA_BASE', base + 'project/data/');
         })
-        .run(function ($rootScope, $q, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES) {
+        .run(function ($rootScope, $q, $templateRequest, TEMPLATE_BASE, SCREEN_TEMPLATES, AssetCache) {
             var templates = {};
-            var images = {};
             var stylesReady = $q.defer();
             window.operatorFeed.resolveStylesReady = stylesReady.resolve;
             if (window.operatorFeed.stylesLoaded) stylesReady.resolve();
@@ -165,28 +164,7 @@
                     }
                     jobs.push(templates[url]);
                 });
-                angular.forEach(assets.images || [], function (url) {
-                    if (!images[url]) {
-                        var img = new Image();
-                        var promise = $q(function (resolve) {
-                            var timer = window.setTimeout(failed, 15000);
-                            function failed() {
-                                window.clearTimeout(timer);
-                                if (images[url] && images[url].image === img) delete images[url];
-                                resolve();
-                            }
-                            img.onerror = failed;
-                            img.onload = function () {
-                                window.clearTimeout(timer);
-                                if (img.decode) $q.when(img.decode()).then(resolve, resolve);
-                                else resolve();
-                            };
-                            img.src = url;
-                        });
-                        images[url] = { image: img, promise: promise };
-                    }
-                    jobs.push(images[url].promise);
-                });
+                jobs.push(AssetCache.preload({ images: assets.images, videos: assets.videos }));
                 return $q.all(jobs);
             };
 
