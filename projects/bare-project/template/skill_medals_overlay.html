@@ -17,11 +17,11 @@
 
     .screen-medals-overlay-legend {
         position: absolute;
-        left: 16.5vw;
-        top: 69.2vh;
-        width: 30.25vw;
+        left: 18vw;
+        top: 76vh;
+        width: 60vw;
         height: 13vh;
-        padding: 0.35vh 0.7vw;
+        padding: 0.35vh 1vw;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -30,8 +30,7 @@
     }
 
     .screen-medals-overlay-wide .screen-medals-overlay-legend {
-        top: 76vh;
-        width: 78vw;
+        width: 75.5vw;
         height: 14vh;
     }
 
@@ -63,7 +62,7 @@
         min-height: 0;
         display: flex;
         flex-direction: column;
-        row-gap: 0.08em;
+        row-gap: 0.8em;
         overflow: hidden;
         font-size: 0.7em;
     }
@@ -72,10 +71,14 @@
         flex: 1 1 0;
         min-height: 0;
         display: grid;
-        grid-template-columns: 4.2em 2em minmax(0, 1fr);
+        grid-template-columns: 4.2em minmax(0, 1fr);
         align-items: center;
         column-gap: 0.35em;
         overflow: hidden;
+    }
+
+    .screen-medals-overlay-group {
+        display: contents;
     }
 
     .screen-medals-overlay-medal,
@@ -107,21 +110,27 @@
     }
 
     .screen-medals-overlay-competitors {
-        height: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        align-content: center;
-        align-items: center;
-        justify-content: flex-start;
         line-height: 1;
         text-align: left;
         text-transform: uppercase;
     }
 
-    .screen-medals-overlay-competitor {
-        display: block;
-        white-space: nowrap;
+    .screen-medals-overlay-medallists {
+        display: flex;
+        min-width: 0;
+        gap: 1em;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .screen-medals-overlay-medallist {
+        flex: 0 1 auto;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 2em minmax(0, 1fr);
+        align-items: center;
+        gap: 0.35em;
+        overflow: hidden;
     }
 
     .screen-best-of-nation-overlay-title {
@@ -188,28 +197,33 @@
             </div>
         </div>
         <div class="screen-medals-overlay-results">
-            <div
-                class="screen-medals-overlay-result screen-medal-{{ result.medal }}"
-                ng-repeat="result in context.results"
-            >
-                <div class="screen-medals-overlay-medal" ws-fit translate="{{ result.medal }}"></div>
-                <div class="screen-medals-overlay-flag-box">
-                    <img
-                        class="screen-medals-overlay-flag"
-                        ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
-                        onerror="
-                            this.onerror = null;
-                            this.src = 'wstemplate://project/data/flags/_placeholder.svg';
-                        "
-                        alt=""
-                    />
-                </div>
-                <div class="screen-medals-overlay-competitors" ws-fit>
-                    <span
-                        class="screen-medals-overlay-competitor"
-                        ng-repeat="competitor in result.competitors track by $index"
-                        >{{ competitor }}</span
-                    >
+            <div class="screen-medals-overlay-group" ng-repeat="medal in ['Gold', 'Silver', 'Bronze']">
+                <div
+                    class="screen-medals-overlay-result screen-medal-{{ medal }}"
+                    ng-if="(context.results | filter: {medal: medal}: true).length"
+                >
+                    <div class="screen-medals-overlay-medal" ws-fit translate="{{ medal }}"></div>
+                    <div class="screen-medals-overlay-medallists">
+                        <div
+                            class="screen-medals-overlay-medallist"
+                            ng-repeat="result in context.results | filter: {medal: medal}: true"
+                        >
+                            <div class="screen-medals-overlay-flag-box">
+                                <img
+                                    class="screen-medals-overlay-flag"
+                                    ng-src="wstemplate://project/data/flags/{{ result.memberCode }}.png"
+                                    onerror="
+                                        this.onerror = null;
+                                        this.src = 'wstemplate://project/data/flags/_placeholder.svg';
+                                    "
+                                    alt=""
+                                />
+                            </div>
+                            <div class="screen-medals-overlay-competitors" ws-fit>
+                                {{ result.competitors.join(', ') }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -35,7 +35,7 @@
                                 var key = memberCode
                                     ? String(memberCode) + '\u0000' + (resultSimplified.medal || '')
                                     : '__missing__' + accumulator.size;
-                                resultSimplified.flagRatio = flagRatios.get(key) || 1.5;
+                                resultSimplified.flagRatio = flagRatios.get(String(memberCode)) || 1.5;
                                 if (!accumulator.has(key)) {
                                     resultSimplified.competitors = [];
                                     accumulator.set(key, resultSimplified);
